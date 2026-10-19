@@ -159,3 +159,15 @@ with the emulator (planned, see the project notes).
   generics only those in `HAND_GENERICS` (the PLL multipliers and dividers) are passed.
 * New block tests : `mmu_63f29` (with `generics={"mmu": 1}`) and the directed `acia_tx` (a `script` of input
   changes in `BLOCKS`).
+* Number of cores : an entity with a generic `NCPUS`, or whose architecture declares a constant `NCPUS` (SoC09), is
+  generated once per number of cores (`<entity>_n1` to `_n8`) with a dispatcher `<entity>_create` that picks the
+  variant from the `g_ncpus` argument. The constants `NCPUS` and `FPU_BY_CORE` of such an architecture become
+  parameters of the create function.
+* The analyser replaces static expressions by their value (`NCPUS - 1` in a generic map or a range) and keeps what was
+  written as the *origin* of the literal. The translator uses the origin when it can translate it.
+* Static `if generate` conditions (on NCPUS) are decided when the variant is generated : the branches that do not
+  exist in the variant are not translated.
+* `inout` ports connected to a part of a vector are tied in both directions.
+* Hand-written models of the vendor primitives : IOBUF, OBUF, OBUFT, BUFG, BUFHCE, PLLE2_BASE ; of the memories :
+  RAM_61F64x1, RAM_61F512, RAM_61F32x64, ROM_27F512 (their content is reachable by the loader through
+  `vs_region_find`).

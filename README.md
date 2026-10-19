@@ -15,7 +15,7 @@ contain (host console, ELF loader, command line, companion interface, graphics) 
 | Translator VHDL to C (`tools/vhdl2c`) | working, see `docs/GENERATION.md` |
 | Core, FPU, MMU, bus arbiter, ACIA, watchdog, clocks | generated, identical to GHDL on the block tests |
 | Caches (DMC), PTM, PIA, SPI, TWI | generated and compiled, not yet checked against GHDL |
-| SoC top (`SoC09`), pads, ROM/RAM from an ELF file | in progress |
+| SoC top (`SoC09`, translated), pads, ROM/RAM/external memory from an ELF file | working, smoke-tested on 1 to 8 cores |
 | Companion interface (EXT0), graphics output | planned |
 | Validation against Vivado traces | planned |
 
@@ -31,7 +31,7 @@ The generated C is in `src/gen`, so `make emu` needs neither the VHDL nor GHDL.
 
 ## Use
 
-    build/soc63f09 --ncpus 4 --fpu shared --elf prog.elf --acia 0xF0000E000,baud=115200
+    build/soc63f09 --ncpus 4 --fpu shared --elf prog.elf --acia 0,baud=115200
 
 The number of cores (1 to 8) and the sharing of the FPU are chosen on the command line. The serial lines go to the
 console (stdin/stdout) or to files. See `docs/EMULATOR.md` for every option.
