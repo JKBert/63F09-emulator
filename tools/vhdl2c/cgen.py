@@ -4,7 +4,8 @@ import frontend
 import tdefs
 from cout import Out
 from cops import E, Ops, W, mask, wide
-from vtypes import Arr, Bit, Enum, Int, Rec, Unsupported, Vec, const_int, ctype_val, is_wide, nwords, type_name, type_of, unsupported
+from csub import Subprograms
+from vtypes import Arr, Bit, Enum, Int, Rec, Unsupported, Vec, const_int, ctype_val, is_wide, numeric_kind, nwords, type_name, type_of, unsupported
 from pyGHDL.libghdl.vhdl import nodes, nodes_meta
 
 K = nodes.Iir_Kind
@@ -31,11 +32,13 @@ class Binding:
         self.scope = scope      # owner (None for the C locals)
 
 
-class Translator(Ops):
+class Translator(Subprograms, Ops):
     def __init__(self):
         self.bindings = {}
         self.out = None
         self.scope = None
+        self.scope_of = {}          # AST node (architecture, generate body, block, process) -> Scope
+        self.local_funcs = {}       # (decl, shape) -> FuncInst of the subprograms of the scopes
 
     def path_to(self, scope):
         """C expression of the structure of `scope`, seen from the code of the current scope."""
@@ -51,6 +54,10 @@ class Translator(Ops):
 
     def binding(self, decl, node):
         b = self.bindings.get(decl)
+        if b is None and nodes.Get_Kind(decl) == K.Constant_Declaration and nodes.Get_Default_Value(decl):
+            # a constant of a package : its value is a constant expression
+            e = self.expr(nodes.Get_Default_Value(decl))
+            b = self.bindings[decl] = Binding("const", "(" + e.code + ")", type_of(nodes.Get_Type(decl)), None)
         if b is None:
             raise unsupported(node, "name has no C binding (%s)" % frontend.ident(decl))
         return b
@@ -194,6 +201,12 @@ class Translator(Ops):
     def x_Integer_Literal(self, n):
         return E("INT64_C(%d)" % nodes.Get_Value(n), Int())
 
+    def x_Enumeration_Literal(self, n):
+        t = type_of(nodes.Get_Type(n))
+        if t.kind == "bit":
+            return E("1" if frontend.ident(n).strip("'") in ("1", "H", "true") else "0", Bit())
+        return E(str(nodes.Get_Enum_Pos(n)), t)
+
     def x_Character_Literal(self, n):
         ch = frontend.ident(n).strip("'")      # 0, 1, U, H ...
         return E("1" if ch in ("1", "H") else "0", Bit())
@@ -215,7 +228,7 @@ class Translator(Ops):
         elem = base_of(nodes.Get_Element_Subtype(arr))
         names = [frontend.ident(l).strip("'") for l in frontend.list_elements_flist(nodes.Get_Enumeration_Literal_List(elem))]
         bits = "".join("1" if names[ord(c)] in ("1", "H") else "0" for c in raw)
-        signed = type_name(arr) == "signed"
+        signed = numeric_kind(arr) == "signed"
         width = len(bits)
         if width > 64:
             v = int(bits, 2)
@@ -352,16 +365,27 @@ class Translator(Ops):
             return -1
         return self.path(target)[2].width
 
+    def expr_to(self, node, target):
+        """The expression translated for assignment to `target` : an aggregate takes its shape from the target
+        when it has no bounds of its own."""
+        saved = (getattr(self, "want", None), getattr(self, "want_node", None))
+        self.want = self.target_lvalue(target)[5]
+        self.want_node = node
+        try:
+            return self.expr(node)
+        finally:
+            self.want, self.want_node = saved
+
     def s_Simple_Signal_Assignment_Statement(self, s):
         wf = nodes.Get_Waveform_Chain(s)
         if not wf or nodes.Get_Chain(wf):
             raise unsupported(s, "waveform with several elements")
         if nodes.Get_Time(wf):
             raise unsupported(s, "delayed assignment")
-        self.assign(nodes.Get_Target(s), self.expr(nodes.Get_We_Value(wf)), "sig")
+        self.assign(nodes.Get_Target(s), self.expr_to(nodes.Get_We_Value(wf), nodes.Get_Target(s)), "sig")
 
     def s_Variable_Assignment_Statement(self, s):
-        self.assign(nodes.Get_Target(s), self.expr(nodes.Get_Expression(s)), "var")
+        self.assign(nodes.Get_Target(s), self.expr_to(nodes.Get_Expression(s), nodes.Get_Target(s)), "var")
 
     def s_Conditional_Signal_Assignment_Statement(self, s):
         self.conditional(s, nodes.Get_Target(s), nodes.Get_Conditional_Waveform_Chain(s))
@@ -380,7 +404,7 @@ class Translator(Ops):
                 o.open("%sif (%s)" % ("" if first else "else ", self.cond(cond)))
             else:
                 o.open("else")
-            self.assign(target, self.expr(nodes.Get_We_Value(wf)), "sig")
+            self.assign(target, self.expr_to(nodes.Get_We_Value(wf), target), "sig")
             o.close()
             first = False
             w = nodes.Get_Chain(w)
@@ -409,7 +433,7 @@ class Translator(Ops):
             o.level += 1
             if not wf or nodes.Get_Chain(wf):
                 raise unsupported(w, "waveform with several elements")
-            self.assign(target, self.expr(nodes.Get_We_Value(wf)), "sig")
+            self.assign(target, self.expr_to(nodes.Get_We_Value(wf), target), "sig")
             o.line("break;")
             o.level -= 1
             o.line("}")
@@ -467,8 +491,7 @@ class Translator(Ops):
     def s_For_Loop_Statement(self, s):
         o = self.out
         spec = nodes.Get_Parameter_Specification(s)
-        rng = nodes.Get_Discrete_Range(spec)
-        left, right, asc = self.loop_range(rng)
+        left, right, asc = self.loop_range(spec)
         name = "i_%d" % self.new_label()
         self.bindings[spec] = Binding("local", name, Int())
         lid = self.new_label()
@@ -477,10 +500,12 @@ class Translator(Ops):
             o.open("for (int64_t %s = %s; %s <= %s; %s++)" % (name, left, name, right, name))
         else:
             o.open("for (int64_t %s = %s; %s >= %s; %s--)" % (name, left, name, right, name))
+        start = len(o.lines)
         self.stmts(nodes.Get_Sequential_Statement_Chain(s))
-        o.line("loop_next_%d:;" % lid)
+        self.loop_labels(o, start, lid)
         o.close()
-        o.line("loop_exit_%d:;" % lid)
+        if self.label_used(o, start, "loop_exit_%d" % lid):
+            o.line("loop_exit_%d:;" % lid)
         self.loops.pop()
 
     def s_While_Loop_Statement(self, s):
@@ -489,28 +514,52 @@ class Translator(Ops):
         self.loops = getattr(self, "loops", []) + [(s, lid)]
         c = nodes.Get_Condition(s)
         o.open("while (%s)" % (self.cond(c) if c else "1"))
+        start = len(o.lines)
         self.stmts(nodes.Get_Sequential_Statement_Chain(s))
-        o.line("loop_next_%d:;" % lid)
+        self.loop_labels(o, start, lid)
         o.close()
-        o.line("loop_exit_%d:;" % lid)
+        if self.label_used(o, start, "loop_exit_%d" % lid):
+            o.line("loop_exit_%d:;" % lid)
         self.loops.pop()
 
+    def label_used(self, o, start, label):
+        return any("goto %s;" % label in line for line in o.lines[start:])
+
+    def loop_labels(self, o, start, lid):
+        """The label that ends the body of a loop, when a next statement jumps to it."""
+        if self.label_used(o, start, "loop_next_%d" % lid):
+            o.line("loop_next_%d:;" % lid)
+
     def loop_range(self, rng):
-        """(left C code, right C code, ascending) of the discrete range of a loop."""
+        """(left C code, right C code, ascending) of the discrete range of a loop ; `rng` is the Iterator_Declaration
+        (the range is its Discrete_Range or, when that is empty, its subtype indication) or the range itself."""
+        if nodes.Get_Kind(rng) == K.Iterator_Declaration:
+            r = nodes.Get_Discrete_Range(rng)
+            rng = r if r else nodes.Get_Subtype_Indication(rng)
         k = nodes.Get_Kind(rng)
         if k in (K.Integer_Subtype_Definition, K.Enumeration_Subtype_Definition):
-            rng = nodes.Get_Range_Constraint(rng)
-            k = nodes.Get_Kind(rng)
+            inner = nodes.Get_Range_Constraint(rng)
+            if inner:
+                rng = inner
+                k = nodes.Get_Kind(rng)
         if k == K.Range_Expression:
             asc = nodes.Get_Direction(rng) == nodes.DirectionType.To
-            return (self.expr(nodes.Get_Left_Limit_Expr(rng)).code, self.expr(nodes.Get_Right_Limit_Expr(rng)).code, asc)
-        if k == K.Range_Array_Attribute:
+            le, re_ = nodes.Get_Left_Limit_Expr(rng), nodes.Get_Right_Limit_Expr(rng)
+            if not le:
+                raise unsupported(rng, "loop range without explicit limits")
+            return (self.expr(le).code, self.expr(re_).code, asc)
+        if k in (K.Range_Array_Attribute, K.Reverse_Range_Array_Attribute):
             ct = self.expr(nodes.Get_Prefix(rng)).ct
-            if ct.kind != "vec" or ct.width is None:
+            if ct.kind == "vec" and ct.width is not None:
+                lo, hi, asc = ct.lo, ct.hi, ct.asc
+            elif ct.kind == "arr":
+                lo, hi, asc = ct.lo, ct.hi, ct.asc
+            else:
                 raise unsupported(rng, "'range of this prefix")
-            if ct.asc:
-                return (str(ct.lo), str(ct.hi), True)
-            return (str(ct.hi), str(ct.lo), False)
+            first, last = (lo, hi) if asc else (hi, lo)
+            if k == K.Reverse_Range_Array_Attribute:
+                first, last, asc = last, first, not asc
+            return (str(first), str(last), asc)
         raise unsupported(rng, "loop range")
 
     def loop_target(self, s):
@@ -545,6 +594,10 @@ class Translator(Ops):
         (value = (lo, hi)) or 'field' (value = field name) ; expr is the associated expression node."""
         from vtypes import range_of
         items = []
+        if nodes.Get_Kind(n) == K.Simple_Aggregate:
+            for e in frontend.list_elements_flist(nodes.Get_Simple_Aggregate_List(n)):
+                items.append(("pos", None, e))
+            return items
         ch = nodes.Get_Association_Choices_Chain(n)
         cur = 0
         while ch:
@@ -568,9 +621,27 @@ class Translator(Ops):
             ch = nodes.Get_Chain(ch)
         return items
 
+    def aggregate_type(self, n, items):
+        """CT of an aggregate : its own subtype, or the one it is assigned to when it has no bounds."""
+        try:
+            t = type_of(nodes.Get_Type(n))
+            if not (t.kind == "vec" and t.width is None):
+                return t
+        except Unsupported:
+            t = None
+        want = getattr(self, "want", None)
+        root = getattr(self, "want_node", None)
+        while root and nodes.Get_Kind(root) == K.Parenthesis_Expression:
+            root = nodes.Get_Expression(root)
+        if root == n and want is not None and want.kind in ("vec", "rec", "arr") and not (want.kind == "vec" and want.width is None):
+            return want
+        if items and all(kind == "pos" for kind, v, e in items):
+            return Vec(len(items), False, 0, len(items) - 1, False)
+        raise unsupported(n, "aggregate whose shape cannot be determined")
+
     def x_Aggregate(self, n):
-        t = type_of(nodes.Get_Type(n))
         items = self.aggregate_items(n)
+        t = self.aggregate_type(n, items)
         if t.kind == "rec":
             code = "%s_zero()" % t.cname
             named = set()
@@ -616,44 +687,66 @@ class Translator(Ops):
         w = t.width
         if w is None:
             raise unsupported(n, "aggregate of unconstrained vector")
-        if w > 64:
-            code = "vs_w_zero()"
-            for kind, val, expr in items:
-                if kind == "others":
-                    code = "(%s ? vs_w_ones(%d) : vs_w_zero())" % (self.expr(expr).code, w)
-            pos = 0
-            for kind, val, expr in items:
-                e = self.expr(expr)
-                if kind == "pos":
-                    code = "vs_w_set(%s, %d, 1, %s)" % (code, w - 1 - pos, W(e))
-                    pos += 1
-                elif kind == "index":
-                    code = "vs_w_set(%s, %d, 1, %s)" % (code, t.pos(val), W(e))
-                elif kind == "range":
-                    lo = t.pos(val[0]) if not t.asc else t.pos(val[1])
-                    cnt = val[1] - val[0] + 1
-                    code = "vs_w_set(%s, %d, %d, (%s ? vs_w_ones(%d) : vs_w_zero()))" % (code, lo, cnt, e.code, cnt)
-            return E(code, t)
-        code = "0"
+        # The bits that are constants are folded ; the others are set one by one.
+        value = 0
+        dyn = []            # (bit position, count, expression)
+        fill = None
         for kind, val, expr in items:
             if kind == "others":
-                code = "(%s ? %s : 0)" % (self.expr(expr).code, mask(w))
+                fill = self.expr(expr)
+        covered = set()
         pos = 0
         for kind, val, expr in items:
+            if kind == "others":
+                continue
             e = self.expr(expr)
             if kind == "pos":
-                p = w - 1 - pos
-                code = "((%s & ~(UINT64_C(1) << %d)) | ((%s & 1) << %d))" % (code, p, e.code, p)
+                lo, cnt = w - 1 - pos, 1
                 pos += 1
             elif kind == "index":
-                p = t.pos(val)
-                code = "((%s & ~(UINT64_C(1) << %d)) | ((%s & 1) << %d))" % (code, p, e.code, p)
-            elif kind == "range":
+                lo, cnt = t.pos(val), 1
+            else:
                 lo = t.pos(val[0]) if not t.asc else t.pos(val[1])
                 cnt = val[1] - val[0] + 1
-                m = ((1 << cnt) - 1) << lo
+            for bit in range(lo, lo + cnt):
+                covered.add(bit)
+            if e.code in ("0", "1"):
+                if e.code == "1":
+                    value |= ((1 << cnt) - 1) << lo
+            else:
+                dyn.append((lo, cnt, e))
+        if fill is not None:
+            if fill.code in ("0", "1"):
+                if fill.code == "1":
+                    for bit in range(w):
+                        if bit not in covered:
+                            value |= 1 << bit
+            else:
+                runs = []
+                for bit in range(w):
+                    if bit not in covered:
+                        if runs and runs[-1][0] + runs[-1][1] == bit:
+                            runs[-1][1] += 1
+                        else:
+                            runs.append([bit, 1])
+                for lo, cnt in runs:
+                    dyn.append((lo, cnt, fill))
+        if w > 64:
+            words = ["UINT64_C(0x%X)" % ((value >> (64 * i)) & ((1 << 64) - 1)) for i in range((w + 63) // 64)]
+            code = "((vs_w){{%s}})" % ", ".join(words)
+            for lo, cnt, e in dyn:
+                code = "vs_w_set(%s, %d, %d, %s)" % (code, lo, cnt, ("(%s ? vs_w_ones(%d) : vs_w_zero())" % (e.code, cnt)) if cnt > 1 or e.ct.kind == "bit" and cnt > 1 else W(e))
+            return E(code, t)
+        code = "UINT64_C(0x%X)" % value
+        for lo, cnt, e in dyn:
+            m = ((1 << cnt) - 1) << lo
+            if cnt == 1:
+                code = "((%s & ~UINT64_C(0x%X)) | ((%s & 1) << %d))" % (code, m, e.code, lo)
+            else:
                 code = "((%s & ~UINT64_C(0x%X)) | (%s ? UINT64_C(0x%X) : 0))" % (code, m, e.code, m)
         return E(code, Vec(w, t.asc, t.lo, t.hi, t.signed) if t.kind == "vec" else t)
+
+    x_Simple_Aggregate = x_Aggregate
 
     def static_index(self, expr, n):
         from vtypes import const_int
@@ -699,12 +792,6 @@ class Translator(Ops):
             self.out.line("vs_finished = 1;")
             return
         self.user_procedure_call(s, call)
-
-    def user_call(self, n):
-        raise unsupported(n, "call of a user function")
-
-    def user_procedure_call(self, s, call):
-        raise unsupported(s, "call of a user procedure")
 
 
 def need_w(n, w):

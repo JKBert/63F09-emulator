@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include "wdg_63f46.h"
+#include "gen_funcs.h"
 
 static void wdg_63f46_p0(void *inst)
 {
@@ -72,7 +73,7 @@ static void wdg_63f46_p3(void *inst)
     wdg_63f46 *self = inst;
     if (((*self->p_rst_n).cur == 0))
     {
-        vs_drive(&self->s_counter, (0 ? UINT64_C(0xFFFFFFFF) : 0));
+        vs_drive(&self->s_counter, UINT64_C(0x0));
     }
     else if (vs_falling(&(*self->p_sysclk)))
     {
@@ -88,8 +89,8 @@ static void wdg_63f46_p4(void *inst)
     wdg_63f46 *self = inst;
     if (((*self->p_rst_n).cur == 0))
     {
-        vs_drive(&self->s_default_value, (0 ? UINT64_C(0xFFFFFFFF) : 0));
-        vs_drive(&self->s_status_register, (0 ? UINT64_C(0xFF) : 0));
+        vs_drive(&self->s_default_value, UINT64_C(0x0));
+        vs_drive(&self->s_status_register, UINT64_C(0x0));
     }
     else
     {
@@ -99,7 +100,7 @@ static void wdg_63f46_p4(void *inst)
             {
                 if (vs_falling(&(*self->p_e)))
                 {
-                    vs_drive(&(*self->p_d_out), (0 ? UINT64_C(0xFF) : 0));
+                    vs_drive(&(*self->p_d_out), UINT64_C(0x0));
                     switch ((*self->p_addr).cur)
                     {
                         case UINT64_C(0x0):
@@ -174,13 +175,14 @@ static void wdg_63f46_p4(void *inst)
         }
         else
         {
-            vs_drive(&(*self->p_d_out), (0 ? UINT64_C(0xFF) : 0));
+            vs_drive(&(*self->p_d_out), UINT64_C(0x0));
         }
     }
 }
 
 void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e, vs_sig *sysclk, vs_sig *rst_n, vs_sig *cs, vs_sig *mrdy, vs_sig *addr, vs_sig *d_in, vs_sig *d_out, vs_sig *rw_n, vs_sig *wdg_reset_n)
 {
+    (void) path;
     self->p_e = e;
     self->p_sysclk = sysclk;
     self->p_rst_n = rst_n;
@@ -195,7 +197,7 @@ void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e
     vs_name(k, &self->s_default_value, path, "default_value", 32);
     vs_register_signal(k, &self->s_counter, (uint64_t) (0));
     vs_name(k, &self->s_counter, path, "counter", 32);
-    vs_register_signal(k, &self->s_subcounter, (uint64_t) (0));
+    vs_register_signal(k, &self->s_subcounter, (uint64_t) (INT64_C(0)));
     vs_name(k, &self->s_subcounter, path, "subcounter", 64);
     vs_register_signal(k, &self->s_status_register, (uint64_t) (0));
     vs_name(k, &self->s_status_register, path, "status_register", 8);

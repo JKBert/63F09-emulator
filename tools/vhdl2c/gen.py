@@ -37,6 +37,10 @@ def ctype_decl(ct):
 
 
 def zero(ct):
+    if is_wide(ct):
+        return "vs_w_zero()"
+    if ct.kind == "int":
+        return "INT64_C(%d)" % ct.left
     return "%s_zero()" % ct.cname if ct.kind in ("rec", "arr") else "0"
 
 
@@ -136,7 +140,7 @@ class EntityGen(Translator):
                 init = nodes.Get_Default_Value(d)
                 val = self.expr(init).code if init else zero(ct)
                 s.init.line(tdefs.register_stmt("self->s_" + name, ct, val))
-                if ct.kind not in ("rec", "arr"):
+                if ct.kind not in ("rec", "arr") and not is_wide(ct):
                     s.init.line('vs_name(k, &self->s_%s, path, "%s", %d);' % (name, name, ct.width if ct.width else 64))
                 self.bindings[d] = Binding("sig", "{S}->s_" + name, ct, s)
             elif k == K.Constant_Declaration:
@@ -146,9 +150,8 @@ class EntityGen(Translator):
             elif k in (K.Type_Declaration, K.Subtype_Declaration, K.Anonymous_Type_Declaration,
                        K.Attribute_Declaration, K.Attribute_Specification, K.Use_Clause):
                 pass
-            elif k in (K.Function_Declaration, K.Procedure_Declaration) and \
-                    nodes.Get_Implicit_Definition(d) != nodes.Iir_Predefined.PNone:
-                pass            # the implicit operators of the types declared here
+            elif k in (K.Function_Declaration, K.Procedure_Declaration, K.Function_Body, K.Procedure_Body):
+                pass            # implicit operators, and the subprograms : translated when called
             else:
                 raise unsupported(d, "declaration")
             d = nodes.Get_Chain(d)
@@ -180,6 +183,7 @@ class EntityGen(Translator):
         index = s.nproc
         s.nproc += 1
         fname = "%s_p%d" % (s.struct, index)
+        self.scope_of[p] = s
         saved = self.out
         self.out = Out()
         o = self.out
@@ -201,8 +205,7 @@ class EntityGen(Translator):
             elif k in (K.Type_Declaration, K.Subtype_Declaration, K.Anonymous_Type_Declaration, K.Attribute_Declaration,
                        K.Attribute_Specification, K.Use_Clause):
                 pass
-            elif k in (K.Function_Declaration, K.Procedure_Declaration) and \
-                    nodes.Get_Implicit_Definition(d) != nodes.Iir_Predefined.PNone:
+            elif k in (K.Function_Declaration, K.Procedure_Declaration, K.Function_Body, K.Procedure_Body):
                 pass
             else:
                 raise unsupported(d, "process declaration")
@@ -219,7 +222,7 @@ class EntityGen(Translator):
 
     def storage_ct(self, n, ct):
         """CT of the storage that sigptr(n) points to (a vector part points to its vs_sig)."""
-        return ct if ct.kind in ("rec", "arr") else Bit()
+        return ct if (ct.kind in ("rec", "arr") or is_wide(ct)) else Bit()
 
     # ------------------------------------------------------------------ instances
 
@@ -306,6 +309,14 @@ class EntityGen(Translator):
             b = self.bindings.get(decl)
             if b is not None and b.kind in ("sig", "sigptr"):
                 return self.bc(b) if b.kind == "sigptr" else "&" + self.bc(b)
+        if k in (K.Selected_Element, K.Indexed_Name):
+            # a field of a record, an element of an array : an object of its own, which the port aliases
+            try:
+                pk, pcode, pct = self.path(actual)
+            except Unsupported:
+                pk = None
+            if pk == "sig" and pct.kind == ct.kind and pct.width == ct.width and (pct.kind != "vec" or True):
+                return "&" + pcode
         if k in (K.Indexed_Name, K.Slice_Name):
             code, bct, lo, width = self.sigpart(actual)
             if bct.kind == "vec":
@@ -385,7 +396,7 @@ class EntityGen(Translator):
                 if b is not None and b.kind in ("sig", "sigptr"):
                     p = self.bc(b) if b.kind == "sigptr" else "&" + self.bc(b)
                     if all(p != x[0] for x in sens):
-                        sens.append((p, b.ct if b.ct.kind in ("rec", "arr") else Bit()))
+                        sens.append((p, b.ct if (b.ct.kind in ("rec", "arr") or is_wide(b.ct)) else Bit()))
         s.procs.append((fname, body.text(), sens))
 
     # ------------------------------------------------------------------ generate and block
@@ -402,6 +413,7 @@ class EntityGen(Translator):
         """Translates a generate body into scope `sc` ; returns after restoring the current scope."""
         saved_scope, saved_out = self.scope, self.out
         self.scope = sc
+        self.scope_of[body_node] = sc
         if param is not None:
             sc.fields.append("int64_t gp_%s;" % cid(frontend.ident(param)))
             self.bindings[param] = Binding("var", "{S}->gp_" + cid(frontend.ident(param)), Int(), sc)
@@ -416,7 +428,7 @@ class EntityGen(Translator):
     def for_generate(self, g):
         parent = self.scope
         spec = nodes.Get_Parameter_Specification(g)
-        left, right, asc = self.loop_range(nodes.Get_Discrete_Range(spec))
+        left, right, asc = self.loop_range(spec)
         sc = self.new_body(None)
         label = cid(frontend.ident(g))
         self.build_body(sc, nodes.Get_Generate_Statement_Body(g), spec)
@@ -472,6 +484,7 @@ class EntityGen(Translator):
         # a block has declarations and statements like a generate body
         saved_scope = self.scope
         self.scope = sc
+        self.scope_of[b] = sc
         self.declare(nodes.Get_Declaration_Chain(b))
         self.elaborate(nodes.Get_Concurrent_Statement_Chain(b))
         self.scope = saved_scope
@@ -489,7 +502,9 @@ class EntityGen(Translator):
     def generate(self):
         self.nbodies = 0
         self.declare_interface()
+        self.scope_of[self.entity] = self.root
         if self.arch is not None:
+            self.scope_of[self.arch] = self.root
             self.declare(nodes.Get_Declaration_Chain(self.arch))
             self.elaborate(nodes.Get_Concurrent_Statement_Chain(self.arch))
         return self.header(), self.source()
@@ -539,11 +554,20 @@ class EntityGen(Translator):
             o.line()
             for b in sc.bodies:
                 pass
+        mine = [i for i in self.local_funcs.values() if i.scope is sc]
+        for i in mine:
+            o.line("static %s;" % i.proto)
+        if mine:
+            o.line()
+        for i in mine:
+            o.lines.extend(i.text.rstrip("\n").split("\n"))
+            o.line()
         for fname, body, sens in sc.procs:
             o.lines.extend(body.rstrip("\n").split("\n"))
             o.line()
         if root:
             o.open("void %s_create(%s)" % (sc.struct, self.iface.params(sc.struct)))
+            o.line("(void) path;")
             for n, ct, d in self.iface.generics:
                 o.line("self->g_%s = g_%s;" % (n, n))
             for n, ct, mode, d in self.iface.ports:
@@ -558,7 +582,9 @@ class EntityGen(Translator):
                 o.line("vs_sig *sens[%d];" % total)
                 o.line("size_t n = 0;")
                 for ptr, ct in sens:
-                    if ct.kind in ("rec", "arr"):
+                    if is_wide(ct):
+                        o.line("{ size_t j; for (j = 0; j < %d; j++) { sens[n++] = &(%s)->w[j]; } }" % (nwords(ct), ptr))
+                    elif ct.kind in ("rec", "arr"):
                         o.line("n += %s_leaves(%s, sens + n);" % (ct.cname, ptr))
                     else:
                         o.line("sens[n++] = %s;" % ptr)
@@ -574,11 +600,38 @@ class EntityGen(Translator):
         o.line(BANNER % frontend.ident(self.entity))
         o.line('#include <stdio.h>')
         o.line('#include "%s.h"' % self.name)
+        o.line('#include "gen_funcs.h"')
         for inc in sorted(set(self.all_includes(self.root)) - set(self.root.includes)):
             o.line(inc)
         o.line()
         self.emit_scope(o, self.root, True)
         return o.text()
+
+
+def write_funcs(out_dir):
+    """The subprograms of the packages, shared by all the entities."""
+    import csub
+    insts = sorted((i for i in csub.PKG_FUNCS.values() if i.text), key=lambda i: i.name)
+    h = Out()
+    h.line(BANNER % "(package subprograms)")
+    h.line("#ifndef GEN_FUNCS_H")
+    h.line("#define GEN_FUNCS_H")
+    h.line()
+    h.line('#include "gen_types.h"')
+    h.line()
+    for i in insts:
+        h.line("%s;" % i.proto)
+    h.line()
+    h.line("#endif")
+    open(os.path.join(out_dir, "gen_funcs.h"), "w").write(h.text())
+    c = Out()
+    c.line(BANNER % "(package subprograms)")
+    c.line('#include "gen_funcs.h"')
+    c.line()
+    for i in insts:
+        c.lines.extend(i.text.rstrip("\n").split("\n"))
+        c.line()
+    open(os.path.join(out_dir, "gen_funcs.c"), "w").write(c.text())
 
 
 def entity_arch(design, name):
@@ -609,7 +662,18 @@ def main(argv):
         try:
             h, c = EntityGen(design, entity).generate()
         except Unsupported as e:
+            if os.environ.get("VHDL2C_DEBUG"):
+                import traceback
+                traceback.print_exc()
             print("%s : UNSUPPORTED %s" % (name, e))
+            failed += 1
+            continue
+        except Exception as e:          # a bug of the generator : report where, and go on with the other entities
+            import traceback
+            if os.environ.get("VHDL2C_DEBUG"):
+                traceback.print_exc()
+            last = traceback.extract_tb(e.__traceback__)[-1]
+            print("%s : INTERNAL ERROR %s (%s:%d %s)" % (name, e, os.path.basename(last.filename), last.lineno, last.name))
             failed += 1
             continue
         base = cid(frontend.ident(entity))
@@ -617,6 +681,7 @@ def main(argv):
         open(os.path.join(out_dir, base + ".c"), "w").write(c)
         print("%s : generated %s.c/.h" % (name, base))
     open(os.path.join(out_dir, "gen_types.h"), "w").write(tdefs.header())
+    write_funcs(out_dir)
     return 1 if failed else 0
 
 

@@ -72,6 +72,21 @@ int main(void)
             CHECK(from_w(vs_w_set(to_w(a), lo, sw, to_w(v))) == expect);
         }
     }
+    /* signed helpers, against the native signed 128-bit arithmetic */
+    for (n = 0; n < 20000; n++)
+    {
+        unsigned width = 65 + (unsigned) (rand() % 63);
+        u128     m = mask128(width);
+        u128     a = (((u128) rnd64() << 64) | rnd64()) & m;
+        u128     b = (((u128) rnd64() << 64) | rnd64()) & m;
+        __int128 sa = (__int128) (a << (128 - width)) >> (128 - width);
+        __int128 sb = (__int128) (b << (128 - width)) >> (128 - width);
+        int64_t  sh = rand() % 140;
+
+        CHECK(vs_w_slt(to_w(a), to_w(b), width) == (sa < sb));
+        CHECK(from_w(vs_w_sext(to_w(a), width)) == (u128) sa);
+        CHECK(from_w(vs_w_sar(to_w(a), sh, width)) == (((u128) (sh >= 127 ? (sa < 0 ? (__int128) -1 : 0) : (sa >> sh))) & m));
+    }
     printf(fails ? "vwide: %d FAILURES\n" : "vwide: OK\n", fails);
     return fails != 0;
 }

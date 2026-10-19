@@ -9,6 +9,175 @@
 #include <string.h>
 #include "vwide.h"
 
+typedef struct fp_cmp_in_type
+{
+    vs_w f_data1;
+    vs_w f_data2;
+    uint64_t f_rm;
+    uint64_t f_class1;
+    uint64_t f_class2;
+} fp_cmp_in_type;
+typedef struct fp_cmp_in_type_s
+{
+    vs_sigw2 f_data1;
+    vs_sigw2 f_data2;
+    vs_sig f_rm;
+    vs_sig f_class1;
+    vs_sig f_class2;
+} fp_cmp_in_type_s;
+
+static inline fp_cmp_in_type fp_cmp_in_type_zero(void)
+{
+    fp_cmp_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_cmp_in_type fp_cmp_in_type_with_f_data1(fp_cmp_in_type v, vs_w e)
+{
+    v.f_data1 = e;
+    return v;
+}
+
+static inline fp_cmp_in_type fp_cmp_in_type_with_f_data2(fp_cmp_in_type v, vs_w e)
+{
+    v.f_data2 = e;
+    return v;
+}
+
+static inline fp_cmp_in_type fp_cmp_in_type_with_f_rm(fp_cmp_in_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_cmp_in_type fp_cmp_in_type_with_f_class1(fp_cmp_in_type v, uint64_t e)
+{
+    v.f_class1 = e;
+    return v;
+}
+
+static inline fp_cmp_in_type fp_cmp_in_type_with_f_class2(fp_cmp_in_type v, uint64_t e)
+{
+    v.f_class2 = e;
+    return v;
+}
+
+static inline fp_cmp_in_type fp_cmp_in_type_get(const fp_cmp_in_type_s *s)
+{
+    fp_cmp_in_type v;
+    v.f_data1 = vs_w_get(s->f_data1.w, 2);
+    v.f_data2 = vs_w_get(s->f_data2.w, 2);
+    v.f_rm = s->f_rm.cur;
+    v.f_class1 = s->f_class1.cur;
+    v.f_class2 = s->f_class2.cur;
+    return v;
+}
+
+static inline void fp_cmp_in_type_drive(fp_cmp_in_type_s *s, fp_cmp_in_type v)
+{
+    vs_w_drive(s->f_data1.w, 2, v.f_data1);
+    vs_w_drive(s->f_data2.w, 2, v.f_data2);
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_class1, (uint64_t) (v.f_class1));
+    vs_drive(&s->f_class2, (uint64_t) (v.f_class2));
+}
+
+static inline void fp_cmp_in_type_register(vs_kernel *k, fp_cmp_in_type_s *s, fp_cmp_in_type v)
+{
+    vs_w_register(k, s->f_data1.w, 2, v.f_data1);
+    vs_w_register(k, s->f_data2.w, 2, v.f_data2);
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_class1, (uint64_t) (v.f_class1));
+    vs_register_signal(k, &s->f_class2, (uint64_t) (v.f_class2));
+}
+
+static inline size_t fp_cmp_in_type_leaves(fp_cmp_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_data1.w[j]; } }
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_data2.w[j]; } }
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_class1;
+    out[n++] = &s->f_class2;
+    return n;
+}
+
+static inline int fp_cmp_in_type_eq(fp_cmp_in_type a, fp_cmp_in_type b)
+{
+    if (!vs_w_eq(a.f_data1, b.f_data1)) { return 0; }
+    if (!vs_w_eq(a.f_data2, b.f_data2)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_class1 == b.f_class1)) { return 0; }
+    if (!(a.f_class2 == b.f_class2)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_cmp_out_type
+{
+    uint64_t f_result;
+    uint64_t f_flags;
+} fp_cmp_out_type;
+typedef struct fp_cmp_out_type_s
+{
+    vs_sig f_result;
+    vs_sig f_flags;
+} fp_cmp_out_type_s;
+
+static inline fp_cmp_out_type fp_cmp_out_type_zero(void)
+{
+    fp_cmp_out_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_cmp_out_type fp_cmp_out_type_with_f_result(fp_cmp_out_type v, uint64_t e)
+{
+    v.f_result = e;
+    return v;
+}
+
+static inline fp_cmp_out_type fp_cmp_out_type_with_f_flags(fp_cmp_out_type v, uint64_t e)
+{
+    v.f_flags = e;
+    return v;
+}
+
+static inline fp_cmp_out_type fp_cmp_out_type_get(const fp_cmp_out_type_s *s)
+{
+    fp_cmp_out_type v;
+    v.f_result = s->f_result.cur;
+    v.f_flags = s->f_flags.cur;
+    return v;
+}
+
+static inline void fp_cmp_out_type_drive(fp_cmp_out_type_s *s, fp_cmp_out_type v)
+{
+    vs_drive(&s->f_result, (uint64_t) (v.f_result));
+    vs_drive(&s->f_flags, (uint64_t) (v.f_flags));
+}
+
+static inline void fp_cmp_out_type_register(vs_kernel *k, fp_cmp_out_type_s *s, fp_cmp_out_type v)
+{
+    vs_register_signal(k, &s->f_result, (uint64_t) (v.f_result));
+    vs_register_signal(k, &s->f_flags, (uint64_t) (v.f_flags));
+}
+
+static inline size_t fp_cmp_out_type_leaves(fp_cmp_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_result;
+    out[n++] = &s->f_flags;
+    return n;
+}
+
+static inline int fp_cmp_out_type_eq(fp_cmp_out_type a, fp_cmp_out_type b)
+{
+    if (!(a.f_result == b.f_result)) { return 0; }
+    if (!(a.f_flags == b.f_flags)) { return 0; }
+    return 1;
+}
+
 typedef struct fp_sgnj_in_type
 {
     uint64_t f_data1;
@@ -149,6 +318,5715 @@ static inline size_t fp_sgnj_out_type_leaves(fp_sgnj_out_type_s *s, vs_sig **out
 static inline int fp_sgnj_out_type_eq(fp_sgnj_out_type a, fp_sgnj_out_type b)
 {
     if (!(a.f_result == b.f_result)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_ext_in_type
+{
+    uint64_t f_data;
+    uint64_t f_fmt;
+} fp_ext_in_type;
+typedef struct fp_ext_in_type_s
+{
+    vs_sig f_data;
+    vs_sig f_fmt;
+} fp_ext_in_type_s;
+
+static inline fp_ext_in_type fp_ext_in_type_zero(void)
+{
+    fp_ext_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_ext_in_type fp_ext_in_type_with_f_data(fp_ext_in_type v, uint64_t e)
+{
+    v.f_data = e;
+    return v;
+}
+
+static inline fp_ext_in_type fp_ext_in_type_with_f_fmt(fp_ext_in_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_ext_in_type fp_ext_in_type_get(const fp_ext_in_type_s *s)
+{
+    fp_ext_in_type v;
+    v.f_data = s->f_data.cur;
+    v.f_fmt = s->f_fmt.cur;
+    return v;
+}
+
+static inline void fp_ext_in_type_drive(fp_ext_in_type_s *s, fp_ext_in_type v)
+{
+    vs_drive(&s->f_data, (uint64_t) (v.f_data));
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+}
+
+static inline void fp_ext_in_type_register(vs_kernel *k, fp_ext_in_type_s *s, fp_ext_in_type v)
+{
+    vs_register_signal(k, &s->f_data, (uint64_t) (v.f_data));
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+}
+
+static inline size_t fp_ext_in_type_leaves(fp_ext_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_data;
+    out[n++] = &s->f_fmt;
+    return n;
+}
+
+static inline int fp_ext_in_type_eq(fp_ext_in_type a, fp_ext_in_type b)
+{
+    if (!(a.f_data == b.f_data)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_ext_out_type
+{
+    vs_w f_result;
+    uint64_t f_class;
+} fp_ext_out_type;
+typedef struct fp_ext_out_type_s
+{
+    vs_sigw2 f_result;
+    vs_sig f_class;
+} fp_ext_out_type_s;
+
+static inline fp_ext_out_type fp_ext_out_type_zero(void)
+{
+    fp_ext_out_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_ext_out_type fp_ext_out_type_with_f_result(fp_ext_out_type v, vs_w e)
+{
+    v.f_result = e;
+    return v;
+}
+
+static inline fp_ext_out_type fp_ext_out_type_with_f_class(fp_ext_out_type v, uint64_t e)
+{
+    v.f_class = e;
+    return v;
+}
+
+static inline fp_ext_out_type fp_ext_out_type_get(const fp_ext_out_type_s *s)
+{
+    fp_ext_out_type v;
+    v.f_result = vs_w_get(s->f_result.w, 2);
+    v.f_class = s->f_class.cur;
+    return v;
+}
+
+static inline void fp_ext_out_type_drive(fp_ext_out_type_s *s, fp_ext_out_type v)
+{
+    vs_w_drive(s->f_result.w, 2, v.f_result);
+    vs_drive(&s->f_class, (uint64_t) (v.f_class));
+}
+
+static inline void fp_ext_out_type_register(vs_kernel *k, fp_ext_out_type_s *s, fp_ext_out_type v)
+{
+    vs_w_register(k, s->f_result.w, 2, v.f_result);
+    vs_register_signal(k, &s->f_class, (uint64_t) (v.f_class));
+}
+
+static inline size_t fp_ext_out_type_leaves(fp_ext_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_result.w[j]; } }
+    out[n++] = &s->f_class;
+    return n;
+}
+
+static inline int fp_ext_out_type_eq(fp_ext_out_type a, fp_ext_out_type b)
+{
+    if (!vs_w_eq(a.f_result, b.f_result)) { return 0; }
+    if (!(a.f_class == b.f_class)) { return 0; }
+    return 1;
+}
+
+typedef struct lzc_64_out_type
+{
+    uint64_t f_c;
+} lzc_64_out_type;
+typedef struct lzc_64_out_type_s
+{
+    vs_sig f_c;
+} lzc_64_out_type_s;
+
+static inline lzc_64_out_type lzc_64_out_type_zero(void)
+{
+    lzc_64_out_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline lzc_64_out_type lzc_64_out_type_with_f_c(lzc_64_out_type v, uint64_t e)
+{
+    v.f_c = e;
+    return v;
+}
+
+static inline lzc_64_out_type lzc_64_out_type_get(const lzc_64_out_type_s *s)
+{
+    lzc_64_out_type v;
+    v.f_c = s->f_c.cur;
+    return v;
+}
+
+static inline void lzc_64_out_type_drive(lzc_64_out_type_s *s, lzc_64_out_type v)
+{
+    vs_drive(&s->f_c, (uint64_t) (v.f_c));
+}
+
+static inline void lzc_64_out_type_register(vs_kernel *k, lzc_64_out_type_s *s, lzc_64_out_type v)
+{
+    vs_register_signal(k, &s->f_c, (uint64_t) (v.f_c));
+}
+
+static inline size_t lzc_64_out_type_leaves(lzc_64_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_c;
+    return n;
+}
+
+static inline int lzc_64_out_type_eq(lzc_64_out_type a, lzc_64_out_type b)
+{
+    if (!(a.f_c == b.f_c)) { return 0; }
+    return 1;
+}
+
+typedef struct lzc_64_in_type
+{
+    uint64_t f_a;
+} lzc_64_in_type;
+typedef struct lzc_64_in_type_s
+{
+    vs_sig f_a;
+} lzc_64_in_type_s;
+
+static inline lzc_64_in_type lzc_64_in_type_zero(void)
+{
+    lzc_64_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline lzc_64_in_type lzc_64_in_type_with_f_a(lzc_64_in_type v, uint64_t e)
+{
+    v.f_a = e;
+    return v;
+}
+
+static inline lzc_64_in_type lzc_64_in_type_get(const lzc_64_in_type_s *s)
+{
+    lzc_64_in_type v;
+    v.f_a = s->f_a.cur;
+    return v;
+}
+
+static inline void lzc_64_in_type_drive(lzc_64_in_type_s *s, lzc_64_in_type v)
+{
+    vs_drive(&s->f_a, (uint64_t) (v.f_a));
+}
+
+static inline void lzc_64_in_type_register(vs_kernel *k, lzc_64_in_type_s *s, lzc_64_in_type v)
+{
+    vs_register_signal(k, &s->f_a, (uint64_t) (v.f_a));
+}
+
+static inline size_t lzc_64_in_type_leaves(lzc_64_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_a;
+    return n;
+}
+
+static inline int lzc_64_in_type_eq(lzc_64_in_type a, lzc_64_in_type b)
+{
+    if (!(a.f_a == b.f_a)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_max_in_type
+{
+    uint64_t f_data1;
+    uint64_t f_data2;
+    vs_w f_ext1;
+    vs_w f_ext2;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    uint64_t f_class1;
+    uint64_t f_class2;
+} fp_max_in_type;
+typedef struct fp_max_in_type_s
+{
+    vs_sig f_data1;
+    vs_sig f_data2;
+    vs_sigw2 f_ext1;
+    vs_sigw2 f_ext2;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sig f_class1;
+    vs_sig f_class2;
+} fp_max_in_type_s;
+
+static inline fp_max_in_type fp_max_in_type_zero(void)
+{
+    fp_max_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_max_in_type fp_max_in_type_with_f_data1(fp_max_in_type v, uint64_t e)
+{
+    v.f_data1 = e;
+    return v;
+}
+
+static inline fp_max_in_type fp_max_in_type_with_f_data2(fp_max_in_type v, uint64_t e)
+{
+    v.f_data2 = e;
+    return v;
+}
+
+static inline fp_max_in_type fp_max_in_type_with_f_ext1(fp_max_in_type v, vs_w e)
+{
+    v.f_ext1 = e;
+    return v;
+}
+
+static inline fp_max_in_type fp_max_in_type_with_f_ext2(fp_max_in_type v, vs_w e)
+{
+    v.f_ext2 = e;
+    return v;
+}
+
+static inline fp_max_in_type fp_max_in_type_with_f_fmt(fp_max_in_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_max_in_type fp_max_in_type_with_f_rm(fp_max_in_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_max_in_type fp_max_in_type_with_f_class1(fp_max_in_type v, uint64_t e)
+{
+    v.f_class1 = e;
+    return v;
+}
+
+static inline fp_max_in_type fp_max_in_type_with_f_class2(fp_max_in_type v, uint64_t e)
+{
+    v.f_class2 = e;
+    return v;
+}
+
+static inline fp_max_in_type fp_max_in_type_get(const fp_max_in_type_s *s)
+{
+    fp_max_in_type v;
+    v.f_data1 = s->f_data1.cur;
+    v.f_data2 = s->f_data2.cur;
+    v.f_ext1 = vs_w_get(s->f_ext1.w, 2);
+    v.f_ext2 = vs_w_get(s->f_ext2.w, 2);
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_class1 = s->f_class1.cur;
+    v.f_class2 = s->f_class2.cur;
+    return v;
+}
+
+static inline void fp_max_in_type_drive(fp_max_in_type_s *s, fp_max_in_type v)
+{
+    vs_drive(&s->f_data1, (uint64_t) (v.f_data1));
+    vs_drive(&s->f_data2, (uint64_t) (v.f_data2));
+    vs_w_drive(s->f_ext1.w, 2, v.f_ext1);
+    vs_w_drive(s->f_ext2.w, 2, v.f_ext2);
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_class1, (uint64_t) (v.f_class1));
+    vs_drive(&s->f_class2, (uint64_t) (v.f_class2));
+}
+
+static inline void fp_max_in_type_register(vs_kernel *k, fp_max_in_type_s *s, fp_max_in_type v)
+{
+    vs_register_signal(k, &s->f_data1, (uint64_t) (v.f_data1));
+    vs_register_signal(k, &s->f_data2, (uint64_t) (v.f_data2));
+    vs_w_register(k, s->f_ext1.w, 2, v.f_ext1);
+    vs_w_register(k, s->f_ext2.w, 2, v.f_ext2);
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_class1, (uint64_t) (v.f_class1));
+    vs_register_signal(k, &s->f_class2, (uint64_t) (v.f_class2));
+}
+
+static inline size_t fp_max_in_type_leaves(fp_max_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_data1;
+    out[n++] = &s->f_data2;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_ext1.w[j]; } }
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_ext2.w[j]; } }
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_class1;
+    out[n++] = &s->f_class2;
+    return n;
+}
+
+static inline int fp_max_in_type_eq(fp_max_in_type a, fp_max_in_type b)
+{
+    if (!(a.f_data1 == b.f_data1)) { return 0; }
+    if (!(a.f_data2 == b.f_data2)) { return 0; }
+    if (!vs_w_eq(a.f_ext1, b.f_ext1)) { return 0; }
+    if (!vs_w_eq(a.f_ext2, b.f_ext2)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_class1 == b.f_class1)) { return 0; }
+    if (!(a.f_class2 == b.f_class2)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_max_out_type
+{
+    uint64_t f_result;
+    uint64_t f_flags;
+} fp_max_out_type;
+typedef struct fp_max_out_type_s
+{
+    vs_sig f_result;
+    vs_sig f_flags;
+} fp_max_out_type_s;
+
+static inline fp_max_out_type fp_max_out_type_zero(void)
+{
+    fp_max_out_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_max_out_type fp_max_out_type_with_f_result(fp_max_out_type v, uint64_t e)
+{
+    v.f_result = e;
+    return v;
+}
+
+static inline fp_max_out_type fp_max_out_type_with_f_flags(fp_max_out_type v, uint64_t e)
+{
+    v.f_flags = e;
+    return v;
+}
+
+static inline fp_max_out_type fp_max_out_type_get(const fp_max_out_type_s *s)
+{
+    fp_max_out_type v;
+    v.f_result = s->f_result.cur;
+    v.f_flags = s->f_flags.cur;
+    return v;
+}
+
+static inline void fp_max_out_type_drive(fp_max_out_type_s *s, fp_max_out_type v)
+{
+    vs_drive(&s->f_result, (uint64_t) (v.f_result));
+    vs_drive(&s->f_flags, (uint64_t) (v.f_flags));
+}
+
+static inline void fp_max_out_type_register(vs_kernel *k, fp_max_out_type_s *s, fp_max_out_type v)
+{
+    vs_register_signal(k, &s->f_result, (uint64_t) (v.f_result));
+    vs_register_signal(k, &s->f_flags, (uint64_t) (v.f_flags));
+}
+
+static inline size_t fp_max_out_type_leaves(fp_max_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_result;
+    out[n++] = &s->f_flags;
+    return n;
+}
+
+static inline int fp_max_out_type_eq(fp_max_out_type a, fp_max_out_type b)
+{
+    if (!(a.f_result == b.f_result)) { return 0; }
+    if (!(a.f_flags == b.f_flags)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_rnd_in_type
+{
+    uint64_t f_sig;
+    int64_t f_expo;
+    uint64_t f_mant;
+    uint64_t f_rema;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    uint64_t f_grs;
+    uint64_t f_snan;
+    uint64_t f_qnan;
+    uint64_t f_dbz;
+    uint64_t f_inf;
+    uint64_t f_zero;
+    uint64_t f_diff;
+} fp_rnd_in_type;
+typedef struct fp_rnd_in_type_s
+{
+    vs_sig f_sig;
+    vs_sig f_expo;
+    vs_sig f_mant;
+    vs_sig f_rema;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sig f_grs;
+    vs_sig f_snan;
+    vs_sig f_qnan;
+    vs_sig f_dbz;
+    vs_sig f_inf;
+    vs_sig f_zero;
+    vs_sig f_diff;
+} fp_rnd_in_type_s;
+
+static inline fp_rnd_in_type fp_rnd_in_type_zero(void)
+{
+    fp_rnd_in_type v;
+    memset(&v, 0, sizeof(v));
+    v.f_expo = INT64_C(-8191);
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_sig(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_sig = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_expo(fp_rnd_in_type v, int64_t e)
+{
+    v.f_expo = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_mant(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_mant = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_rema(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_rema = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_fmt(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_rm(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_grs(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_grs = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_snan(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_snan = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_qnan(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_qnan = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_dbz(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_dbz = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_inf(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_inf = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_zero(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_zero = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_with_f_diff(fp_rnd_in_type v, uint64_t e)
+{
+    v.f_diff = e;
+    return v;
+}
+
+static inline fp_rnd_in_type fp_rnd_in_type_get(const fp_rnd_in_type_s *s)
+{
+    fp_rnd_in_type v;
+    v.f_sig = s->f_sig.cur;
+    v.f_expo = (int64_t) s->f_expo.cur;
+    v.f_mant = s->f_mant.cur;
+    v.f_rema = s->f_rema.cur;
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_grs = s->f_grs.cur;
+    v.f_snan = s->f_snan.cur;
+    v.f_qnan = s->f_qnan.cur;
+    v.f_dbz = s->f_dbz.cur;
+    v.f_inf = s->f_inf.cur;
+    v.f_zero = s->f_zero.cur;
+    v.f_diff = s->f_diff.cur;
+    return v;
+}
+
+static inline void fp_rnd_in_type_drive(fp_rnd_in_type_s *s, fp_rnd_in_type v)
+{
+    vs_drive(&s->f_sig, (uint64_t) (v.f_sig));
+    vs_drive(&s->f_expo, (uint64_t) (v.f_expo));
+    vs_drive(&s->f_mant, (uint64_t) (v.f_mant));
+    vs_drive(&s->f_rema, (uint64_t) (v.f_rema));
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_grs, (uint64_t) (v.f_grs));
+    vs_drive(&s->f_snan, (uint64_t) (v.f_snan));
+    vs_drive(&s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_drive(&s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_drive(&s->f_inf, (uint64_t) (v.f_inf));
+    vs_drive(&s->f_zero, (uint64_t) (v.f_zero));
+    vs_drive(&s->f_diff, (uint64_t) (v.f_diff));
+}
+
+static inline void fp_rnd_in_type_register(vs_kernel *k, fp_rnd_in_type_s *s, fp_rnd_in_type v)
+{
+    vs_register_signal(k, &s->f_sig, (uint64_t) (v.f_sig));
+    vs_register_signal(k, &s->f_expo, (uint64_t) (v.f_expo));
+    vs_register_signal(k, &s->f_mant, (uint64_t) (v.f_mant));
+    vs_register_signal(k, &s->f_rema, (uint64_t) (v.f_rema));
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_grs, (uint64_t) (v.f_grs));
+    vs_register_signal(k, &s->f_snan, (uint64_t) (v.f_snan));
+    vs_register_signal(k, &s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_register_signal(k, &s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_register_signal(k, &s->f_inf, (uint64_t) (v.f_inf));
+    vs_register_signal(k, &s->f_zero, (uint64_t) (v.f_zero));
+    vs_register_signal(k, &s->f_diff, (uint64_t) (v.f_diff));
+}
+
+static inline size_t fp_rnd_in_type_leaves(fp_rnd_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_sig;
+    out[n++] = &s->f_expo;
+    out[n++] = &s->f_mant;
+    out[n++] = &s->f_rema;
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_grs;
+    out[n++] = &s->f_snan;
+    out[n++] = &s->f_qnan;
+    out[n++] = &s->f_dbz;
+    out[n++] = &s->f_inf;
+    out[n++] = &s->f_zero;
+    out[n++] = &s->f_diff;
+    return n;
+}
+
+static inline int fp_rnd_in_type_eq(fp_rnd_in_type a, fp_rnd_in_type b)
+{
+    if (!(a.f_sig == b.f_sig)) { return 0; }
+    if (!(a.f_expo == b.f_expo)) { return 0; }
+    if (!(a.f_mant == b.f_mant)) { return 0; }
+    if (!(a.f_rema == b.f_rema)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_grs == b.f_grs)) { return 0; }
+    if (!(a.f_snan == b.f_snan)) { return 0; }
+    if (!(a.f_qnan == b.f_qnan)) { return 0; }
+    if (!(a.f_dbz == b.f_dbz)) { return 0; }
+    if (!(a.f_inf == b.f_inf)) { return 0; }
+    if (!(a.f_zero == b.f_zero)) { return 0; }
+    if (!(a.f_diff == b.f_diff)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_rnd_out_type
+{
+    uint64_t f_result;
+    uint64_t f_flags;
+} fp_rnd_out_type;
+typedef struct fp_rnd_out_type_s
+{
+    vs_sig f_result;
+    vs_sig f_flags;
+} fp_rnd_out_type_s;
+
+static inline fp_rnd_out_type fp_rnd_out_type_zero(void)
+{
+    fp_rnd_out_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_rnd_out_type fp_rnd_out_type_with_f_result(fp_rnd_out_type v, uint64_t e)
+{
+    v.f_result = e;
+    return v;
+}
+
+static inline fp_rnd_out_type fp_rnd_out_type_with_f_flags(fp_rnd_out_type v, uint64_t e)
+{
+    v.f_flags = e;
+    return v;
+}
+
+static inline fp_rnd_out_type fp_rnd_out_type_get(const fp_rnd_out_type_s *s)
+{
+    fp_rnd_out_type v;
+    v.f_result = s->f_result.cur;
+    v.f_flags = s->f_flags.cur;
+    return v;
+}
+
+static inline void fp_rnd_out_type_drive(fp_rnd_out_type_s *s, fp_rnd_out_type v)
+{
+    vs_drive(&s->f_result, (uint64_t) (v.f_result));
+    vs_drive(&s->f_flags, (uint64_t) (v.f_flags));
+}
+
+static inline void fp_rnd_out_type_register(vs_kernel *k, fp_rnd_out_type_s *s, fp_rnd_out_type v)
+{
+    vs_register_signal(k, &s->f_result, (uint64_t) (v.f_result));
+    vs_register_signal(k, &s->f_flags, (uint64_t) (v.f_flags));
+}
+
+static inline size_t fp_rnd_out_type_leaves(fp_rnd_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_result;
+    out[n++] = &s->f_flags;
+    return n;
+}
+
+static inline int fp_rnd_out_type_eq(fp_rnd_out_type a, fp_rnd_out_type b)
+{
+    if (!(a.f_result == b.f_result)) { return 0; }
+    if (!(a.f_flags == b.f_flags)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_cvt_f2f_in_type
+{
+    vs_w f_data;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    uint64_t f_class;
+} fp_cvt_f2f_in_type;
+typedef struct fp_cvt_f2f_in_type_s
+{
+    vs_sigw2 f_data;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sig f_class;
+} fp_cvt_f2f_in_type_s;
+
+static inline fp_cvt_f2f_in_type fp_cvt_f2f_in_type_zero(void)
+{
+    fp_cvt_f2f_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_cvt_f2f_in_type fp_cvt_f2f_in_type_with_f_data(fp_cvt_f2f_in_type v, vs_w e)
+{
+    v.f_data = e;
+    return v;
+}
+
+static inline fp_cvt_f2f_in_type fp_cvt_f2f_in_type_with_f_fmt(fp_cvt_f2f_in_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_cvt_f2f_in_type fp_cvt_f2f_in_type_with_f_rm(fp_cvt_f2f_in_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_cvt_f2f_in_type fp_cvt_f2f_in_type_with_f_class(fp_cvt_f2f_in_type v, uint64_t e)
+{
+    v.f_class = e;
+    return v;
+}
+
+static inline fp_cvt_f2f_in_type fp_cvt_f2f_in_type_get(const fp_cvt_f2f_in_type_s *s)
+{
+    fp_cvt_f2f_in_type v;
+    v.f_data = vs_w_get(s->f_data.w, 2);
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_class = s->f_class.cur;
+    return v;
+}
+
+static inline void fp_cvt_f2f_in_type_drive(fp_cvt_f2f_in_type_s *s, fp_cvt_f2f_in_type v)
+{
+    vs_w_drive(s->f_data.w, 2, v.f_data);
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_class, (uint64_t) (v.f_class));
+}
+
+static inline void fp_cvt_f2f_in_type_register(vs_kernel *k, fp_cvt_f2f_in_type_s *s, fp_cvt_f2f_in_type v)
+{
+    vs_w_register(k, s->f_data.w, 2, v.f_data);
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_class, (uint64_t) (v.f_class));
+}
+
+static inline size_t fp_cvt_f2f_in_type_leaves(fp_cvt_f2f_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_data.w[j]; } }
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_class;
+    return n;
+}
+
+static inline int fp_cvt_f2f_in_type_eq(fp_cvt_f2f_in_type a, fp_cvt_f2f_in_type b)
+{
+    if (!vs_w_eq(a.f_data, b.f_data)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_class == b.f_class)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_cvt_f2f_out_type
+{
+    fp_rnd_in_type f_fp_rnd;
+} fp_cvt_f2f_out_type;
+typedef struct fp_cvt_f2f_out_type_s
+{
+    fp_rnd_in_type_s f_fp_rnd;
+} fp_cvt_f2f_out_type_s;
+
+static inline fp_cvt_f2f_out_type fp_cvt_f2f_out_type_zero(void)
+{
+    fp_cvt_f2f_out_type v;
+    memset(&v, 0, sizeof(v));
+    v.f_fp_rnd = fp_rnd_in_type_zero();
+    return v;
+}
+
+static inline fp_cvt_f2f_out_type fp_cvt_f2f_out_type_with_f_fp_rnd(fp_cvt_f2f_out_type v, fp_rnd_in_type e)
+{
+    v.f_fp_rnd = e;
+    return v;
+}
+
+static inline fp_cvt_f2f_out_type fp_cvt_f2f_out_type_get(const fp_cvt_f2f_out_type_s *s)
+{
+    fp_cvt_f2f_out_type v;
+    v.f_fp_rnd = fp_rnd_in_type_get(&s->f_fp_rnd);
+    return v;
+}
+
+static inline void fp_cvt_f2f_out_type_drive(fp_cvt_f2f_out_type_s *s, fp_cvt_f2f_out_type v)
+{
+    fp_rnd_in_type_drive(&s->f_fp_rnd, v.f_fp_rnd);
+}
+
+static inline void fp_cvt_f2f_out_type_register(vs_kernel *k, fp_cvt_f2f_out_type_s *s, fp_cvt_f2f_out_type v)
+{
+    fp_rnd_in_type_register(k, &s->f_fp_rnd, v.f_fp_rnd);
+}
+
+static inline size_t fp_cvt_f2f_out_type_leaves(fp_cvt_f2f_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    n += fp_rnd_in_type_leaves(&s->f_fp_rnd, out + n);
+    return n;
+}
+
+static inline int fp_cvt_f2f_out_type_eq(fp_cvt_f2f_out_type a, fp_cvt_f2f_out_type b)
+{
+    if (!fp_rnd_in_type_eq(a.f_fp_rnd, b.f_fp_rnd)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_operation_type
+{
+    uint64_t f_fmadd;
+    uint64_t f_fmsub;
+    uint64_t f_fnmadd;
+    uint64_t f_fnmsub;
+    uint64_t f_fadd;
+    uint64_t f_fsub;
+    uint64_t f_fmul;
+    uint64_t f_fdiv;
+    uint64_t f_fsqrt;
+    uint64_t f_fsgnj;
+    uint64_t f_fcmp;
+    uint64_t f_fmax;
+    uint64_t f_fclass;
+    uint64_t f_fmv_i2f;
+    uint64_t f_fmv_f2i;
+    uint64_t f_fcvt_f2f;
+    uint64_t f_fcvt_i2f;
+    uint64_t f_fcvt_f2i;
+    uint64_t f_fcvt_op;
+} fp_operation_type;
+typedef struct fp_operation_type_s
+{
+    vs_sig f_fmadd;
+    vs_sig f_fmsub;
+    vs_sig f_fnmadd;
+    vs_sig f_fnmsub;
+    vs_sig f_fadd;
+    vs_sig f_fsub;
+    vs_sig f_fmul;
+    vs_sig f_fdiv;
+    vs_sig f_fsqrt;
+    vs_sig f_fsgnj;
+    vs_sig f_fcmp;
+    vs_sig f_fmax;
+    vs_sig f_fclass;
+    vs_sig f_fmv_i2f;
+    vs_sig f_fmv_f2i;
+    vs_sig f_fcvt_f2f;
+    vs_sig f_fcvt_i2f;
+    vs_sig f_fcvt_f2i;
+    vs_sig f_fcvt_op;
+} fp_operation_type_s;
+
+static inline fp_operation_type fp_operation_type_zero(void)
+{
+    fp_operation_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fmadd(fp_operation_type v, uint64_t e)
+{
+    v.f_fmadd = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fmsub(fp_operation_type v, uint64_t e)
+{
+    v.f_fmsub = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fnmadd(fp_operation_type v, uint64_t e)
+{
+    v.f_fnmadd = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fnmsub(fp_operation_type v, uint64_t e)
+{
+    v.f_fnmsub = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fadd(fp_operation_type v, uint64_t e)
+{
+    v.f_fadd = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fsub(fp_operation_type v, uint64_t e)
+{
+    v.f_fsub = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fmul(fp_operation_type v, uint64_t e)
+{
+    v.f_fmul = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fdiv(fp_operation_type v, uint64_t e)
+{
+    v.f_fdiv = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fsqrt(fp_operation_type v, uint64_t e)
+{
+    v.f_fsqrt = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fsgnj(fp_operation_type v, uint64_t e)
+{
+    v.f_fsgnj = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fcmp(fp_operation_type v, uint64_t e)
+{
+    v.f_fcmp = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fmax(fp_operation_type v, uint64_t e)
+{
+    v.f_fmax = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fclass(fp_operation_type v, uint64_t e)
+{
+    v.f_fclass = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fmv_i2f(fp_operation_type v, uint64_t e)
+{
+    v.f_fmv_i2f = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fmv_f2i(fp_operation_type v, uint64_t e)
+{
+    v.f_fmv_f2i = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fcvt_f2f(fp_operation_type v, uint64_t e)
+{
+    v.f_fcvt_f2f = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fcvt_i2f(fp_operation_type v, uint64_t e)
+{
+    v.f_fcvt_i2f = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fcvt_f2i(fp_operation_type v, uint64_t e)
+{
+    v.f_fcvt_f2i = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_with_f_fcvt_op(fp_operation_type v, uint64_t e)
+{
+    v.f_fcvt_op = e;
+    return v;
+}
+
+static inline fp_operation_type fp_operation_type_get(const fp_operation_type_s *s)
+{
+    fp_operation_type v;
+    v.f_fmadd = s->f_fmadd.cur;
+    v.f_fmsub = s->f_fmsub.cur;
+    v.f_fnmadd = s->f_fnmadd.cur;
+    v.f_fnmsub = s->f_fnmsub.cur;
+    v.f_fadd = s->f_fadd.cur;
+    v.f_fsub = s->f_fsub.cur;
+    v.f_fmul = s->f_fmul.cur;
+    v.f_fdiv = s->f_fdiv.cur;
+    v.f_fsqrt = s->f_fsqrt.cur;
+    v.f_fsgnj = s->f_fsgnj.cur;
+    v.f_fcmp = s->f_fcmp.cur;
+    v.f_fmax = s->f_fmax.cur;
+    v.f_fclass = s->f_fclass.cur;
+    v.f_fmv_i2f = s->f_fmv_i2f.cur;
+    v.f_fmv_f2i = s->f_fmv_f2i.cur;
+    v.f_fcvt_f2f = s->f_fcvt_f2f.cur;
+    v.f_fcvt_i2f = s->f_fcvt_i2f.cur;
+    v.f_fcvt_f2i = s->f_fcvt_f2i.cur;
+    v.f_fcvt_op = s->f_fcvt_op.cur;
+    return v;
+}
+
+static inline void fp_operation_type_drive(fp_operation_type_s *s, fp_operation_type v)
+{
+    vs_drive(&s->f_fmadd, (uint64_t) (v.f_fmadd));
+    vs_drive(&s->f_fmsub, (uint64_t) (v.f_fmsub));
+    vs_drive(&s->f_fnmadd, (uint64_t) (v.f_fnmadd));
+    vs_drive(&s->f_fnmsub, (uint64_t) (v.f_fnmsub));
+    vs_drive(&s->f_fadd, (uint64_t) (v.f_fadd));
+    vs_drive(&s->f_fsub, (uint64_t) (v.f_fsub));
+    vs_drive(&s->f_fmul, (uint64_t) (v.f_fmul));
+    vs_drive(&s->f_fdiv, (uint64_t) (v.f_fdiv));
+    vs_drive(&s->f_fsqrt, (uint64_t) (v.f_fsqrt));
+    vs_drive(&s->f_fsgnj, (uint64_t) (v.f_fsgnj));
+    vs_drive(&s->f_fcmp, (uint64_t) (v.f_fcmp));
+    vs_drive(&s->f_fmax, (uint64_t) (v.f_fmax));
+    vs_drive(&s->f_fclass, (uint64_t) (v.f_fclass));
+    vs_drive(&s->f_fmv_i2f, (uint64_t) (v.f_fmv_i2f));
+    vs_drive(&s->f_fmv_f2i, (uint64_t) (v.f_fmv_f2i));
+    vs_drive(&s->f_fcvt_f2f, (uint64_t) (v.f_fcvt_f2f));
+    vs_drive(&s->f_fcvt_i2f, (uint64_t) (v.f_fcvt_i2f));
+    vs_drive(&s->f_fcvt_f2i, (uint64_t) (v.f_fcvt_f2i));
+    vs_drive(&s->f_fcvt_op, (uint64_t) (v.f_fcvt_op));
+}
+
+static inline void fp_operation_type_register(vs_kernel *k, fp_operation_type_s *s, fp_operation_type v)
+{
+    vs_register_signal(k, &s->f_fmadd, (uint64_t) (v.f_fmadd));
+    vs_register_signal(k, &s->f_fmsub, (uint64_t) (v.f_fmsub));
+    vs_register_signal(k, &s->f_fnmadd, (uint64_t) (v.f_fnmadd));
+    vs_register_signal(k, &s->f_fnmsub, (uint64_t) (v.f_fnmsub));
+    vs_register_signal(k, &s->f_fadd, (uint64_t) (v.f_fadd));
+    vs_register_signal(k, &s->f_fsub, (uint64_t) (v.f_fsub));
+    vs_register_signal(k, &s->f_fmul, (uint64_t) (v.f_fmul));
+    vs_register_signal(k, &s->f_fdiv, (uint64_t) (v.f_fdiv));
+    vs_register_signal(k, &s->f_fsqrt, (uint64_t) (v.f_fsqrt));
+    vs_register_signal(k, &s->f_fsgnj, (uint64_t) (v.f_fsgnj));
+    vs_register_signal(k, &s->f_fcmp, (uint64_t) (v.f_fcmp));
+    vs_register_signal(k, &s->f_fmax, (uint64_t) (v.f_fmax));
+    vs_register_signal(k, &s->f_fclass, (uint64_t) (v.f_fclass));
+    vs_register_signal(k, &s->f_fmv_i2f, (uint64_t) (v.f_fmv_i2f));
+    vs_register_signal(k, &s->f_fmv_f2i, (uint64_t) (v.f_fmv_f2i));
+    vs_register_signal(k, &s->f_fcvt_f2f, (uint64_t) (v.f_fcvt_f2f));
+    vs_register_signal(k, &s->f_fcvt_i2f, (uint64_t) (v.f_fcvt_i2f));
+    vs_register_signal(k, &s->f_fcvt_f2i, (uint64_t) (v.f_fcvt_f2i));
+    vs_register_signal(k, &s->f_fcvt_op, (uint64_t) (v.f_fcvt_op));
+}
+
+static inline size_t fp_operation_type_leaves(fp_operation_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_fmadd;
+    out[n++] = &s->f_fmsub;
+    out[n++] = &s->f_fnmadd;
+    out[n++] = &s->f_fnmsub;
+    out[n++] = &s->f_fadd;
+    out[n++] = &s->f_fsub;
+    out[n++] = &s->f_fmul;
+    out[n++] = &s->f_fdiv;
+    out[n++] = &s->f_fsqrt;
+    out[n++] = &s->f_fsgnj;
+    out[n++] = &s->f_fcmp;
+    out[n++] = &s->f_fmax;
+    out[n++] = &s->f_fclass;
+    out[n++] = &s->f_fmv_i2f;
+    out[n++] = &s->f_fmv_f2i;
+    out[n++] = &s->f_fcvt_f2f;
+    out[n++] = &s->f_fcvt_i2f;
+    out[n++] = &s->f_fcvt_f2i;
+    out[n++] = &s->f_fcvt_op;
+    return n;
+}
+
+static inline int fp_operation_type_eq(fp_operation_type a, fp_operation_type b)
+{
+    if (!(a.f_fmadd == b.f_fmadd)) { return 0; }
+    if (!(a.f_fmsub == b.f_fmsub)) { return 0; }
+    if (!(a.f_fnmadd == b.f_fnmadd)) { return 0; }
+    if (!(a.f_fnmsub == b.f_fnmsub)) { return 0; }
+    if (!(a.f_fadd == b.f_fadd)) { return 0; }
+    if (!(a.f_fsub == b.f_fsub)) { return 0; }
+    if (!(a.f_fmul == b.f_fmul)) { return 0; }
+    if (!(a.f_fdiv == b.f_fdiv)) { return 0; }
+    if (!(a.f_fsqrt == b.f_fsqrt)) { return 0; }
+    if (!(a.f_fsgnj == b.f_fsgnj)) { return 0; }
+    if (!(a.f_fcmp == b.f_fcmp)) { return 0; }
+    if (!(a.f_fmax == b.f_fmax)) { return 0; }
+    if (!(a.f_fclass == b.f_fclass)) { return 0; }
+    if (!(a.f_fmv_i2f == b.f_fmv_i2f)) { return 0; }
+    if (!(a.f_fmv_f2i == b.f_fmv_f2i)) { return 0; }
+    if (!(a.f_fcvt_f2f == b.f_fcvt_f2f)) { return 0; }
+    if (!(a.f_fcvt_i2f == b.f_fcvt_i2f)) { return 0; }
+    if (!(a.f_fcvt_f2i == b.f_fcvt_f2i)) { return 0; }
+    if (!(a.f_fcvt_op == b.f_fcvt_op)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_cvt_f2i_in_type
+{
+    vs_w f_data;
+    fp_operation_type f_op;
+    uint64_t f_rm;
+    uint64_t f_class;
+} fp_cvt_f2i_in_type;
+typedef struct fp_cvt_f2i_in_type_s
+{
+    vs_sigw2 f_data;
+    fp_operation_type_s f_op;
+    vs_sig f_rm;
+    vs_sig f_class;
+} fp_cvt_f2i_in_type_s;
+
+static inline fp_cvt_f2i_in_type fp_cvt_f2i_in_type_zero(void)
+{
+    fp_cvt_f2i_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_cvt_f2i_in_type fp_cvt_f2i_in_type_with_f_data(fp_cvt_f2i_in_type v, vs_w e)
+{
+    v.f_data = e;
+    return v;
+}
+
+static inline fp_cvt_f2i_in_type fp_cvt_f2i_in_type_with_f_op(fp_cvt_f2i_in_type v, fp_operation_type e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline fp_cvt_f2i_in_type fp_cvt_f2i_in_type_with_f_rm(fp_cvt_f2i_in_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_cvt_f2i_in_type fp_cvt_f2i_in_type_with_f_class(fp_cvt_f2i_in_type v, uint64_t e)
+{
+    v.f_class = e;
+    return v;
+}
+
+static inline fp_cvt_f2i_in_type fp_cvt_f2i_in_type_get(const fp_cvt_f2i_in_type_s *s)
+{
+    fp_cvt_f2i_in_type v;
+    v.f_data = vs_w_get(s->f_data.w, 2);
+    v.f_op = fp_operation_type_get(&s->f_op);
+    v.f_rm = s->f_rm.cur;
+    v.f_class = s->f_class.cur;
+    return v;
+}
+
+static inline void fp_cvt_f2i_in_type_drive(fp_cvt_f2i_in_type_s *s, fp_cvt_f2i_in_type v)
+{
+    vs_w_drive(s->f_data.w, 2, v.f_data);
+    fp_operation_type_drive(&s->f_op, v.f_op);
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_class, (uint64_t) (v.f_class));
+}
+
+static inline void fp_cvt_f2i_in_type_register(vs_kernel *k, fp_cvt_f2i_in_type_s *s, fp_cvt_f2i_in_type v)
+{
+    vs_w_register(k, s->f_data.w, 2, v.f_data);
+    fp_operation_type_register(k, &s->f_op, v.f_op);
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_class, (uint64_t) (v.f_class));
+}
+
+static inline size_t fp_cvt_f2i_in_type_leaves(fp_cvt_f2i_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_data.w[j]; } }
+    n += fp_operation_type_leaves(&s->f_op, out + n);
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_class;
+    return n;
+}
+
+static inline int fp_cvt_f2i_in_type_eq(fp_cvt_f2i_in_type a, fp_cvt_f2i_in_type b)
+{
+    if (!vs_w_eq(a.f_data, b.f_data)) { return 0; }
+    if (!fp_operation_type_eq(a.f_op, b.f_op)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_class == b.f_class)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_cvt_f2i_out_type
+{
+    uint64_t f_result;
+    uint64_t f_flags;
+} fp_cvt_f2i_out_type;
+typedef struct fp_cvt_f2i_out_type_s
+{
+    vs_sig f_result;
+    vs_sig f_flags;
+} fp_cvt_f2i_out_type_s;
+
+static inline fp_cvt_f2i_out_type fp_cvt_f2i_out_type_zero(void)
+{
+    fp_cvt_f2i_out_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_cvt_f2i_out_type fp_cvt_f2i_out_type_with_f_result(fp_cvt_f2i_out_type v, uint64_t e)
+{
+    v.f_result = e;
+    return v;
+}
+
+static inline fp_cvt_f2i_out_type fp_cvt_f2i_out_type_with_f_flags(fp_cvt_f2i_out_type v, uint64_t e)
+{
+    v.f_flags = e;
+    return v;
+}
+
+static inline fp_cvt_f2i_out_type fp_cvt_f2i_out_type_get(const fp_cvt_f2i_out_type_s *s)
+{
+    fp_cvt_f2i_out_type v;
+    v.f_result = s->f_result.cur;
+    v.f_flags = s->f_flags.cur;
+    return v;
+}
+
+static inline void fp_cvt_f2i_out_type_drive(fp_cvt_f2i_out_type_s *s, fp_cvt_f2i_out_type v)
+{
+    vs_drive(&s->f_result, (uint64_t) (v.f_result));
+    vs_drive(&s->f_flags, (uint64_t) (v.f_flags));
+}
+
+static inline void fp_cvt_f2i_out_type_register(vs_kernel *k, fp_cvt_f2i_out_type_s *s, fp_cvt_f2i_out_type v)
+{
+    vs_register_signal(k, &s->f_result, (uint64_t) (v.f_result));
+    vs_register_signal(k, &s->f_flags, (uint64_t) (v.f_flags));
+}
+
+static inline size_t fp_cvt_f2i_out_type_leaves(fp_cvt_f2i_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_result;
+    out[n++] = &s->f_flags;
+    return n;
+}
+
+static inline int fp_cvt_f2i_out_type_eq(fp_cvt_f2i_out_type a, fp_cvt_f2i_out_type b)
+{
+    if (!(a.f_result == b.f_result)) { return 0; }
+    if (!(a.f_flags == b.f_flags)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_cvt_i2f_in_type
+{
+    uint64_t f_data;
+    fp_operation_type f_op;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+} fp_cvt_i2f_in_type;
+typedef struct fp_cvt_i2f_in_type_s
+{
+    vs_sig f_data;
+    fp_operation_type_s f_op;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+} fp_cvt_i2f_in_type_s;
+
+static inline fp_cvt_i2f_in_type fp_cvt_i2f_in_type_zero(void)
+{
+    fp_cvt_i2f_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_cvt_i2f_in_type fp_cvt_i2f_in_type_with_f_data(fp_cvt_i2f_in_type v, uint64_t e)
+{
+    v.f_data = e;
+    return v;
+}
+
+static inline fp_cvt_i2f_in_type fp_cvt_i2f_in_type_with_f_op(fp_cvt_i2f_in_type v, fp_operation_type e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline fp_cvt_i2f_in_type fp_cvt_i2f_in_type_with_f_fmt(fp_cvt_i2f_in_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_cvt_i2f_in_type fp_cvt_i2f_in_type_with_f_rm(fp_cvt_i2f_in_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_cvt_i2f_in_type fp_cvt_i2f_in_type_get(const fp_cvt_i2f_in_type_s *s)
+{
+    fp_cvt_i2f_in_type v;
+    v.f_data = s->f_data.cur;
+    v.f_op = fp_operation_type_get(&s->f_op);
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    return v;
+}
+
+static inline void fp_cvt_i2f_in_type_drive(fp_cvt_i2f_in_type_s *s, fp_cvt_i2f_in_type v)
+{
+    vs_drive(&s->f_data, (uint64_t) (v.f_data));
+    fp_operation_type_drive(&s->f_op, v.f_op);
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+}
+
+static inline void fp_cvt_i2f_in_type_register(vs_kernel *k, fp_cvt_i2f_in_type_s *s, fp_cvt_i2f_in_type v)
+{
+    vs_register_signal(k, &s->f_data, (uint64_t) (v.f_data));
+    fp_operation_type_register(k, &s->f_op, v.f_op);
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+}
+
+static inline size_t fp_cvt_i2f_in_type_leaves(fp_cvt_i2f_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_data;
+    n += fp_operation_type_leaves(&s->f_op, out + n);
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    return n;
+}
+
+static inline int fp_cvt_i2f_in_type_eq(fp_cvt_i2f_in_type a, fp_cvt_i2f_in_type b)
+{
+    if (!(a.f_data == b.f_data)) { return 0; }
+    if (!fp_operation_type_eq(a.f_op, b.f_op)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_cvt_i2f_out_type
+{
+    fp_rnd_in_type f_fp_rnd;
+} fp_cvt_i2f_out_type;
+typedef struct fp_cvt_i2f_out_type_s
+{
+    fp_rnd_in_type_s f_fp_rnd;
+} fp_cvt_i2f_out_type_s;
+
+static inline fp_cvt_i2f_out_type fp_cvt_i2f_out_type_zero(void)
+{
+    fp_cvt_i2f_out_type v;
+    memset(&v, 0, sizeof(v));
+    v.f_fp_rnd = fp_rnd_in_type_zero();
+    return v;
+}
+
+static inline fp_cvt_i2f_out_type fp_cvt_i2f_out_type_with_f_fp_rnd(fp_cvt_i2f_out_type v, fp_rnd_in_type e)
+{
+    v.f_fp_rnd = e;
+    return v;
+}
+
+static inline fp_cvt_i2f_out_type fp_cvt_i2f_out_type_get(const fp_cvt_i2f_out_type_s *s)
+{
+    fp_cvt_i2f_out_type v;
+    v.f_fp_rnd = fp_rnd_in_type_get(&s->f_fp_rnd);
+    return v;
+}
+
+static inline void fp_cvt_i2f_out_type_drive(fp_cvt_i2f_out_type_s *s, fp_cvt_i2f_out_type v)
+{
+    fp_rnd_in_type_drive(&s->f_fp_rnd, v.f_fp_rnd);
+}
+
+static inline void fp_cvt_i2f_out_type_register(vs_kernel *k, fp_cvt_i2f_out_type_s *s, fp_cvt_i2f_out_type v)
+{
+    fp_rnd_in_type_register(k, &s->f_fp_rnd, v.f_fp_rnd);
+}
+
+static inline size_t fp_cvt_i2f_out_type_leaves(fp_cvt_i2f_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    n += fp_rnd_in_type_leaves(&s->f_fp_rnd, out + n);
+    return n;
+}
+
+static inline int fp_cvt_i2f_out_type_eq(fp_cvt_i2f_out_type a, fp_cvt_i2f_out_type b)
+{
+    if (!fp_rnd_in_type_eq(a.f_fp_rnd, b.f_fp_rnd)) { return 0; }
+    return 1;
+}
+
+typedef struct f2i_reg_type
+{
+    uint64_t f_sign_cvt;
+    uint64_t f_op;
+    uint64_t f_oor;
+    uint64_t f_inf;
+    uint64_t f_snan;
+    uint64_t f_qnan;
+    uint64_t f_fl0;
+    vs_w f_mantissa_uint;
+    int64_t f_rnded;
+} f2i_reg_type;
+typedef struct f2i_reg_type_s
+{
+    vs_sig f_sign_cvt;
+    vs_sig f_op;
+    vs_sig f_oor;
+    vs_sig f_inf;
+    vs_sig f_snan;
+    vs_sig f_qnan;
+    vs_sig f_fl0;
+    vs_sigw2 f_mantissa_uint;
+    vs_sig f_rnded;
+} f2i_reg_type_s;
+
+static inline f2i_reg_type f2i_reg_type_zero(void)
+{
+    f2i_reg_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline f2i_reg_type f2i_reg_type_with_f_sign_cvt(f2i_reg_type v, uint64_t e)
+{
+    v.f_sign_cvt = e;
+    return v;
+}
+
+static inline f2i_reg_type f2i_reg_type_with_f_op(f2i_reg_type v, uint64_t e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline f2i_reg_type f2i_reg_type_with_f_oor(f2i_reg_type v, uint64_t e)
+{
+    v.f_oor = e;
+    return v;
+}
+
+static inline f2i_reg_type f2i_reg_type_with_f_inf(f2i_reg_type v, uint64_t e)
+{
+    v.f_inf = e;
+    return v;
+}
+
+static inline f2i_reg_type f2i_reg_type_with_f_snan(f2i_reg_type v, uint64_t e)
+{
+    v.f_snan = e;
+    return v;
+}
+
+static inline f2i_reg_type f2i_reg_type_with_f_qnan(f2i_reg_type v, uint64_t e)
+{
+    v.f_qnan = e;
+    return v;
+}
+
+static inline f2i_reg_type f2i_reg_type_with_f_fl0(f2i_reg_type v, uint64_t e)
+{
+    v.f_fl0 = e;
+    return v;
+}
+
+static inline f2i_reg_type f2i_reg_type_with_f_mantissa_uint(f2i_reg_type v, vs_w e)
+{
+    v.f_mantissa_uint = e;
+    return v;
+}
+
+static inline f2i_reg_type f2i_reg_type_with_f_rnded(f2i_reg_type v, int64_t e)
+{
+    v.f_rnded = e;
+    return v;
+}
+
+static inline f2i_reg_type f2i_reg_type_get(const f2i_reg_type_s *s)
+{
+    f2i_reg_type v;
+    v.f_sign_cvt = s->f_sign_cvt.cur;
+    v.f_op = s->f_op.cur;
+    v.f_oor = s->f_oor.cur;
+    v.f_inf = s->f_inf.cur;
+    v.f_snan = s->f_snan.cur;
+    v.f_qnan = s->f_qnan.cur;
+    v.f_fl0 = s->f_fl0.cur;
+    v.f_mantissa_uint = vs_w_get(s->f_mantissa_uint.w, 2);
+    v.f_rnded = (int64_t) s->f_rnded.cur;
+    return v;
+}
+
+static inline void f2i_reg_type_drive(f2i_reg_type_s *s, f2i_reg_type v)
+{
+    vs_drive(&s->f_sign_cvt, (uint64_t) (v.f_sign_cvt));
+    vs_drive(&s->f_op, (uint64_t) (v.f_op));
+    vs_drive(&s->f_oor, (uint64_t) (v.f_oor));
+    vs_drive(&s->f_inf, (uint64_t) (v.f_inf));
+    vs_drive(&s->f_snan, (uint64_t) (v.f_snan));
+    vs_drive(&s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_drive(&s->f_fl0, (uint64_t) (v.f_fl0));
+    vs_w_drive(s->f_mantissa_uint.w, 2, v.f_mantissa_uint);
+    vs_drive(&s->f_rnded, (uint64_t) (v.f_rnded));
+}
+
+static inline void f2i_reg_type_register(vs_kernel *k, f2i_reg_type_s *s, f2i_reg_type v)
+{
+    vs_register_signal(k, &s->f_sign_cvt, (uint64_t) (v.f_sign_cvt));
+    vs_register_signal(k, &s->f_op, (uint64_t) (v.f_op));
+    vs_register_signal(k, &s->f_oor, (uint64_t) (v.f_oor));
+    vs_register_signal(k, &s->f_inf, (uint64_t) (v.f_inf));
+    vs_register_signal(k, &s->f_snan, (uint64_t) (v.f_snan));
+    vs_register_signal(k, &s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_register_signal(k, &s->f_fl0, (uint64_t) (v.f_fl0));
+    vs_w_register(k, s->f_mantissa_uint.w, 2, v.f_mantissa_uint);
+    vs_register_signal(k, &s->f_rnded, (uint64_t) (v.f_rnded));
+}
+
+static inline size_t f2i_reg_type_leaves(f2i_reg_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_sign_cvt;
+    out[n++] = &s->f_op;
+    out[n++] = &s->f_oor;
+    out[n++] = &s->f_inf;
+    out[n++] = &s->f_snan;
+    out[n++] = &s->f_qnan;
+    out[n++] = &s->f_fl0;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_mantissa_uint.w[j]; } }
+    out[n++] = &s->f_rnded;
+    return n;
+}
+
+static inline int f2i_reg_type_eq(f2i_reg_type a, f2i_reg_type b)
+{
+    if (!(a.f_sign_cvt == b.f_sign_cvt)) { return 0; }
+    if (!(a.f_op == b.f_op)) { return 0; }
+    if (!(a.f_oor == b.f_oor)) { return 0; }
+    if (!(a.f_inf == b.f_inf)) { return 0; }
+    if (!(a.f_snan == b.f_snan)) { return 0; }
+    if (!(a.f_qnan == b.f_qnan)) { return 0; }
+    if (!(a.f_fl0 == b.f_fl0)) { return 0; }
+    if (!vs_w_eq(a.f_mantissa_uint, b.f_mantissa_uint)) { return 0; }
+    if (!(a.f_rnded == b.f_rnded)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_fma_in_type
+{
+    vs_w f_data1;
+    vs_w f_data2;
+    vs_w f_data3;
+    uint64_t f_class1;
+    uint64_t f_class2;
+    uint64_t f_class3;
+    fp_operation_type f_op;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+} fp_fma_in_type;
+typedef struct fp_fma_in_type_s
+{
+    vs_sigw2 f_data1;
+    vs_sigw2 f_data2;
+    vs_sigw2 f_data3;
+    vs_sig f_class1;
+    vs_sig f_class2;
+    vs_sig f_class3;
+    fp_operation_type_s f_op;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+} fp_fma_in_type_s;
+
+static inline fp_fma_in_type fp_fma_in_type_zero(void)
+{
+    fp_fma_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_fma_in_type fp_fma_in_type_with_f_data1(fp_fma_in_type v, vs_w e)
+{
+    v.f_data1 = e;
+    return v;
+}
+
+static inline fp_fma_in_type fp_fma_in_type_with_f_data2(fp_fma_in_type v, vs_w e)
+{
+    v.f_data2 = e;
+    return v;
+}
+
+static inline fp_fma_in_type fp_fma_in_type_with_f_data3(fp_fma_in_type v, vs_w e)
+{
+    v.f_data3 = e;
+    return v;
+}
+
+static inline fp_fma_in_type fp_fma_in_type_with_f_class1(fp_fma_in_type v, uint64_t e)
+{
+    v.f_class1 = e;
+    return v;
+}
+
+static inline fp_fma_in_type fp_fma_in_type_with_f_class2(fp_fma_in_type v, uint64_t e)
+{
+    v.f_class2 = e;
+    return v;
+}
+
+static inline fp_fma_in_type fp_fma_in_type_with_f_class3(fp_fma_in_type v, uint64_t e)
+{
+    v.f_class3 = e;
+    return v;
+}
+
+static inline fp_fma_in_type fp_fma_in_type_with_f_op(fp_fma_in_type v, fp_operation_type e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline fp_fma_in_type fp_fma_in_type_with_f_fmt(fp_fma_in_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_fma_in_type fp_fma_in_type_with_f_rm(fp_fma_in_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_fma_in_type fp_fma_in_type_get(const fp_fma_in_type_s *s)
+{
+    fp_fma_in_type v;
+    v.f_data1 = vs_w_get(s->f_data1.w, 2);
+    v.f_data2 = vs_w_get(s->f_data2.w, 2);
+    v.f_data3 = vs_w_get(s->f_data3.w, 2);
+    v.f_class1 = s->f_class1.cur;
+    v.f_class2 = s->f_class2.cur;
+    v.f_class3 = s->f_class3.cur;
+    v.f_op = fp_operation_type_get(&s->f_op);
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    return v;
+}
+
+static inline void fp_fma_in_type_drive(fp_fma_in_type_s *s, fp_fma_in_type v)
+{
+    vs_w_drive(s->f_data1.w, 2, v.f_data1);
+    vs_w_drive(s->f_data2.w, 2, v.f_data2);
+    vs_w_drive(s->f_data3.w, 2, v.f_data3);
+    vs_drive(&s->f_class1, (uint64_t) (v.f_class1));
+    vs_drive(&s->f_class2, (uint64_t) (v.f_class2));
+    vs_drive(&s->f_class3, (uint64_t) (v.f_class3));
+    fp_operation_type_drive(&s->f_op, v.f_op);
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+}
+
+static inline void fp_fma_in_type_register(vs_kernel *k, fp_fma_in_type_s *s, fp_fma_in_type v)
+{
+    vs_w_register(k, s->f_data1.w, 2, v.f_data1);
+    vs_w_register(k, s->f_data2.w, 2, v.f_data2);
+    vs_w_register(k, s->f_data3.w, 2, v.f_data3);
+    vs_register_signal(k, &s->f_class1, (uint64_t) (v.f_class1));
+    vs_register_signal(k, &s->f_class2, (uint64_t) (v.f_class2));
+    vs_register_signal(k, &s->f_class3, (uint64_t) (v.f_class3));
+    fp_operation_type_register(k, &s->f_op, v.f_op);
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+}
+
+static inline size_t fp_fma_in_type_leaves(fp_fma_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_data1.w[j]; } }
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_data2.w[j]; } }
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_data3.w[j]; } }
+    out[n++] = &s->f_class1;
+    out[n++] = &s->f_class2;
+    out[n++] = &s->f_class3;
+    n += fp_operation_type_leaves(&s->f_op, out + n);
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    return n;
+}
+
+static inline int fp_fma_in_type_eq(fp_fma_in_type a, fp_fma_in_type b)
+{
+    if (!vs_w_eq(a.f_data1, b.f_data1)) { return 0; }
+    if (!vs_w_eq(a.f_data2, b.f_data2)) { return 0; }
+    if (!vs_w_eq(a.f_data3, b.f_data3)) { return 0; }
+    if (!(a.f_class1 == b.f_class1)) { return 0; }
+    if (!(a.f_class2 == b.f_class2)) { return 0; }
+    if (!(a.f_class3 == b.f_class3)) { return 0; }
+    if (!fp_operation_type_eq(a.f_op, b.f_op)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_fma_out_type
+{
+    fp_rnd_in_type f_fp_rnd;
+    uint64_t f_ready;
+} fp_fma_out_type;
+typedef struct fp_fma_out_type_s
+{
+    fp_rnd_in_type_s f_fp_rnd;
+    vs_sig f_ready;
+} fp_fma_out_type_s;
+
+static inline fp_fma_out_type fp_fma_out_type_zero(void)
+{
+    fp_fma_out_type v;
+    memset(&v, 0, sizeof(v));
+    v.f_fp_rnd = fp_rnd_in_type_zero();
+    return v;
+}
+
+static inline fp_fma_out_type fp_fma_out_type_with_f_fp_rnd(fp_fma_out_type v, fp_rnd_in_type e)
+{
+    v.f_fp_rnd = e;
+    return v;
+}
+
+static inline fp_fma_out_type fp_fma_out_type_with_f_ready(fp_fma_out_type v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fp_fma_out_type fp_fma_out_type_get(const fp_fma_out_type_s *s)
+{
+    fp_fma_out_type v;
+    v.f_fp_rnd = fp_rnd_in_type_get(&s->f_fp_rnd);
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fp_fma_out_type_drive(fp_fma_out_type_s *s, fp_fma_out_type v)
+{
+    fp_rnd_in_type_drive(&s->f_fp_rnd, v.f_fp_rnd);
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fp_fma_out_type_register(vs_kernel *k, fp_fma_out_type_s *s, fp_fma_out_type v)
+{
+    fp_rnd_in_type_register(k, &s->f_fp_rnd, v.f_fp_rnd);
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fp_fma_out_type_leaves(fp_fma_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    n += fp_rnd_in_type_leaves(&s->f_fp_rnd, out + n);
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fp_fma_out_type_eq(fp_fma_out_type a, fp_fma_out_type b)
+{
+    if (!fp_rnd_in_type_eq(a.f_fp_rnd, b.f_fp_rnd)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct lzc_256_out_type
+{
+    uint64_t f_c;
+} lzc_256_out_type;
+typedef struct lzc_256_out_type_s
+{
+    vs_sig f_c;
+} lzc_256_out_type_s;
+
+static inline lzc_256_out_type lzc_256_out_type_zero(void)
+{
+    lzc_256_out_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline lzc_256_out_type lzc_256_out_type_with_f_c(lzc_256_out_type v, uint64_t e)
+{
+    v.f_c = e;
+    return v;
+}
+
+static inline lzc_256_out_type lzc_256_out_type_get(const lzc_256_out_type_s *s)
+{
+    lzc_256_out_type v;
+    v.f_c = s->f_c.cur;
+    return v;
+}
+
+static inline void lzc_256_out_type_drive(lzc_256_out_type_s *s, lzc_256_out_type v)
+{
+    vs_drive(&s->f_c, (uint64_t) (v.f_c));
+}
+
+static inline void lzc_256_out_type_register(vs_kernel *k, lzc_256_out_type_s *s, lzc_256_out_type v)
+{
+    vs_register_signal(k, &s->f_c, (uint64_t) (v.f_c));
+}
+
+static inline size_t lzc_256_out_type_leaves(lzc_256_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_c;
+    return n;
+}
+
+static inline int lzc_256_out_type_eq(lzc_256_out_type a, lzc_256_out_type b)
+{
+    if (!(a.f_c == b.f_c)) { return 0; }
+    return 1;
+}
+
+typedef struct lzc_256_in_type
+{
+    vs_w f_a;
+} lzc_256_in_type;
+typedef struct lzc_256_in_type_s
+{
+    vs_sigw4 f_a;
+} lzc_256_in_type_s;
+
+static inline lzc_256_in_type lzc_256_in_type_zero(void)
+{
+    lzc_256_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline lzc_256_in_type lzc_256_in_type_with_f_a(lzc_256_in_type v, vs_w e)
+{
+    v.f_a = e;
+    return v;
+}
+
+static inline lzc_256_in_type lzc_256_in_type_get(const lzc_256_in_type_s *s)
+{
+    lzc_256_in_type v;
+    v.f_a = vs_w_get(s->f_a.w, 4);
+    return v;
+}
+
+static inline void lzc_256_in_type_drive(lzc_256_in_type_s *s, lzc_256_in_type v)
+{
+    vs_w_drive(s->f_a.w, 4, v.f_a);
+}
+
+static inline void lzc_256_in_type_register(vs_kernel *k, lzc_256_in_type_s *s, lzc_256_in_type v)
+{
+    vs_w_register(k, s->f_a.w, 4, v.f_a);
+}
+
+static inline size_t lzc_256_in_type_leaves(lzc_256_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    { size_t j; for (j = 0; j < 4; j++) { out[n++] = &s->f_a.w[j]; } }
+    return n;
+}
+
+static inline int lzc_256_in_type_eq(lzc_256_in_type a, lzc_256_in_type b)
+{
+    if (!vs_w_eq(a.f_a, b.f_a)) { return 0; }
+    return 1;
+}
+
+typedef struct fma_reg_1a_type
+{
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    uint64_t f_snan;
+    uint64_t f_qnan;
+    uint64_t f_dbz;
+    uint64_t f_inf;
+    uint64_t f_zero;
+    uint64_t f_sign_mul;
+    uint64_t f_exponent_mul;
+    uint64_t f_sign_add;
+    uint64_t f_exponent_add;
+    uint64_t f_exponent_neg;
+    int64_t f_counter_dif;
+    vs_w f_mantissa_l;
+    vs_w f_mantissa_r;
+    uint64_t f_ready;
+} fma_reg_1a_type;
+typedef struct fma_reg_1a_type_s
+{
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sig f_snan;
+    vs_sig f_qnan;
+    vs_sig f_dbz;
+    vs_sig f_inf;
+    vs_sig f_zero;
+    vs_sig f_sign_mul;
+    vs_sig f_exponent_mul;
+    vs_sig f_sign_add;
+    vs_sig f_exponent_add;
+    vs_sig f_exponent_neg;
+    vs_sig f_counter_dif;
+    vs_sigw3 f_mantissa_l;
+    vs_sigw3 f_mantissa_r;
+    vs_sig f_ready;
+} fma_reg_1a_type_s;
+
+static inline fma_reg_1a_type fma_reg_1a_type_zero(void)
+{
+    fma_reg_1a_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_fmt(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_rm(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_snan(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_snan = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_qnan(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_qnan = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_dbz(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_dbz = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_inf(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_inf = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_zero(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_zero = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_sign_mul(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_sign_mul = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_exponent_mul(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_exponent_mul = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_sign_add(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_sign_add = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_exponent_add(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_exponent_add = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_exponent_neg(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_exponent_neg = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_counter_dif(fma_reg_1a_type v, int64_t e)
+{
+    v.f_counter_dif = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_mantissa_l(fma_reg_1a_type v, vs_w e)
+{
+    v.f_mantissa_l = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_mantissa_r(fma_reg_1a_type v, vs_w e)
+{
+    v.f_mantissa_r = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_with_f_ready(fma_reg_1a_type v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fma_reg_1a_type fma_reg_1a_type_get(const fma_reg_1a_type_s *s)
+{
+    fma_reg_1a_type v;
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_snan = s->f_snan.cur;
+    v.f_qnan = s->f_qnan.cur;
+    v.f_dbz = s->f_dbz.cur;
+    v.f_inf = s->f_inf.cur;
+    v.f_zero = s->f_zero.cur;
+    v.f_sign_mul = s->f_sign_mul.cur;
+    v.f_exponent_mul = s->f_exponent_mul.cur;
+    v.f_sign_add = s->f_sign_add.cur;
+    v.f_exponent_add = s->f_exponent_add.cur;
+    v.f_exponent_neg = s->f_exponent_neg.cur;
+    v.f_counter_dif = (int64_t) s->f_counter_dif.cur;
+    v.f_mantissa_l = vs_w_get(s->f_mantissa_l.w, 3);
+    v.f_mantissa_r = vs_w_get(s->f_mantissa_r.w, 3);
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fma_reg_1a_type_drive(fma_reg_1a_type_s *s, fma_reg_1a_type v)
+{
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_snan, (uint64_t) (v.f_snan));
+    vs_drive(&s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_drive(&s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_drive(&s->f_inf, (uint64_t) (v.f_inf));
+    vs_drive(&s->f_zero, (uint64_t) (v.f_zero));
+    vs_drive(&s->f_sign_mul, (uint64_t) (v.f_sign_mul));
+    vs_drive(&s->f_exponent_mul, (uint64_t) (v.f_exponent_mul));
+    vs_drive(&s->f_sign_add, (uint64_t) (v.f_sign_add));
+    vs_drive(&s->f_exponent_add, (uint64_t) (v.f_exponent_add));
+    vs_drive(&s->f_exponent_neg, (uint64_t) (v.f_exponent_neg));
+    vs_drive(&s->f_counter_dif, (uint64_t) (v.f_counter_dif));
+    vs_w_drive(s->f_mantissa_l.w, 3, v.f_mantissa_l);
+    vs_w_drive(s->f_mantissa_r.w, 3, v.f_mantissa_r);
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fma_reg_1a_type_register(vs_kernel *k, fma_reg_1a_type_s *s, fma_reg_1a_type v)
+{
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_snan, (uint64_t) (v.f_snan));
+    vs_register_signal(k, &s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_register_signal(k, &s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_register_signal(k, &s->f_inf, (uint64_t) (v.f_inf));
+    vs_register_signal(k, &s->f_zero, (uint64_t) (v.f_zero));
+    vs_register_signal(k, &s->f_sign_mul, (uint64_t) (v.f_sign_mul));
+    vs_register_signal(k, &s->f_exponent_mul, (uint64_t) (v.f_exponent_mul));
+    vs_register_signal(k, &s->f_sign_add, (uint64_t) (v.f_sign_add));
+    vs_register_signal(k, &s->f_exponent_add, (uint64_t) (v.f_exponent_add));
+    vs_register_signal(k, &s->f_exponent_neg, (uint64_t) (v.f_exponent_neg));
+    vs_register_signal(k, &s->f_counter_dif, (uint64_t) (v.f_counter_dif));
+    vs_w_register(k, s->f_mantissa_l.w, 3, v.f_mantissa_l);
+    vs_w_register(k, s->f_mantissa_r.w, 3, v.f_mantissa_r);
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fma_reg_1a_type_leaves(fma_reg_1a_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_snan;
+    out[n++] = &s->f_qnan;
+    out[n++] = &s->f_dbz;
+    out[n++] = &s->f_inf;
+    out[n++] = &s->f_zero;
+    out[n++] = &s->f_sign_mul;
+    out[n++] = &s->f_exponent_mul;
+    out[n++] = &s->f_sign_add;
+    out[n++] = &s->f_exponent_add;
+    out[n++] = &s->f_exponent_neg;
+    out[n++] = &s->f_counter_dif;
+    { size_t j; for (j = 0; j < 3; j++) { out[n++] = &s->f_mantissa_l.w[j]; } }
+    { size_t j; for (j = 0; j < 3; j++) { out[n++] = &s->f_mantissa_r.w[j]; } }
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fma_reg_1a_type_eq(fma_reg_1a_type a, fma_reg_1a_type b)
+{
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_snan == b.f_snan)) { return 0; }
+    if (!(a.f_qnan == b.f_qnan)) { return 0; }
+    if (!(a.f_dbz == b.f_dbz)) { return 0; }
+    if (!(a.f_inf == b.f_inf)) { return 0; }
+    if (!(a.f_zero == b.f_zero)) { return 0; }
+    if (!(a.f_sign_mul == b.f_sign_mul)) { return 0; }
+    if (!(a.f_exponent_mul == b.f_exponent_mul)) { return 0; }
+    if (!(a.f_sign_add == b.f_sign_add)) { return 0; }
+    if (!(a.f_exponent_add == b.f_exponent_add)) { return 0; }
+    if (!(a.f_exponent_neg == b.f_exponent_neg)) { return 0; }
+    if (!(a.f_counter_dif == b.f_counter_dif)) { return 0; }
+    if (!vs_w_eq(a.f_mantissa_l, b.f_mantissa_l)) { return 0; }
+    if (!vs_w_eq(a.f_mantissa_r, b.f_mantissa_r)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct fma_reg_a_type
+{
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    uint64_t f_snan;
+    uint64_t f_qnan;
+    uint64_t f_dbz;
+    uint64_t f_inf;
+    uint64_t f_sign_mul;
+    uint64_t f_sign_add;
+    uint64_t f_exponent_mac;
+    vs_w f_mantissa_mac;
+    uint64_t f_ready;
+} fma_reg_a_type;
+typedef struct fma_reg_a_type_s
+{
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sig f_snan;
+    vs_sig f_qnan;
+    vs_sig f_dbz;
+    vs_sig f_inf;
+    vs_sig f_sign_mul;
+    vs_sig f_sign_add;
+    vs_sig f_exponent_mac;
+    vs_sigw3 f_mantissa_mac;
+    vs_sig f_ready;
+} fma_reg_a_type_s;
+
+static inline fma_reg_a_type fma_reg_a_type_zero(void)
+{
+    fma_reg_a_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_fmt(fma_reg_a_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_rm(fma_reg_a_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_snan(fma_reg_a_type v, uint64_t e)
+{
+    v.f_snan = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_qnan(fma_reg_a_type v, uint64_t e)
+{
+    v.f_qnan = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_dbz(fma_reg_a_type v, uint64_t e)
+{
+    v.f_dbz = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_inf(fma_reg_a_type v, uint64_t e)
+{
+    v.f_inf = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_sign_mul(fma_reg_a_type v, uint64_t e)
+{
+    v.f_sign_mul = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_sign_add(fma_reg_a_type v, uint64_t e)
+{
+    v.f_sign_add = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_exponent_mac(fma_reg_a_type v, uint64_t e)
+{
+    v.f_exponent_mac = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_mantissa_mac(fma_reg_a_type v, vs_w e)
+{
+    v.f_mantissa_mac = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_with_f_ready(fma_reg_a_type v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fma_reg_a_type fma_reg_a_type_get(const fma_reg_a_type_s *s)
+{
+    fma_reg_a_type v;
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_snan = s->f_snan.cur;
+    v.f_qnan = s->f_qnan.cur;
+    v.f_dbz = s->f_dbz.cur;
+    v.f_inf = s->f_inf.cur;
+    v.f_sign_mul = s->f_sign_mul.cur;
+    v.f_sign_add = s->f_sign_add.cur;
+    v.f_exponent_mac = s->f_exponent_mac.cur;
+    v.f_mantissa_mac = vs_w_get(s->f_mantissa_mac.w, 3);
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fma_reg_a_type_drive(fma_reg_a_type_s *s, fma_reg_a_type v)
+{
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_snan, (uint64_t) (v.f_snan));
+    vs_drive(&s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_drive(&s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_drive(&s->f_inf, (uint64_t) (v.f_inf));
+    vs_drive(&s->f_sign_mul, (uint64_t) (v.f_sign_mul));
+    vs_drive(&s->f_sign_add, (uint64_t) (v.f_sign_add));
+    vs_drive(&s->f_exponent_mac, (uint64_t) (v.f_exponent_mac));
+    vs_w_drive(s->f_mantissa_mac.w, 3, v.f_mantissa_mac);
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fma_reg_a_type_register(vs_kernel *k, fma_reg_a_type_s *s, fma_reg_a_type v)
+{
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_snan, (uint64_t) (v.f_snan));
+    vs_register_signal(k, &s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_register_signal(k, &s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_register_signal(k, &s->f_inf, (uint64_t) (v.f_inf));
+    vs_register_signal(k, &s->f_sign_mul, (uint64_t) (v.f_sign_mul));
+    vs_register_signal(k, &s->f_sign_add, (uint64_t) (v.f_sign_add));
+    vs_register_signal(k, &s->f_exponent_mac, (uint64_t) (v.f_exponent_mac));
+    vs_w_register(k, s->f_mantissa_mac.w, 3, v.f_mantissa_mac);
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fma_reg_a_type_leaves(fma_reg_a_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_snan;
+    out[n++] = &s->f_qnan;
+    out[n++] = &s->f_dbz;
+    out[n++] = &s->f_inf;
+    out[n++] = &s->f_sign_mul;
+    out[n++] = &s->f_sign_add;
+    out[n++] = &s->f_exponent_mac;
+    { size_t j; for (j = 0; j < 3; j++) { out[n++] = &s->f_mantissa_mac.w[j]; } }
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fma_reg_a_type_eq(fma_reg_a_type a, fma_reg_a_type b)
+{
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_snan == b.f_snan)) { return 0; }
+    if (!(a.f_qnan == b.f_qnan)) { return 0; }
+    if (!(a.f_dbz == b.f_dbz)) { return 0; }
+    if (!(a.f_inf == b.f_inf)) { return 0; }
+    if (!(a.f_sign_mul == b.f_sign_mul)) { return 0; }
+    if (!(a.f_sign_add == b.f_sign_add)) { return 0; }
+    if (!(a.f_exponent_mac == b.f_exponent_mac)) { return 0; }
+    if (!vs_w_eq(a.f_mantissa_mac, b.f_mantissa_mac)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct fma_reg_b_type
+{
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    uint64_t f_snan;
+    uint64_t f_qnan;
+    uint64_t f_dbz;
+    uint64_t f_inf;
+    uint64_t f_zero;
+    uint64_t f_diff;
+    uint64_t f_sign_mac;
+    uint64_t f_exponent_mac;
+    vs_w f_mantissa_mac;
+    uint64_t f_ready;
+} fma_reg_b_type;
+typedef struct fma_reg_b_type_s
+{
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sig f_snan;
+    vs_sig f_qnan;
+    vs_sig f_dbz;
+    vs_sig f_inf;
+    vs_sig f_zero;
+    vs_sig f_diff;
+    vs_sig f_sign_mac;
+    vs_sig f_exponent_mac;
+    vs_sigw3 f_mantissa_mac;
+    vs_sig f_ready;
+} fma_reg_b_type_s;
+
+static inline fma_reg_b_type fma_reg_b_type_zero(void)
+{
+    fma_reg_b_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_fmt(fma_reg_b_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_rm(fma_reg_b_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_snan(fma_reg_b_type v, uint64_t e)
+{
+    v.f_snan = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_qnan(fma_reg_b_type v, uint64_t e)
+{
+    v.f_qnan = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_dbz(fma_reg_b_type v, uint64_t e)
+{
+    v.f_dbz = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_inf(fma_reg_b_type v, uint64_t e)
+{
+    v.f_inf = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_zero(fma_reg_b_type v, uint64_t e)
+{
+    v.f_zero = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_diff(fma_reg_b_type v, uint64_t e)
+{
+    v.f_diff = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_sign_mac(fma_reg_b_type v, uint64_t e)
+{
+    v.f_sign_mac = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_exponent_mac(fma_reg_b_type v, uint64_t e)
+{
+    v.f_exponent_mac = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_mantissa_mac(fma_reg_b_type v, vs_w e)
+{
+    v.f_mantissa_mac = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_with_f_ready(fma_reg_b_type v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fma_reg_b_type fma_reg_b_type_get(const fma_reg_b_type_s *s)
+{
+    fma_reg_b_type v;
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_snan = s->f_snan.cur;
+    v.f_qnan = s->f_qnan.cur;
+    v.f_dbz = s->f_dbz.cur;
+    v.f_inf = s->f_inf.cur;
+    v.f_zero = s->f_zero.cur;
+    v.f_diff = s->f_diff.cur;
+    v.f_sign_mac = s->f_sign_mac.cur;
+    v.f_exponent_mac = s->f_exponent_mac.cur;
+    v.f_mantissa_mac = vs_w_get(s->f_mantissa_mac.w, 3);
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fma_reg_b_type_drive(fma_reg_b_type_s *s, fma_reg_b_type v)
+{
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_snan, (uint64_t) (v.f_snan));
+    vs_drive(&s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_drive(&s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_drive(&s->f_inf, (uint64_t) (v.f_inf));
+    vs_drive(&s->f_zero, (uint64_t) (v.f_zero));
+    vs_drive(&s->f_diff, (uint64_t) (v.f_diff));
+    vs_drive(&s->f_sign_mac, (uint64_t) (v.f_sign_mac));
+    vs_drive(&s->f_exponent_mac, (uint64_t) (v.f_exponent_mac));
+    vs_w_drive(s->f_mantissa_mac.w, 3, v.f_mantissa_mac);
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fma_reg_b_type_register(vs_kernel *k, fma_reg_b_type_s *s, fma_reg_b_type v)
+{
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_snan, (uint64_t) (v.f_snan));
+    vs_register_signal(k, &s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_register_signal(k, &s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_register_signal(k, &s->f_inf, (uint64_t) (v.f_inf));
+    vs_register_signal(k, &s->f_zero, (uint64_t) (v.f_zero));
+    vs_register_signal(k, &s->f_diff, (uint64_t) (v.f_diff));
+    vs_register_signal(k, &s->f_sign_mac, (uint64_t) (v.f_sign_mac));
+    vs_register_signal(k, &s->f_exponent_mac, (uint64_t) (v.f_exponent_mac));
+    vs_w_register(k, s->f_mantissa_mac.w, 3, v.f_mantissa_mac);
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fma_reg_b_type_leaves(fma_reg_b_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_snan;
+    out[n++] = &s->f_qnan;
+    out[n++] = &s->f_dbz;
+    out[n++] = &s->f_inf;
+    out[n++] = &s->f_zero;
+    out[n++] = &s->f_diff;
+    out[n++] = &s->f_sign_mac;
+    out[n++] = &s->f_exponent_mac;
+    { size_t j; for (j = 0; j < 3; j++) { out[n++] = &s->f_mantissa_mac.w[j]; } }
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fma_reg_b_type_eq(fma_reg_b_type a, fma_reg_b_type b)
+{
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_snan == b.f_snan)) { return 0; }
+    if (!(a.f_qnan == b.f_qnan)) { return 0; }
+    if (!(a.f_dbz == b.f_dbz)) { return 0; }
+    if (!(a.f_inf == b.f_inf)) { return 0; }
+    if (!(a.f_zero == b.f_zero)) { return 0; }
+    if (!(a.f_diff == b.f_diff)) { return 0; }
+    if (!(a.f_sign_mac == b.f_sign_mac)) { return 0; }
+    if (!(a.f_exponent_mac == b.f_exponent_mac)) { return 0; }
+    if (!vs_w_eq(a.f_mantissa_mac, b.f_mantissa_mac)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct fma_reg_c_type
+{
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    uint64_t f_snan;
+    uint64_t f_qnan;
+    uint64_t f_dbz;
+    uint64_t f_inf;
+    uint64_t f_zero;
+    uint64_t f_diff;
+    uint64_t f_sign_rnd;
+    int64_t f_exponent_rnd;
+    vs_w f_mantissa_mac;
+    uint64_t f_ready;
+} fma_reg_c_type;
+typedef struct fma_reg_c_type_s
+{
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sig f_snan;
+    vs_sig f_qnan;
+    vs_sig f_dbz;
+    vs_sig f_inf;
+    vs_sig f_zero;
+    vs_sig f_diff;
+    vs_sig f_sign_rnd;
+    vs_sig f_exponent_rnd;
+    vs_sigw3 f_mantissa_mac;
+    vs_sig f_ready;
+} fma_reg_c_type_s;
+
+static inline fma_reg_c_type fma_reg_c_type_zero(void)
+{
+    fma_reg_c_type v;
+    memset(&v, 0, sizeof(v));
+    v.f_exponent_rnd = INT64_C(-16383);
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_fmt(fma_reg_c_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_rm(fma_reg_c_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_snan(fma_reg_c_type v, uint64_t e)
+{
+    v.f_snan = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_qnan(fma_reg_c_type v, uint64_t e)
+{
+    v.f_qnan = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_dbz(fma_reg_c_type v, uint64_t e)
+{
+    v.f_dbz = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_inf(fma_reg_c_type v, uint64_t e)
+{
+    v.f_inf = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_zero(fma_reg_c_type v, uint64_t e)
+{
+    v.f_zero = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_diff(fma_reg_c_type v, uint64_t e)
+{
+    v.f_diff = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_sign_rnd(fma_reg_c_type v, uint64_t e)
+{
+    v.f_sign_rnd = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_exponent_rnd(fma_reg_c_type v, int64_t e)
+{
+    v.f_exponent_rnd = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_mantissa_mac(fma_reg_c_type v, vs_w e)
+{
+    v.f_mantissa_mac = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_with_f_ready(fma_reg_c_type v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fma_reg_c_type fma_reg_c_type_get(const fma_reg_c_type_s *s)
+{
+    fma_reg_c_type v;
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_snan = s->f_snan.cur;
+    v.f_qnan = s->f_qnan.cur;
+    v.f_dbz = s->f_dbz.cur;
+    v.f_inf = s->f_inf.cur;
+    v.f_zero = s->f_zero.cur;
+    v.f_diff = s->f_diff.cur;
+    v.f_sign_rnd = s->f_sign_rnd.cur;
+    v.f_exponent_rnd = (int64_t) s->f_exponent_rnd.cur;
+    v.f_mantissa_mac = vs_w_get(s->f_mantissa_mac.w, 3);
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fma_reg_c_type_drive(fma_reg_c_type_s *s, fma_reg_c_type v)
+{
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_snan, (uint64_t) (v.f_snan));
+    vs_drive(&s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_drive(&s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_drive(&s->f_inf, (uint64_t) (v.f_inf));
+    vs_drive(&s->f_zero, (uint64_t) (v.f_zero));
+    vs_drive(&s->f_diff, (uint64_t) (v.f_diff));
+    vs_drive(&s->f_sign_rnd, (uint64_t) (v.f_sign_rnd));
+    vs_drive(&s->f_exponent_rnd, (uint64_t) (v.f_exponent_rnd));
+    vs_w_drive(s->f_mantissa_mac.w, 3, v.f_mantissa_mac);
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fma_reg_c_type_register(vs_kernel *k, fma_reg_c_type_s *s, fma_reg_c_type v)
+{
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_snan, (uint64_t) (v.f_snan));
+    vs_register_signal(k, &s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_register_signal(k, &s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_register_signal(k, &s->f_inf, (uint64_t) (v.f_inf));
+    vs_register_signal(k, &s->f_zero, (uint64_t) (v.f_zero));
+    vs_register_signal(k, &s->f_diff, (uint64_t) (v.f_diff));
+    vs_register_signal(k, &s->f_sign_rnd, (uint64_t) (v.f_sign_rnd));
+    vs_register_signal(k, &s->f_exponent_rnd, (uint64_t) (v.f_exponent_rnd));
+    vs_w_register(k, s->f_mantissa_mac.w, 3, v.f_mantissa_mac);
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fma_reg_c_type_leaves(fma_reg_c_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_snan;
+    out[n++] = &s->f_qnan;
+    out[n++] = &s->f_dbz;
+    out[n++] = &s->f_inf;
+    out[n++] = &s->f_zero;
+    out[n++] = &s->f_diff;
+    out[n++] = &s->f_sign_rnd;
+    out[n++] = &s->f_exponent_rnd;
+    { size_t j; for (j = 0; j < 3; j++) { out[n++] = &s->f_mantissa_mac.w[j]; } }
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fma_reg_c_type_eq(fma_reg_c_type a, fma_reg_c_type b)
+{
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_snan == b.f_snan)) { return 0; }
+    if (!(a.f_qnan == b.f_qnan)) { return 0; }
+    if (!(a.f_dbz == b.f_dbz)) { return 0; }
+    if (!(a.f_inf == b.f_inf)) { return 0; }
+    if (!(a.f_zero == b.f_zero)) { return 0; }
+    if (!(a.f_diff == b.f_diff)) { return 0; }
+    if (!(a.f_sign_rnd == b.f_sign_rnd)) { return 0; }
+    if (!(a.f_exponent_rnd == b.f_exponent_rnd)) { return 0; }
+    if (!vs_w_eq(a.f_mantissa_mac, b.f_mantissa_mac)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_fma_reg_type_1
+{
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    uint64_t f_snan;
+    uint64_t f_qnan;
+    uint64_t f_dbz;
+    uint64_t f_inf;
+    uint64_t f_zero;
+    uint64_t f_sign_mul;
+    uint64_t f_exponent_mul;
+    vs_w f_mantissa_mul;
+    uint64_t f_sign_add;
+    uint64_t f_exponent_add;
+    vs_w f_mantissa_add;
+    uint64_t f_exponent_neg;
+    uint64_t f_ready;
+} fp_fma_reg_type_1;
+typedef struct fp_fma_reg_type_1_s
+{
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sig f_snan;
+    vs_sig f_qnan;
+    vs_sig f_dbz;
+    vs_sig f_inf;
+    vs_sig f_zero;
+    vs_sig f_sign_mul;
+    vs_sig f_exponent_mul;
+    vs_sigw3 f_mantissa_mul;
+    vs_sig f_sign_add;
+    vs_sig f_exponent_add;
+    vs_sigw3 f_mantissa_add;
+    vs_sig f_exponent_neg;
+    vs_sig f_ready;
+} fp_fma_reg_type_1_s;
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_zero(void)
+{
+    fp_fma_reg_type_1 v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_fmt(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_rm(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_snan(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_snan = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_qnan(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_qnan = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_dbz(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_dbz = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_inf(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_inf = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_zero(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_zero = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_sign_mul(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_sign_mul = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_exponent_mul(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_exponent_mul = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_mantissa_mul(fp_fma_reg_type_1 v, vs_w e)
+{
+    v.f_mantissa_mul = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_sign_add(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_sign_add = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_exponent_add(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_exponent_add = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_mantissa_add(fp_fma_reg_type_1 v, vs_w e)
+{
+    v.f_mantissa_add = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_exponent_neg(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_exponent_neg = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_with_f_ready(fp_fma_reg_type_1 v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_1 fp_fma_reg_type_1_get(const fp_fma_reg_type_1_s *s)
+{
+    fp_fma_reg_type_1 v;
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_snan = s->f_snan.cur;
+    v.f_qnan = s->f_qnan.cur;
+    v.f_dbz = s->f_dbz.cur;
+    v.f_inf = s->f_inf.cur;
+    v.f_zero = s->f_zero.cur;
+    v.f_sign_mul = s->f_sign_mul.cur;
+    v.f_exponent_mul = s->f_exponent_mul.cur;
+    v.f_mantissa_mul = vs_w_get(s->f_mantissa_mul.w, 3);
+    v.f_sign_add = s->f_sign_add.cur;
+    v.f_exponent_add = s->f_exponent_add.cur;
+    v.f_mantissa_add = vs_w_get(s->f_mantissa_add.w, 3);
+    v.f_exponent_neg = s->f_exponent_neg.cur;
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fp_fma_reg_type_1_drive(fp_fma_reg_type_1_s *s, fp_fma_reg_type_1 v)
+{
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_snan, (uint64_t) (v.f_snan));
+    vs_drive(&s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_drive(&s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_drive(&s->f_inf, (uint64_t) (v.f_inf));
+    vs_drive(&s->f_zero, (uint64_t) (v.f_zero));
+    vs_drive(&s->f_sign_mul, (uint64_t) (v.f_sign_mul));
+    vs_drive(&s->f_exponent_mul, (uint64_t) (v.f_exponent_mul));
+    vs_w_drive(s->f_mantissa_mul.w, 3, v.f_mantissa_mul);
+    vs_drive(&s->f_sign_add, (uint64_t) (v.f_sign_add));
+    vs_drive(&s->f_exponent_add, (uint64_t) (v.f_exponent_add));
+    vs_w_drive(s->f_mantissa_add.w, 3, v.f_mantissa_add);
+    vs_drive(&s->f_exponent_neg, (uint64_t) (v.f_exponent_neg));
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fp_fma_reg_type_1_register(vs_kernel *k, fp_fma_reg_type_1_s *s, fp_fma_reg_type_1 v)
+{
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_snan, (uint64_t) (v.f_snan));
+    vs_register_signal(k, &s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_register_signal(k, &s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_register_signal(k, &s->f_inf, (uint64_t) (v.f_inf));
+    vs_register_signal(k, &s->f_zero, (uint64_t) (v.f_zero));
+    vs_register_signal(k, &s->f_sign_mul, (uint64_t) (v.f_sign_mul));
+    vs_register_signal(k, &s->f_exponent_mul, (uint64_t) (v.f_exponent_mul));
+    vs_w_register(k, s->f_mantissa_mul.w, 3, v.f_mantissa_mul);
+    vs_register_signal(k, &s->f_sign_add, (uint64_t) (v.f_sign_add));
+    vs_register_signal(k, &s->f_exponent_add, (uint64_t) (v.f_exponent_add));
+    vs_w_register(k, s->f_mantissa_add.w, 3, v.f_mantissa_add);
+    vs_register_signal(k, &s->f_exponent_neg, (uint64_t) (v.f_exponent_neg));
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fp_fma_reg_type_1_leaves(fp_fma_reg_type_1_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_snan;
+    out[n++] = &s->f_qnan;
+    out[n++] = &s->f_dbz;
+    out[n++] = &s->f_inf;
+    out[n++] = &s->f_zero;
+    out[n++] = &s->f_sign_mul;
+    out[n++] = &s->f_exponent_mul;
+    { size_t j; for (j = 0; j < 3; j++) { out[n++] = &s->f_mantissa_mul.w[j]; } }
+    out[n++] = &s->f_sign_add;
+    out[n++] = &s->f_exponent_add;
+    { size_t j; for (j = 0; j < 3; j++) { out[n++] = &s->f_mantissa_add.w[j]; } }
+    out[n++] = &s->f_exponent_neg;
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fp_fma_reg_type_1_eq(fp_fma_reg_type_1 a, fp_fma_reg_type_1 b)
+{
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_snan == b.f_snan)) { return 0; }
+    if (!(a.f_qnan == b.f_qnan)) { return 0; }
+    if (!(a.f_dbz == b.f_dbz)) { return 0; }
+    if (!(a.f_inf == b.f_inf)) { return 0; }
+    if (!(a.f_zero == b.f_zero)) { return 0; }
+    if (!(a.f_sign_mul == b.f_sign_mul)) { return 0; }
+    if (!(a.f_exponent_mul == b.f_exponent_mul)) { return 0; }
+    if (!vs_w_eq(a.f_mantissa_mul, b.f_mantissa_mul)) { return 0; }
+    if (!(a.f_sign_add == b.f_sign_add)) { return 0; }
+    if (!(a.f_exponent_add == b.f_exponent_add)) { return 0; }
+    if (!vs_w_eq(a.f_mantissa_add, b.f_mantissa_add)) { return 0; }
+    if (!(a.f_exponent_neg == b.f_exponent_neg)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_fma_reg_type_2
+{
+    uint64_t f_sign_rnd;
+    int64_t f_exponent_rnd;
+    uint64_t f_mantissa_rnd;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    uint64_t f_grs;
+    uint64_t f_snan;
+    uint64_t f_qnan;
+    uint64_t f_dbz;
+    uint64_t f_inf;
+    uint64_t f_zero;
+    uint64_t f_diff;
+    uint64_t f_ready;
+} fp_fma_reg_type_2;
+typedef struct fp_fma_reg_type_2_s
+{
+    vs_sig f_sign_rnd;
+    vs_sig f_exponent_rnd;
+    vs_sig f_mantissa_rnd;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sig f_grs;
+    vs_sig f_snan;
+    vs_sig f_qnan;
+    vs_sig f_dbz;
+    vs_sig f_inf;
+    vs_sig f_zero;
+    vs_sig f_diff;
+    vs_sig f_ready;
+} fp_fma_reg_type_2_s;
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_zero(void)
+{
+    fp_fma_reg_type_2 v;
+    memset(&v, 0, sizeof(v));
+    v.f_exponent_rnd = INT64_C(-8191);
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_sign_rnd(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_sign_rnd = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_exponent_rnd(fp_fma_reg_type_2 v, int64_t e)
+{
+    v.f_exponent_rnd = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_mantissa_rnd(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_mantissa_rnd = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_fmt(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_rm(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_grs(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_grs = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_snan(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_snan = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_qnan(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_qnan = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_dbz(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_dbz = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_inf(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_inf = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_zero(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_zero = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_diff(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_diff = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_with_f_ready(fp_fma_reg_type_2 v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fp_fma_reg_type_2 fp_fma_reg_type_2_get(const fp_fma_reg_type_2_s *s)
+{
+    fp_fma_reg_type_2 v;
+    v.f_sign_rnd = s->f_sign_rnd.cur;
+    v.f_exponent_rnd = (int64_t) s->f_exponent_rnd.cur;
+    v.f_mantissa_rnd = s->f_mantissa_rnd.cur;
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_grs = s->f_grs.cur;
+    v.f_snan = s->f_snan.cur;
+    v.f_qnan = s->f_qnan.cur;
+    v.f_dbz = s->f_dbz.cur;
+    v.f_inf = s->f_inf.cur;
+    v.f_zero = s->f_zero.cur;
+    v.f_diff = s->f_diff.cur;
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fp_fma_reg_type_2_drive(fp_fma_reg_type_2_s *s, fp_fma_reg_type_2 v)
+{
+    vs_drive(&s->f_sign_rnd, (uint64_t) (v.f_sign_rnd));
+    vs_drive(&s->f_exponent_rnd, (uint64_t) (v.f_exponent_rnd));
+    vs_drive(&s->f_mantissa_rnd, (uint64_t) (v.f_mantissa_rnd));
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_grs, (uint64_t) (v.f_grs));
+    vs_drive(&s->f_snan, (uint64_t) (v.f_snan));
+    vs_drive(&s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_drive(&s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_drive(&s->f_inf, (uint64_t) (v.f_inf));
+    vs_drive(&s->f_zero, (uint64_t) (v.f_zero));
+    vs_drive(&s->f_diff, (uint64_t) (v.f_diff));
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fp_fma_reg_type_2_register(vs_kernel *k, fp_fma_reg_type_2_s *s, fp_fma_reg_type_2 v)
+{
+    vs_register_signal(k, &s->f_sign_rnd, (uint64_t) (v.f_sign_rnd));
+    vs_register_signal(k, &s->f_exponent_rnd, (uint64_t) (v.f_exponent_rnd));
+    vs_register_signal(k, &s->f_mantissa_rnd, (uint64_t) (v.f_mantissa_rnd));
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_grs, (uint64_t) (v.f_grs));
+    vs_register_signal(k, &s->f_snan, (uint64_t) (v.f_snan));
+    vs_register_signal(k, &s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_register_signal(k, &s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_register_signal(k, &s->f_inf, (uint64_t) (v.f_inf));
+    vs_register_signal(k, &s->f_zero, (uint64_t) (v.f_zero));
+    vs_register_signal(k, &s->f_diff, (uint64_t) (v.f_diff));
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fp_fma_reg_type_2_leaves(fp_fma_reg_type_2_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_sign_rnd;
+    out[n++] = &s->f_exponent_rnd;
+    out[n++] = &s->f_mantissa_rnd;
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_grs;
+    out[n++] = &s->f_snan;
+    out[n++] = &s->f_qnan;
+    out[n++] = &s->f_dbz;
+    out[n++] = &s->f_inf;
+    out[n++] = &s->f_zero;
+    out[n++] = &s->f_diff;
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fp_fma_reg_type_2_eq(fp_fma_reg_type_2 a, fp_fma_reg_type_2 b)
+{
+    if (!(a.f_sign_rnd == b.f_sign_rnd)) { return 0; }
+    if (!(a.f_exponent_rnd == b.f_exponent_rnd)) { return 0; }
+    if (!(a.f_mantissa_rnd == b.f_mantissa_rnd)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_grs == b.f_grs)) { return 0; }
+    if (!(a.f_snan == b.f_snan)) { return 0; }
+    if (!(a.f_qnan == b.f_qnan)) { return 0; }
+    if (!(a.f_dbz == b.f_dbz)) { return 0; }
+    if (!(a.f_inf == b.f_inf)) { return 0; }
+    if (!(a.f_zero == b.f_zero)) { return 0; }
+    if (!(a.f_diff == b.f_diff)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_mac_in_type
+{
+    uint64_t f_a;
+    uint64_t f_b;
+    uint64_t f_c;
+    uint64_t f_op;
+} fp_mac_in_type;
+typedef struct fp_mac_in_type_s
+{
+    vs_sig f_a;
+    vs_sig f_b;
+    vs_sig f_c;
+    vs_sig f_op;
+} fp_mac_in_type_s;
+
+static inline fp_mac_in_type fp_mac_in_type_zero(void)
+{
+    fp_mac_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_mac_in_type fp_mac_in_type_with_f_a(fp_mac_in_type v, uint64_t e)
+{
+    v.f_a = e;
+    return v;
+}
+
+static inline fp_mac_in_type fp_mac_in_type_with_f_b(fp_mac_in_type v, uint64_t e)
+{
+    v.f_b = e;
+    return v;
+}
+
+static inline fp_mac_in_type fp_mac_in_type_with_f_c(fp_mac_in_type v, uint64_t e)
+{
+    v.f_c = e;
+    return v;
+}
+
+static inline fp_mac_in_type fp_mac_in_type_with_f_op(fp_mac_in_type v, uint64_t e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline fp_mac_in_type fp_mac_in_type_get(const fp_mac_in_type_s *s)
+{
+    fp_mac_in_type v;
+    v.f_a = s->f_a.cur;
+    v.f_b = s->f_b.cur;
+    v.f_c = s->f_c.cur;
+    v.f_op = s->f_op.cur;
+    return v;
+}
+
+static inline void fp_mac_in_type_drive(fp_mac_in_type_s *s, fp_mac_in_type v)
+{
+    vs_drive(&s->f_a, (uint64_t) (v.f_a));
+    vs_drive(&s->f_b, (uint64_t) (v.f_b));
+    vs_drive(&s->f_c, (uint64_t) (v.f_c));
+    vs_drive(&s->f_op, (uint64_t) (v.f_op));
+}
+
+static inline void fp_mac_in_type_register(vs_kernel *k, fp_mac_in_type_s *s, fp_mac_in_type v)
+{
+    vs_register_signal(k, &s->f_a, (uint64_t) (v.f_a));
+    vs_register_signal(k, &s->f_b, (uint64_t) (v.f_b));
+    vs_register_signal(k, &s->f_c, (uint64_t) (v.f_c));
+    vs_register_signal(k, &s->f_op, (uint64_t) (v.f_op));
+}
+
+static inline size_t fp_mac_in_type_leaves(fp_mac_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_a;
+    out[n++] = &s->f_b;
+    out[n++] = &s->f_c;
+    out[n++] = &s->f_op;
+    return n;
+}
+
+static inline int fp_mac_in_type_eq(fp_mac_in_type a, fp_mac_in_type b)
+{
+    if (!(a.f_a == b.f_a)) { return 0; }
+    if (!(a.f_b == b.f_b)) { return 0; }
+    if (!(a.f_c == b.f_c)) { return 0; }
+    if (!(a.f_op == b.f_op)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_mac_out_type
+{
+    vs_w f_d;
+} fp_mac_out_type;
+typedef struct fp_mac_out_type_s
+{
+    vs_sigw2 f_d;
+} fp_mac_out_type_s;
+
+static inline fp_mac_out_type fp_mac_out_type_zero(void)
+{
+    fp_mac_out_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_mac_out_type fp_mac_out_type_with_f_d(fp_mac_out_type v, vs_w e)
+{
+    v.f_d = e;
+    return v;
+}
+
+static inline fp_mac_out_type fp_mac_out_type_get(const fp_mac_out_type_s *s)
+{
+    fp_mac_out_type v;
+    v.f_d = vs_w_get(s->f_d.w, 2);
+    return v;
+}
+
+static inline void fp_mac_out_type_drive(fp_mac_out_type_s *s, fp_mac_out_type v)
+{
+    vs_w_drive(s->f_d.w, 2, v.f_d);
+}
+
+static inline void fp_mac_out_type_register(vs_kernel *k, fp_mac_out_type_s *s, fp_mac_out_type v)
+{
+    vs_w_register(k, s->f_d.w, 2, v.f_d);
+}
+
+static inline size_t fp_mac_out_type_leaves(fp_mac_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_d.w[j]; } }
+    return n;
+}
+
+static inline int fp_mac_out_type_eq(fp_mac_out_type a, fp_mac_out_type b)
+{
+    if (!vs_w_eq(a.f_d, b.f_d)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_fdiv_in_type
+{
+    vs_w f_data1;
+    vs_w f_data2;
+    uint64_t f_class1;
+    uint64_t f_class2;
+    fp_operation_type f_op;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+} fp_fdiv_in_type;
+typedef struct fp_fdiv_in_type_s
+{
+    vs_sigw2 f_data1;
+    vs_sigw2 f_data2;
+    vs_sig f_class1;
+    vs_sig f_class2;
+    fp_operation_type_s f_op;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+} fp_fdiv_in_type_s;
+
+static inline fp_fdiv_in_type fp_fdiv_in_type_zero(void)
+{
+    fp_fdiv_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_fdiv_in_type fp_fdiv_in_type_with_f_data1(fp_fdiv_in_type v, vs_w e)
+{
+    v.f_data1 = e;
+    return v;
+}
+
+static inline fp_fdiv_in_type fp_fdiv_in_type_with_f_data2(fp_fdiv_in_type v, vs_w e)
+{
+    v.f_data2 = e;
+    return v;
+}
+
+static inline fp_fdiv_in_type fp_fdiv_in_type_with_f_class1(fp_fdiv_in_type v, uint64_t e)
+{
+    v.f_class1 = e;
+    return v;
+}
+
+static inline fp_fdiv_in_type fp_fdiv_in_type_with_f_class2(fp_fdiv_in_type v, uint64_t e)
+{
+    v.f_class2 = e;
+    return v;
+}
+
+static inline fp_fdiv_in_type fp_fdiv_in_type_with_f_op(fp_fdiv_in_type v, fp_operation_type e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline fp_fdiv_in_type fp_fdiv_in_type_with_f_fmt(fp_fdiv_in_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_fdiv_in_type fp_fdiv_in_type_with_f_rm(fp_fdiv_in_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_fdiv_in_type fp_fdiv_in_type_get(const fp_fdiv_in_type_s *s)
+{
+    fp_fdiv_in_type v;
+    v.f_data1 = vs_w_get(s->f_data1.w, 2);
+    v.f_data2 = vs_w_get(s->f_data2.w, 2);
+    v.f_class1 = s->f_class1.cur;
+    v.f_class2 = s->f_class2.cur;
+    v.f_op = fp_operation_type_get(&s->f_op);
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    return v;
+}
+
+static inline void fp_fdiv_in_type_drive(fp_fdiv_in_type_s *s, fp_fdiv_in_type v)
+{
+    vs_w_drive(s->f_data1.w, 2, v.f_data1);
+    vs_w_drive(s->f_data2.w, 2, v.f_data2);
+    vs_drive(&s->f_class1, (uint64_t) (v.f_class1));
+    vs_drive(&s->f_class2, (uint64_t) (v.f_class2));
+    fp_operation_type_drive(&s->f_op, v.f_op);
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+}
+
+static inline void fp_fdiv_in_type_register(vs_kernel *k, fp_fdiv_in_type_s *s, fp_fdiv_in_type v)
+{
+    vs_w_register(k, s->f_data1.w, 2, v.f_data1);
+    vs_w_register(k, s->f_data2.w, 2, v.f_data2);
+    vs_register_signal(k, &s->f_class1, (uint64_t) (v.f_class1));
+    vs_register_signal(k, &s->f_class2, (uint64_t) (v.f_class2));
+    fp_operation_type_register(k, &s->f_op, v.f_op);
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+}
+
+static inline size_t fp_fdiv_in_type_leaves(fp_fdiv_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_data1.w[j]; } }
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_data2.w[j]; } }
+    out[n++] = &s->f_class1;
+    out[n++] = &s->f_class2;
+    n += fp_operation_type_leaves(&s->f_op, out + n);
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    return n;
+}
+
+static inline int fp_fdiv_in_type_eq(fp_fdiv_in_type a, fp_fdiv_in_type b)
+{
+    if (!vs_w_eq(a.f_data1, b.f_data1)) { return 0; }
+    if (!vs_w_eq(a.f_data2, b.f_data2)) { return 0; }
+    if (!(a.f_class1 == b.f_class1)) { return 0; }
+    if (!(a.f_class2 == b.f_class2)) { return 0; }
+    if (!fp_operation_type_eq(a.f_op, b.f_op)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_fdiv_out_type
+{
+    fp_rnd_in_type f_fp_rnd;
+    uint64_t f_ready;
+} fp_fdiv_out_type;
+typedef struct fp_fdiv_out_type_s
+{
+    fp_rnd_in_type_s f_fp_rnd;
+    vs_sig f_ready;
+} fp_fdiv_out_type_s;
+
+static inline fp_fdiv_out_type fp_fdiv_out_type_zero(void)
+{
+    fp_fdiv_out_type v;
+    memset(&v, 0, sizeof(v));
+    v.f_fp_rnd = fp_rnd_in_type_zero();
+    return v;
+}
+
+static inline fp_fdiv_out_type fp_fdiv_out_type_with_f_fp_rnd(fp_fdiv_out_type v, fp_rnd_in_type e)
+{
+    v.f_fp_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_out_type fp_fdiv_out_type_with_f_ready(fp_fdiv_out_type v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fp_fdiv_out_type fp_fdiv_out_type_get(const fp_fdiv_out_type_s *s)
+{
+    fp_fdiv_out_type v;
+    v.f_fp_rnd = fp_rnd_in_type_get(&s->f_fp_rnd);
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fp_fdiv_out_type_drive(fp_fdiv_out_type_s *s, fp_fdiv_out_type v)
+{
+    fp_rnd_in_type_drive(&s->f_fp_rnd, v.f_fp_rnd);
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fp_fdiv_out_type_register(vs_kernel *k, fp_fdiv_out_type_s *s, fp_fdiv_out_type v)
+{
+    fp_rnd_in_type_register(k, &s->f_fp_rnd, v.f_fp_rnd);
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fp_fdiv_out_type_leaves(fp_fdiv_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    n += fp_rnd_in_type_leaves(&s->f_fp_rnd, out + n);
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fp_fdiv_out_type_eq(fp_fdiv_out_type a, fp_fdiv_out_type b)
+{
+    if (!fp_rnd_in_type_eq(a.f_fp_rnd, b.f_fp_rnd)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_fdiv_functional_reg_type
+{
+    uint32_t f_state;
+    int64_t f_istate;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    vs_w f_a;
+    vs_w f_b;
+    uint64_t f_class_a;
+    uint64_t f_class_b;
+    uint64_t f_snan;
+    uint64_t f_qnan;
+    uint64_t f_inf;
+    uint64_t f_dbz;
+    uint64_t f_zero;
+    uint64_t f_op;
+    int64_t f_index;
+    uint64_t f_qa;
+    uint64_t f_qb;
+    uint64_t f_q0;
+    uint64_t f_q1;
+    vs_w f_r0;
+    vs_w f_r1;
+    uint64_t f_y;
+    uint64_t f_y0;
+    uint64_t f_y1;
+    uint64_t f_y2;
+    uint64_t f_y3;
+    uint64_t f_h0;
+    uint64_t f_h1;
+    uint64_t f_h2;
+    uint64_t f_e0;
+    uint64_t f_e1;
+    uint64_t f_e2;
+    uint64_t f_sign_fdiv;
+    int64_t f_exponent_fdiv;
+    vs_w f_mantissa_fdiv;
+    int64_t f_counter_fdiv;
+    int64_t f_exponent_bias;
+    uint64_t f_sign_rnd;
+    int64_t f_exponent_rnd;
+    uint64_t f_mantissa_rnd;
+    uint64_t f_remainder_rnd;
+    int64_t f_counter_rnd;
+    uint64_t f_grs;
+    uint64_t f_odd;
+    uint64_t f_result;
+    uint64_t f_flags;
+    uint64_t f_ready;
+} fp_fdiv_functional_reg_type;
+typedef struct fp_fdiv_functional_reg_type_s
+{
+    vs_sig f_state;
+    vs_sig f_istate;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sigw2 f_a;
+    vs_sigw2 f_b;
+    vs_sig f_class_a;
+    vs_sig f_class_b;
+    vs_sig f_snan;
+    vs_sig f_qnan;
+    vs_sig f_inf;
+    vs_sig f_dbz;
+    vs_sig f_zero;
+    vs_sig f_op;
+    vs_sig f_index;
+    vs_sig f_qa;
+    vs_sig f_qb;
+    vs_sig f_q0;
+    vs_sig f_q1;
+    vs_sigw2 f_r0;
+    vs_sigw2 f_r1;
+    vs_sig f_y;
+    vs_sig f_y0;
+    vs_sig f_y1;
+    vs_sig f_y2;
+    vs_sig f_y3;
+    vs_sig f_h0;
+    vs_sig f_h1;
+    vs_sig f_h2;
+    vs_sig f_e0;
+    vs_sig f_e1;
+    vs_sig f_e2;
+    vs_sig f_sign_fdiv;
+    vs_sig f_exponent_fdiv;
+    vs_sigw2 f_mantissa_fdiv;
+    vs_sig f_counter_fdiv;
+    vs_sig f_exponent_bias;
+    vs_sig f_sign_rnd;
+    vs_sig f_exponent_rnd;
+    vs_sig f_mantissa_rnd;
+    vs_sig f_remainder_rnd;
+    vs_sig f_counter_rnd;
+    vs_sig f_grs;
+    vs_sig f_odd;
+    vs_sig f_result;
+    vs_sig f_flags;
+    vs_sig f_ready;
+} fp_fdiv_functional_reg_type_s;
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_zero(void)
+{
+    fp_fdiv_functional_reg_type v;
+    memset(&v, 0, sizeof(v));
+    v.f_exponent_fdiv = INT64_C(-8191);
+    v.f_exponent_rnd = INT64_C(-8191);
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_state(fp_fdiv_functional_reg_type v, uint32_t e)
+{
+    v.f_state = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_istate(fp_fdiv_functional_reg_type v, int64_t e)
+{
+    v.f_istate = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_fmt(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_rm(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_a(fp_fdiv_functional_reg_type v, vs_w e)
+{
+    v.f_a = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_b(fp_fdiv_functional_reg_type v, vs_w e)
+{
+    v.f_b = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_class_a(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_class_a = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_class_b(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_class_b = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_snan(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_snan = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_qnan(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_qnan = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_inf(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_inf = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_dbz(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_dbz = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_zero(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_zero = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_op(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_index(fp_fdiv_functional_reg_type v, int64_t e)
+{
+    v.f_index = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_qa(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_qa = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_qb(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_qb = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_q0(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_q0 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_q1(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_q1 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_r0(fp_fdiv_functional_reg_type v, vs_w e)
+{
+    v.f_r0 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_r1(fp_fdiv_functional_reg_type v, vs_w e)
+{
+    v.f_r1 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_y(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_y = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_y0(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_y0 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_y1(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_y1 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_y2(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_y2 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_y3(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_y3 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_h0(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_h0 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_h1(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_h1 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_h2(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_h2 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_e0(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_e0 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_e1(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_e1 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_e2(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_e2 = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_sign_fdiv(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_sign_fdiv = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_exponent_fdiv(fp_fdiv_functional_reg_type v, int64_t e)
+{
+    v.f_exponent_fdiv = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_mantissa_fdiv(fp_fdiv_functional_reg_type v, vs_w e)
+{
+    v.f_mantissa_fdiv = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_counter_fdiv(fp_fdiv_functional_reg_type v, int64_t e)
+{
+    v.f_counter_fdiv = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_exponent_bias(fp_fdiv_functional_reg_type v, int64_t e)
+{
+    v.f_exponent_bias = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_sign_rnd(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_sign_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_exponent_rnd(fp_fdiv_functional_reg_type v, int64_t e)
+{
+    v.f_exponent_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_mantissa_rnd(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_mantissa_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_remainder_rnd(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_remainder_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_counter_rnd(fp_fdiv_functional_reg_type v, int64_t e)
+{
+    v.f_counter_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_grs(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_grs = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_odd(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_odd = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_result(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_result = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_flags(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_flags = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_with_f_ready(fp_fdiv_functional_reg_type v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fp_fdiv_functional_reg_type fp_fdiv_functional_reg_type_get(const fp_fdiv_functional_reg_type_s *s)
+{
+    fp_fdiv_functional_reg_type v;
+    v.f_state = (uint32_t) s->f_state.cur;
+    v.f_istate = (int64_t) s->f_istate.cur;
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_a = vs_w_get(s->f_a.w, 2);
+    v.f_b = vs_w_get(s->f_b.w, 2);
+    v.f_class_a = s->f_class_a.cur;
+    v.f_class_b = s->f_class_b.cur;
+    v.f_snan = s->f_snan.cur;
+    v.f_qnan = s->f_qnan.cur;
+    v.f_inf = s->f_inf.cur;
+    v.f_dbz = s->f_dbz.cur;
+    v.f_zero = s->f_zero.cur;
+    v.f_op = s->f_op.cur;
+    v.f_index = (int64_t) s->f_index.cur;
+    v.f_qa = s->f_qa.cur;
+    v.f_qb = s->f_qb.cur;
+    v.f_q0 = s->f_q0.cur;
+    v.f_q1 = s->f_q1.cur;
+    v.f_r0 = vs_w_get(s->f_r0.w, 2);
+    v.f_r1 = vs_w_get(s->f_r1.w, 2);
+    v.f_y = s->f_y.cur;
+    v.f_y0 = s->f_y0.cur;
+    v.f_y1 = s->f_y1.cur;
+    v.f_y2 = s->f_y2.cur;
+    v.f_y3 = s->f_y3.cur;
+    v.f_h0 = s->f_h0.cur;
+    v.f_h1 = s->f_h1.cur;
+    v.f_h2 = s->f_h2.cur;
+    v.f_e0 = s->f_e0.cur;
+    v.f_e1 = s->f_e1.cur;
+    v.f_e2 = s->f_e2.cur;
+    v.f_sign_fdiv = s->f_sign_fdiv.cur;
+    v.f_exponent_fdiv = (int64_t) s->f_exponent_fdiv.cur;
+    v.f_mantissa_fdiv = vs_w_get(s->f_mantissa_fdiv.w, 2);
+    v.f_counter_fdiv = (int64_t) s->f_counter_fdiv.cur;
+    v.f_exponent_bias = (int64_t) s->f_exponent_bias.cur;
+    v.f_sign_rnd = s->f_sign_rnd.cur;
+    v.f_exponent_rnd = (int64_t) s->f_exponent_rnd.cur;
+    v.f_mantissa_rnd = s->f_mantissa_rnd.cur;
+    v.f_remainder_rnd = s->f_remainder_rnd.cur;
+    v.f_counter_rnd = (int64_t) s->f_counter_rnd.cur;
+    v.f_grs = s->f_grs.cur;
+    v.f_odd = s->f_odd.cur;
+    v.f_result = s->f_result.cur;
+    v.f_flags = s->f_flags.cur;
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fp_fdiv_functional_reg_type_drive(fp_fdiv_functional_reg_type_s *s, fp_fdiv_functional_reg_type v)
+{
+    vs_drive(&s->f_state, (uint64_t) (v.f_state));
+    vs_drive(&s->f_istate, (uint64_t) (v.f_istate));
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_w_drive(s->f_a.w, 2, v.f_a);
+    vs_w_drive(s->f_b.w, 2, v.f_b);
+    vs_drive(&s->f_class_a, (uint64_t) (v.f_class_a));
+    vs_drive(&s->f_class_b, (uint64_t) (v.f_class_b));
+    vs_drive(&s->f_snan, (uint64_t) (v.f_snan));
+    vs_drive(&s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_drive(&s->f_inf, (uint64_t) (v.f_inf));
+    vs_drive(&s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_drive(&s->f_zero, (uint64_t) (v.f_zero));
+    vs_drive(&s->f_op, (uint64_t) (v.f_op));
+    vs_drive(&s->f_index, (uint64_t) (v.f_index));
+    vs_drive(&s->f_qa, (uint64_t) (v.f_qa));
+    vs_drive(&s->f_qb, (uint64_t) (v.f_qb));
+    vs_drive(&s->f_q0, (uint64_t) (v.f_q0));
+    vs_drive(&s->f_q1, (uint64_t) (v.f_q1));
+    vs_w_drive(s->f_r0.w, 2, v.f_r0);
+    vs_w_drive(s->f_r1.w, 2, v.f_r1);
+    vs_drive(&s->f_y, (uint64_t) (v.f_y));
+    vs_drive(&s->f_y0, (uint64_t) (v.f_y0));
+    vs_drive(&s->f_y1, (uint64_t) (v.f_y1));
+    vs_drive(&s->f_y2, (uint64_t) (v.f_y2));
+    vs_drive(&s->f_y3, (uint64_t) (v.f_y3));
+    vs_drive(&s->f_h0, (uint64_t) (v.f_h0));
+    vs_drive(&s->f_h1, (uint64_t) (v.f_h1));
+    vs_drive(&s->f_h2, (uint64_t) (v.f_h2));
+    vs_drive(&s->f_e0, (uint64_t) (v.f_e0));
+    vs_drive(&s->f_e1, (uint64_t) (v.f_e1));
+    vs_drive(&s->f_e2, (uint64_t) (v.f_e2));
+    vs_drive(&s->f_sign_fdiv, (uint64_t) (v.f_sign_fdiv));
+    vs_drive(&s->f_exponent_fdiv, (uint64_t) (v.f_exponent_fdiv));
+    vs_w_drive(s->f_mantissa_fdiv.w, 2, v.f_mantissa_fdiv);
+    vs_drive(&s->f_counter_fdiv, (uint64_t) (v.f_counter_fdiv));
+    vs_drive(&s->f_exponent_bias, (uint64_t) (v.f_exponent_bias));
+    vs_drive(&s->f_sign_rnd, (uint64_t) (v.f_sign_rnd));
+    vs_drive(&s->f_exponent_rnd, (uint64_t) (v.f_exponent_rnd));
+    vs_drive(&s->f_mantissa_rnd, (uint64_t) (v.f_mantissa_rnd));
+    vs_drive(&s->f_remainder_rnd, (uint64_t) (v.f_remainder_rnd));
+    vs_drive(&s->f_counter_rnd, (uint64_t) (v.f_counter_rnd));
+    vs_drive(&s->f_grs, (uint64_t) (v.f_grs));
+    vs_drive(&s->f_odd, (uint64_t) (v.f_odd));
+    vs_drive(&s->f_result, (uint64_t) (v.f_result));
+    vs_drive(&s->f_flags, (uint64_t) (v.f_flags));
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fp_fdiv_functional_reg_type_register(vs_kernel *k, fp_fdiv_functional_reg_type_s *s, fp_fdiv_functional_reg_type v)
+{
+    vs_register_signal(k, &s->f_state, (uint64_t) (v.f_state));
+    vs_register_signal(k, &s->f_istate, (uint64_t) (v.f_istate));
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_w_register(k, s->f_a.w, 2, v.f_a);
+    vs_w_register(k, s->f_b.w, 2, v.f_b);
+    vs_register_signal(k, &s->f_class_a, (uint64_t) (v.f_class_a));
+    vs_register_signal(k, &s->f_class_b, (uint64_t) (v.f_class_b));
+    vs_register_signal(k, &s->f_snan, (uint64_t) (v.f_snan));
+    vs_register_signal(k, &s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_register_signal(k, &s->f_inf, (uint64_t) (v.f_inf));
+    vs_register_signal(k, &s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_register_signal(k, &s->f_zero, (uint64_t) (v.f_zero));
+    vs_register_signal(k, &s->f_op, (uint64_t) (v.f_op));
+    vs_register_signal(k, &s->f_index, (uint64_t) (v.f_index));
+    vs_register_signal(k, &s->f_qa, (uint64_t) (v.f_qa));
+    vs_register_signal(k, &s->f_qb, (uint64_t) (v.f_qb));
+    vs_register_signal(k, &s->f_q0, (uint64_t) (v.f_q0));
+    vs_register_signal(k, &s->f_q1, (uint64_t) (v.f_q1));
+    vs_w_register(k, s->f_r0.w, 2, v.f_r0);
+    vs_w_register(k, s->f_r1.w, 2, v.f_r1);
+    vs_register_signal(k, &s->f_y, (uint64_t) (v.f_y));
+    vs_register_signal(k, &s->f_y0, (uint64_t) (v.f_y0));
+    vs_register_signal(k, &s->f_y1, (uint64_t) (v.f_y1));
+    vs_register_signal(k, &s->f_y2, (uint64_t) (v.f_y2));
+    vs_register_signal(k, &s->f_y3, (uint64_t) (v.f_y3));
+    vs_register_signal(k, &s->f_h0, (uint64_t) (v.f_h0));
+    vs_register_signal(k, &s->f_h1, (uint64_t) (v.f_h1));
+    vs_register_signal(k, &s->f_h2, (uint64_t) (v.f_h2));
+    vs_register_signal(k, &s->f_e0, (uint64_t) (v.f_e0));
+    vs_register_signal(k, &s->f_e1, (uint64_t) (v.f_e1));
+    vs_register_signal(k, &s->f_e2, (uint64_t) (v.f_e2));
+    vs_register_signal(k, &s->f_sign_fdiv, (uint64_t) (v.f_sign_fdiv));
+    vs_register_signal(k, &s->f_exponent_fdiv, (uint64_t) (v.f_exponent_fdiv));
+    vs_w_register(k, s->f_mantissa_fdiv.w, 2, v.f_mantissa_fdiv);
+    vs_register_signal(k, &s->f_counter_fdiv, (uint64_t) (v.f_counter_fdiv));
+    vs_register_signal(k, &s->f_exponent_bias, (uint64_t) (v.f_exponent_bias));
+    vs_register_signal(k, &s->f_sign_rnd, (uint64_t) (v.f_sign_rnd));
+    vs_register_signal(k, &s->f_exponent_rnd, (uint64_t) (v.f_exponent_rnd));
+    vs_register_signal(k, &s->f_mantissa_rnd, (uint64_t) (v.f_mantissa_rnd));
+    vs_register_signal(k, &s->f_remainder_rnd, (uint64_t) (v.f_remainder_rnd));
+    vs_register_signal(k, &s->f_counter_rnd, (uint64_t) (v.f_counter_rnd));
+    vs_register_signal(k, &s->f_grs, (uint64_t) (v.f_grs));
+    vs_register_signal(k, &s->f_odd, (uint64_t) (v.f_odd));
+    vs_register_signal(k, &s->f_result, (uint64_t) (v.f_result));
+    vs_register_signal(k, &s->f_flags, (uint64_t) (v.f_flags));
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fp_fdiv_functional_reg_type_leaves(fp_fdiv_functional_reg_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_state;
+    out[n++] = &s->f_istate;
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_a.w[j]; } }
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_b.w[j]; } }
+    out[n++] = &s->f_class_a;
+    out[n++] = &s->f_class_b;
+    out[n++] = &s->f_snan;
+    out[n++] = &s->f_qnan;
+    out[n++] = &s->f_inf;
+    out[n++] = &s->f_dbz;
+    out[n++] = &s->f_zero;
+    out[n++] = &s->f_op;
+    out[n++] = &s->f_index;
+    out[n++] = &s->f_qa;
+    out[n++] = &s->f_qb;
+    out[n++] = &s->f_q0;
+    out[n++] = &s->f_q1;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_r0.w[j]; } }
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_r1.w[j]; } }
+    out[n++] = &s->f_y;
+    out[n++] = &s->f_y0;
+    out[n++] = &s->f_y1;
+    out[n++] = &s->f_y2;
+    out[n++] = &s->f_y3;
+    out[n++] = &s->f_h0;
+    out[n++] = &s->f_h1;
+    out[n++] = &s->f_h2;
+    out[n++] = &s->f_e0;
+    out[n++] = &s->f_e1;
+    out[n++] = &s->f_e2;
+    out[n++] = &s->f_sign_fdiv;
+    out[n++] = &s->f_exponent_fdiv;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_mantissa_fdiv.w[j]; } }
+    out[n++] = &s->f_counter_fdiv;
+    out[n++] = &s->f_exponent_bias;
+    out[n++] = &s->f_sign_rnd;
+    out[n++] = &s->f_exponent_rnd;
+    out[n++] = &s->f_mantissa_rnd;
+    out[n++] = &s->f_remainder_rnd;
+    out[n++] = &s->f_counter_rnd;
+    out[n++] = &s->f_grs;
+    out[n++] = &s->f_odd;
+    out[n++] = &s->f_result;
+    out[n++] = &s->f_flags;
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fp_fdiv_functional_reg_type_eq(fp_fdiv_functional_reg_type a, fp_fdiv_functional_reg_type b)
+{
+    if (!(a.f_state == b.f_state)) { return 0; }
+    if (!(a.f_istate == b.f_istate)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!vs_w_eq(a.f_a, b.f_a)) { return 0; }
+    if (!vs_w_eq(a.f_b, b.f_b)) { return 0; }
+    if (!(a.f_class_a == b.f_class_a)) { return 0; }
+    if (!(a.f_class_b == b.f_class_b)) { return 0; }
+    if (!(a.f_snan == b.f_snan)) { return 0; }
+    if (!(a.f_qnan == b.f_qnan)) { return 0; }
+    if (!(a.f_inf == b.f_inf)) { return 0; }
+    if (!(a.f_dbz == b.f_dbz)) { return 0; }
+    if (!(a.f_zero == b.f_zero)) { return 0; }
+    if (!(a.f_op == b.f_op)) { return 0; }
+    if (!(a.f_index == b.f_index)) { return 0; }
+    if (!(a.f_qa == b.f_qa)) { return 0; }
+    if (!(a.f_qb == b.f_qb)) { return 0; }
+    if (!(a.f_q0 == b.f_q0)) { return 0; }
+    if (!(a.f_q1 == b.f_q1)) { return 0; }
+    if (!vs_w_eq(a.f_r0, b.f_r0)) { return 0; }
+    if (!vs_w_eq(a.f_r1, b.f_r1)) { return 0; }
+    if (!(a.f_y == b.f_y)) { return 0; }
+    if (!(a.f_y0 == b.f_y0)) { return 0; }
+    if (!(a.f_y1 == b.f_y1)) { return 0; }
+    if (!(a.f_y2 == b.f_y2)) { return 0; }
+    if (!(a.f_y3 == b.f_y3)) { return 0; }
+    if (!(a.f_h0 == b.f_h0)) { return 0; }
+    if (!(a.f_h1 == b.f_h1)) { return 0; }
+    if (!(a.f_h2 == b.f_h2)) { return 0; }
+    if (!(a.f_e0 == b.f_e0)) { return 0; }
+    if (!(a.f_e1 == b.f_e1)) { return 0; }
+    if (!(a.f_e2 == b.f_e2)) { return 0; }
+    if (!(a.f_sign_fdiv == b.f_sign_fdiv)) { return 0; }
+    if (!(a.f_exponent_fdiv == b.f_exponent_fdiv)) { return 0; }
+    if (!vs_w_eq(a.f_mantissa_fdiv, b.f_mantissa_fdiv)) { return 0; }
+    if (!(a.f_counter_fdiv == b.f_counter_fdiv)) { return 0; }
+    if (!(a.f_exponent_bias == b.f_exponent_bias)) { return 0; }
+    if (!(a.f_sign_rnd == b.f_sign_rnd)) { return 0; }
+    if (!(a.f_exponent_rnd == b.f_exponent_rnd)) { return 0; }
+    if (!(a.f_mantissa_rnd == b.f_mantissa_rnd)) { return 0; }
+    if (!(a.f_remainder_rnd == b.f_remainder_rnd)) { return 0; }
+    if (!(a.f_counter_rnd == b.f_counter_rnd)) { return 0; }
+    if (!(a.f_grs == b.f_grs)) { return 0; }
+    if (!(a.f_odd == b.f_odd)) { return 0; }
+    if (!(a.f_result == b.f_result)) { return 0; }
+    if (!(a.f_flags == b.f_flags)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_fdiv_fixed_reg_type
+{
+    uint32_t f_state;
+    int64_t f_istate;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    vs_w f_a;
+    vs_w f_b;
+    uint64_t f_class_a;
+    uint64_t f_class_b;
+    uint64_t f_snan;
+    uint64_t f_qnan;
+    uint64_t f_inf;
+    uint64_t f_dbz;
+    uint64_t f_zero;
+    uint64_t f_op;
+    uint64_t f_qa;
+    uint64_t f_qb;
+    uint64_t f_q;
+    uint64_t f_m;
+    uint64_t f_r;
+    uint64_t f_e;
+    uint64_t f_sign_fdiv;
+    int64_t f_exponent_fdiv;
+    vs_w f_mantissa_fdiv;
+    int64_t f_counter_fdiv;
+    int64_t f_exponent_bias;
+    uint64_t f_sign_rnd;
+    int64_t f_exponent_rnd;
+    uint64_t f_mantissa_rnd;
+    uint64_t f_remainder_rnd;
+    int64_t f_counter_rnd;
+    uint64_t f_grs;
+    uint64_t f_odd;
+    uint64_t f_result;
+    uint64_t f_flags;
+    uint64_t f_ready;
+} fp_fdiv_fixed_reg_type;
+typedef struct fp_fdiv_fixed_reg_type_s
+{
+    vs_sig f_state;
+    vs_sig f_istate;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sigw2 f_a;
+    vs_sigw2 f_b;
+    vs_sig f_class_a;
+    vs_sig f_class_b;
+    vs_sig f_snan;
+    vs_sig f_qnan;
+    vs_sig f_inf;
+    vs_sig f_dbz;
+    vs_sig f_zero;
+    vs_sig f_op;
+    vs_sig f_qa;
+    vs_sig f_qb;
+    vs_sig f_q;
+    vs_sig f_m;
+    vs_sig f_r;
+    vs_sig f_e;
+    vs_sig f_sign_fdiv;
+    vs_sig f_exponent_fdiv;
+    vs_sigw3 f_mantissa_fdiv;
+    vs_sig f_counter_fdiv;
+    vs_sig f_exponent_bias;
+    vs_sig f_sign_rnd;
+    vs_sig f_exponent_rnd;
+    vs_sig f_mantissa_rnd;
+    vs_sig f_remainder_rnd;
+    vs_sig f_counter_rnd;
+    vs_sig f_grs;
+    vs_sig f_odd;
+    vs_sig f_result;
+    vs_sig f_flags;
+    vs_sig f_ready;
+} fp_fdiv_fixed_reg_type_s;
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_zero(void)
+{
+    fp_fdiv_fixed_reg_type v;
+    memset(&v, 0, sizeof(v));
+    v.f_exponent_fdiv = INT64_C(-8191);
+    v.f_exponent_rnd = INT64_C(-8191);
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_state(fp_fdiv_fixed_reg_type v, uint32_t e)
+{
+    v.f_state = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_istate(fp_fdiv_fixed_reg_type v, int64_t e)
+{
+    v.f_istate = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_fmt(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_rm(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_a(fp_fdiv_fixed_reg_type v, vs_w e)
+{
+    v.f_a = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_b(fp_fdiv_fixed_reg_type v, vs_w e)
+{
+    v.f_b = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_class_a(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_class_a = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_class_b(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_class_b = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_snan(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_snan = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_qnan(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_qnan = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_inf(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_inf = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_dbz(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_dbz = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_zero(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_zero = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_op(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_qa(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_qa = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_qb(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_qb = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_q(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_q = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_m(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_m = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_r(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_r = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_e(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_e = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_sign_fdiv(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_sign_fdiv = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_exponent_fdiv(fp_fdiv_fixed_reg_type v, int64_t e)
+{
+    v.f_exponent_fdiv = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_mantissa_fdiv(fp_fdiv_fixed_reg_type v, vs_w e)
+{
+    v.f_mantissa_fdiv = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_counter_fdiv(fp_fdiv_fixed_reg_type v, int64_t e)
+{
+    v.f_counter_fdiv = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_exponent_bias(fp_fdiv_fixed_reg_type v, int64_t e)
+{
+    v.f_exponent_bias = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_sign_rnd(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_sign_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_exponent_rnd(fp_fdiv_fixed_reg_type v, int64_t e)
+{
+    v.f_exponent_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_mantissa_rnd(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_mantissa_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_remainder_rnd(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_remainder_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_counter_rnd(fp_fdiv_fixed_reg_type v, int64_t e)
+{
+    v.f_counter_rnd = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_grs(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_grs = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_odd(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_odd = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_result(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_result = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_flags(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_flags = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_with_f_ready(fp_fdiv_fixed_reg_type v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fp_fdiv_fixed_reg_type fp_fdiv_fixed_reg_type_get(const fp_fdiv_fixed_reg_type_s *s)
+{
+    fp_fdiv_fixed_reg_type v;
+    v.f_state = (uint32_t) s->f_state.cur;
+    v.f_istate = (int64_t) s->f_istate.cur;
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_a = vs_w_get(s->f_a.w, 2);
+    v.f_b = vs_w_get(s->f_b.w, 2);
+    v.f_class_a = s->f_class_a.cur;
+    v.f_class_b = s->f_class_b.cur;
+    v.f_snan = s->f_snan.cur;
+    v.f_qnan = s->f_qnan.cur;
+    v.f_inf = s->f_inf.cur;
+    v.f_dbz = s->f_dbz.cur;
+    v.f_zero = s->f_zero.cur;
+    v.f_op = s->f_op.cur;
+    v.f_qa = s->f_qa.cur;
+    v.f_qb = s->f_qb.cur;
+    v.f_q = s->f_q.cur;
+    v.f_m = s->f_m.cur;
+    v.f_r = s->f_r.cur;
+    v.f_e = s->f_e.cur;
+    v.f_sign_fdiv = s->f_sign_fdiv.cur;
+    v.f_exponent_fdiv = (int64_t) s->f_exponent_fdiv.cur;
+    v.f_mantissa_fdiv = vs_w_get(s->f_mantissa_fdiv.w, 3);
+    v.f_counter_fdiv = (int64_t) s->f_counter_fdiv.cur;
+    v.f_exponent_bias = (int64_t) s->f_exponent_bias.cur;
+    v.f_sign_rnd = s->f_sign_rnd.cur;
+    v.f_exponent_rnd = (int64_t) s->f_exponent_rnd.cur;
+    v.f_mantissa_rnd = s->f_mantissa_rnd.cur;
+    v.f_remainder_rnd = s->f_remainder_rnd.cur;
+    v.f_counter_rnd = (int64_t) s->f_counter_rnd.cur;
+    v.f_grs = s->f_grs.cur;
+    v.f_odd = s->f_odd.cur;
+    v.f_result = s->f_result.cur;
+    v.f_flags = s->f_flags.cur;
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fp_fdiv_fixed_reg_type_drive(fp_fdiv_fixed_reg_type_s *s, fp_fdiv_fixed_reg_type v)
+{
+    vs_drive(&s->f_state, (uint64_t) (v.f_state));
+    vs_drive(&s->f_istate, (uint64_t) (v.f_istate));
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_w_drive(s->f_a.w, 2, v.f_a);
+    vs_w_drive(s->f_b.w, 2, v.f_b);
+    vs_drive(&s->f_class_a, (uint64_t) (v.f_class_a));
+    vs_drive(&s->f_class_b, (uint64_t) (v.f_class_b));
+    vs_drive(&s->f_snan, (uint64_t) (v.f_snan));
+    vs_drive(&s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_drive(&s->f_inf, (uint64_t) (v.f_inf));
+    vs_drive(&s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_drive(&s->f_zero, (uint64_t) (v.f_zero));
+    vs_drive(&s->f_op, (uint64_t) (v.f_op));
+    vs_drive(&s->f_qa, (uint64_t) (v.f_qa));
+    vs_drive(&s->f_qb, (uint64_t) (v.f_qb));
+    vs_drive(&s->f_q, (uint64_t) (v.f_q));
+    vs_drive(&s->f_m, (uint64_t) (v.f_m));
+    vs_drive(&s->f_r, (uint64_t) (v.f_r));
+    vs_drive(&s->f_e, (uint64_t) (v.f_e));
+    vs_drive(&s->f_sign_fdiv, (uint64_t) (v.f_sign_fdiv));
+    vs_drive(&s->f_exponent_fdiv, (uint64_t) (v.f_exponent_fdiv));
+    vs_w_drive(s->f_mantissa_fdiv.w, 3, v.f_mantissa_fdiv);
+    vs_drive(&s->f_counter_fdiv, (uint64_t) (v.f_counter_fdiv));
+    vs_drive(&s->f_exponent_bias, (uint64_t) (v.f_exponent_bias));
+    vs_drive(&s->f_sign_rnd, (uint64_t) (v.f_sign_rnd));
+    vs_drive(&s->f_exponent_rnd, (uint64_t) (v.f_exponent_rnd));
+    vs_drive(&s->f_mantissa_rnd, (uint64_t) (v.f_mantissa_rnd));
+    vs_drive(&s->f_remainder_rnd, (uint64_t) (v.f_remainder_rnd));
+    vs_drive(&s->f_counter_rnd, (uint64_t) (v.f_counter_rnd));
+    vs_drive(&s->f_grs, (uint64_t) (v.f_grs));
+    vs_drive(&s->f_odd, (uint64_t) (v.f_odd));
+    vs_drive(&s->f_result, (uint64_t) (v.f_result));
+    vs_drive(&s->f_flags, (uint64_t) (v.f_flags));
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fp_fdiv_fixed_reg_type_register(vs_kernel *k, fp_fdiv_fixed_reg_type_s *s, fp_fdiv_fixed_reg_type v)
+{
+    vs_register_signal(k, &s->f_state, (uint64_t) (v.f_state));
+    vs_register_signal(k, &s->f_istate, (uint64_t) (v.f_istate));
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_w_register(k, s->f_a.w, 2, v.f_a);
+    vs_w_register(k, s->f_b.w, 2, v.f_b);
+    vs_register_signal(k, &s->f_class_a, (uint64_t) (v.f_class_a));
+    vs_register_signal(k, &s->f_class_b, (uint64_t) (v.f_class_b));
+    vs_register_signal(k, &s->f_snan, (uint64_t) (v.f_snan));
+    vs_register_signal(k, &s->f_qnan, (uint64_t) (v.f_qnan));
+    vs_register_signal(k, &s->f_inf, (uint64_t) (v.f_inf));
+    vs_register_signal(k, &s->f_dbz, (uint64_t) (v.f_dbz));
+    vs_register_signal(k, &s->f_zero, (uint64_t) (v.f_zero));
+    vs_register_signal(k, &s->f_op, (uint64_t) (v.f_op));
+    vs_register_signal(k, &s->f_qa, (uint64_t) (v.f_qa));
+    vs_register_signal(k, &s->f_qb, (uint64_t) (v.f_qb));
+    vs_register_signal(k, &s->f_q, (uint64_t) (v.f_q));
+    vs_register_signal(k, &s->f_m, (uint64_t) (v.f_m));
+    vs_register_signal(k, &s->f_r, (uint64_t) (v.f_r));
+    vs_register_signal(k, &s->f_e, (uint64_t) (v.f_e));
+    vs_register_signal(k, &s->f_sign_fdiv, (uint64_t) (v.f_sign_fdiv));
+    vs_register_signal(k, &s->f_exponent_fdiv, (uint64_t) (v.f_exponent_fdiv));
+    vs_w_register(k, s->f_mantissa_fdiv.w, 3, v.f_mantissa_fdiv);
+    vs_register_signal(k, &s->f_counter_fdiv, (uint64_t) (v.f_counter_fdiv));
+    vs_register_signal(k, &s->f_exponent_bias, (uint64_t) (v.f_exponent_bias));
+    vs_register_signal(k, &s->f_sign_rnd, (uint64_t) (v.f_sign_rnd));
+    vs_register_signal(k, &s->f_exponent_rnd, (uint64_t) (v.f_exponent_rnd));
+    vs_register_signal(k, &s->f_mantissa_rnd, (uint64_t) (v.f_mantissa_rnd));
+    vs_register_signal(k, &s->f_remainder_rnd, (uint64_t) (v.f_remainder_rnd));
+    vs_register_signal(k, &s->f_counter_rnd, (uint64_t) (v.f_counter_rnd));
+    vs_register_signal(k, &s->f_grs, (uint64_t) (v.f_grs));
+    vs_register_signal(k, &s->f_odd, (uint64_t) (v.f_odd));
+    vs_register_signal(k, &s->f_result, (uint64_t) (v.f_result));
+    vs_register_signal(k, &s->f_flags, (uint64_t) (v.f_flags));
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fp_fdiv_fixed_reg_type_leaves(fp_fdiv_fixed_reg_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_state;
+    out[n++] = &s->f_istate;
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_a.w[j]; } }
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_b.w[j]; } }
+    out[n++] = &s->f_class_a;
+    out[n++] = &s->f_class_b;
+    out[n++] = &s->f_snan;
+    out[n++] = &s->f_qnan;
+    out[n++] = &s->f_inf;
+    out[n++] = &s->f_dbz;
+    out[n++] = &s->f_zero;
+    out[n++] = &s->f_op;
+    out[n++] = &s->f_qa;
+    out[n++] = &s->f_qb;
+    out[n++] = &s->f_q;
+    out[n++] = &s->f_m;
+    out[n++] = &s->f_r;
+    out[n++] = &s->f_e;
+    out[n++] = &s->f_sign_fdiv;
+    out[n++] = &s->f_exponent_fdiv;
+    { size_t j; for (j = 0; j < 3; j++) { out[n++] = &s->f_mantissa_fdiv.w[j]; } }
+    out[n++] = &s->f_counter_fdiv;
+    out[n++] = &s->f_exponent_bias;
+    out[n++] = &s->f_sign_rnd;
+    out[n++] = &s->f_exponent_rnd;
+    out[n++] = &s->f_mantissa_rnd;
+    out[n++] = &s->f_remainder_rnd;
+    out[n++] = &s->f_counter_rnd;
+    out[n++] = &s->f_grs;
+    out[n++] = &s->f_odd;
+    out[n++] = &s->f_result;
+    out[n++] = &s->f_flags;
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fp_fdiv_fixed_reg_type_eq(fp_fdiv_fixed_reg_type a, fp_fdiv_fixed_reg_type b)
+{
+    if (!(a.f_state == b.f_state)) { return 0; }
+    if (!(a.f_istate == b.f_istate)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!vs_w_eq(a.f_a, b.f_a)) { return 0; }
+    if (!vs_w_eq(a.f_b, b.f_b)) { return 0; }
+    if (!(a.f_class_a == b.f_class_a)) { return 0; }
+    if (!(a.f_class_b == b.f_class_b)) { return 0; }
+    if (!(a.f_snan == b.f_snan)) { return 0; }
+    if (!(a.f_qnan == b.f_qnan)) { return 0; }
+    if (!(a.f_inf == b.f_inf)) { return 0; }
+    if (!(a.f_dbz == b.f_dbz)) { return 0; }
+    if (!(a.f_zero == b.f_zero)) { return 0; }
+    if (!(a.f_op == b.f_op)) { return 0; }
+    if (!(a.f_qa == b.f_qa)) { return 0; }
+    if (!(a.f_qb == b.f_qb)) { return 0; }
+    if (!(a.f_q == b.f_q)) { return 0; }
+    if (!(a.f_m == b.f_m)) { return 0; }
+    if (!(a.f_r == b.f_r)) { return 0; }
+    if (!(a.f_e == b.f_e)) { return 0; }
+    if (!(a.f_sign_fdiv == b.f_sign_fdiv)) { return 0; }
+    if (!(a.f_exponent_fdiv == b.f_exponent_fdiv)) { return 0; }
+    if (!vs_w_eq(a.f_mantissa_fdiv, b.f_mantissa_fdiv)) { return 0; }
+    if (!(a.f_counter_fdiv == b.f_counter_fdiv)) { return 0; }
+    if (!(a.f_exponent_bias == b.f_exponent_bias)) { return 0; }
+    if (!(a.f_sign_rnd == b.f_sign_rnd)) { return 0; }
+    if (!(a.f_exponent_rnd == b.f_exponent_rnd)) { return 0; }
+    if (!(a.f_mantissa_rnd == b.f_mantissa_rnd)) { return 0; }
+    if (!(a.f_remainder_rnd == b.f_remainder_rnd)) { return 0; }
+    if (!(a.f_counter_rnd == b.f_counter_rnd)) { return 0; }
+    if (!(a.f_grs == b.f_grs)) { return 0; }
+    if (!(a.f_odd == b.f_odd)) { return 0; }
+    if (!(a.f_result == b.f_result)) { return 0; }
+    if (!(a.f_flags == b.f_flags)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct lut_type
+{
+    uint64_t a[128];
+} lut_type;
+typedef struct lut_type_s
+{
+    vs_sig a[128];
+} lut_type_s;
+
+static inline lut_type lut_type_zero(void)
+{
+    lut_type v;
+    size_t i;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline lut_type lut_type_fill(uint64_t e)
+{
+    lut_type v;
+    size_t i;
+    for (i = 0; i < 128; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline lut_type lut_type_put(lut_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline lut_type lut_type_get(const lut_type_s *s)
+{
+    lut_type v;
+    size_t i;
+    for (i = 0; i < 128; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void lut_type_drive(lut_type_s *s, lut_type v)
+{
+    size_t i;
+    for (i = 0; i < 128; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void lut_type_register(vs_kernel *k, lut_type_s *s, lut_type v)
+{
+    size_t i;
+    for (i = 0; i < 128; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t lut_type_leaves(lut_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    size_t i;
+    for (i = 0; i < 128; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int lut_type_eq(lut_type a, lut_type b)
+{
+    size_t i;
+    for (i = 0; i < 128; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct lut_root_type
+{
+    uint64_t a[96];
+} lut_root_type;
+typedef struct lut_root_type_s
+{
+    vs_sig a[96];
+} lut_root_type_s;
+
+static inline lut_root_type lut_root_type_zero(void)
+{
+    lut_root_type v;
+    size_t i;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline lut_root_type lut_root_type_fill(uint64_t e)
+{
+    lut_root_type v;
+    size_t i;
+    for (i = 0; i < 96; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline lut_root_type lut_root_type_put(lut_root_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline lut_root_type lut_root_type_get(const lut_root_type_s *s)
+{
+    lut_root_type v;
+    size_t i;
+    for (i = 0; i < 96; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void lut_root_type_drive(lut_root_type_s *s, lut_root_type v)
+{
+    size_t i;
+    for (i = 0; i < 96; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void lut_root_type_register(vs_kernel *k, lut_root_type_s *s, lut_root_type v)
+{
+    size_t i;
+    for (i = 0; i < 96; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t lut_root_type_leaves(lut_root_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    size_t i;
+    for (i = 0; i < 96; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int lut_root_type_eq(lut_root_type a, lut_root_type b)
+{
+    size_t i;
+    for (i = 0; i < 96; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct fp_exe_in_type
+{
+    uint64_t f_data1;
+    uint64_t f_data2;
+    uint64_t f_data3;
+    fp_operation_type f_op;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    uint64_t f_enable;
+} fp_exe_in_type;
+typedef struct fp_exe_in_type_s
+{
+    vs_sig f_data1;
+    vs_sig f_data2;
+    vs_sig f_data3;
+    fp_operation_type_s f_op;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sig f_enable;
+} fp_exe_in_type_s;
+
+static inline fp_exe_in_type fp_exe_in_type_zero(void)
+{
+    fp_exe_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_exe_in_type fp_exe_in_type_with_f_data1(fp_exe_in_type v, uint64_t e)
+{
+    v.f_data1 = e;
+    return v;
+}
+
+static inline fp_exe_in_type fp_exe_in_type_with_f_data2(fp_exe_in_type v, uint64_t e)
+{
+    v.f_data2 = e;
+    return v;
+}
+
+static inline fp_exe_in_type fp_exe_in_type_with_f_data3(fp_exe_in_type v, uint64_t e)
+{
+    v.f_data3 = e;
+    return v;
+}
+
+static inline fp_exe_in_type fp_exe_in_type_with_f_op(fp_exe_in_type v, fp_operation_type e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline fp_exe_in_type fp_exe_in_type_with_f_fmt(fp_exe_in_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline fp_exe_in_type fp_exe_in_type_with_f_rm(fp_exe_in_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline fp_exe_in_type fp_exe_in_type_with_f_enable(fp_exe_in_type v, uint64_t e)
+{
+    v.f_enable = e;
+    return v;
+}
+
+static inline fp_exe_in_type fp_exe_in_type_get(const fp_exe_in_type_s *s)
+{
+    fp_exe_in_type v;
+    v.f_data1 = s->f_data1.cur;
+    v.f_data2 = s->f_data2.cur;
+    v.f_data3 = s->f_data3.cur;
+    v.f_op = fp_operation_type_get(&s->f_op);
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_enable = s->f_enable.cur;
+    return v;
+}
+
+static inline void fp_exe_in_type_drive(fp_exe_in_type_s *s, fp_exe_in_type v)
+{
+    vs_drive(&s->f_data1, (uint64_t) (v.f_data1));
+    vs_drive(&s->f_data2, (uint64_t) (v.f_data2));
+    vs_drive(&s->f_data3, (uint64_t) (v.f_data3));
+    fp_operation_type_drive(&s->f_op, v.f_op);
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_drive(&s->f_enable, (uint64_t) (v.f_enable));
+}
+
+static inline void fp_exe_in_type_register(vs_kernel *k, fp_exe_in_type_s *s, fp_exe_in_type v)
+{
+    vs_register_signal(k, &s->f_data1, (uint64_t) (v.f_data1));
+    vs_register_signal(k, &s->f_data2, (uint64_t) (v.f_data2));
+    vs_register_signal(k, &s->f_data3, (uint64_t) (v.f_data3));
+    fp_operation_type_register(k, &s->f_op, v.f_op);
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_register_signal(k, &s->f_enable, (uint64_t) (v.f_enable));
+}
+
+static inline size_t fp_exe_in_type_leaves(fp_exe_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_data1;
+    out[n++] = &s->f_data2;
+    out[n++] = &s->f_data3;
+    n += fp_operation_type_leaves(&s->f_op, out + n);
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    out[n++] = &s->f_enable;
+    return n;
+}
+
+static inline int fp_exe_in_type_eq(fp_exe_in_type a, fp_exe_in_type b)
+{
+    if (!(a.f_data1 == b.f_data1)) { return 0; }
+    if (!(a.f_data2 == b.f_data2)) { return 0; }
+    if (!(a.f_data3 == b.f_data3)) { return 0; }
+    if (!fp_operation_type_eq(a.f_op, b.f_op)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!(a.f_enable == b.f_enable)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_exe_out_type
+{
+    uint64_t f_result;
+    uint64_t f_flags;
+    uint64_t f_ready;
+} fp_exe_out_type;
+typedef struct fp_exe_out_type_s
+{
+    vs_sig f_result;
+    vs_sig f_flags;
+    vs_sig f_ready;
+} fp_exe_out_type_s;
+
+static inline fp_exe_out_type fp_exe_out_type_zero(void)
+{
+    fp_exe_out_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_exe_out_type fp_exe_out_type_with_f_result(fp_exe_out_type v, uint64_t e)
+{
+    v.f_result = e;
+    return v;
+}
+
+static inline fp_exe_out_type fp_exe_out_type_with_f_flags(fp_exe_out_type v, uint64_t e)
+{
+    v.f_flags = e;
+    return v;
+}
+
+static inline fp_exe_out_type fp_exe_out_type_with_f_ready(fp_exe_out_type v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline fp_exe_out_type fp_exe_out_type_get(const fp_exe_out_type_s *s)
+{
+    fp_exe_out_type v;
+    v.f_result = s->f_result.cur;
+    v.f_flags = s->f_flags.cur;
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void fp_exe_out_type_drive(fp_exe_out_type_s *s, fp_exe_out_type v)
+{
+    vs_drive(&s->f_result, (uint64_t) (v.f_result));
+    vs_drive(&s->f_flags, (uint64_t) (v.f_flags));
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void fp_exe_out_type_register(vs_kernel *k, fp_exe_out_type_s *s, fp_exe_out_type v)
+{
+    vs_register_signal(k, &s->f_result, (uint64_t) (v.f_result));
+    vs_register_signal(k, &s->f_flags, (uint64_t) (v.f_flags));
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t fp_exe_out_type_leaves(fp_exe_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_result;
+    out[n++] = &s->f_flags;
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int fp_exe_out_type_eq(fp_exe_out_type a, fp_exe_out_type b)
+{
+    if (!(a.f_result == b.f_result)) { return 0; }
+    if (!(a.f_flags == b.f_flags)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct x_reg_type
+{
+    uint64_t f_data1;
+    uint64_t f_data2;
+    uint64_t f_data3;
+    fp_operation_type f_op;
+    uint64_t f_fmt;
+    uint64_t f_rm;
+    vs_w f_ext1;
+    vs_w f_ext2;
+    vs_w f_ext3;
+    uint64_t f_class1;
+    uint64_t f_class2;
+    uint64_t f_class3;
+    uint64_t f_valid;
+} x_reg_type;
+typedef struct x_reg_type_s
+{
+    vs_sig f_data1;
+    vs_sig f_data2;
+    vs_sig f_data3;
+    fp_operation_type_s f_op;
+    vs_sig f_fmt;
+    vs_sig f_rm;
+    vs_sigw2 f_ext1;
+    vs_sigw2 f_ext2;
+    vs_sigw2 f_ext3;
+    vs_sig f_class1;
+    vs_sig f_class2;
+    vs_sig f_class3;
+    vs_sig f_valid;
+} x_reg_type_s;
+
+static inline x_reg_type x_reg_type_zero(void)
+{
+    x_reg_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_data1(x_reg_type v, uint64_t e)
+{
+    v.f_data1 = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_data2(x_reg_type v, uint64_t e)
+{
+    v.f_data2 = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_data3(x_reg_type v, uint64_t e)
+{
+    v.f_data3 = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_op(x_reg_type v, fp_operation_type e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_fmt(x_reg_type v, uint64_t e)
+{
+    v.f_fmt = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_rm(x_reg_type v, uint64_t e)
+{
+    v.f_rm = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_ext1(x_reg_type v, vs_w e)
+{
+    v.f_ext1 = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_ext2(x_reg_type v, vs_w e)
+{
+    v.f_ext2 = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_ext3(x_reg_type v, vs_w e)
+{
+    v.f_ext3 = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_class1(x_reg_type v, uint64_t e)
+{
+    v.f_class1 = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_class2(x_reg_type v, uint64_t e)
+{
+    v.f_class2 = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_class3(x_reg_type v, uint64_t e)
+{
+    v.f_class3 = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_with_f_valid(x_reg_type v, uint64_t e)
+{
+    v.f_valid = e;
+    return v;
+}
+
+static inline x_reg_type x_reg_type_get(const x_reg_type_s *s)
+{
+    x_reg_type v;
+    v.f_data1 = s->f_data1.cur;
+    v.f_data2 = s->f_data2.cur;
+    v.f_data3 = s->f_data3.cur;
+    v.f_op = fp_operation_type_get(&s->f_op);
+    v.f_fmt = s->f_fmt.cur;
+    v.f_rm = s->f_rm.cur;
+    v.f_ext1 = vs_w_get(s->f_ext1.w, 2);
+    v.f_ext2 = vs_w_get(s->f_ext2.w, 2);
+    v.f_ext3 = vs_w_get(s->f_ext3.w, 2);
+    v.f_class1 = s->f_class1.cur;
+    v.f_class2 = s->f_class2.cur;
+    v.f_class3 = s->f_class3.cur;
+    v.f_valid = s->f_valid.cur;
+    return v;
+}
+
+static inline void x_reg_type_drive(x_reg_type_s *s, x_reg_type v)
+{
+    vs_drive(&s->f_data1, (uint64_t) (v.f_data1));
+    vs_drive(&s->f_data2, (uint64_t) (v.f_data2));
+    vs_drive(&s->f_data3, (uint64_t) (v.f_data3));
+    fp_operation_type_drive(&s->f_op, v.f_op);
+    vs_drive(&s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_drive(&s->f_rm, (uint64_t) (v.f_rm));
+    vs_w_drive(s->f_ext1.w, 2, v.f_ext1);
+    vs_w_drive(s->f_ext2.w, 2, v.f_ext2);
+    vs_w_drive(s->f_ext3.w, 2, v.f_ext3);
+    vs_drive(&s->f_class1, (uint64_t) (v.f_class1));
+    vs_drive(&s->f_class2, (uint64_t) (v.f_class2));
+    vs_drive(&s->f_class3, (uint64_t) (v.f_class3));
+    vs_drive(&s->f_valid, (uint64_t) (v.f_valid));
+}
+
+static inline void x_reg_type_register(vs_kernel *k, x_reg_type_s *s, x_reg_type v)
+{
+    vs_register_signal(k, &s->f_data1, (uint64_t) (v.f_data1));
+    vs_register_signal(k, &s->f_data2, (uint64_t) (v.f_data2));
+    vs_register_signal(k, &s->f_data3, (uint64_t) (v.f_data3));
+    fp_operation_type_register(k, &s->f_op, v.f_op);
+    vs_register_signal(k, &s->f_fmt, (uint64_t) (v.f_fmt));
+    vs_register_signal(k, &s->f_rm, (uint64_t) (v.f_rm));
+    vs_w_register(k, s->f_ext1.w, 2, v.f_ext1);
+    vs_w_register(k, s->f_ext2.w, 2, v.f_ext2);
+    vs_w_register(k, s->f_ext3.w, 2, v.f_ext3);
+    vs_register_signal(k, &s->f_class1, (uint64_t) (v.f_class1));
+    vs_register_signal(k, &s->f_class2, (uint64_t) (v.f_class2));
+    vs_register_signal(k, &s->f_class3, (uint64_t) (v.f_class3));
+    vs_register_signal(k, &s->f_valid, (uint64_t) (v.f_valid));
+}
+
+static inline size_t x_reg_type_leaves(x_reg_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_data1;
+    out[n++] = &s->f_data2;
+    out[n++] = &s->f_data3;
+    n += fp_operation_type_leaves(&s->f_op, out + n);
+    out[n++] = &s->f_fmt;
+    out[n++] = &s->f_rm;
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_ext1.w[j]; } }
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_ext2.w[j]; } }
+    { size_t j; for (j = 0; j < 2; j++) { out[n++] = &s->f_ext3.w[j]; } }
+    out[n++] = &s->f_class1;
+    out[n++] = &s->f_class2;
+    out[n++] = &s->f_class3;
+    out[n++] = &s->f_valid;
+    return n;
+}
+
+static inline int x_reg_type_eq(x_reg_type a, x_reg_type b)
+{
+    if (!(a.f_data1 == b.f_data1)) { return 0; }
+    if (!(a.f_data2 == b.f_data2)) { return 0; }
+    if (!(a.f_data3 == b.f_data3)) { return 0; }
+    if (!fp_operation_type_eq(a.f_op, b.f_op)) { return 0; }
+    if (!(a.f_fmt == b.f_fmt)) { return 0; }
+    if (!(a.f_rm == b.f_rm)) { return 0; }
+    if (!vs_w_eq(a.f_ext1, b.f_ext1)) { return 0; }
+    if (!vs_w_eq(a.f_ext2, b.f_ext2)) { return 0; }
+    if (!vs_w_eq(a.f_ext3, b.f_ext3)) { return 0; }
+    if (!(a.f_class1 == b.f_class1)) { return 0; }
+    if (!(a.f_class2 == b.f_class2)) { return 0; }
+    if (!(a.f_class3 == b.f_class3)) { return 0; }
+    if (!(a.f_valid == b.f_valid)) { return 0; }
+    return 1;
+}
+
+typedef struct z_reg_type
+{
+    fp_rnd_in_type f_bundle;
+    uint64_t f_use_rnd;
+    uint64_t f_result;
+    uint64_t f_flags;
+    uint64_t f_ready;
+} z_reg_type;
+typedef struct z_reg_type_s
+{
+    fp_rnd_in_type_s f_bundle;
+    vs_sig f_use_rnd;
+    vs_sig f_result;
+    vs_sig f_flags;
+    vs_sig f_ready;
+} z_reg_type_s;
+
+static inline z_reg_type z_reg_type_zero(void)
+{
+    z_reg_type v;
+    memset(&v, 0, sizeof(v));
+    v.f_bundle = fp_rnd_in_type_zero();
+    return v;
+}
+
+static inline z_reg_type z_reg_type_with_f_bundle(z_reg_type v, fp_rnd_in_type e)
+{
+    v.f_bundle = e;
+    return v;
+}
+
+static inline z_reg_type z_reg_type_with_f_use_rnd(z_reg_type v, uint64_t e)
+{
+    v.f_use_rnd = e;
+    return v;
+}
+
+static inline z_reg_type z_reg_type_with_f_result(z_reg_type v, uint64_t e)
+{
+    v.f_result = e;
+    return v;
+}
+
+static inline z_reg_type z_reg_type_with_f_flags(z_reg_type v, uint64_t e)
+{
+    v.f_flags = e;
+    return v;
+}
+
+static inline z_reg_type z_reg_type_with_f_ready(z_reg_type v, uint64_t e)
+{
+    v.f_ready = e;
+    return v;
+}
+
+static inline z_reg_type z_reg_type_get(const z_reg_type_s *s)
+{
+    z_reg_type v;
+    v.f_bundle = fp_rnd_in_type_get(&s->f_bundle);
+    v.f_use_rnd = s->f_use_rnd.cur;
+    v.f_result = s->f_result.cur;
+    v.f_flags = s->f_flags.cur;
+    v.f_ready = s->f_ready.cur;
+    return v;
+}
+
+static inline void z_reg_type_drive(z_reg_type_s *s, z_reg_type v)
+{
+    fp_rnd_in_type_drive(&s->f_bundle, v.f_bundle);
+    vs_drive(&s->f_use_rnd, (uint64_t) (v.f_use_rnd));
+    vs_drive(&s->f_result, (uint64_t) (v.f_result));
+    vs_drive(&s->f_flags, (uint64_t) (v.f_flags));
+    vs_drive(&s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline void z_reg_type_register(vs_kernel *k, z_reg_type_s *s, z_reg_type v)
+{
+    fp_rnd_in_type_register(k, &s->f_bundle, v.f_bundle);
+    vs_register_signal(k, &s->f_use_rnd, (uint64_t) (v.f_use_rnd));
+    vs_register_signal(k, &s->f_result, (uint64_t) (v.f_result));
+    vs_register_signal(k, &s->f_flags, (uint64_t) (v.f_flags));
+    vs_register_signal(k, &s->f_ready, (uint64_t) (v.f_ready));
+}
+
+static inline size_t z_reg_type_leaves(z_reg_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    n += fp_rnd_in_type_leaves(&s->f_bundle, out + n);
+    out[n++] = &s->f_use_rnd;
+    out[n++] = &s->f_result;
+    out[n++] = &s->f_flags;
+    out[n++] = &s->f_ready;
+    return n;
+}
+
+static inline int z_reg_type_eq(z_reg_type a, z_reg_type b)
+{
+    if (!fp_rnd_in_type_eq(a.f_bundle, b.f_bundle)) { return 0; }
+    if (!(a.f_use_rnd == b.f_use_rnd)) { return 0; }
+    if (!(a.f_result == b.f_result)) { return 0; }
+    if (!(a.f_flags == b.f_flags)) { return 0; }
+    if (!(a.f_ready == b.f_ready)) { return 0; }
+    return 1;
+}
+
+typedef struct y_reg_type
+{
+    fp_operation_type f_op;
+    uint64_t f_data1;
+    uint64_t f_class1;
+    uint64_t f_valid;
+    uint64_t f_cmp_res;
+    uint64_t f_cmp_fl;
+    uint64_t f_max_res;
+    uint64_t f_max_fl;
+    uint64_t f_sgnj_res;
+    fp_rnd_in_type f_f2f;
+    fp_rnd_in_type f_i2f;
+    uint64_t f_fma_rdy;
+    fp_rnd_in_type f_fma;
+    uint64_t f_fdiv_rdy;
+    fp_rnd_in_type f_fdiv;
+} y_reg_type;
+typedef struct y_reg_type_s
+{
+    fp_operation_type_s f_op;
+    vs_sig f_data1;
+    vs_sig f_class1;
+    vs_sig f_valid;
+    vs_sig f_cmp_res;
+    vs_sig f_cmp_fl;
+    vs_sig f_max_res;
+    vs_sig f_max_fl;
+    vs_sig f_sgnj_res;
+    fp_rnd_in_type_s f_f2f;
+    fp_rnd_in_type_s f_i2f;
+    vs_sig f_fma_rdy;
+    fp_rnd_in_type_s f_fma;
+    vs_sig f_fdiv_rdy;
+    fp_rnd_in_type_s f_fdiv;
+} y_reg_type_s;
+
+static inline y_reg_type y_reg_type_zero(void)
+{
+    y_reg_type v;
+    memset(&v, 0, sizeof(v));
+    v.f_f2f = fp_rnd_in_type_zero();
+    v.f_i2f = fp_rnd_in_type_zero();
+    v.f_fma = fp_rnd_in_type_zero();
+    v.f_fdiv = fp_rnd_in_type_zero();
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_op(y_reg_type v, fp_operation_type e)
+{
+    v.f_op = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_data1(y_reg_type v, uint64_t e)
+{
+    v.f_data1 = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_class1(y_reg_type v, uint64_t e)
+{
+    v.f_class1 = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_valid(y_reg_type v, uint64_t e)
+{
+    v.f_valid = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_cmp_res(y_reg_type v, uint64_t e)
+{
+    v.f_cmp_res = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_cmp_fl(y_reg_type v, uint64_t e)
+{
+    v.f_cmp_fl = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_max_res(y_reg_type v, uint64_t e)
+{
+    v.f_max_res = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_max_fl(y_reg_type v, uint64_t e)
+{
+    v.f_max_fl = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_sgnj_res(y_reg_type v, uint64_t e)
+{
+    v.f_sgnj_res = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_f2f(y_reg_type v, fp_rnd_in_type e)
+{
+    v.f_f2f = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_i2f(y_reg_type v, fp_rnd_in_type e)
+{
+    v.f_i2f = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_fma_rdy(y_reg_type v, uint64_t e)
+{
+    v.f_fma_rdy = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_fma(y_reg_type v, fp_rnd_in_type e)
+{
+    v.f_fma = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_fdiv_rdy(y_reg_type v, uint64_t e)
+{
+    v.f_fdiv_rdy = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_with_f_fdiv(y_reg_type v, fp_rnd_in_type e)
+{
+    v.f_fdiv = e;
+    return v;
+}
+
+static inline y_reg_type y_reg_type_get(const y_reg_type_s *s)
+{
+    y_reg_type v;
+    v.f_op = fp_operation_type_get(&s->f_op);
+    v.f_data1 = s->f_data1.cur;
+    v.f_class1 = s->f_class1.cur;
+    v.f_valid = s->f_valid.cur;
+    v.f_cmp_res = s->f_cmp_res.cur;
+    v.f_cmp_fl = s->f_cmp_fl.cur;
+    v.f_max_res = s->f_max_res.cur;
+    v.f_max_fl = s->f_max_fl.cur;
+    v.f_sgnj_res = s->f_sgnj_res.cur;
+    v.f_f2f = fp_rnd_in_type_get(&s->f_f2f);
+    v.f_i2f = fp_rnd_in_type_get(&s->f_i2f);
+    v.f_fma_rdy = s->f_fma_rdy.cur;
+    v.f_fma = fp_rnd_in_type_get(&s->f_fma);
+    v.f_fdiv_rdy = s->f_fdiv_rdy.cur;
+    v.f_fdiv = fp_rnd_in_type_get(&s->f_fdiv);
+    return v;
+}
+
+static inline void y_reg_type_drive(y_reg_type_s *s, y_reg_type v)
+{
+    fp_operation_type_drive(&s->f_op, v.f_op);
+    vs_drive(&s->f_data1, (uint64_t) (v.f_data1));
+    vs_drive(&s->f_class1, (uint64_t) (v.f_class1));
+    vs_drive(&s->f_valid, (uint64_t) (v.f_valid));
+    vs_drive(&s->f_cmp_res, (uint64_t) (v.f_cmp_res));
+    vs_drive(&s->f_cmp_fl, (uint64_t) (v.f_cmp_fl));
+    vs_drive(&s->f_max_res, (uint64_t) (v.f_max_res));
+    vs_drive(&s->f_max_fl, (uint64_t) (v.f_max_fl));
+    vs_drive(&s->f_sgnj_res, (uint64_t) (v.f_sgnj_res));
+    fp_rnd_in_type_drive(&s->f_f2f, v.f_f2f);
+    fp_rnd_in_type_drive(&s->f_i2f, v.f_i2f);
+    vs_drive(&s->f_fma_rdy, (uint64_t) (v.f_fma_rdy));
+    fp_rnd_in_type_drive(&s->f_fma, v.f_fma);
+    vs_drive(&s->f_fdiv_rdy, (uint64_t) (v.f_fdiv_rdy));
+    fp_rnd_in_type_drive(&s->f_fdiv, v.f_fdiv);
+}
+
+static inline void y_reg_type_register(vs_kernel *k, y_reg_type_s *s, y_reg_type v)
+{
+    fp_operation_type_register(k, &s->f_op, v.f_op);
+    vs_register_signal(k, &s->f_data1, (uint64_t) (v.f_data1));
+    vs_register_signal(k, &s->f_class1, (uint64_t) (v.f_class1));
+    vs_register_signal(k, &s->f_valid, (uint64_t) (v.f_valid));
+    vs_register_signal(k, &s->f_cmp_res, (uint64_t) (v.f_cmp_res));
+    vs_register_signal(k, &s->f_cmp_fl, (uint64_t) (v.f_cmp_fl));
+    vs_register_signal(k, &s->f_max_res, (uint64_t) (v.f_max_res));
+    vs_register_signal(k, &s->f_max_fl, (uint64_t) (v.f_max_fl));
+    vs_register_signal(k, &s->f_sgnj_res, (uint64_t) (v.f_sgnj_res));
+    fp_rnd_in_type_register(k, &s->f_f2f, v.f_f2f);
+    fp_rnd_in_type_register(k, &s->f_i2f, v.f_i2f);
+    vs_register_signal(k, &s->f_fma_rdy, (uint64_t) (v.f_fma_rdy));
+    fp_rnd_in_type_register(k, &s->f_fma, v.f_fma);
+    vs_register_signal(k, &s->f_fdiv_rdy, (uint64_t) (v.f_fdiv_rdy));
+    fp_rnd_in_type_register(k, &s->f_fdiv, v.f_fdiv);
+}
+
+static inline size_t y_reg_type_leaves(y_reg_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    n += fp_operation_type_leaves(&s->f_op, out + n);
+    out[n++] = &s->f_data1;
+    out[n++] = &s->f_class1;
+    out[n++] = &s->f_valid;
+    out[n++] = &s->f_cmp_res;
+    out[n++] = &s->f_cmp_fl;
+    out[n++] = &s->f_max_res;
+    out[n++] = &s->f_max_fl;
+    out[n++] = &s->f_sgnj_res;
+    n += fp_rnd_in_type_leaves(&s->f_f2f, out + n);
+    n += fp_rnd_in_type_leaves(&s->f_i2f, out + n);
+    out[n++] = &s->f_fma_rdy;
+    n += fp_rnd_in_type_leaves(&s->f_fma, out + n);
+    out[n++] = &s->f_fdiv_rdy;
+    n += fp_rnd_in_type_leaves(&s->f_fdiv, out + n);
+    return n;
+}
+
+static inline int y_reg_type_eq(y_reg_type a, y_reg_type b)
+{
+    if (!fp_operation_type_eq(a.f_op, b.f_op)) { return 0; }
+    if (!(a.f_data1 == b.f_data1)) { return 0; }
+    if (!(a.f_class1 == b.f_class1)) { return 0; }
+    if (!(a.f_valid == b.f_valid)) { return 0; }
+    if (!(a.f_cmp_res == b.f_cmp_res)) { return 0; }
+    if (!(a.f_cmp_fl == b.f_cmp_fl)) { return 0; }
+    if (!(a.f_max_res == b.f_max_res)) { return 0; }
+    if (!(a.f_max_fl == b.f_max_fl)) { return 0; }
+    if (!(a.f_sgnj_res == b.f_sgnj_res)) { return 0; }
+    if (!fp_rnd_in_type_eq(a.f_f2f, b.f_f2f)) { return 0; }
+    if (!fp_rnd_in_type_eq(a.f_i2f, b.f_i2f)) { return 0; }
+    if (!(a.f_fma_rdy == b.f_fma_rdy)) { return 0; }
+    if (!fp_rnd_in_type_eq(a.f_fma, b.f_fma)) { return 0; }
+    if (!(a.f_fdiv_rdy == b.f_fdiv_rdy)) { return 0; }
+    if (!fp_rnd_in_type_eq(a.f_fdiv, b.f_fdiv)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_unit_in_type
+{
+    fp_exe_in_type f_fp_exe_i;
+} fp_unit_in_type;
+typedef struct fp_unit_in_type_s
+{
+    fp_exe_in_type_s f_fp_exe_i;
+} fp_unit_in_type_s;
+
+static inline fp_unit_in_type fp_unit_in_type_zero(void)
+{
+    fp_unit_in_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_unit_in_type fp_unit_in_type_with_f_fp_exe_i(fp_unit_in_type v, fp_exe_in_type e)
+{
+    v.f_fp_exe_i = e;
+    return v;
+}
+
+static inline fp_unit_in_type fp_unit_in_type_get(const fp_unit_in_type_s *s)
+{
+    fp_unit_in_type v;
+    v.f_fp_exe_i = fp_exe_in_type_get(&s->f_fp_exe_i);
+    return v;
+}
+
+static inline void fp_unit_in_type_drive(fp_unit_in_type_s *s, fp_unit_in_type v)
+{
+    fp_exe_in_type_drive(&s->f_fp_exe_i, v.f_fp_exe_i);
+}
+
+static inline void fp_unit_in_type_register(vs_kernel *k, fp_unit_in_type_s *s, fp_unit_in_type v)
+{
+    fp_exe_in_type_register(k, &s->f_fp_exe_i, v.f_fp_exe_i);
+}
+
+static inline size_t fp_unit_in_type_leaves(fp_unit_in_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    n += fp_exe_in_type_leaves(&s->f_fp_exe_i, out + n);
+    return n;
+}
+
+static inline int fp_unit_in_type_eq(fp_unit_in_type a, fp_unit_in_type b)
+{
+    if (!fp_exe_in_type_eq(a.f_fp_exe_i, b.f_fp_exe_i)) { return 0; }
+    return 1;
+}
+
+typedef struct fp_unit_out_type
+{
+    fp_exe_out_type f_fp_exe_o;
+} fp_unit_out_type;
+typedef struct fp_unit_out_type_s
+{
+    fp_exe_out_type_s f_fp_exe_o;
+} fp_unit_out_type_s;
+
+static inline fp_unit_out_type fp_unit_out_type_zero(void)
+{
+    fp_unit_out_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline fp_unit_out_type fp_unit_out_type_with_f_fp_exe_o(fp_unit_out_type v, fp_exe_out_type e)
+{
+    v.f_fp_exe_o = e;
+    return v;
+}
+
+static inline fp_unit_out_type fp_unit_out_type_get(const fp_unit_out_type_s *s)
+{
+    fp_unit_out_type v;
+    v.f_fp_exe_o = fp_exe_out_type_get(&s->f_fp_exe_o);
+    return v;
+}
+
+static inline void fp_unit_out_type_drive(fp_unit_out_type_s *s, fp_unit_out_type v)
+{
+    fp_exe_out_type_drive(&s->f_fp_exe_o, v.f_fp_exe_o);
+}
+
+static inline void fp_unit_out_type_register(vs_kernel *k, fp_unit_out_type_s *s, fp_unit_out_type v)
+{
+    fp_exe_out_type_register(k, &s->f_fp_exe_o, v.f_fp_exe_o);
+}
+
+static inline size_t fp_unit_out_type_leaves(fp_unit_out_type_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    n += fp_exe_out_type_leaves(&s->f_fp_exe_o, out + n);
+    return n;
+}
+
+static inline int fp_unit_out_type_eq(fp_unit_out_type a, fp_unit_out_type b)
+{
+    if (!fp_exe_out_type_eq(a.f_fp_exe_o, b.f_fp_exe_o)) { return 0; }
     return 1;
 }
 

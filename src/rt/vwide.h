@@ -378,4 +378,41 @@ static inline void vs_w_drive_bits(vs_sig *s, unsigned nw, unsigned lo, unsigned
     }
 }
 
+/* Signed helpers : a signed value of `from` bits is sign-extended through all the words, then trimmed by the
+ * operation that uses it to the width of its result. */
+static inline vs_w vs_w_sext(vs_w a, unsigned from)
+{
+    if (from > 0 && vs_w_bit(a, from - 1))
+    {
+        vs_w ones = vs_w_ones(64 * VS_WIDE_WORDS);
+
+        return vs_w_or(vs_w_trim(a, from), vs_w_shl(ones, from, 64 * VS_WIDE_WORDS));
+    }
+    return vs_w_trim(a, from);
+}
+
+/* a < b for signed values of `width` bits. */
+static inline int vs_w_slt(vs_w a, vs_w b, unsigned width)
+{
+    vs_w sign = vs_w_shl(vs_w_from(1), width - 1, width);
+
+    return vs_w_ult(vs_w_xor(a, sign), vs_w_xor(b, sign));
+}
+
+/* Arithmetic shift right of a signed value of `width` bits. */
+static inline vs_w vs_w_sar(vs_w a, int64_t n, unsigned width)
+{
+    vs_w x = vs_w_sext(a, width);
+
+    if (n < 0)
+    {
+        return vs_w_zero();
+    }
+    if (n >= (int64_t) width)
+    {
+        n = width;
+    }
+    return vs_w_trim(vs_w_shr(x, n), width);
+}
+
 #endif

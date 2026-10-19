@@ -52,6 +52,17 @@ def wide(e):
     return e.ct.kind == "vec" and e.ct.width is not None and e.ct.width > 64
 
 
+def WS(e):
+    """The code of the expression as a vs_w, sign-extended (a signed vector, or an integer)."""
+    if wide(e):
+        return "vs_w_sext(%s, %d)" % (e.code, e.ct.width)
+    if e.ct.kind == "int":
+        return "vs_w_from_signed(%s, 64)" % e.code
+    if e.ct.kind == "vec" and e.ct.signed:
+        return "vs_w_from_signed(vs_sext(%s, %d), 64)" % (e.code, e.ct.width)
+    return "vs_w_from(%s)" % e.code
+
+
 def W(e):
     """The code of the expression as a vs_w (zero-extended when it is narrow)."""
     if wide(e):
@@ -211,15 +222,21 @@ class Ops:
             for e in a[1:]:
                 code = "vs_w_cat(%s, %s, %d)" % (code, W(e), e.ct.width)
             return E(code, Vec(w))
-        code = a[0].code
+        code = "(uint64_t)(%s)" % a[0].code
         for e in a[1:]:
             code = "((%s << %d) | %s)" % (code, e.ct.width, e.code)
         return E(code, Vec(w))
 
-    def wide_compare(self, op, a):
-        x, y = W(a[0]), W(a[1])
-        return {"Eq": "vs_w_eq(%s, %s)", "Ne": "(!vs_w_eq(%s, %s))", "Lt": "vs_w_ult(%s, %s)",
-                "Le": "(!vs_w_ult(%s, %s))", "Gt": "vs_w_ult(%s, %s)", "Ge": "(!vs_w_ult(%s, %s))"}[op] % \
+    def wide_compare(self, op, a, signed=False):
+        width = max(e.ct.width for e in a if e.ct.kind == "vec")
+        if signed:
+            x, y = WS(a[0]), WS(a[1])
+            less = "vs_w_slt(%%s, %%s, %d)" % width
+        else:
+            x, y = W(a[0]), W(a[1])
+            less = "vs_w_ult(%s, %s)"
+        eq = "vs_w_eq(%s, %s)"
+        return {"Eq": eq, "Ne": "(!%s)" % eq, "Lt": less, "Le": "(!%s)" % less, "Gt": less, "Ge": "(!%s)" % less}[op] % \
             ((y, x) if op in ("Gt", "Le") else (x, y))
 
     # std_logic_unsigned : the vectors are numbers, the result takes the width of the widest vector
@@ -282,10 +299,9 @@ class Ops:
                 w = sum(e.ct.width for e in vecs)
             need_width(n, w)
             if w > 64:
-                if signed:
-                    raise unsupported(n, "signed arithmetic wider than 64 bits")
                 fn = {"Add": "vs_w_add", "Sub": "vs_w_sub", "Mul": "vs_w_mul"}[m.group(1)]
-                return E("%s(%s, %s, %d)" % (fn, W(a[0]), W(a[1]), w), Vec(w, False, 0, w - 1, False))
+                conv = WS if signed else W
+                return E("%s(%s, %s, %d)" % (fn, conv(a[0]), conv(a[1]), w), Vec(w, False, 0, w - 1, signed, "signed" if signed else "unsigned"))
             if signed:
                 code = "((uint64_t)(%s %s %s) & %s)" % (ival(a[0]), op, ival(a[1]), mask(w))
             else:
@@ -294,12 +310,16 @@ class Ops:
         m = re.match(r"Neg_Sgn$", name)
         if m:
             w = a[0].ct.width
+            if w > 64:
+                return E("vs_w_neg(%s, %d)" % (a[0].code, w), Vec(w, False, 0, w - 1, True, "signed"))
             return E("((uint64_t)(-%s) & %s)" % (ival(a[0]), mask(w)), Vec(w, False, 0, w - 1, True))
         m = re.match(r"(Eq|Ne|Lt|Le|Gt|Ge)_(Uns|Sgn|Nat|Int)_(Uns|Sgn|Nat|Int)$", name)
         if m:
-            if wide(a[0]) or wide(a[1]):
-                return E(self.wide_compare(m.group(1), a), Bit())
             signed = any(x == "Sgn" or x == "Int" for x in (m.group(2), m.group(3)))
+            if wide(a[0]) or wide(a[1]):
+                if signed:
+                    return E(self.wide_compare(m.group(1), a, signed=True), Bit())
+                return E(self.wide_compare(m.group(1), a), Bit())
             lhs, rhs = (ival(a[0]), ival(a[1])) if signed else (uval(a[0]), uval(a[1]))
             return E("(%s %s %s)" % (lhs, CMP[m.group(1)], rhs), Bit())
         m = re.match(r"Shf_(Left|Right)_(Uns|Sgn)_Nat$", name)
@@ -310,7 +330,7 @@ class Ops:
                 if m.group(1) == "Left":
                     return E("vs_w_shl(%s, %s, %d)" % (e.code, ival(a[1]), w), e.ct)
                 if m.group(2) == "Sgn":
-                    raise unsupported(n, "arithmetic shift wider than 64 bits")
+                    return E("vs_w_sar(%s, %s, %d)" % (e.code, ival(a[1]), w), e.ct)
                 return E("vs_w_shr(%s, %s)" % (e.code, ival(a[1])), e.ct)
             if m.group(1) == "Left":
                 return E("(vs_shl(%s, %s) & %s)" % (e.code, ival(a[1]), mask(w)), e.ct)

@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include "fp_sgnj.h"
+#include "gen_funcs.h"
 
 static void fp_sgnj_p0(void *inst)
 {
@@ -13,7 +14,7 @@ static void fp_sgnj_p0(void *inst)
     self->v0_data2 = (*self->p_fp_sgnj_i).f_data2.cur;
     self->v0_fmt = (*self->p_fp_sgnj_i).f_fmt.cur;
     self->v0_rm = (*self->p_fp_sgnj_i).f_rm.cur;
-    self->v0_result = (0 ? UINT64_MAX : 0);
+    self->v0_result = UINT64_C(0x0);
     if ((self->v0_fmt == UINT64_C(0x0)))
     {
         self->v0_result = (self->v0_result & ~(UINT64_C(0x7FFFFFFF) << 0)) | (((self->v0_data1 & UINT64_C(0x7FFFFFFF)) << 0) & (UINT64_C(0x7FFFFFFF) << 0));
@@ -51,6 +52,7 @@ static void fp_sgnj_p0(void *inst)
 
 void fp_sgnj_create(vs_kernel *k, fp_sgnj *self, const char *path, fp_sgnj_in_type_s *fp_sgnj_i, fp_sgnj_out_type_s *fp_sgnj_o)
 {
+    (void) path;
     self->p_fp_sgnj_i = fp_sgnj_i;
     self->p_fp_sgnj_o = fp_sgnj_o;
     self->v0_data1 = 0;

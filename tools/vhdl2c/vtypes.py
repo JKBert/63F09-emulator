@@ -49,7 +49,8 @@ class Bit(CT):
 class Vec(CT):
     kind = "vec"
 
-    def __init__(self, width, asc=False, lo=0, hi=None, signed=False):
+    def __init__(self, width, asc=False, lo=0, hi=None, signed=False, vtype=None):
+        self.vtype = vtype          # 'unsigned' or 'signed' (numeric_std), None for std_logic_vector
         self.width = width
         self.asc = asc
         self.lo = lo
@@ -69,8 +70,9 @@ class Int(CT):
     width = 64
     signed = True
 
-    def __init__(self, lo=None, hi=None):
+    def __init__(self, lo=None, hi=None, left=0):
         self.lo, self.hi = lo, hi
+        self.left = left            # value of an object that has no initial value : 'left of the subtype
 
     def __repr__(self):
         return "Int"
@@ -182,6 +184,17 @@ def ctype_sig(ct):
 BITLIKE = ("std_ulogic", "boolean", "bit")
 
 
+def numeric_kind(t):
+    """'signed' or 'unsigned' for the numeric_std vectors (whose base types are UNRESOLVED_SIGNED and
+    UNRESOLVED_UNSIGNED), None for the others."""
+    name = type_name(t)
+    if name.endswith("unsigned"):
+        return "unsigned"
+    if name.endswith("signed"):
+        return "signed"
+    return None
+
+
 def type_name(t):
     if not t:
         return ""
@@ -274,16 +287,22 @@ def type_of(t):
             lits.append(frontend.ident(lit))
         return Enum(base, name, lits)
     if bkind in (K.Integer_Type_Definition, K.Integer_Subtype_Definition):
+        if kind == K.Integer_Subtype_Definition:
+            try:
+                left, right, asc = range_of(t)
+                return Int(min(left, right), max(left, right), left)
+            except Unsupported:
+                pass
         return Int()
     if bkind == K.Array_Type_Definition:
         elem = nodes.Get_Element_Subtype(base)
         et = type_of(elem)
         width, asc, lo, hi = constraint_of(t)
         if et.kind == "bit":
-            signed = type_name(base) == "signed"
+            signed = numeric_kind(base) == "signed"
             if width is not None and width > 64 * 8:
                 raise unsupported(t, "vector wider than 512 bits")
-            return Vec(width, asc, lo, hi, signed)
+            return Vec(width, asc, lo, hi, signed, numeric_kind(base))
         if width is None:
             raise unsupported(t, "unconstrained array")
         key = ("arr", ct_key(et), width, lo, hi, asc)

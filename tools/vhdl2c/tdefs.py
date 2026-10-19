@@ -50,6 +50,23 @@ def eq_expr(a, b, ct):
     return "(%s == %s)" % (a, b)
 
 
+def zero_value(ct):
+    """C code of the initial value of an object of the type when it is not 0, else None."""
+    if ct.kind in ("rec", "arr"):
+        return "%s_zero()" % ct.cname if has_nonzero(ct) else None
+    if ct.kind == "int" and ct.left:
+        return "INT64_C(%d)" % ct.left
+    return None
+
+
+def has_nonzero(ct):
+    if ct.kind == "rec":
+        return any(has_nonzero(f[2]) for f in ct.fields)
+    if ct.kind == "arr":
+        return has_nonzero(ct.elem)
+    return ct.kind == "int" and bool(ct.left)
+
+
 def members(ct):
     """[(name, CT, count)] : the fields of a record, or the elements of an array (count N)."""
     if ct.kind == "rec":
@@ -82,7 +99,19 @@ def define(ct):
 
     o.open("static inline %s %s_zero(void)" % (cn, cn))
     o.line("%s v;" % cn)
+    if any(n for _, _, n in members(ct)):
+        o.line("size_t i;")
     o.line("memset(&v, 0, sizeof(v));")
+    for name, mct, n in members(ct):
+        init = zero_value(mct)
+        if init is None:
+            continue
+        if n:
+            o.open("for (i = 0; i < %d; i++)" % n)
+            o.line("v.%s[i] = %s;" % (name, init))
+            o.close()
+        else:
+            o.line("v.%s = %s;" % (name, init))
     o.line("return v;")
     o.close()
     o.line()

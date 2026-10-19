@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include "lzc_8.h"
+#include "gen_funcs.h"
 
 static void lzc_8_p0(void *inst)
 {
@@ -62,6 +63,7 @@ static void lzc_8_p8(void *inst)
 
 void lzc_8_create(vs_kernel *k, lzc_8 *self, const char *path, vs_sig *a, vs_sig *z, vs_sig *v)
 {
+    (void) path;
     self->p_a = a;
     self->p_z = z;
     self->p_v = v;

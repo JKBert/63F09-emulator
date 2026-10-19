@@ -33,6 +33,16 @@ BLOCKS = {
     "amc_63f42": dict(clocks=["e_int", "q_int"], resets={"reset_n": 0}, warm=0, cycles=600, change=0.4),
     "lzc_128": dict(clocks=[], resets={}, warm=0, cycles=2500, change=0.5, trace=False),
     "lzc_256": dict(clocks=[], resets={}, warm=0, cycles=2500, change=0.5, trace=False),
+    "fp_cmp": dict(clocks=[], resets={}, warm=0, cycles=3000, change=0.6),
+    "fp_max": dict(clocks=[], resets={}, warm=0, cycles=3000, change=0.6),
+    "fp_mac": dict(clocks=[], resets={}, warm=0, cycles=3000, change=0.6),
+    "fp_ext": dict(clocks=[], resets={}, warm=0, cycles=3000, change=0.6),
+    "fp_rnd": dict(clocks=[], resets={}, warm=0, cycles=3000, change=0.6, int_range=(0, 2200)),
+    "fp_cvt": dict(clocks=["clock"], resets={}, warm=1, cycles=3000, change=0.5, ones=("ce",)),
+    "fp_fma": dict(clocks=["clock"], resets={"reset": 0}, warm=1, cycles=3000, change=0.5, ones=("ce",)),
+    "fp_fdiv": dict(clocks=["clock"], resets={"reset": 0}, warm=1, cycles=3000, change=0.5, ones=("ce",)),
+    "fp_exe": dict(clocks=["clock"], resets={"reset": 0}, warm=1, cycles=3000, change=0.5, ones=("ce",)),
+    "fp_unit": dict(clocks=["clock"], resets={"reset": 0}, warm=1, cycles=3000, change=0.5, ones=("ce",)),
     "fp_sgnj": dict(clocks=[], resets={}, warm=0, cycles=1500, change=0.6, trace=False),
     "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
@@ -150,7 +160,7 @@ def vhdl_bench(name, ports, cfg, lib="work", port_types=None):
     clocks = [c.lower() for c in cfg["clocks"]]
     ins, outs = port_leaves(ports, clocks)
     o = []
-    o.append("library ieee;\nuse ieee.std_logic_1164.all;\nuse std.textio.all;\n")
+    o.append("library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse std.textio.all;\n")
     if lib != "work":
         o.append("library %s;\n" % lib)
     o.append("entity tb is\nend entity tb;\n")
@@ -177,7 +187,8 @@ def vhdl_bench(name, ports, cfg, lib="work", port_types=None):
     o.append("        begin")
     for lf in outs:
         if lf.ct.kind in ("bit", "vec"):
-            o.append("            write(o, to_string(to_x01(%s)) & \" \");" % lf.vpath)
+            ex = "std_logic_vector(%s)" % lf.vpath if getattr(lf.ct, "vtype", None) else lf.vpath
+            o.append("            write(o, to_string(to_x01(%s)) & \" \");" % ex)
         elif lf.ct.kind == "int":
             o.append("            write(o, integer'image(%s) & \" \");" % lf.vpath)
         else:
@@ -193,7 +204,10 @@ def vhdl_bench(name, ports, cfg, lib="work", port_types=None):
             o.append("            read(l, v_%s);" % lf.name)
     for lf in ins:
         if lf.ct.kind in ("bit", "vec"):
-            o.append("            %s <= %s;" % (lf.vpath, "v_%s(0)" % lf.name if lf.ct.kind == "bit" else "v_" + lf.name))
+            src = "v_%s(0)" % lf.name if lf.ct.kind == "bit" else "v_" + lf.name
+            if getattr(lf.ct, "vtype", None):
+                src = "%s(%s)" % (lf.ct.vtype, src)
+            o.append("            %s <= %s;" % (lf.vpath, src))
         elif lf.ct.kind == "int":
             o.append("            %s <= v_%s;" % (lf.vpath, lf.name))
     for c in clocks:
@@ -285,7 +299,10 @@ def stimulus(ports, cfg, seed):
     def fresh(lf):
         """A random value, biased towards the edge cases : zero, all ones, one bit, few significant bits."""
         if lf.ct.kind == "int":
-            return rnd.randint(0, 15)
+            lo = lf.ct.lo if lf.ct.lo is not None else 0
+            hi = lf.ct.hi if lf.ct.hi is not None else 15
+            ilo, ihi = cfg.get("int_range", (-1000, 1000))
+            return rnd.randint(max(lo, ilo), min(hi, ihi))
         w = lf.ct.width
         mode = rnd.randrange(8)
         if mode == 0:
@@ -314,6 +331,8 @@ def stimulus(ports, cfg, seed):
             else:
                 if rnd.random() < cfg["change"]:
                     cur[lf.name] = fresh(lf)
+                    if lf.name.lower() in cfg.get("ones", ()):
+                        cur[lf.name] = 1 if rnd.random() < 0.9 else 0
                 v = cur[lf.name]
             row.append(str(v) if lf.ct.kind == "int" else format(v, "0%db" % lf.ct.width))
         if reset_left:

@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include "clk_63f75.h"
+#include "gen_funcs.h"
 
 static void clk_63f75_p0(void *inst)
 {
@@ -20,7 +21,7 @@ static void clk_63f75_p0(void *inst)
     {
         if (((*self->p_mrdy).cur == 1))
         {
-            vs_drive(&self->s_position, (((self->s_position.cur & UINT64_C(0x7)) << 1) | ((self->s_position.cur >> 3) & 1)));
+            vs_drive(&self->s_position, (((uint64_t)((self->s_position.cur & UINT64_C(0x7))) << 1) | ((self->s_position.cur >> 3) & 1)));
             vs_drive(&(*self->p_e), (((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)));
             vs_drive(&(*self->p_q), (((self->s_position.cur >> 3) & 1) | ((self->s_position.cur >> 0) & 1)));
             vs_drive(&(*self->p_c), (~(((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)) & UINT64_C(0x1)));
@@ -30,6 +31,7 @@ static void clk_63f75_p0(void *inst)
 
 void clk_63f75_create(vs_kernel *k, clk_63f75 *self, const char *path, vs_sig *reset_n, vs_sig *mrdy, vs_sig *tick, vs_sig *e, vs_sig *q, vs_sig *c)
 {
+    (void) path;
     self->p_reset_n = reset_n;
     self->p_mrdy = mrdy;
     self->p_tick = tick;

@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include "amc_63f42.h"
+#include "gen_funcs.h"
 
 struct amc_63f42_g0
 {
@@ -163,7 +164,7 @@ static void amc_63f42_g1_p8(void *inst)
 static void amc_63f42_g1_p9(void *inst)
 {
     amc_63f42_g1 *self = inst;
-    vs_drive(&(*self->up->p_d_out_ext), (((((((((((((((*self->up->p_d_in_int).cur << 8) | (*self->up->p_d_in_int).cur) << 8) | (*self->up->p_d_in_int).cur) << 8) | (*self->up->p_d_in_int).cur) << 8) | (*self->up->p_d_in_int).cur) << 8) | (*self->up->p_d_in_int).cur) << 8) | (*self->up->p_d_in_int).cur) << 8) | (*self->up->p_d_in_int).cur));
+    vs_drive(&(*self->up->p_d_out_ext), (((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((*self->up->p_d_in_int).cur) << 8) | (*self->up->p_d_in_int).cur)) << 8) | (*self->up->p_d_in_int).cur)) << 8) | (*self->up->p_d_in_int).cur)) << 8) | (*self->up->p_d_in_int).cur)) << 8) | (*self->up->p_d_in_int).cur)) << 8) | (*self->up->p_d_in_int).cur)) << 8) | (*self->up->p_d_in_int).cur));
 }
 
 static void amc_63f42_g1_create(vs_kernel *k, amc_63f42_g1 *self, const char *path)
@@ -243,6 +244,7 @@ static void amc_63f42_g1_create(vs_kernel *k, amc_63f42_g1 *self, const char *pa
 
 void amc_63f42_create(vs_kernel *k, amc_63f42 *self, const char *path, uint64_t g_cached_memory, vs_sig *reset_n, vs_sig *mrdy_ext, vs_sig *mrdy_int, vs_sig *e_ext, vs_sig *q_ext, vs_sig *rw_n_ext, vs_sig *vma_ext, vs_sig *e_int, vs_sig *q_int, vs_sig *rw_n_int, vs_sig *vma_int, vs_sig *a_int, vs_sig *a_ext, vs_sig *d_in_int, vs_sig *d_out_int, vs_sig *d_in_ext, vs_sig *d_out_ext, vs_sig *cacheable_int, vs_sig *cacheable_ext, vs_sig *byte_mask)
 {
+    (void) path;
     self->g_cached_memory = g_cached_memory;
     self->p_reset_n = reset_n;
     self->p_mrdy_ext = mrdy_ext;
