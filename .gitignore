@@ -1,0 +1,4 @@
+# Les sources VHDL du SoC ne sont pas publiques : ne jamais les versionner.
+vhdl/
+*.vhd
+*.vhdl
