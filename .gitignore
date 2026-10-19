@@ -2,3 +2,8 @@
 vhdl/
 *.vhd
 *.vhdl
+# ... except the test benches and declarations written for this project
+!tests/**/*.vhd
+build/
+__pycache__/
+*.pyc

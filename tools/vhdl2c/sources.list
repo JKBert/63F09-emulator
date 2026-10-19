@@ -1,0 +1,23 @@
+# Compilation order of the 63F09 sources : "library logical-name".
+# A logical name NNN is resolved to <vhdl dir>/NNN.vhd (or <vhdl dir>/<anything>-NNN.vhd) ;
+# a name starting with '@' is a path relative to the repository root.
+unisim  @tests/unisim/unisim_stub.vhd
+fpu     63F39
+work    74F150
+work    61F64x1
+work    61F512
+work    61F32x64
+work    27F512
+work    63F75
+work    63F09
+work    63F29
+work    63F41
+work    63F42
+work    63F44
+work    63F81
+work    63F21
+work    63F40
+work    63F46
+work    63F50
+work    63F52
+work    63F54
