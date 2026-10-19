@@ -45,17 +45,28 @@ class Out:
 class Binding:
     """What a VHDL declaration is in the C code."""
 
-    def __init__(self, kind, c, ct, sig=None):
+    def __init__(self, kind, c, ct, scope=None):
         self.kind = kind        # 'sigptr' | 'sig' | 'var' | 'const' | 'local'
-        self.c = c              # C expression : signal pointer, or lvalue/rvalue
+        self.c = c              # C expression ; "{S}" stands for the structure that owns the object
         self.ct = ct
-        self.sig = sig
+        self.scope = scope      # owner (None for the C locals)
 
 
 class Translator(Ops):
     def __init__(self):
         self.bindings = {}
         self.out = None
+        self.scope = None
+
+    def path_to(self, scope):
+        """C expression of the structure of `scope`, seen from the code of the current scope."""
+        return "self" + "->up" * (self.scope.depth - scope.depth)
+
+    def bc(self, b):
+        """C code of a binding as seen from the current scope."""
+        if b.scope is None:
+            return b.c
+        return b.c.replace("{S}", self.path_to(b.scope))
 
     # ------------------------------------------------------------------ names and signals
 
@@ -73,9 +84,9 @@ class Translator(Ops):
             decl = nodes.Get_Named_Entity(n)
             b = self.binding(decl, n)
             if b.kind == "sigptr":
-                return b.c, 0, b.ct.width, b.ct
+                return self.bc(b), 0, b.ct.width, b.ct
             if b.kind == "sig":
-                return "&" + b.c, 0, b.ct.width, b.ct
+                return "&" + self.bc(b), 0, b.ct.width, b.ct
             raise unsupported(n, "not a signal")
         if k in (K.Slice_Name, K.Indexed_Name):
             ptr, shift, width, ct = self.sigptr(nodes.Get_Prefix(n))
@@ -152,10 +163,10 @@ class Translator(Ops):
             return E(str(nodes.Get_Enum_Pos(decl)), t)
         b = self.binding(decl, n)
         if b.kind == "sigptr":
-            return E("%s->cur" % b.c, b.ct)
+            return E("%s->cur" % self.bc(b), b.ct)
         if b.kind == "sig":
-            return E("%s.cur" % b.c, b.ct)
-        return E(b.c, b.ct)
+            return E("%s.cur" % self.bc(b), b.ct)
+        return E(self.bc(b), b.ct)
 
     x_Selected_Name = x_Simple_Name
 
@@ -251,10 +262,10 @@ class Translator(Ops):
             decl = nodes.Get_Named_Entity(target)
             b = self.binding(decl, target)
             if b.kind == "sigptr":
-                return ("sig", b.c, 0, mask(b.ct.width), b.ct.width, b.ct)
+                return ("sig", self.bc(b), 0, mask(b.ct.width), b.ct.width, b.ct)
             if b.kind == "sig":
-                return ("sig", "&" + b.c, 0, mask(b.ct.width), b.ct.width, b.ct)
-            return ("var", b.c, 0, mask(b.ct.width), b.ct.width, b.ct)
+                return ("sig", "&" + self.bc(b), 0, mask(b.ct.width), b.ct.width, b.ct)
+            return ("var", self.bc(b), 0, mask(b.ct.width), b.ct.width, b.ct)
         if k in (K.Slice_Name, K.Indexed_Name):
             kind, base, shift, m, width, ct = self.target_lvalue(nodes.Get_Prefix(target))
             if ct.kind != "vec":

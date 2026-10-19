@@ -17,6 +17,17 @@
 #include <stdio.h>
 
 struct vs_proc;
+struct vs_sig;
+
+/* Zero-delay link of a field of a signal to a field of another one : used when a port is connected
+ * to a part of a signal (a slice, an element). The destination follows the source in the same
+ * delta cycle, as the two are one net in VHDL. */
+typedef struct vs_tie
+{
+    struct vs_sig   *dst;
+    unsigned        dst_shift, src_shift;
+    uint64_t        mask;           /* unshifted mask of the field */
+} vs_tie;
 
 typedef struct vs_sig
 {
@@ -30,6 +41,8 @@ typedef struct vs_sig
     uint32_t        width;
     uint64_t        last;       /* value at the last dump */
     uint8_t         dumped;
+    vs_tie          *ties;      /* nets that follow this signal */
+    uint32_t        nties;
 } vs_sig;
 
 typedef struct vs_proc
@@ -53,6 +66,8 @@ typedef struct vs_kernel
     size_t          nevents;
     char            **names;
     size_t          nnames, cnames;
+    void            **allocs;
+    size_t          nallocs, callocs;
     uint64_t        deltas;
     int             initialised;
     int             finalised;
@@ -64,8 +79,17 @@ extern size_t   vs_npend;
 void    vs_kernel_init(vs_kernel *k);
 void    vs_kernel_free(vs_kernel *k);
 
+/* Links a field of `src` to a field of `dst` (see vs_tie). The destination takes the current value. */
+void    vs_tie_fields(vs_sig *src, unsigned src_shift, vs_sig *dst, unsigned dst_shift, unsigned width);
+
+/* Memory that lives as long as the kernel. */
+void    *vs_alloc(vs_kernel *k, size_t size);
+
 /* Names a signal for the traces. `name` is copied. */
 void    vs_name(vs_kernel *k, vs_sig *s, const char *path, const char *name, unsigned width);
+
+/* Instance path : "<a>.<b>", kept by the kernel (valid until vs_kernel_free). */
+const char *vs_join(vs_kernel *k, const char *a, const char *b);
 
 /* Writes "<phase> <name> <value>" for every named signal that changed since the last call. */
 void    vs_dump(vs_kernel *k, FILE *f, long phase);

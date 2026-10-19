@@ -3,6 +3,7 @@
  * See docs/GENERATION.md.
  */
 
+#include <stdio.h>
 #include "clk_63f75.h"
 
 static void clk_63f75_p0(void *inst)
@@ -45,3 +46,4 @@ void clk_63f75_create(vs_kernel *k, clk_63f75 *self, const char *path, vs_sig *r
         vs_register_process(k, clk_63f75_p0, self, sens, 2);
     }
 }
+

@@ -41,6 +41,22 @@ void vs_name(vs_kernel *k, vs_sig *s, const char *path, const char *name, unsign
     s->width = width;
 }
 
+const char *vs_join(vs_kernel *k, const char *a, const char *b)
+{
+    size_t  la = a ? strlen(a) : 0;
+    size_t  n = la + (la ? 1 : 0) + strlen(b) + 1;
+    char    *p = xrealloc(NULL, n);
+
+    snprintf(p, n, "%s%s%s", a ? a : "", la ? "." : "", b);
+    if (k->nnames == k->cnames)
+    {
+        k->cnames = k->cnames ? k->cnames * 2 : 256;
+        k->names = xrealloc(k->names, k->cnames * sizeof(*k->names));
+    }
+    k->names[k->nnames++] = p;
+    return p;
+}
+
 void vs_dump(vs_kernel *k, FILE *f, long phase)
 {
     size_t  i;
@@ -58,9 +74,44 @@ void vs_dump(vs_kernel *k, FILE *f, long phase)
     }
 }
 
+void *vs_alloc(vs_kernel *k, size_t size)
+{
+    void    *p = xrealloc(NULL, size);
+
+    memset(p, 0, size);
+    if (k->nallocs == k->callocs)
+    {
+        k->callocs = k->callocs ? k->callocs * 2 : 64;
+        k->allocs = xrealloc(k->allocs, k->callocs * sizeof(*k->allocs));
+    }
+    k->allocs[k->nallocs++] = p;
+    return p;
+}
+
+void vs_tie_fields(vs_sig *src, unsigned src_shift, vs_sig *dst, unsigned dst_shift, unsigned width)
+{
+    uint64_t    mask = width >= 64 ? UINT64_MAX : (UINT64_C(1) << width) - 1;
+    uint64_t    v = (src->cur >> src_shift) & mask;
+
+    src->ties = xrealloc(src->ties, (src->nties + 1) * sizeof(*src->ties));
+    src->ties[src->nties].dst = dst;
+    src->ties[src->nties].dst_shift = dst_shift;
+    src->ties[src->nties].src_shift = src_shift;
+    src->ties[src->nties].mask = mask;
+    src->nties++;
+    dst->cur = (dst->cur & ~(mask << dst_shift)) | (v << dst_shift);
+    dst->nxt = (dst->nxt & ~(mask << dst_shift)) | (v << dst_shift);
+}
+
 void vs_kernel_free(vs_kernel *k)
 {
     size_t  i;
+
+    for (i = 0; i < k->nallocs; i++)
+    {
+        free(k->allocs[i]);
+    }
+    free(k->allocs);
 
     for (i = 0; i < k->nnames; i++)
     {
@@ -73,6 +124,9 @@ void vs_kernel_free(vs_kernel *k)
         free(k->sigs[i]->fan);
         k->sigs[i]->fan = NULL;
         k->sigs[i]->nfan = 0;
+        free(k->sigs[i]->ties);
+        k->sigs[i]->ties = NULL;
+        k->sigs[i]->nties = 0;
     }
     for (i = 0; i < k->nprocs; i++)
     {
@@ -101,6 +155,8 @@ void vs_register_signal(vs_kernel *k, vs_sig *s, uint64_t init)
     s->width = 0;
     s->last = 0;
     s->dumped = 0;
+    s->ties = NULL;
+    s->nties = 0;
     if (k->nsigs == k->csigs)
     {
         k->csigs = k->csigs ? k->csigs * 2 : 256;
@@ -163,6 +219,41 @@ static void finalise(vs_kernel *k)
     k->finalised = 1;
 }
 
+/* A signal has changed : raise its event, queue the processes it wakes, and let the nets tied to it follow. */
+static void changed(vs_kernel *k, vs_sig *s)
+{
+    uint32_t    m;
+
+    if (!s->evt)
+    {
+        s->evt = 1;
+        k->events[k->nevents++] = s;
+    }
+    for (m = 0; m < s->nfan; m++)
+    {
+        vs_proc *p = s->fan[m];
+
+        if (!p->queued)
+        {
+            p->queued = 1;
+            k->runq[k->nrun++] = p;
+        }
+    }
+    for (m = 0; m < s->nties; m++)
+    {
+        vs_tie      *t = &s->ties[m];
+        uint64_t    v = (s->cur >> t->src_shift) & t->mask;
+        uint64_t    n = (t->dst->cur & ~(t->mask << t->dst_shift)) | (v << t->dst_shift);
+
+        if (n != t->dst->cur)
+        {
+            t->dst->cur = n;
+            t->dst->nxt = (t->dst->nxt & ~(t->mask << t->dst_shift)) | (v << t->dst_shift);
+            changed(k, t->dst);
+        }
+    }
+}
+
 /* Commit the pending values : raises the events and queues the processes they wake. */
 static void commit(vs_kernel *k)
 {
@@ -176,21 +267,8 @@ static void commit(vs_kernel *k)
         s->pend = 0;
         if (s->nxt != s->cur)
         {
-            uint32_t    m;
-
             s->cur = s->nxt;
-            s->evt = 1;
-            k->events[k->nevents++] = s;
-            for (m = 0; m < s->nfan; m++)
-            {
-                vs_proc *p = s->fan[m];
-
-                if (!p->queued)
-                {
-                    p->queued = 1;
-                    k->runq[k->nrun++] = p;
-                }
-            }
+            changed(k, s);
         }
     }
     vs_npend = 0;

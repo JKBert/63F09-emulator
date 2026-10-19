@@ -3,6 +3,7 @@
  * See docs/GENERATION.md.
  */
 
+#include <stdio.h>
 #include "wdg_63f46.h"
 
 static void wdg_63f46_p0(void *inst)
@@ -231,3 +232,4 @@ void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e
         vs_register_process(k, wdg_63f46_p4, self, sens, 5);
     }
 }
+

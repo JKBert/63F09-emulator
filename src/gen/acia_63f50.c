@@ -3,6 +3,7 @@
  * See docs/GENERATION.md.
  */
 
+#include <stdio.h>
 #include "acia_63f50.h"
 
 static void acia_63f50_p0(void *inst)
@@ -1337,3 +1338,4 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
         vs_register_process(k, acia_63f50_p30, self, sens, 6);
     }
 }
+

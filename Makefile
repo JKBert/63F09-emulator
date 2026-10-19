@@ -60,7 +60,7 @@ need-vhdl:
 	@test -d "$(VHDL_DIR)" || { echo "VHDL_DIR=$(VHDL_DIR) is not a directory"; exit 1; }
 
 # The entities translated to C (see docs/GENERATION.md).
-ENTITIES     ?= clk_63f75 wdg_63f46 acia_63f50
+ENTITIES     ?= clk_63f75 wdg_63f46 acia_63f50 lzc_4 lzc_8 lzc_16 lzc_32 lzc_64
 
 gen: tools need-vhdl
 	$(PYTHON) tools/vhdl2c/gen.py $(VHDL_DIR) src/gen $(ENTITIES)

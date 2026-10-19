@@ -7,6 +7,7 @@ print every output after each phase. The two outputs must be identical.
 usage: blocktest.py <vhdl dir> <ghdl binary> [block ...]
 """
 
+import glob
 import os
 import random
 import shutil
@@ -24,6 +25,11 @@ K = nodes.Iir_Kind
 # probability that an input changes from one cycle to the next.
 BLOCKS = {
     "clk_63f75": dict(clocks=["tick"], resets={"reset_n": 0}, warm=2, cycles=600, change=0.3),
+    "lzc_4": dict(clocks=[], resets={}, warm=0, cycles=300, change=0.5),
+    "lzc_8": dict(clocks=[], resets={}, warm=0, cycles=600, change=0.5),
+    "lzc_16": dict(clocks=[], resets={}, warm=0, cycles=1000, change=0.5),
+    "lzc_32": dict(clocks=[], resets={}, warm=0, cycles=1500, change=0.5),
+    "lzc_64": dict(clocks=[], resets={}, warm=0, cycles=2500, change=0.5),
     "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
 }
@@ -44,8 +50,8 @@ def is_in(mode):
     return mode == nodes.Iir_Mode.In_Mode if hasattr(nodes.Iir_Mode, "In_Mode") else mode == 1
 
 
-def vhdl_bench(name, ports, cfg):
-    ins = [(n, ct) for n, ct, m in ports if m == 1 or m == nodes.Iir_Mode.In_Mode]
+def vhdl_bench(name, ports, cfg, lib="work"):
+    ins = [(n, ct) for n, ct, m in ports if m == nodes.Iir_Mode.In_Mode]
     outs = [(n, ct) for n, ct, m in ports if (n, ct) not in ins]
     clocks = [c.lower() for c in cfg["clocks"]]
     data_in = [(n, ct) for n, ct in ins if n.lower() not in clocks]
@@ -57,6 +63,8 @@ def vhdl_bench(name, ports, cfg):
 
     o = []
     o.append("library ieee;\nuse ieee.std_logic_1164.all;\nuse std.textio.all;\n")
+    if lib != "work":
+        o.append("library %s;\n" % lib)
     o.append("entity tb is\nend entity tb;\n")
     o.append("architecture sim of tb is")
     for n, ct in ins:
@@ -64,7 +72,7 @@ def vhdl_bench(name, ports, cfg):
     for n, ct in outs:
         o.append("    signal %s : %s;" % (n, decl(n, ct)))
     o.append("begin")
-    o.append("    DUT : entity work.%s port map (%s);" % (name, ", ".join("%s => %s" % (n, n) for n, ct, m in ports)))
+    o.append("    DUT : entity %s.%s port map (%s);" % (lib, name, ", ".join("%s => %s" % (n, n) for n, ct, m in ports)))
     o.append("    process")
     o.append('        file stim : text open read_mode is "stim.txt";')
     o.append('        file result : text open write_mode is "ghdl.out";')
@@ -100,7 +108,7 @@ def vhdl_bench(name, ports, cfg):
 
 
 def c_bench(name, ports, cfg):
-    ins = [(n, ct) for n, ct, m in ports if m == 1 or m == nodes.Iir_Mode.In_Mode]
+    ins = [(n, ct) for n, ct, m in ports if m == nodes.Iir_Mode.In_Mode]
     outs = [(n, ct) for n, ct in [(n, ct) for n, ct, m in ports] if (n, ct) not in ins]
     clocks = [c.lower() for c in cfg["clocks"]]
     data_in = [(n, ct) for n, ct in ins if n.lower() not in clocks]
@@ -145,7 +153,7 @@ def c_bench(name, ports, cfg):
 def stimulus(ports, cfg, seed):
     rnd = random.Random(seed)
     clocks = [c.lower() for c in cfg["clocks"]]
-    ins = [(n, ct) for n, ct, m in ports if (m == 1 or m == nodes.Iir_Mode.In_Mode) and n.lower() not in clocks]
+    ins = [(n, ct) for n, ct, m in ports if (m == nodes.Iir_Mode.In_Mode) and n.lower() not in clocks]
     cur = {n: rnd.getrandbits(ct.width) for n, ct in ins}
     resets = {k.lower(): v for k, v in cfg["resets"].items()}
     lines = []
@@ -205,21 +213,22 @@ def trace_diff(ghdl, shared, work, tb, wd, pp, skip):
     return "\n".join(out)
 
 
-def run_block(name, cfg, ports, ghdl, shared, root):
+def run_block(name, cfg, ports, ghdl, shared, root, lib="work"):
     with tempfile.TemporaryDirectory() as work:
         open(os.path.join(work, "tb.c"), "w").write(c_bench(name, ports, cfg))
         open(os.path.join(work, "stim.txt"), "w").write(stimulus(ports, cfg, 7))
         tb = "tb_" + name
         vhd = os.path.join(shared, tb + ".vhd")
-        open(vhd, "w").write(vhdl_bench(name, ports, cfg).replace("entity tb ", "entity %s " % tb).replace("entity tb is", "entity %s is" % tb)
+        open(vhd, "w").write(vhdl_bench(name, ports, cfg, lib).replace("entity tb ", "entity %s " % tb).replace("entity tb is", "entity %s is" % tb)
                              .replace("architecture sim of tb is", "architecture sim of %s is" % tb).replace("end entity tb;", "end entity %s;" % tb))
         wd = "--workdir=" + shared
         pp = "-P" + shared
         ok = run([ghdl, "-a"] + STD + [wd, pp, vhd], shared) and run([ghdl, "--elab-run"] + STD + [wd, pp, tb], work)
         src = os.path.join(root, "src")
         ok = ok and run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-Wall", "-Wextra", "-I" + os.path.join(src, "rt"),
-                         "-I" + os.path.join(src, "gen"), "-o", "tb_c", "tb.c",
-                         os.path.join(src, "gen", name + ".c"), os.path.join(src, "rt", "vsim.c")], work)
+                         "-I" + os.path.join(src, "gen"), "-I" + src, "-o", "tb_c", "tb.c"]
+                        + sorted(glob.glob(os.path.join(src, "gen", "*.c"))) + sorted(glob.glob(os.path.join(src, "hand", "*.c")))
+                        + [os.path.join(src, "rt", "vsim.c")], work)
         if not ok:
             return "FAILED to build or run"
         out = subprocess.run(["./tb_c", "stim.txt"], cwd=work, capture_output=True, text=True).stdout
@@ -257,11 +266,13 @@ def main(argv):
     files = frontend.project_files(vhdl_dir, listing)
     dfs = frontend.analyze_files(files)
     entities = {}
-    for df in dfs:
+    libs = {}
+    for df, (lib, path) in zip(dfs, files):
         for unit in frontend.units(df):
             lu = nodes.Get_Library_Unit(unit)
             if nodes.Get_Kind(lu) == K.Entity_Declaration:
                 entities[frontend.ident(lu).lower()] = lu
+                libs[frontend.ident(lu).lower()] = lib
     failures = 0
     with tempfile.TemporaryDirectory() as shared:
         import zeroinit
@@ -270,7 +281,7 @@ def main(argv):
             print("GHDL cannot analyse the project")
             return 1
         for name in names:
-            result = run_block(name, BLOCKS[name], port_info(entities[name]), ghdl, shared, root)
+            result = run_block(name, BLOCKS[name], port_info(entities[name]), ghdl, shared, root, libs[name])
             print("%s: %s" % (name, result))
             if not result.startswith("OK"):
                 failures += 1
