@@ -22,15 +22,15 @@ static void fp_ext_p0(void *inst)
     if ((self->v0_fmt == UINT64_C(0x0)))
     {
         self->v0_mantissa = (((uint64_t)((((uint64_t)(0) << 23) | (self->v0_data & UINT64_C(0x7FFFFF)))) << 40) | UINT64_C(0xFFFFFFFFFF));
-        self->v0_exponent_zero = f_nor_reduce_0(((self->v0_data >> 23) & UINT64_C(0xFF)));
-        self->v0_exponent_ones = f_and_reduce_0(((self->v0_data >> 23) & UINT64_C(0xFF)));
+        self->v0_exponent_zero = f_nor_reduce_0(((self->v0_data >> (23)) & UINT64_C(0xFF)));
+        self->v0_exponent_ones = f_and_reduce_0(((self->v0_data >> (23)) & UINT64_C(0xFF)));
         self->v0_mantissa_zero = f_nor_reduce_1((self->v0_data & UINT64_C(0x7FFFFF)));
     }
     else if ((self->v0_fmt == UINT64_C(0x1)))
     {
         self->v0_mantissa = (((uint64_t)((((uint64_t)((((uint64_t)(0) << 52) | (self->v0_data & UINT64_C(0xFFFFFFFFFFFFF)))) << 3) | UINT64_C(0x7))) << 8) | UINT64_C(0xFF));
-        self->v0_exponent_zero = f_nor_reduce_2(((self->v0_data >> 52) & UINT64_C(0x7FF)));
-        self->v0_exponent_ones = f_and_reduce_1(((self->v0_data >> 52) & UINT64_C(0x7FF)));
+        self->v0_exponent_zero = f_nor_reduce_2(((self->v0_data >> (52)) & UINT64_C(0x7FF)));
+        self->v0_exponent_ones = f_and_reduce_1(((self->v0_data >> (52)) & UINT64_C(0x7FF)));
         self->v0_mantissa_zero = f_nor_reduce_3((self->v0_data & UINT64_C(0xFFFFFFFFFFFFF)));
     }
     vs_drive(&(*self->p_lzc_i).f_a, self->v0_mantissa);
@@ -38,14 +38,14 @@ static void fp_ext_p0(void *inst)
     if ((self->v0_fmt == UINT64_C(0x0)))
     {
         self->v0_result = vs_w_set(self->v0_result, 64, 1, vs_w_from(((self->v0_data >> 31) & 1)));
-        if ((f_and_reduce_0(((self->v0_data >> 23) & UINT64_C(0xFF))) == 1))
+        if ((f_and_reduce_0(((self->v0_data >> (23)) & UINT64_C(0xFF))) == 1))
         {
             self->v0_result = vs_w_set(self->v0_result, 52, 12, vs_w_from(UINT64_C(0xFFF)));
             self->v0_result = vs_w_set(self->v0_result, 29, 23, vs_w_from((self->v0_data & UINT64_C(0x7FFFFF))));
         }
-        else if ((f_or_reduce_0(((self->v0_data >> 23) & UINT64_C(0xFF))) == 1))
+        else if ((f_or_reduce_0(((self->v0_data >> (23)) & UINT64_C(0xFF))) == 1))
         {
-            self->v0_result = vs_w_set(self->v0_result, 52, 12, vs_w_from((((((self->v0_data >> 23) & UINT64_C(0xFF)) & UINT64_C(0xFFF)) + (uint64_t)(INT64_C(1920))) & UINT64_C(0xFFF))));
+            self->v0_result = vs_w_set(self->v0_result, 52, 12, vs_w_from((((((self->v0_data >> (23)) & UINT64_C(0xFF)) & UINT64_C(0xFFF)) + (uint64_t)(INT64_C(1920))) & UINT64_C(0xFFF))));
             self->v0_result = vs_w_set(self->v0_result, 29, 23, vs_w_from((self->v0_data & UINT64_C(0x7FFFFF))));
         }
         else if ((self->v0_counter < INT64_C(24)))
@@ -58,14 +58,14 @@ static void fp_ext_p0(void *inst)
     else if ((self->v0_fmt == UINT64_C(0x1)))
     {
         self->v0_result = vs_w_set(self->v0_result, 64, 1, vs_w_from(((self->v0_data >> 63) & 1)));
-        if ((f_and_reduce_1(((self->v0_data >> 52) & UINT64_C(0x7FF))) == 1))
+        if ((f_and_reduce_1(((self->v0_data >> (52)) & UINT64_C(0x7FF))) == 1))
         {
             self->v0_result = vs_w_set(self->v0_result, 52, 12, vs_w_from(UINT64_C(0xFFF)));
             self->v0_result = vs_w_set(self->v0_result, 0, 52, vs_w_from((self->v0_data & UINT64_C(0xFFFFFFFFFFFFF))));
         }
-        else if ((f_or_reduce_2(((self->v0_data >> 52) & UINT64_C(0x7FF))) == 1))
+        else if ((f_or_reduce_2(((self->v0_data >> (52)) & UINT64_C(0x7FF))) == 1))
         {
-            self->v0_result = vs_w_set(self->v0_result, 52, 12, vs_w_from((((((self->v0_data >> 52) & UINT64_C(0x7FF)) & UINT64_C(0xFFF)) + (uint64_t)(INT64_C(1024))) & UINT64_C(0xFFF))));
+            self->v0_result = vs_w_set(self->v0_result, 52, 12, vs_w_from((((((self->v0_data >> (52)) & UINT64_C(0x7FF)) & UINT64_C(0xFFF)) + (uint64_t)(INT64_C(1024))) & UINT64_C(0xFFF))));
             self->v0_result = vs_w_set(self->v0_result, 0, 52, vs_w_from((self->v0_data & UINT64_C(0xFFFFFFFFFFFFF))));
         }
         else if ((self->v0_counter < INT64_C(53)))

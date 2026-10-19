@@ -19,15 +19,6 @@ struct spi_63f52_g0
 };
 typedef struct spi_63f52_g0 spi_63f52_g0;
 
-static void spi_63f52_g0_create(vs_kernel *k, spi_63f52_g0 *self, const char *path)
-{
-    vs_register_signal(k, &self->x1_tie_i, (uint64_t) (0));
-    vs_tie_fields(&self->up->s_cs_reg, ((0) + (((self->gp_i) - 0))) % 64, &self->x1_tie_i, 0, 1);
-    vs_register_signal(k, &self->x2_tie_o, (uint64_t) (0));
-    vs_tie_fields(&self->x2_tie_o, 0, &(*self->up->p_ss), ((0) + (((self->gp_i) - 0))) % 64, 1);
-    obuf_create(k, &self->c_ss_iobuffer_0, vs_join(k, path, "ss_iobuffer"), &self->x1_tie_i, &self->x2_tie_o);
-}
-
 struct spi_63f52_g1
 {
     struct spi_63f52 *up;
@@ -36,6 +27,24 @@ struct spi_63f52_g1
     bufhce_t c_slave_clock_buf_0;
 };
 typedef struct spi_63f52_g1 spi_63f52_g1;
+
+struct spi_63f52_g2
+{
+    struct spi_63f52 *up;
+    vs_sig s_cond_actual_5;
+    vs_sig s_cond_actual_6;
+    bufhce_t c_slave_clock_buf_n_0;
+};
+typedef struct spi_63f52_g2 spi_63f52_g2;
+
+static void spi_63f52_g0_create(vs_kernel *k, spi_63f52_g0 *self, const char *path)
+{
+    vs_register_signal(k, &self->x1_tie_i, (uint64_t) (0));
+    vs_tie_fields(&self->up->s_cs_reg, ((0) + (((self->gp_i) - 0))) % 64, &self->x1_tie_i, 0, 1);
+    vs_register_signal(k, &self->x2_tie_o, (uint64_t) (0));
+    vs_tie_fields(&self->x2_tie_o, 0, &(*self->up->p_ss), ((0) + (((self->gp_i) - 0))) % 64, 1);
+    obuf_create(k, &self->c_ss_iobuffer_0, vs_join(k, path, "ss_iobuffer"), &self->x1_tie_i, &self->x2_tie_o);
+}
 
 static void spi_63f52_g1_p0(void *inst)
 {
@@ -86,15 +95,6 @@ static void spi_63f52_g1_create(vs_kernel *k, spi_63f52_g1 *self, const char *pa
         vs_register_process(k, spi_63f52_g1_p1, self, sens, n);
     }
 }
-
-struct spi_63f52_g2
-{
-    struct spi_63f52 *up;
-    vs_sig s_cond_actual_5;
-    vs_sig s_cond_actual_6;
-    bufhce_t c_slave_clock_buf_n_0;
-};
-typedef struct spi_63f52_g2 spi_63f52_g2;
 
 static void spi_63f52_g2_p0(void *inst)
 {
@@ -318,7 +318,7 @@ static void spi_63f52_p8(void *inst)
                         }
                         case UINT64_C(0x2):
                         {
-                            vs_drive(&(*self->p_d_out), ((self->s_cs_reg.cur >> 8) & UINT64_C(0xFF)));
+                            vs_drive(&(*self->p_d_out), ((self->s_cs_reg.cur >> (8)) & UINT64_C(0xFF)));
                             break;
                         }
                         default:
@@ -332,7 +332,7 @@ static void spi_63f52_p8(void *inst)
                 {
                     if (((*self->p_addr).cur == UINT64_C(0x0)))
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_clock_divisor.cur >> 8) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_clock_divisor.cur >> (8)) & UINT64_C(0xFF)));
                     }
                     else if (((*self->p_addr).cur == UINT64_C(0x1)))
                     {

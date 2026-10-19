@@ -197,7 +197,7 @@ static void twi_63f54_p2(void *inst)
                     }
                     case UINT64_C(0x4):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_clock_divisor.cur >> 8) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_clock_divisor.cur >> (8)) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x5):
@@ -207,7 +207,7 @@ static void twi_63f54_p2(void *inst)
                     }
                     case UINT64_C(0x6):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_addr_reg.cur >> 8) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_addr_reg.cur >> (8)) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x7):
@@ -364,7 +364,7 @@ static void twi_63f54_p4(void *inst)
                         }
                         else
                         {
-                            vs_drive(&self->s_i2c_addr7, (((uint64_t)((((uint64_t)(UINT64_C(0x1E)) << 2) | ((self->s_addr_reg.cur >> 8) & UINT64_C(0x3)))) << 1) | 0));
+                            vs_drive(&self->s_i2c_addr7, (((uint64_t)((((uint64_t)(UINT64_C(0x1E)) << 2) | ((self->s_addr_reg.cur >> (8)) & UINT64_C(0x3)))) << 1) | 0));
                             vs_drive(&self->s_addr_reg_m, (((uint64_t)((self->s_addr_reg.cur & UINT64_C(0x3FF))) << 1) | ((self->s_start_reg.cur >> 1) & 1)));
                         }
                         vs_drive(&self->s_tx_buffer, self->s_tx_reg.cur);
@@ -447,7 +447,7 @@ static void twi_63f54_p4(void *inst)
                     else
                     {
                         vs_drive(&self->s_state, 5);
-                        vs_drive(&self->s_i2c_addr7, (((uint64_t)((((uint64_t)(UINT64_C(0x1E)) << 2) | ((self->s_addr_reg.cur >> 8) & UINT64_C(0x3)))) << 1) | ((self->s_mode_reg.cur >> 1) & 1)));
+                        vs_drive(&self->s_i2c_addr7, (((uint64_t)((((uint64_t)(UINT64_C(0x1E)) << 2) | ((self->s_addr_reg.cur >> (8)) & UINT64_C(0x3)))) << 1) | ((self->s_mode_reg.cur >> 1) & 1)));
                     }
                     break;
                 }

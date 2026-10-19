@@ -6830,4 +6830,668 @@ static inline int internal_stack_type_eq(internal_stack_type a, internal_stack_t
     return 1;
 }
 
+typedef struct indirection_bank_type
+{
+    uint64_t a[64];
+} indirection_bank_type;
+typedef struct indirection_bank_type_s
+{
+    vs_sig a[64];
+} indirection_bank_type_s;
+
+static inline indirection_bank_type indirection_bank_type_zero(void)
+{
+    indirection_bank_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline indirection_bank_type indirection_bank_type_fill(uint64_t e)
+{
+    size_t i;
+    indirection_bank_type v;
+    for (i = 0; i < 64; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline indirection_bank_type indirection_bank_type_put(indirection_bank_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline indirection_bank_type indirection_bank_type_get(const indirection_bank_type_s *s)
+{
+    size_t i;
+    indirection_bank_type v;
+    for (i = 0; i < 64; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void indirection_bank_type_drive(indirection_bank_type_s *s, indirection_bank_type v)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void indirection_bank_type_register(vs_kernel *k, indirection_bank_type_s *s, indirection_bank_type v)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t indirection_bank_type_leaves(indirection_bank_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 64; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int indirection_bank_type_eq(indirection_bank_type a, indirection_bank_type b)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct indirection_bank_array_type
+{
+    indirection_bank_type a[4];
+} indirection_bank_array_type;
+typedef struct indirection_bank_array_type_s
+{
+    indirection_bank_type_s a[4];
+} indirection_bank_array_type_s;
+
+static inline indirection_bank_array_type indirection_bank_array_type_zero(void)
+{
+    indirection_bank_array_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline indirection_bank_array_type indirection_bank_array_type_fill(indirection_bank_type e)
+{
+    size_t i;
+    indirection_bank_array_type v;
+    for (i = 0; i < 4; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline indirection_bank_array_type indirection_bank_array_type_put(indirection_bank_array_type v, size_t pos, indirection_bank_type e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline indirection_bank_array_type indirection_bank_array_type_get(const indirection_bank_array_type_s *s)
+{
+    size_t i;
+    indirection_bank_array_type v;
+    for (i = 0; i < 4; i++)
+    {
+        v.a[i] = indirection_bank_type_get(&s->a[i]);
+    }
+    return v;
+}
+
+static inline void indirection_bank_array_type_drive(indirection_bank_array_type_s *s, indirection_bank_array_type v)
+{
+    size_t i;
+    for (i = 0; i < 4; i++)
+    {
+        indirection_bank_type_drive(&s->a[i], v.a[i]);
+    }
+}
+
+static inline void indirection_bank_array_type_register(vs_kernel *k, indirection_bank_array_type_s *s, indirection_bank_array_type v)
+{
+    size_t i;
+    for (i = 0; i < 4; i++)
+    {
+        indirection_bank_type_register(k, &s->a[i], v.a[i]);
+    }
+}
+
+static inline size_t indirection_bank_array_type_leaves(indirection_bank_array_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 4; i++)
+    {
+        n += indirection_bank_type_leaves(&s->a[i], out + n);
+    }
+    return n;
+}
+
+static inline int indirection_bank_array_type_eq(indirection_bank_array_type a, indirection_bank_array_type b)
+{
+    size_t i;
+    for (i = 0; i < 4; i++)
+    {
+        if (!indirection_bank_type_eq(a.a[i], b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct lru_bank_type
+{
+    uint64_t a[64];
+} lru_bank_type;
+typedef struct lru_bank_type_s
+{
+    vs_sig a[64];
+} lru_bank_type_s;
+
+static inline lru_bank_type lru_bank_type_zero(void)
+{
+    lru_bank_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline lru_bank_type lru_bank_type_fill(uint64_t e)
+{
+    size_t i;
+    lru_bank_type v;
+    for (i = 0; i < 64; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline lru_bank_type lru_bank_type_put(lru_bank_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline lru_bank_type lru_bank_type_get(const lru_bank_type_s *s)
+{
+    size_t i;
+    lru_bank_type v;
+    for (i = 0; i < 64; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void lru_bank_type_drive(lru_bank_type_s *s, lru_bank_type v)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void lru_bank_type_register(vs_kernel *k, lru_bank_type_s *s, lru_bank_type v)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t lru_bank_type_leaves(lru_bank_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 64; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int lru_bank_type_eq(lru_bank_type a, lru_bank_type b)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct lru_bank_array_type
+{
+    lru_bank_type a[4];
+} lru_bank_array_type;
+typedef struct lru_bank_array_type_s
+{
+    lru_bank_type_s a[4];
+} lru_bank_array_type_s;
+
+static inline lru_bank_array_type lru_bank_array_type_zero(void)
+{
+    lru_bank_array_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline lru_bank_array_type lru_bank_array_type_fill(lru_bank_type e)
+{
+    size_t i;
+    lru_bank_array_type v;
+    for (i = 0; i < 4; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline lru_bank_array_type lru_bank_array_type_put(lru_bank_array_type v, size_t pos, lru_bank_type e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline lru_bank_array_type lru_bank_array_type_get(const lru_bank_array_type_s *s)
+{
+    size_t i;
+    lru_bank_array_type v;
+    for (i = 0; i < 4; i++)
+    {
+        v.a[i] = lru_bank_type_get(&s->a[i]);
+    }
+    return v;
+}
+
+static inline void lru_bank_array_type_drive(lru_bank_array_type_s *s, lru_bank_array_type v)
+{
+    size_t i;
+    for (i = 0; i < 4; i++)
+    {
+        lru_bank_type_drive(&s->a[i], v.a[i]);
+    }
+}
+
+static inline void lru_bank_array_type_register(vs_kernel *k, lru_bank_array_type_s *s, lru_bank_array_type v)
+{
+    size_t i;
+    for (i = 0; i < 4; i++)
+    {
+        lru_bank_type_register(k, &s->a[i], v.a[i]);
+    }
+}
+
+static inline size_t lru_bank_array_type_leaves(lru_bank_array_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 4; i++)
+    {
+        n += lru_bank_type_leaves(&s->a[i], out + n);
+    }
+    return n;
+}
+
+static inline int lru_bank_array_type_eq(lru_bank_array_type a, lru_bank_array_type b)
+{
+    size_t i;
+    for (i = 0; i < 4; i++)
+    {
+        if (!lru_bank_type_eq(a.a[i], b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct payload_type
+{
+    uint64_t a[64];
+} payload_type;
+typedef struct payload_type_s
+{
+    vs_sig a[64];
+} payload_type_s;
+
+static inline payload_type payload_type_zero(void)
+{
+    payload_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline payload_type payload_type_fill(uint64_t e)
+{
+    size_t i;
+    payload_type v;
+    for (i = 0; i < 64; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline payload_type payload_type_put(payload_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline payload_type payload_type_get(const payload_type_s *s)
+{
+    size_t i;
+    payload_type v;
+    for (i = 0; i < 64; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void payload_type_drive(payload_type_s *s, payload_type v)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void payload_type_register(vs_kernel *k, payload_type_s *s, payload_type v)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t payload_type_leaves(payload_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 64; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int payload_type_eq(payload_type a, payload_type b)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct payload_array_type
+{
+    payload_type a[4];
+} payload_array_type;
+typedef struct payload_array_type_s
+{
+    payload_type_s a[4];
+} payload_array_type_s;
+
+static inline payload_array_type payload_array_type_zero(void)
+{
+    payload_array_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline payload_array_type payload_array_type_fill(payload_type e)
+{
+    size_t i;
+    payload_array_type v;
+    for (i = 0; i < 4; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline payload_array_type payload_array_type_put(payload_array_type v, size_t pos, payload_type e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline payload_array_type payload_array_type_get(const payload_array_type_s *s)
+{
+    size_t i;
+    payload_array_type v;
+    for (i = 0; i < 4; i++)
+    {
+        v.a[i] = payload_type_get(&s->a[i]);
+    }
+    return v;
+}
+
+static inline void payload_array_type_drive(payload_array_type_s *s, payload_array_type v)
+{
+    size_t i;
+    for (i = 0; i < 4; i++)
+    {
+        payload_type_drive(&s->a[i], v.a[i]);
+    }
+}
+
+static inline void payload_array_type_register(vs_kernel *k, payload_array_type_s *s, payload_array_type v)
+{
+    size_t i;
+    for (i = 0; i < 4; i++)
+    {
+        payload_type_register(k, &s->a[i], v.a[i]);
+    }
+}
+
+static inline size_t payload_array_type_leaves(payload_array_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 4; i++)
+    {
+        n += payload_type_leaves(&s->a[i], out + n);
+    }
+    return n;
+}
+
+static inline int payload_array_type_eq(payload_array_type a, payload_array_type b)
+{
+    size_t i;
+    for (i = 0; i < 4; i++)
+    {
+        if (!payload_type_eq(a.a[i], b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct node_vec_type
+{
+    uint64_t a[64];
+} node_vec_type;
+typedef struct node_vec_type_s
+{
+    vs_sig a[64];
+} node_vec_type_s;
+
+static inline node_vec_type node_vec_type_zero(void)
+{
+    node_vec_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline node_vec_type node_vec_type_fill(uint64_t e)
+{
+    size_t i;
+    node_vec_type v;
+    for (i = 0; i < 64; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline node_vec_type node_vec_type_put(node_vec_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline node_vec_type node_vec_type_get(const node_vec_type_s *s)
+{
+    size_t i;
+    node_vec_type v;
+    for (i = 0; i < 64; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void node_vec_type_drive(node_vec_type_s *s, node_vec_type v)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void node_vec_type_register(vs_kernel *k, node_vec_type_s *s, node_vec_type v)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t node_vec_type_leaves(node_vec_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 64; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int node_vec_type_eq(node_vec_type a, node_vec_type b)
+{
+    size_t i;
+    for (i = 0; i < 64; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct node_lv_type
+{
+    node_vec_type a[8];
+} node_lv_type;
+typedef struct node_lv_type_s
+{
+    node_vec_type_s a[8];
+} node_lv_type_s;
+
+static inline node_lv_type node_lv_type_zero(void)
+{
+    node_lv_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline node_lv_type node_lv_type_fill(node_vec_type e)
+{
+    size_t i;
+    node_lv_type v;
+    for (i = 0; i < 8; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline node_lv_type node_lv_type_put(node_lv_type v, size_t pos, node_vec_type e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline node_lv_type node_lv_type_get(const node_lv_type_s *s)
+{
+    size_t i;
+    node_lv_type v;
+    for (i = 0; i < 8; i++)
+    {
+        v.a[i] = node_vec_type_get(&s->a[i]);
+    }
+    return v;
+}
+
+static inline void node_lv_type_drive(node_lv_type_s *s, node_lv_type v)
+{
+    size_t i;
+    for (i = 0; i < 8; i++)
+    {
+        node_vec_type_drive(&s->a[i], v.a[i]);
+    }
+}
+
+static inline void node_lv_type_register(vs_kernel *k, node_lv_type_s *s, node_lv_type v)
+{
+    size_t i;
+    for (i = 0; i < 8; i++)
+    {
+        node_vec_type_register(k, &s->a[i], v.a[i]);
+    }
+}
+
+static inline size_t node_lv_type_leaves(node_lv_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 8; i++)
+    {
+        n += node_vec_type_leaves(&s->a[i], out + n);
+    }
+    return n;
+}
+
+static inline int node_lv_type_eq(node_lv_type a, node_lv_type b)
+{
+    size_t i;
+    for (i = 0; i < 8; i++)
+    {
+        if (!node_vec_type_eq(a.a[i], b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
 #endif

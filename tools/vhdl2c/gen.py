@@ -121,6 +121,17 @@ class EntityGen(Translator):
 
     def declare_interface(self):
         s = self.scope
+        from vtypes import STATIC_GENERICS, const_int
+        STATIC_GENERICS.clear()
+        for n, ct, d in self.iface.generics:
+            # the value used when a type bound depends on the generic
+            try:
+                if ct.kind == "int" and ct.hi is not None:
+                    STATIC_GENERICS[d] = ct.hi
+                elif nodes.Get_Default_Value(d):
+                    STATIC_GENERICS[d] = const_int(nodes.Get_Default_Value(d))
+            except Unsupported:
+                pass
         for n, ct, d in self.iface.generics:
             s.fields.append("%s g_%s;" % (ctype_decl(ct), n))
             self.bindings[d] = Binding("var", "{S}->g_" + n, ct, s)
@@ -620,9 +631,10 @@ class EntityGen(Translator):
         o.line("#endif")
         return o.text()
 
-    def emit_scope(self, o, sc, root):
+    def emit_structs(self, o, sc, root):
+        """The structures of all the scopes come first : the processes of a body reach their parent's fields."""
         for b in sc.bodies:
-            self.emit_scope(o, b, False)
+            self.emit_structs(o, b, False)
         if not root:
             o.line("struct %s" % sc.struct)
             o.line("{")
@@ -633,8 +645,10 @@ class EntityGen(Translator):
             o.line("};")
             o.line("typedef struct %s %s;" % (sc.struct, sc.struct))
             o.line()
-            for b in sc.bodies:
-                pass
+
+    def emit_scope(self, o, sc, root):
+        for b in sc.bodies:
+            self.emit_scope(o, b, False)
         mine = [i for i in self.local_funcs.values() if i.scope is sc]
         for i in mine:
             o.line("static %s;" % i.proto)
@@ -685,6 +699,7 @@ class EntityGen(Translator):
         for inc in sorted(set(self.all_includes(self.root)) - set(self.root.includes)):
             o.line(inc)
         o.line()
+        self.emit_structs(o, self.root, True)
         self.emit_scope(o, self.root, True)
         return o.text()
 

@@ -53,19 +53,29 @@ BLOCKS = {
     "cpu_63f09": dict(clocks=["extal"], resets={"reset_n": 0}, warm=2, cycles=6000, change=0.5,
                       ones=("nmi_n", "firq_n", "irq_n", "mrdy", "dma_breq_n", "halt_n", "eirq_n", "pagefault_n", "lock_granted"),
                       choices={"d_in": LEGAL_6809}),
+    "mmu_63f29": dict(clocks=["extal"], resets={"reset_n": 0}, warm=2, cycles=6000, change=0.5, generics={"mmu": 1},
+                      ones=("nmi_n", "firq_n", "irq_n", "mrdy", "dma_breq_n", "halt_n", "eirq_n", "lock_granted"),
+                      choices={"d_in": LEGAL_6809}),
     "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
 }
 
 
-def generic_defaults(entity):
-    """Default value (as a C integer) of each generic of the entity."""
+def generic_defaults(entity, overrides=None):
+    """[(name, value as a C integer, is boolean)] of the generics of the entity : the default values, unless
+    `overrides` (a dict name -> value) gives another one."""
     from vtypes import const_int
     out = []
     g = nodes.Get_Generic_Chain(entity)
     while g:
         dv = nodes.Get_Default_Value(g)
-        out.append(const_int(dv) if dv else 0)
+        name = frontend.ident(g)
+        v = const_int(dv) if dv else 0
+        if overrides and name.lower() in overrides:
+            v = int(overrides[name.lower()])
+        from vtypes import type_name, base_of
+        is_bool = type_name(base_of(nodes.Get_Type(g))).lower() == "boolean"
+        out.append((name, v, is_bool))
         g = nodes.Get_Chain(g)
     return out
 
@@ -165,7 +175,7 @@ def vtype_name(ct, lib):
     raise ValueError("no name for %r" % ct)
 
 
-def vhdl_bench(name, ports, cfg, lib="work", port_types=None):
+def vhdl_bench(name, ports, cfg, lib="work", port_types=None, generics=()):
     clocks = [c.lower() for c in cfg["clocks"]]
     ins, outs = port_leaves(ports, clocks)
     o = []
@@ -182,7 +192,10 @@ def vhdl_bench(name, ports, cfg, lib="work", port_types=None):
             init = " := '0'" if ct.kind == "bit" else (" := (others => '0')" if ct.kind == "vec" else "")
         o.append("    signal %s : %s%s;" % (n, t, init))
     o.append("begin")
-    o.append("    DUT : entity %s.%s port map (%s);" % (lib, name, ", ".join("%s => %s" % (n, n) for n, ct, m in ports)))
+    gmap = ""
+    if generics:
+        gmap = "generic map (%s) " % ", ".join("%s => %s" % (n, ("true" if v else "false") if b else v) for n, v, b in generics)
+    o.append("    DUT : entity %s.%s %sport map (%s);" % (lib, name, gmap, ", ".join("%s => %s" % (n, n) for n, ct, m in ports)))
     o.append("    process")
     o.append('        file stim : text open read_mode is "stim.txt";')
     o.append('        file result : text open write_mode is "ghdl.out";')
@@ -267,7 +280,7 @@ def c_bench(name, ports, cfg, generics=()):
         else:
             o.append("    vs_register_signal(&k, &p_%s, 0);" % n)
             o.append('    vs_name(&k, &p_%s, NULL, "%s", %d);' % (n, n, ct.width))
-    o.append('    %s_create(&k, &dut, "dut", %s);' % (name, ", ".join(["%dLL" % g for g in generics] + ["&p_%s" % n for n, ct, m in ports])))
+    o.append('    %s_create(&k, &dut, "dut", %s);' % (name, ", ".join(["%dLL" % g[1] for g in generics] + ["&p_%s" % n for n, ct, m in ports])))
     o.append("    vs_settle(&k);")
     o.append("    while (fgets(line, sizeof(line), f) != NULL)\n    {\n        char *tok;")
     first = True
@@ -399,7 +412,7 @@ def run_block(name, cfg, ports, ghdl, shared, root, lib="work", generics=(), por
         open(os.path.join(work, "stim.txt"), "w").write(stimulus(ports, cfg, 7))
         tb = "tb_" + name
         vhd = os.path.join(shared, tb + ".vhd")
-        open(vhd, "w").write(vhdl_bench(name, ports, cfg, lib, port_types).replace("entity tb ", "entity %s " % tb).replace("entity tb is", "entity %s is" % tb)
+        open(vhd, "w").write(vhdl_bench(name, ports, cfg, lib, port_types, generics).replace("entity tb ", "entity %s " % tb).replace("entity tb is", "entity %s is" % tb)
                              .replace("architecture sim of tb is", "architecture sim of %s is" % tb).replace("end entity tb;", "end entity %s;" % tb))
         wd = "--workdir=" + shared
         pp = "-P" + shared
@@ -463,7 +476,7 @@ def main(argv):
             print("GHDL cannot analyse the project")
             return 1
         for name in names:
-            result = run_block(name, BLOCKS[name], port_info(entities[name]), ghdl, shared, root, libs[name], generic_defaults(entities[name]), port_type_texts(entities[name]))
+            result = run_block(name, BLOCKS[name], port_info(entities[name]), ghdl, shared, root, libs[name], generic_defaults(entities[name], BLOCKS[name].get('generics')), port_type_texts(entities[name]))
             print("%s: %s" % (name, result))
             if not result.startswith("OK"):
                 failures += 1

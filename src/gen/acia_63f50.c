@@ -267,7 +267,7 @@ static void acia_63f50_p11(void *inst)
         }
         case UINT64_C(0x2):
         {
-            vs_drive(&(*self->p_d_out), ((self->s_clockdiv.cur >> 8) & UINT64_C(0xFF)));
+            vs_drive(&(*self->p_d_out), ((self->s_clockdiv.cur >> (8)) & UINT64_C(0xFF)));
             break;
         }
         default:
@@ -605,7 +605,7 @@ static void acia_63f50_p21(void *inst)
                 case 2:
                 {
                     vs_drive(&self->s_rx_bit_count, ((self->s_rx_bit_count.cur - UINT64_C(0x1)) & UINT64_C(0xF)));
-                    vs_drive(&self->s_rx_shift_reg, (((uint64_t)((*self->p_rxd).cur) << 7) | ((self->s_rx_shift_reg.cur >> 1) & UINT64_C(0x7F))));
+                    vs_drive(&self->s_rx_shift_reg, (((uint64_t)((*self->p_rxd).cur) << 7) | ((self->s_rx_shift_reg.cur >> (1)) & UINT64_C(0x7F))));
                     vs_drive(&self->s_rx_parity, (self->s_rx_parity.cur ^ (*self->p_rxd).cur));
                     break;
                 }
@@ -655,7 +655,7 @@ static void acia_63f50_p22(void *inst)
 static void acia_63f50_p23(void *inst)
 {
     acia_63f50 *self = inst;
-    switch (((self->s_control_reg.cur >> 5) & UINT64_C(0x3)))
+    switch (((self->s_control_reg.cur >> (5)) & UINT64_C(0x3)))
     {
         case UINT64_C(0x0):
         {
@@ -915,7 +915,7 @@ static void acia_63f50_p30(void *inst)
                 case 2:
                 {
                     vs_drive(&self->s_tx_bit_count, ((self->s_tx_bit_count.cur - UINT64_C(0x1)) & UINT64_C(0xF)));
-                    vs_drive(&self->s_tx_shift_reg, (((uint64_t)(1) << 7) | ((self->s_tx_shift_reg.cur >> 1) & UINT64_C(0x7F))));
+                    vs_drive(&self->s_tx_shift_reg, (((uint64_t)(1) << 7) | ((self->s_tx_shift_reg.cur >> (1)) & UINT64_C(0x7F))));
                     vs_drive(&self->s_tx_parity, (self->s_tx_parity.cur ^ ((self->s_tx_shift_reg.cur >> 0) & 1)));
                     break;
                 }

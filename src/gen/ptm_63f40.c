@@ -11,7 +11,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
 
 static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n, vs_sig *a_addr, vs_sig *a_sysclk, vs_sig *a_rst_n, vs_sig *a_counter, vs_sig *a_latch_register, vs_sig *a_control_register, vs_ref a_interrupt_request, vs_ref a_c_n, vs_ref a_c_n_old, vs_ref a_g_n, vs_ref a_g_n_old, vs_ref a_o_out, vs_ref a_counter_init, vs_ref a_set_irq, vs_sig *a_stage, vs_ref a_start, vs_ref a_start_old, uint64_t a_is_timer_3, uint64_t a_soft_reset)
 {
-    uint64_t v_decr_93296 = 0;
+    uint64_t v_decr_65424 = 0;
     if ((((*a_rst_n).cur == 0) | a_soft_reset))
     {
         if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
@@ -36,7 +36,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
         {
             if (((((*a_control_register).cur >> 2) & 1) == 0))
             {
-                switch ((((*a_control_register).cur >> 3) & UINT64_C(0x7)))
+                switch ((((*a_control_register).cur >> (3)) & UINT64_C(0x7)))
                 {
                     case UINT64_C(0x0):
                     case UINT64_C(0x2):
@@ -334,14 +334,14 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                         }
                         if (((int64_t) (*a_stage).cur >= INT64_C(1)))
                         {
-                            v_decr_93296 = 0;
+                            v_decr_65424 = 0;
                             if ((vs_ref_get(a_interrupt_request) == 0))
                             {
                                 if (((((*a_control_register).cur >> 1) & 1) == 0))
                                 {
                                     if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
                                     {
-                                        v_decr_93296 = 1;
+                                        v_decr_65424 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                                 }
@@ -349,12 +349,12 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                 {
                                     if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
                                     {
-                                        v_decr_93296 = 1;
+                                        v_decr_65424 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
                                 }
                             }
-                            if (v_decr_93296)
+                            if (v_decr_65424)
                             {
                                 if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                 {
@@ -369,7 +369,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (v_decr_93296)
+                                    if (v_decr_65424)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -388,7 +388,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
                                 {
-                                    if (v_decr_93296)
+                                    if (v_decr_65424)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -429,14 +429,14 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                         }
                         if (((int64_t) (*a_stage).cur >= INT64_C(1)))
                         {
-                            v_decr_93296 = 0;
+                            v_decr_65424 = 0;
                             if ((vs_ref_get(a_interrupt_request) == 0))
                             {
                                 if (((((*a_control_register).cur >> 1) & 1) == 0))
                                 {
                                     if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
                                     {
-                                        v_decr_93296 = 1;
+                                        v_decr_65424 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                                 }
@@ -444,12 +444,12 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                 {
                                     if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
                                     {
-                                        v_decr_93296 = 1;
+                                        v_decr_65424 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
                                 }
                             }
-                            if (v_decr_93296)
+                            if (v_decr_65424)
                             {
                                 if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                 {
@@ -464,7 +464,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (v_decr_93296)
+                                    if (v_decr_65424)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -483,7 +483,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
                                 {
-                                    if (v_decr_93296)
+                                    if (v_decr_65424)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -500,7 +500,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
             }
             else
             {
-                switch ((((*a_control_register).cur >> 3) & UINT64_C(0x7)))
+                switch ((((*a_control_register).cur >> (3)) & UINT64_C(0x7)))
                 {
                     case UINT64_C(0x0):
                     case UINT64_C(0x2):
@@ -516,7 +516,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
                                 {
-                                    if ((((((*a_counter).cur >> 11) & UINT64_C(0xFF)) == UINT64_C(0x0)) & (((*a_counter).cur & UINT64_C(0x7FF)) == (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)))))
+                                    if ((((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)) & (((*a_counter).cur & UINT64_C(0x7FF)) == (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)))))
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -537,7 +537,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                     {
                                         if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
                                         {
-                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> 11) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
                                             if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                             {
                                                 vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
@@ -566,7 +566,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
                                 {
-                                    if ((((((*a_counter).cur >> 11) & UINT64_C(0xFF)) == UINT64_C(0x0)) & ((*a_counter).cur == (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)))))
+                                    if ((((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)) & ((*a_counter).cur == (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)))))
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -587,7 +587,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                     {
                                         if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
                                         {
-                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> 11) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
                                             if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                             {
                                                 vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
@@ -663,13 +663,13 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                         }
                                         else
                                         {
-                                            if (((((*a_counter).cur >> 11) & UINT64_C(0xFF)) == UINT64_C(0x0)))
+                                            if (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)))
                                             {
                                                 vs_ref_drive(a_o_out, (uint64_t)(1));
                                             }
                                             if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
                                             {
-                                                vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> 11) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                                vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
                                                 if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                                 {
                                                     vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
@@ -714,13 +714,13 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                         }
                                         else
                                         {
-                                            if (((((*a_counter).cur >> 11) & UINT64_C(0xFF)) == UINT64_C(0x0)))
+                                            if (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)))
                                             {
                                                 vs_ref_drive(a_o_out, (uint64_t)(1));
                                             }
                                             if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
                                             {
-                                                vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> 11) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                                vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
                                                 if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                                 {
                                                     vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
@@ -782,7 +782,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                     {
                                         if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
                                         {
-                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> 11) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
                                             if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                             {
                                                 vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
@@ -827,7 +827,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                     {
                                         if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
                                         {
-                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> 11) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
                                             if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                             {
                                                 vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
@@ -902,14 +902,14 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                         }
                         if (((int64_t) (*a_stage).cur >= INT64_C(1)))
                         {
-                            v_decr_93296 = 0;
+                            v_decr_65424 = 0;
                             if ((vs_ref_get(a_interrupt_request) == 0))
                             {
                                 if (((((*a_control_register).cur >> 1) & 1) == 0))
                                 {
                                     if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
                                     {
-                                        v_decr_93296 = 1;
+                                        v_decr_65424 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                                 }
@@ -917,12 +917,12 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                 {
                                     if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
                                     {
-                                        v_decr_93296 = 1;
+                                        v_decr_65424 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
                                 }
                             }
-                            if (v_decr_93296)
+                            if (v_decr_65424)
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
@@ -940,7 +940,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                 {
                                     if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
                                     {
-                                        vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> 11) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                        vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
                                         if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                         {
                                             vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
@@ -967,7 +967,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (v_decr_93296)
+                                    if (v_decr_65424)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -986,7 +986,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
                                 {
-                                    if (v_decr_93296)
+                                    if (v_decr_65424)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -1027,14 +1027,14 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                         }
                         if (((int64_t) (*a_stage).cur >= INT64_C(1)))
                         {
-                            v_decr_93296 = 0;
+                            v_decr_65424 = 0;
                             if ((vs_ref_get(a_interrupt_request) == 0))
                             {
                                 if (((((*a_control_register).cur >> 1) & 1) == 0))
                                 {
                                     if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
                                     {
-                                        v_decr_93296 = 1;
+                                        v_decr_65424 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                                 }
@@ -1042,12 +1042,12 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                 {
                                     if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
                                     {
-                                        v_decr_93296 = 1;
+                                        v_decr_65424 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
                                 }
                             }
-                            if (v_decr_93296)
+                            if (v_decr_65424)
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
@@ -1065,7 +1065,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                 {
                                     if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
                                     {
-                                        vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> 11) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                        vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
                                         if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                         {
                                             vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
@@ -1092,7 +1092,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (v_decr_93296)
+                                    if (v_decr_65424)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -1111,7 +1111,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
                                 {
-                                    if (v_decr_93296)
+                                    if (v_decr_65424)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -1321,7 +1321,7 @@ static void ptm_63f40_p6(void *inst)
                     }
                     case UINT64_C(0x2):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[0].cur >> 8) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[0].cur >> (8)) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x3):
@@ -1336,7 +1336,7 @@ static void ptm_63f40_p6(void *inst)
                     }
                     case UINT64_C(0x4):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[1].cur >> 8) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[1].cur >> (8)) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x5):
@@ -1351,7 +1351,7 @@ static void ptm_63f40_p6(void *inst)
                     }
                     case UINT64_C(0x6):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[2].cur >> 8) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[2].cur >> (8)) & UINT64_C(0xFF)));
                         break;
                     }
                     default:

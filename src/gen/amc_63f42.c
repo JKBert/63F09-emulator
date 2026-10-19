@@ -13,15 +13,15 @@ struct amc_63f42_g0
 };
 typedef struct amc_63f42_g0 amc_63f42_g0;
 
-static void amc_63f42_g0_create(vs_kernel *k, amc_63f42_g0 *self, const char *path)
-{
-}
-
 struct amc_63f42_g1
 {
     struct amc_63f42 *up;
 };
 typedef struct amc_63f42_g1 amc_63f42_g1;
+
+static void amc_63f42_g0_create(vs_kernel *k, amc_63f42_g0 *self, const char *path)
+{
+}
 
 static void amc_63f42_g1_p0(void *inst)
 {
@@ -50,7 +50,7 @@ static void amc_63f42_g1_p3(void *inst)
 static void amc_63f42_g1_p4(void *inst)
 {
     amc_63f42_g1 *self = inst;
-    vs_drive(&(*self->up->p_a_ext), (((*self->up->p_a_int).cur >> 3) & UINT64_C(0x1FFFFFFFF)));
+    vs_drive(&(*self->up->p_a_ext), (((*self->up->p_a_int).cur >> (3)) & UINT64_C(0x1FFFFFFFF)));
 }
 
 static void amc_63f42_g1_p5(void *inst)
@@ -125,37 +125,37 @@ static void amc_63f42_g1_p8(void *inst)
         }
         case UINT64_C(0x1):
         {
-            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> 8) & UINT64_C(0xFF)));
+            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> (8)) & UINT64_C(0xFF)));
             break;
         }
         case UINT64_C(0x2):
         {
-            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> 16) & UINT64_C(0xFF)));
+            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> (16)) & UINT64_C(0xFF)));
             break;
         }
         case UINT64_C(0x3):
         {
-            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> 24) & UINT64_C(0xFF)));
+            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> (24)) & UINT64_C(0xFF)));
             break;
         }
         case UINT64_C(0x4):
         {
-            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> 32) & UINT64_C(0xFF)));
+            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> (32)) & UINT64_C(0xFF)));
             break;
         }
         case UINT64_C(0x5):
         {
-            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> 40) & UINT64_C(0xFF)));
+            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> (40)) & UINT64_C(0xFF)));
             break;
         }
         case UINT64_C(0x6):
         {
-            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> 48) & UINT64_C(0xFF)));
+            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> (48)) & UINT64_C(0xFF)));
             break;
         }
         default:
         {
-            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> 56) & UINT64_C(0xFF)));
+            vs_drive(&(*self->up->p_d_out_int), (((*self->up->p_d_in_ext).cur >> (56)) & UINT64_C(0xFF)));
             break;
         }
     }

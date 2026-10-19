@@ -238,38 +238,154 @@ def base_of(t):
     return t
 
 
-def const_int(expr):
-    """Value of a static integer expression."""
+# The value that stands for each generic of the entity being translated when a type bound depends on it : the
+# upper bound of its declared range (NCPUS : 8), else its default value. The structures are sized for it.
+STATIC_GENERICS = {}
+
+
+class _Return(Exception):
+    def __init__(self, value):
+        self.value = value
+
+
+def const_int(expr, env=None):
+    """Value of a static integer or boolean expression. `env` maps declarations (the parameters and the variables of
+    a function that is being interpreted) to their values."""
+    env = env if env is not None else {}
     kind = nodes.Get_Kind(expr)
     if kind == K.Integer_Literal:
         return nodes.Get_Value(expr)
     if kind in (K.Simple_Name, K.Selected_Name):
         decl = nodes.Get_Named_Entity(expr)
-        if nodes.Get_Kind(decl) == K.Constant_Declaration and nodes.Get_Default_Value(decl):
-            return const_int(nodes.Get_Default_Value(decl))
-        if nodes.Get_Kind(decl) == K.Enumeration_Literal:
+        if decl in env:
+            return env[decl]
+        dk = nodes.Get_Kind(decl)
+        if dk == K.Constant_Declaration and nodes.Get_Default_Value(decl):
+            return const_int(nodes.Get_Default_Value(decl), env)
+        if dk == K.Enumeration_Literal:
             return nodes.Get_Enum_Pos(decl)
+        if dk == K.Interface_Constant_Declaration and decl in STATIC_GENERICS:
+            return STATIC_GENERICS[decl]
         raise unsupported(expr, "bound is not a static constant")
     if kind == K.Parenthesis_Expression:
-        return const_int(nodes.Get_Expression(expr))
+        return const_int(nodes.Get_Expression(expr), env)
+    if kind == K.Type_Conversion or kind == K.Qualified_Expression:
+        return const_int(nodes.Get_Expression(expr), env)
     binary = {
         K.Addition_Operator: lambda a, b: a + b,
         K.Substraction_Operator: lambda a, b: a - b,
         K.Multiplication_Operator: lambda a, b: a * b,
         K.Division_Operator: lambda a, b: int(a / b),
         K.Modulus_Operator: lambda a, b: a % b,
+        K.Remainder_Operator: lambda a, b: int(a - b * int(a / b)),
         K.Exponentiation_Operator: lambda a, b: a ** b,
+        K.Equality_Operator: lambda a, b: int(a == b),
+        K.Inequality_Operator: lambda a, b: int(a != b),
+        K.Less_Than_Operator: lambda a, b: int(a < b),
+        K.Less_Than_Or_Equal_Operator: lambda a, b: int(a <= b),
+        K.Greater_Than_Operator: lambda a, b: int(a > b),
+        K.Greater_Than_Or_Equal_Operator: lambda a, b: int(a >= b),
+        K.And_Operator: lambda a, b: int(bool(a) and bool(b)),
+        K.Or_Operator: lambda a, b: int(bool(a) or bool(b)),
+        K.Xor_Operator: lambda a, b: int(bool(a) != bool(b)),
     }
     if kind in binary:
-        return binary[kind](const_int(nodes.Get_Left(expr)), const_int(nodes.Get_Right(expr)))
+        return binary[kind](const_int(nodes.Get_Left(expr), env), const_int(nodes.Get_Right(expr), env))
     if kind == K.Negation_Operator:
-        return -const_int(nodes.Get_Operand(expr))
-    if kind == K.Type_Conversion:
-        return const_int(nodes.Get_Expression(expr))
+        return -const_int(nodes.Get_Operand(expr), env)
+    if kind == K.Absolute_Operator:
+        return abs(const_int(nodes.Get_Operand(expr), env))
+    if kind == K.Not_Operator:
+        return int(not const_int(nodes.Get_Operand(expr), env))
+    if kind == K.Function_Call:
+        return _call(expr, env)
     raise unsupported(expr, "bound is not a static integer")
 
 
-def range_of(constraint):
+def _call(expr, env):
+    """A call of a function in a constant expression : the function is interpreted."""
+    impl = nodes.Get_Implementation(expr)
+    if nodes.Get_Implicit_Definition(impl) != nodes.Iir_Predefined.PNone:
+        raise unsupported(expr, "predefined function in a bound")
+    body = nodes.Get_Subprogram_Body(impl)
+    if not body:
+        raise unsupported(expr, "function without a body in a bound")
+    formals = []
+    p = nodes.Get_Interface_Declaration_Chain(impl)
+    while p:
+        formals.append(p)
+        p = nodes.Get_Chain(p)
+    local = {}
+    a = nodes.Get_Parameter_Association_Chain(expr)
+    for i, p in enumerate(formals):
+        if not a:
+            raise unsupported(expr, "missing argument")
+        local[p] = const_int(nodes.Get_Actual(a), env)
+        a = nodes.Get_Chain(a)
+    spec = nodes.Get_Subprogram_Specification(body)
+    if spec and spec != impl:
+        q = nodes.Get_Interface_Declaration_Chain(spec)
+        for p in formals:
+            local[q] = local[p]
+            q = nodes.Get_Chain(q)
+    d = nodes.Get_Declaration_Chain(body)
+    while d:
+        if nodes.Get_Kind(d) == K.Variable_Declaration:
+            init = nodes.Get_Default_Value(d)
+            local[d] = const_int(init, local) if init else 0
+        d = nodes.Get_Chain(d)
+    try:
+        _run(nodes.Get_Sequential_Statement_Chain(body), local)
+    except _Return as r:
+        return r.value
+    raise unsupported(expr, "function that does not return")
+
+
+def _run(chain, env):
+    s = chain
+    while s:
+        k = nodes.Get_Kind(s)
+        if k == K.Variable_Assignment_Statement:
+            t = nodes.Get_Target(s)
+            if nodes.Get_Kind(t) not in (K.Simple_Name,):
+                raise unsupported(s, "assignment in a constant function")
+            env[nodes.Get_Named_Entity(t)] = const_int(nodes.Get_Expression(s), env)
+        elif k == K.If_Statement:
+            if const_int(nodes.Get_Condition(s), env):
+                _run(nodes.Get_Sequential_Statement_Chain(s), env)
+            else:
+                e = nodes.Get_Else_Clause(s)
+                while e:
+                    c = nodes.Get_Condition(e)
+                    if c is None or not c or const_int(c, env):
+                        _run(nodes.Get_Sequential_Statement_Chain(e), env)
+                        break
+                    e = nodes.Get_Else_Clause(e)
+        elif k == K.While_Loop_Statement:
+            c = nodes.Get_Condition(s)
+            n = 0
+            while (not c) or const_int(c, env):
+                _run(nodes.Get_Sequential_Statement_Chain(s), env)
+                n += 1
+                if n > 100000:
+                    raise unsupported(s, "loop that does not end")
+        elif k == K.For_Loop_Statement:
+            spec = nodes.Get_Parameter_Specification(s)
+            left, right, asc = range_of(spec if nodes.Get_Discrete_Range(spec) == 0 and False else (nodes.Get_Discrete_Range(spec) or nodes.Get_Subtype_Indication(spec)), env)
+            rng = range(left, right + 1) if asc else range(left, right - 1, -1)
+            for i in rng:
+                env[spec] = i
+                _run(nodes.Get_Sequential_Statement_Chain(s), env)
+        elif k == K.Return_Statement:
+            raise _Return(const_int(nodes.Get_Expression(s), env))
+        elif k == K.Null_Statement:
+            pass
+        else:
+            raise unsupported(s, "statement in a constant function")
+        s = nodes.Get_Chain(s)
+
+
+def range_of(constraint, env=None):
     """(left, right, ascending) of the range of an index constraint node."""
     rng = constraint
     kind = nodes.Get_Kind(rng)
@@ -281,8 +397,8 @@ def range_of(constraint):
     le, re_ = nodes.Get_Left_Limit_Expr(rng), nodes.Get_Right_Limit_Expr(rng)
     if not le or not re_:
         raise unsupported(constraint, "range without explicit limits")
-    left = const_int(le)
-    right = const_int(re_)
+    left = const_int(le, env)
+    right = const_int(re_, env)
     asc = nodes.Get_Direction(rng) == nodes.DirectionType.To
     return left, right, asc
 

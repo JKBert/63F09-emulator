@@ -205,7 +205,7 @@ static void pia_63f21_p6(void *inst)
         }
         else
         {
-            switch (((self->s_port_ctrl.cur >> 3) & UINT64_C(0x7)))
+            switch (((self->s_port_ctrl.cur >> (3)) & UINT64_C(0x7)))
             {
                 case UINT64_C(0x4):
                 {

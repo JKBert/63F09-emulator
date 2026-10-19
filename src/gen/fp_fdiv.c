@@ -20,6 +20,13 @@ struct fp_fdiv_g0
 };
 typedef struct fp_fdiv_g0 fp_fdiv_g0;
 
+struct fp_fdiv_g1
+{
+    struct fp_fdiv *up;
+    fp_fdiv_fixed_reg_type v4_v;
+};
+typedef struct fp_fdiv_g1 fp_fdiv_g1;
+
 static void fp_fdiv_g0_p0(void *inst)
 {
     fp_fdiv_g0 *self = inst;
@@ -151,7 +158,7 @@ static void fp_fdiv_g0_p1(void *inst)
                 {
                     self->v1_v.f_qa = vs_shr(self->v1_v.f_qa, INT64_C(1));
                 }
-                self->v1_v.f_index = (int64_t)(((((self->v1_v.f_qa >> 48) & UINT64_C(0x7F)) - (uint64_t)(INT64_C(32))) & UINT64_C(0x7F)));
+                self->v1_v.f_index = (int64_t)(((((self->v1_v.f_qa >> (48)) & UINT64_C(0x7F)) - (uint64_t)(INT64_C(32))) & UINT64_C(0x7F)));
                 self->v1_v.f_exponent_fdiv = vs_sext(((uint64_t)(vs_sext(((uint64_t)(vs_sext((((uint64_t)(UINT64_C(0x0)) << 12) | vs_w_u64(vs_w_slice(self->v1_v.f_a, 52, 12))), 13) - INT64_C(2045)) & UINT64_C(0x1FFF)), 13) >> (INT64_C(1))) & UINT64_C(0x1FFF)), 13);
                 self->v1_v.f_y = (((uint64_t)((((uint64_t)((((uint64_t)(UINT64_C(0x0)) << 8) | (lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_put(lut_root_type_zero(), 0, UINT64_C(0xB5)), 1, UINT64_C(0xB2)), 2, UINT64_C(0xAF)), 3, UINT64_C(0xAD)), 4, UINT64_C(0xAA)), 5, UINT64_C(0xA8)), 6, UINT64_C(0xA6)), 7, UINT64_C(0xA3)), 8, UINT64_C(0xA1)), 9, UINT64_C(0x9F)), 10, UINT64_C(0x9E)), 11, UINT64_C(0x9C)), 12, UINT64_C(0x9A)), 13, UINT64_C(0x98)), 14, UINT64_C(0x96)), 15, UINT64_C(0x95)), 16, UINT64_C(0x93)), 17, UINT64_C(0x92)), 18, UINT64_C(0x90)), 19, UINT64_C(0x8F)), 20, UINT64_C(0x8E)), 21, UINT64_C(0x8C)), 22, UINT64_C(0x8B)), 23, UINT64_C(0x8A)), 24, UINT64_C(0x88)), 25, UINT64_C(0x87)), 26, UINT64_C(0x86)), 27, UINT64_C(0x85)), 28, UINT64_C(0x84)), 29, UINT64_C(0x83)), 30, UINT64_C(0x82)), 31, UINT64_C(0x81)), 32, UINT64_C(0x80)), 33, UINT64_C(0x7F)), 34, UINT64_C(0x7E)), 35, UINT64_C(0x7D)), 36, UINT64_C(0x7C)), 37, UINT64_C(0x7B)), 38, UINT64_C(0x7A)), 39, UINT64_C(0x79)), 40, UINT64_C(0x78)), 41, UINT64_C(0x77)), 42, UINT64_C(0x77)), 43, UINT64_C(0x76)), 44, UINT64_C(0x75)), 45, UINT64_C(0x74)), 46, UINT64_C(0x73)), 47, UINT64_C(0x73)), 48, UINT64_C(0x72)), 49, UINT64_C(0x71)), 50, UINT64_C(0x71)), 51, UINT64_C(0x70)), 52, UINT64_C(0x6F)), 53, UINT64_C(0x6F)), 54, UINT64_C(0x6E)), 55, UINT64_C(0x6D)), 56, UINT64_C(0x6D)), 57, UINT64_C(0x6C)), 58, UINT64_C(0x6B)), 59, UINT64_C(0x6B)), 60, UINT64_C(0x6A)), 61, UINT64_C(0x6A)), 62, UINT64_C(0x69)), 63, UINT64_C(0x69)), 64, UINT64_C(0x68)), 65, UINT64_C(0x67)), 66, UINT64_C(0x67)), 67, UINT64_C(0x66)), 68, UINT64_C(0x66)), 69, UINT64_C(0x65)), 70, UINT64_C(0x65)), 71, UINT64_C(0x64)), 72, UINT64_C(0x64)), 73, UINT64_C(0x63)), 74, UINT64_C(0x63)), 75, UINT64_C(0x62)), 76, UINT64_C(0x62)), 77, UINT64_C(0x62)), 78, UINT64_C(0x61)), 79, UINT64_C(0x61)), 80, UINT64_C(0x60)), 81, UINT64_C(0x60)), 82, UINT64_C(0x5F)), 83, UINT64_C(0x5F)), 84, UINT64_C(0x5F)), 85, UINT64_C(0x5E)), 86, UINT64_C(0x5E)), 87, UINT64_C(0x5D)), 88, UINT64_C(0x5D)), 89, UINT64_C(0x5D)), 90, UINT64_C(0x5C)), 91, UINT64_C(0x5C)), 92, UINT64_C(0x5B)), 93, UINT64_C(0x5B)), 94, UINT64_C(0x5B)), 95, UINT64_C(0x5A))).a[(self->v1_v.f_index) - 0])) << 3) | UINT64_C(0x0))) << 44) | UINT64_C(0x0));
                 self->v1_v.f_op = 1;
@@ -608,13 +615,6 @@ static void fp_fdiv_g0_create(vs_kernel *k, fp_fdiv_g0 *self, const char *path)
         vs_register_process(k, fp_fdiv_g0_p2, self, sens, n);
     }
 }
-
-struct fp_fdiv_g1
-{
-    struct fp_fdiv *up;
-    fp_fdiv_fixed_reg_type v4_v;
-};
-typedef struct fp_fdiv_g1 fp_fdiv_g1;
 
 static void fp_fdiv_g1_p0(void *inst)
 {

@@ -322,12 +322,12 @@ static void fp_cvt_p4(void *inst)
     self->v4_mantissa_uint = (vs_shl(self->v4_mantissa_uint, self->v4_counter_uint) & UINT64_MAX);
     self->v4_sign_rnd = self->v4_sign_uint;
     self->v4_exponent_rnd = ((self->v4_exponent_uint + self->v4_exponent_bias) - self->v4_counter_uint);
-    self->v4_mantissa_rnd = (((uint64_t)(UINT64_C(0x0)) << 24) | ((self->v4_mantissa_uint >> 40) & UINT64_C(0xFFFFFF)));
-    self->v4_grs = (((uint64_t)(((self->v4_mantissa_uint >> 38) & UINT64_C(0x3))) << 1) | f_or_reduce_10((self->v4_mantissa_uint & UINT64_C(0x3FFFFFFFFF))));
+    self->v4_mantissa_rnd = (((uint64_t)(UINT64_C(0x0)) << 24) | ((self->v4_mantissa_uint >> (40)) & UINT64_C(0xFFFFFF)));
+    self->v4_grs = (((uint64_t)(((self->v4_mantissa_uint >> (38)) & UINT64_C(0x3))) << 1) | f_or_reduce_10((self->v4_mantissa_uint & UINT64_C(0x3FFFFFFFFF))));
     if ((self->v4_fmt == UINT64_C(0x1)))
     {
-        self->v4_mantissa_rnd = (((uint64_t)(UINT64_C(0x0)) << 53) | ((self->v4_mantissa_uint >> 11) & UINT64_C(0x1FFFFFFFFFFFFF)));
-        self->v4_grs = (((uint64_t)(((self->v4_mantissa_uint >> 9) & UINT64_C(0x3))) << 1) | f_or_reduce_11((self->v4_mantissa_uint & UINT64_C(0x1FF))));
+        self->v4_mantissa_rnd = (((uint64_t)(UINT64_C(0x0)) << 53) | ((self->v4_mantissa_uint >> (11)) & UINT64_C(0x1FFFFFFFFFFFFF)));
+        self->v4_grs = (((uint64_t)(((self->v4_mantissa_uint >> (9)) & UINT64_C(0x3))) << 1) | f_or_reduce_11((self->v4_mantissa_uint & UINT64_C(0x1FF))));
     }
     vs_drive(&(*self->p_fp_cvt_i2f_o).f_fp_rnd.f_sig, self->v4_sign_rnd);
     vs_drive(&(*self->p_fp_cvt_i2f_o).f_fp_rnd.f_expo, (uint64_t)(self->v4_exponent_rnd));

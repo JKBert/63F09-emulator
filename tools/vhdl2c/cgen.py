@@ -141,7 +141,7 @@ class Translator(Subprograms, Ops):
                 raise unsupported(n, "part of a non-vector")
             if k == K.Slice_Name:
                 lo_pos, ww = self.slice_bounds(n, bct)
-                return code, bct, (lo + lo_pos) if isinstance(lo, int) else "(%s) + %d" % (lo, lo_pos), ww
+                return code, bct, (lo + lo_pos) if isinstance(lo, int) and isinstance(lo_pos, int) else "(%s) + (%s)" % (lo, lo_pos), ww
             pos = self.index_pos(n, bct)
             if isinstance(pos, int) and isinstance(lo, int):
                 return code, bct, lo + pos, 1
@@ -178,14 +178,53 @@ class Translator(Subprograms, Ops):
         return "((%s) - %d)" % (e.code, ct.lo)
 
     def slice_bounds(self, n, ct):
-        """(bit position of the lowest bit, width) of a Slice_Name with static bounds."""
-        left, right, asc = self.slice_range(n)
+        """(bit position of the lowest bit, width) of a Slice_Name : the width is static, the position is an int or,
+        when a bound depends on a generate parameter or a loop variable, C code."""
+        try:
+            left, right, asc = self.slice_range(n)
+        except Unsupported:
+            return self.slice_bounds_dynamic(n, ct)
         lo, hi = (left, right) if asc else (right, left)
         if asc != ct.asc:
             raise unsupported(n, "slice direction differs from the vector's")
         w = hi - lo + 1
         pos_lo = (ct.hi - hi) if ct.asc else (lo - ct.lo)
         return pos_lo, w
+
+    def slice_bounds_dynamic(self, n, ct):
+        """Bounds of the form `base + c1 to base + c2` where `base` is not static."""
+        rng = nodes.Get_Suffix(n)
+        if nodes.Get_Kind(rng) in (K.Integer_Subtype_Definition, K.Enumeration_Subtype_Definition):
+            rng = nodes.Get_Range_Constraint(rng)
+        if nodes.Get_Kind(rng) != K.Range_Expression:
+            raise unsupported(n, "dynamic slice range")
+        asc = nodes.Get_Direction(rng) == nodes.DirectionType.To
+        if asc != ct.asc:
+            raise unsupported(n, "slice direction differs from the vector's")
+
+        def split(e):
+            v = self.static_or_code(e)
+            if v is not None:
+                return None, v
+            k = nodes.Get_Kind(e)
+            if k == K.Parenthesis_Expression:
+                return split(nodes.Get_Expression(e))
+            if k in (K.Addition_Operator, K.Substraction_Operator):
+                c = self.static_or_code(nodes.Get_Right(e))
+                if c is not None:
+                    b, o = split(nodes.Get_Left(e))
+                    return b, o + (c if k == K.Addition_Operator else -c)
+            return self.expr(e).code, 0
+        bl, ol = split(nodes.Get_Left_Limit_Expr(rng))
+        br, orr = split(nodes.Get_Right_Limit_Expr(rng))
+        if bl != br or bl is None:
+            raise unsupported(n, "slice bounds that are not offsets of one expression")
+        w = abs(orr - ol) + 1
+        if asc:
+            hi = max(ol, orr)
+            return "%d - (%s) - %d" % (ct.hi, bl, hi), w
+        lo = min(ol, orr)
+        return "(%s) + %d - %d" % (bl, lo, ct.lo), w
 
     def slice_range(self, n):
         from vtypes import range_of
@@ -247,9 +286,9 @@ class Translator(Subprograms, Ops):
             raise unsupported(n, "slice of a non-vector")
         pos_lo, w = self.slice_bounds(n, pe.ct)
         if wide(pe):
-            code = "vs_w_slice(%s, %d, %d)" % (pe.code, pos_lo, w)
+            code = "vs_w_slice(%s, %s, %d)" % (pe.code, pos_lo, w)
             return E(code if w > 64 else "vs_w_u64(%s)" % code, Vec(w, pe.ct.asc, 0, w - 1, pe.ct.signed))
-        code = "((%s >> %d) & %s)" % (pe.code, pos_lo, mask(w)) if pos_lo else "(%s & %s)" % (pe.code, mask(w))
+        code = "((%s >> (%s)) & %s)" % (pe.code, pos_lo, mask(w)) if pos_lo != 0 else "(%s & %s)" % (pe.code, mask(w))
         return E(code, Vec(w, pe.ct.asc, 0, w - 1, pe.ct.signed))
 
     def x_Indexed_Name(self, n):
@@ -480,7 +519,63 @@ class Translator(Subprograms, Ops):
         else:
             raise unsupported(choice, "choice")
 
+    def matching_test(self, sel, choice):
+        """Condition of a choice of a `case?` : '-' in the choice matches any bit of the selector."""
+        from pyGHDL.libghdl import str_table
+        k = nodes.Get_Kind(choice)
+        if k == K.Choice_By_Others:
+            return "1"
+        if k != K.Choice_By_Expression:
+            raise unsupported(choice, "choice of a matching case")
+        e = nodes.Get_Choice_Expression(choice)
+        while nodes.Get_Kind(e) == K.Parenthesis_Expression:
+            e = nodes.Get_Expression(e)
+        if nodes.Get_Kind(e) != K.String_Literal8 or wide(sel):
+            return "%s == %s" % (sel.code, self.expr(e).code)
+        from vtypes import base_of
+        arr = base_of(nodes.Get_Type(e))
+        elem = base_of(nodes.Get_Element_Subtype(arr))
+        names = [frontend.ident(l).strip("'") for l in frontend.list_elements_flist(nodes.Get_Enumeration_Literal_List(elem))]
+        raw = "".join(names[ord(c)] for c in str_table.Get_String8_Ptr(nodes.Get_String8_Id(e), nodes.Get_String_Length(e)))
+        m = int("".join("0" if c == "-" else "1" for c in raw), 2)
+        v = int("".join("1" if c in "1H" else "0" for c in raw), 2)
+        if any(c in "UXWZ" for c in raw):
+            return "0"
+        return "(%s & UINT64_C(0x%X)) == UINT64_C(0x%X)" % (sel.code, m, v)
+
+    def s_Case_Matching(self, s):
+        o = self.out
+        sel = self.expr(nodes.Get_Expression(s))
+        first = True
+        choice = nodes.Get_Case_Statement_Alternative_Chain(s)
+        others = None
+        while choice:
+            tests = [self.matching_test(sel, choice)]
+            stmts = nodes.Get_Associated_Chain(choice)
+            nxt = nodes.Get_Chain(choice)
+            while nxt and nodes.Get_Same_Alternative_Flag(nxt):
+                choice = nxt
+                tests.append(self.matching_test(sel, choice))
+                nxt = nodes.Get_Chain(choice)
+            if "1" in tests:
+                others = stmts
+            else:
+                o.open("%sif (%s)" % ("" if first else "else ", " || ".join("(%s)" % t for t in tests)))
+                self.stmts(stmts)
+                o.close()
+                first = False
+            choice = nxt
+        if others is not None:
+            if first:
+                o.open("")
+            else:
+                o.open("else")
+            self.stmts(others)
+            o.close()
+
     def s_Case_Statement(self, s):
+        if nodes.Get_Matching_Flag(s):
+            return self.s_Case_Matching(s)
         o = self.out
         sel = self.expr(nodes.Get_Expression(s))
         o.open("switch (%s)" % sel.code)

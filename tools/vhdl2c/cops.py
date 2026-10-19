@@ -6,7 +6,7 @@ Values : bit and vector expressions are uint64_t, masked to their width ; intege
 import re
 
 import frontend
-from vtypes import Bit, Int, Vec, unsupported, type_of
+from vtypes import Bit, Int, Unsupported, Vec, unsupported, type_of
 from pyGHDL.libghdl.vhdl import nodes
 
 K = nodes.Iir_Kind
@@ -85,11 +85,48 @@ class Ops:
         impl = nodes.Get_Implementation(n)
         pre = P(nodes.Get_Implicit_Definition(impl))
         k = frontend.kind_name(n)
+        if k.startswith("Reduction_"):
+            e = self.reduce_dynamic_slice(n, k)
+            if e is not None:
+                return e
         if frontend.has_field(nodes.Get_Kind(n), frontend.nodes_meta.fields.Left):
             args = [self.expr(nodes.Get_Left(n)), self.expr(nodes.Get_Right(n))]
         else:
             args = [self.expr(nodes.Get_Operand(n))]
         return self.apply(n, pre, args)
+
+    def reduce_dynamic_slice(self, n, k):
+        """Reduction of a slice whose width depends on a generate parameter (`or FGHIT(0 to g - 1)`) : the mask is
+        computed when the design is built. None when the operand is not such a slice."""
+        op = nodes.Get_Operand(n)
+        if nodes.Get_Kind(op) != K.Slice_Name:
+            return None
+        pe = self.expr(nodes.Get_Prefix(op))
+        if pe.ct.kind != "vec" or wide(pe):
+            return None
+        try:
+            self.slice_bounds(op, pe.ct)
+            return None
+        except Unsupported:
+            pass
+        rng = nodes.Get_Suffix(op)
+        if nodes.Get_Kind(rng) in (K.Integer_Subtype_Definition, K.Enumeration_Subtype_Definition):
+            rng = nodes.Get_Range_Constraint(rng)
+        asc = nodes.Get_Direction(rng) == nodes.DirectionType.To
+        if asc != pe.ct.asc:
+            raise unsupported(n, "slice direction differs from the vector's")
+        le = self.expr(nodes.Get_Left_Limit_Expr(rng)).code
+        re_ = self.expr(nodes.Get_Right_Limit_Expr(rng)).code
+        lo, hi = (le, re_) if asc else (re_, le)
+        pos = "(%d - (%s))" % (pe.ct.hi, hi) if asc else "((%s) - %d)" % (lo, pe.ct.lo)
+        width = "((%s) - (%s) + 1)" % (hi, lo)
+        part = "((%s >> %s) & ((UINT64_C(1) << %s) - 1))" % (pe.code, pos, width)
+        full = "((UINT64_C(1) << %s) - 1)" % width
+        red = {"Reduction_Or_Operator": "(%s != 0)", "Reduction_Nor_Operator": "(%s == 0)",
+               "Reduction_And_Operator": "(%s == " + full + ")", "Reduction_Nand_Operator": "(%s != " + full + ")",
+               "Reduction_Xor_Operator": "(__builtin_parityll(%s) != 0)",
+               "Reduction_Xnor_Operator": "(__builtin_parityll(%s) == 0)"}[k]
+        return E("(uint64_t)" + red % part, Bit())
 
     def call_args(self, n):
         a = nodes.Get_Parameter_Association_Chain(n)

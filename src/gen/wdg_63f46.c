@@ -41,7 +41,7 @@ static void wdg_63f46_p2(void *inst)
         }
         else
         {
-            switch (((self->s_status_register.cur >> 6) & UINT64_C(0x3)))
+            switch (((self->s_status_register.cur >> (6)) & UINT64_C(0x3)))
             {
                 case UINT64_C(0x0):
                 {
@@ -142,17 +142,17 @@ static void wdg_63f46_p4(void *inst)
                 {
                     case UINT64_C(0x0):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.cur >> 24) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_counter.cur >> (24)) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x1):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.cur >> 16) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_counter.cur >> (16)) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x2):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.cur >> 8) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_counter.cur >> (8)) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x3):
