@@ -14,6 +14,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 struct vs_proc;
 
@@ -25,6 +26,10 @@ typedef struct vs_sig
     uint8_t         evt;
     struct vs_proc  **fan;      /* processes woken by an event on this signal */
     uint32_t        nfan;
+    const char      *name;      /* for the traces, NULL when unnamed */
+    uint32_t        width;
+    uint64_t        last;       /* value at the last dump */
+    uint8_t         dumped;
 } vs_sig;
 
 typedef struct vs_proc
@@ -46,6 +51,8 @@ typedef struct vs_kernel
     size_t          nrun;
     vs_sig          **events;
     size_t          nevents;
+    char            **names;
+    size_t          nnames, cnames;
     uint64_t        deltas;
     int             initialised;
     int             finalised;
@@ -56,6 +63,12 @@ extern size_t   vs_npend;
 
 void    vs_kernel_init(vs_kernel *k);
 void    vs_kernel_free(vs_kernel *k);
+
+/* Names a signal for the traces. `name` is copied. */
+void    vs_name(vs_kernel *k, vs_sig *s, const char *path, const char *name, unsigned width);
+
+/* Writes "<phase> <name> <value>" for every named signal that changed since the last call. */
+void    vs_dump(vs_kernel *k, FILE *f, long phase);
 
 /* Registration, done while the design is built. */
 void    vs_register_signal(vs_kernel *k, vs_sig *s, uint64_t init);
@@ -126,10 +139,12 @@ static inline uint64_t vs_parity(uint64_t v)
 /* Set by the VHDL procedure "finish" : the simulation must stop. */
 extern int vs_finished;
 
-/* Schedule a value on some bits of a signal. */
+/* Schedule a value on some bits of a signal : `mask` is the unshifted mask of the field. */
 static inline void vs_drive_bits(vs_sig *s, unsigned shift, uint64_t mask, uint64_t v)
 {
-    vs_drive(s, (s->nxt & ~mask) | ((v << shift) & mask));
+    uint64_t m = mask << shift;
+
+    vs_drive(s, (s->nxt & ~m) | ((v << shift) & m));
 }
 
 static inline int vs_rising(const vs_sig *s)

@@ -178,7 +178,7 @@ static void wdg_63f46_p4(void *inst)
     }
 }
 
-void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, vs_sig *e, vs_sig *sysclk, vs_sig *rst_n, vs_sig *cs, vs_sig *mrdy, vs_sig *addr, vs_sig *d_in, vs_sig *d_out, vs_sig *rw_n, vs_sig *wdg_reset_n)
+void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e, vs_sig *sysclk, vs_sig *rst_n, vs_sig *cs, vs_sig *mrdy, vs_sig *addr, vs_sig *d_in, vs_sig *d_out, vs_sig *rw_n, vs_sig *wdg_reset_n)
 {
     self->p_e = e;
     self->p_sysclk = sysclk;
@@ -191,9 +191,13 @@ void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, vs_sig *e, vs_sig *sysclk, 
     self->p_rw_n = rw_n;
     self->p_wdg_reset_n = wdg_reset_n;
     vs_register_signal(k, &self->s_default_value, 0);
+    vs_name(k, &self->s_default_value, path, "default_value", 32);
     vs_register_signal(k, &self->s_counter, 0);
+    vs_name(k, &self->s_counter, path, "counter", 32);
     vs_register_signal(k, &self->s_subcounter, 0);
+    vs_name(k, &self->s_subcounter, path, "subcounter", 64);
     vs_register_signal(k, &self->s_status_register, 0);
+    vs_name(k, &self->s_status_register, path, "status_register", 8);
 
     {
         vs_sig *sens[2];

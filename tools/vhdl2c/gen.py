@@ -71,6 +71,9 @@ class EntityGen(Translator):
             elif k in (K.Type_Declaration, K.Subtype_Declaration, K.Anonymous_Type_Declaration,
                        K.Attribute_Declaration, K.Attribute_Specification, K.Use_Clause):
                 pass
+            elif k in (K.Function_Declaration, K.Procedure_Declaration) and \
+                    nodes.Get_Implicit_Definition(d) != nodes.Iir_Predefined.PNone:
+                pass            # the implicit operators of the types declared here
             else:
                 raise unsupported(d, "architecture declaration")
             d = nodes.Get_Chain(d)
@@ -116,7 +119,7 @@ class EntityGen(Translator):
         return self.header(), self.source()
 
     def params(self):
-        out = ["vs_kernel *k", "%s *self" % self.name]
+        out = ["vs_kernel *k", "%s *self" % self.name, "const char *path"]
         out += ["%s g_%s" % (ctype_decl(ct), n) for n, ct in self.generics]
         out += ["vs_sig *%s" % n for n, ct, mode in self.ports]
         return ", ".join(out)
@@ -160,6 +163,7 @@ class EntityGen(Translator):
         for n, ct, init in self.signals:
             val = self.expr(init).code if init else self.default(ct)
             o.line("vs_register_signal(k, &self->s_%s, %s);" % (n, val))
+            o.line('vs_name(k, &self->s_%s, path, "%s", %d);' % (n, n, ct.width if ct.width else 64))
         for fname, body, sens in self.procs:
             if sens:
                 o.open("")

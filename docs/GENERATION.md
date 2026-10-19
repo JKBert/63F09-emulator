@@ -90,8 +90,13 @@ implements exactly that :
    changed raise an event, and the processes sensitive to those events run in the next delta cycle ;
 4. the simulation is quiescent when a delta commits no change.
 
-Initial values : the VHDL `'U'` of an unassigned signal is modelled by 0, and the logic has two
-values. The tests start under reset, where both models agree.
+Initial values : the logic has two values and a `std_logic` that has no initial value starts at 0, like
+a flip-flop of the FPGA (the device is configured with every register at 0). VHDL itself gives `'U'` to
+such a signal, and `'U'` is not equal to anything, so a register that is never reset (the clock divider
+of the ACIA, written before use) would make GHDL and the C disagree for a while although the hardware is
+well defined. The test copies of the sources, written to `build/vhdl-zeroinit/` by `zeroinit.py`, therefore
+get an explicit `:= '0'` (or `(others => '0')`) on every signal, variable and entity port of the
+`std_logic` family that has none : GHDL then starts like the hardware. The generator never sees those copies.
 
 ## What is not generated
 
@@ -113,8 +118,11 @@ the entity it builds a VHDL test bench and a C test bench that read the same ran
 apply it phase by phase (clocks low, then clocks high) and print every output after each phase ; GHDL
 simulates the VHDL, the generated C is run with the kernel, and the two outputs must be identical.
 A block is declared in the `BLOCKS` table of that script : its clocks, its resets, the number of cycles
-and the number of warm-up cycles that are not compared (the VHDL `'U'` of the first cycles has no C
-counterpart). The test was checked to fail when the C is deliberately broken.
+and the number of warm-up cycles that are not compared. Not only the outputs are compared : every
+signal of the block is named in the generated C (`vs_name`) and the test compares them all with the
+GHDL VCD trace, phase by phase ; on a difference it reports the first phase and the signals that differ,
+which is where to look (`BLOCKTEST_KEEP=<dir>` keeps the traces). The same comparison will serve with
+a VCD recorded in Vivado. The tests were checked to fail when the C is deliberately broken.
 
 The final reference is the Vivado simulation : record a VCD of the boot from the ROM and compare it
 with the emulator (planned, see the project notes).

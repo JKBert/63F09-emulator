@@ -19,6 +19,6 @@ typedef struct clk_63f75
     vs_sig s_position;
 } clk_63f75;
 
-void clk_63f75_create(vs_kernel *k, clk_63f75 *self, vs_sig *reset_n, vs_sig *mrdy, vs_sig *tick, vs_sig *e, vs_sig *q, vs_sig *c);
+void clk_63f75_create(vs_kernel *k, clk_63f75 *self, const char *path, vs_sig *reset_n, vs_sig *mrdy, vs_sig *tick, vs_sig *e, vs_sig *q, vs_sig *c);
 
 #endif

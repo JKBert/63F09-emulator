@@ -9,6 +9,7 @@ usage: blocktest.py <vhdl dir> <ghdl binary> [block ...]
 
 import os
 import random
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -23,6 +24,7 @@ K = nodes.Iir_Kind
 # probability that an input changes from one cycle to the next.
 BLOCKS = {
     "clk_63f75": dict(clocks=["tick"], resets={"reset_n": 0}, warm=2, cycles=600, change=0.3),
+    "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
 }
 
@@ -109,15 +111,18 @@ def c_bench(name, ports, cfg):
     o.append("static void put(const vs_sig *s, size_t w)\n{\n    size_t i;\n")
     o.append("    for (i = 0; i < w; i++)\n    {\n        putchar(((s->cur >> (w - 1 - i)) & 1) ? '1' : '0');\n    }\n    putchar(' ');\n}\n")
     o.append("int main(int argc, char **argv)\n{")
-    o.append("    vs_kernel k;\n    %s dut;\n    char line[4096];\n    FILE *f;\n" % name)
+    o.append("    vs_kernel k;\n    %s dut;\n    char line[4096];\n    FILE *f, *trace = NULL;\n    long phase = 0;\n" % name)
     for n, ct, m in ports:
         o.append("    vs_sig p_%s;" % n)
     o.append("")
-    o.append("    if (argc != 2 || (f = fopen(argv[1], \"r\")) == NULL)\n    {\n        return 2;\n    }")
+    o.append("    if (argc < 2 || (f = fopen(argv[1], \"r\")) == NULL)\n    {\n        return 2;\n    }")
+    o.append("    if (argc > 2)\n    {\n        trace = fopen(argv[2], \"w\");\n    }")
     o.append("    vs_kernel_init(&k);")
     for n, ct, m in ports:
         o.append("    vs_register_signal(&k, &p_%s, 0);" % n)
-    o.append("    %s_create(&k, &dut, %s);" % (name, ", ".join("&p_%s" % n for n, ct, m in ports)))
+    for n, ct, m in ports:
+        o.append('    vs_name(&k, &p_%s, NULL, "%s", %d);' % (n, n, ct.width))
+    o.append('    %s_create(&k, &dut, "dut", %s);' % (name, ", ".join("&p_%s" % n for n, ct, m in ports)))
     o.append("    vs_settle(&k);")
     o.append("    while (fgets(line, sizeof(line), f) != NULL)\n    {\n        char *tok;")
     first = True
@@ -132,7 +137,8 @@ def c_bench(name, ports, cfg):
         for n, ct in outs:
             o.append("        put(&p_%s, %d);" % (n, ct.width))
         o.append("        putchar('\\n');")
-    o.append("    }\n    fclose(f);\n    vs_kernel_free(&k);\n    return 0;\n}")
+        o.append("        if (trace != NULL)\n        {\n            vs_dump(&k, trace, phase);\n        }\n        phase++;")
+    o.append("    }\n    if (trace != NULL)\n    {\n        fclose(trace);\n    }\n    fclose(f);\n    vs_kernel_free(&k);\n    return 0;\n}")
     return "\n".join(o) + "\n"
 
 
@@ -183,6 +189,22 @@ def analyse_project(ghdl, files, shared):
     return True
 
 
+def trace_diff(ghdl, shared, work, tb, wd, pp, skip):
+    """Reruns both sides with every named signal traced, and reports the first diverging signals."""
+    import vcdcmp
+    vcd = os.path.join(work, "dump.vcd")
+    if not run([ghdl, "--elab-run"] + STD + [wd, pp, tb, "--vcd=" + vcd], work, quiet=True):
+        return "   (no trace : GHDL failed)"
+    run(["./tb_c", "stim.txt", "c.trace"], work, quiet=True)
+    r = vcdcmp.compare(vcd, os.path.join(work, "c.trace"), skip_phases=skip)
+    if r is None:
+        return None
+    phase, diffs = r
+    out = ["   first internal difference at phase %d (cycle %d, clocks %s) :" % (phase, phase // 2, "low" if phase % 2 == 0 else "high")]
+    out += ["      %-40s ghdl=%s c=%s" % d for d in diffs]
+    return "\n".join(out)
+
+
 def run_block(name, cfg, ports, ghdl, shared, root):
     with tempfile.TemporaryDirectory() as work:
         open(os.path.join(work, "tb.c"), "w").write(c_bench(name, ports, cfg))
@@ -192,7 +214,8 @@ def run_block(name, cfg, ports, ghdl, shared, root):
         open(vhd, "w").write(vhdl_bench(name, ports, cfg).replace("entity tb ", "entity %s " % tb).replace("entity tb is", "entity %s is" % tb)
                              .replace("architecture sim of tb is", "architecture sim of %s is" % tb).replace("end entity tb;", "end entity %s;" % tb))
         wd = "--workdir=" + shared
-        ok = run([ghdl, "-a"] + STD + [wd, vhd], shared) and run([ghdl, "--elab-run"] + STD + [wd, tb], work)
+        pp = "-P" + shared
+        ok = run([ghdl, "-a"] + STD + [wd, pp, vhd], shared) and run([ghdl, "--elab-run"] + STD + [wd, pp, tb], work)
         src = os.path.join(root, "src")
         ok = ok and run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-Wall", "-Wextra", "-I" + os.path.join(src, "rt"),
                          "-I" + os.path.join(src, "gen"), "-o", "tb_c", "tb.c",
@@ -200,14 +223,27 @@ def run_block(name, cfg, ports, ghdl, shared, root):
         if not ok:
             return "FAILED to build or run"
         out = subprocess.run(["./tb_c", "stim.txt"], cwd=work, capture_output=True, text=True).stdout
+        keep = os.environ.get("BLOCKTEST_KEEP")
+        if keep:
+            os.makedirs(keep, exist_ok=True)
+            open(os.path.join(keep, name + ".c.out"), "w").write(out)
+            for f in ("ghdl.out", "stim.txt", "tb.c"):
+                shutil.copy(os.path.join(work, f), os.path.join(keep, name + "." + f))
         skip = 2 * cfg["warm"]
         a = [x.strip() for x in open(os.path.join(work, "ghdl.out")).read().split("\n")][skip:]
         b = [x.strip() for x in out.split("\n")][skip:]
-        if a == b:
-            return "OK (%d samples identical, %d distinct output values)" % (len([x for x in a if x]), len(set(a)))
+        def same(x, y):
+            """Equal, except that a bit that GHDL reports as 'X' (a 'U' signal, never assigned) matches anything."""
+            return len(x) == len(y) and all(p == q or p == "X" for p, q in zip(x, y))
+
+        if len(a) == len(b) and all(same(x, y) for x, y in zip(a, b)):
+            internal = trace_diff(ghdl, shared, work, tb, wd, pp, skip) if cfg.get("trace", True) else None
+            if internal:
+                return "MISMATCH of the internal signals (the outputs are identical)\n" + internal
+            return "OK (%d samples identical, %d distinct output values, all named signals compared)" % (len([x for x in a if x]), len(set(a)))
         for i, (x, y) in enumerate(zip(a, b)):
-            if x != y:
-                return "MISMATCH at sample %d\n   ghdl: %s\n   c   : %s" % (i + skip, x, y)
+            if not same(x, y):
+                return "MISMATCH at sample %d\n   ghdl: %s\n   c   : %s\n%s" % (i + skip, x, y, trace_diff(ghdl, shared, work, tb, wd, pp, skip) or "   (the internal signals do not differ)")
         return "MISMATCH (different lengths %d / %d)" % (len(a), len(b))
 
 
@@ -218,7 +254,8 @@ def main(argv):
     here = os.path.dirname(os.path.abspath(__file__))
     listing = os.path.join(here, "sources.list")
     frontend.init()
-    dfs = frontend.load_project(vhdl_dir, listing)
+    files = frontend.project_files(vhdl_dir, listing)
+    dfs = frontend.analyze_files(files)
     entities = {}
     for df in dfs:
         for unit in frontend.units(df):
@@ -227,7 +264,9 @@ def main(argv):
                 entities[frontend.ident(lu).lower()] = lu
     failures = 0
     with tempfile.TemporaryDirectory() as shared:
-        if not analyse_project(ghdl, frontend.project_files(vhdl_dir, listing), shared):
+        import zeroinit
+        test_files = zeroinit.patch(dfs, files, os.path.join(root, "build", "vhdl-zeroinit"))
+        if not analyse_project(ghdl, test_files, shared):
             print("GHDL cannot analyse the project")
             return 1
         for name in names:

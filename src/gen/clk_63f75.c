@@ -27,7 +27,7 @@ static void clk_63f75_p0(void *inst)
     }
 }
 
-void clk_63f75_create(vs_kernel *k, clk_63f75 *self, vs_sig *reset_n, vs_sig *mrdy, vs_sig *tick, vs_sig *e, vs_sig *q, vs_sig *c)
+void clk_63f75_create(vs_kernel *k, clk_63f75 *self, const char *path, vs_sig *reset_n, vs_sig *mrdy, vs_sig *tick, vs_sig *e, vs_sig *q, vs_sig *c)
 {
     self->p_reset_n = reset_n;
     self->p_mrdy = mrdy;
@@ -36,6 +36,7 @@ void clk_63f75_create(vs_kernel *k, clk_63f75 *self, vs_sig *reset_n, vs_sig *mr
     self->p_q = q;
     self->p_c = c;
     vs_register_signal(k, &self->s_position, UINT64_C(0x1));
+    vs_name(k, &self->s_position, path, "position", 4);
 
     {
         vs_sig *sens[2];

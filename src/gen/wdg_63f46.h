@@ -26,6 +26,6 @@ typedef struct wdg_63f46
     vs_sig s_status_register;
 } wdg_63f46;
 
-void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, vs_sig *e, vs_sig *sysclk, vs_sig *rst_n, vs_sig *cs, vs_sig *mrdy, vs_sig *addr, vs_sig *d_in, vs_sig *d_out, vs_sig *rw_n, vs_sig *wdg_reset_n);
+void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e, vs_sig *sysclk, vs_sig *rst_n, vs_sig *cs, vs_sig *mrdy, vs_sig *addr, vs_sig *d_in, vs_sig *d_out, vs_sig *rw_n, vs_sig *wdg_reset_n);
 
 #endif

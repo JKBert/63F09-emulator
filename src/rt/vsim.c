@@ -24,9 +24,49 @@ void vs_kernel_init(vs_kernel *k)
     vs_finished = 0;
 }
 
+void vs_name(vs_kernel *k, vs_sig *s, const char *path, const char *name, unsigned width)
+{
+    size_t  lp = path ? strlen(path) : 0;
+    size_t  n = lp + (lp ? 1 : 0) + strlen(name) + 1;
+    char    *p = xrealloc(NULL, n);
+
+    snprintf(p, n, "%s%s%s", path ? path : "", lp ? "." : "", name);
+    if (k->nnames == k->cnames)
+    {
+        k->cnames = k->cnames ? k->cnames * 2 : 256;
+        k->names = xrealloc(k->names, k->cnames * sizeof(*k->names));
+    }
+    k->names[k->nnames++] = p;
+    s->name = p;
+    s->width = width;
+}
+
+void vs_dump(vs_kernel *k, FILE *f, long phase)
+{
+    size_t  i;
+
+    for (i = 0; i < k->nsigs; i++)
+    {
+        vs_sig  *s = k->sigs[i];
+
+        if (s->name != NULL && (!s->dumped || s->last != s->cur))
+        {
+            fprintf(f, "%ld %s %llu\n", phase, s->name, (unsigned long long) s->cur);
+            s->last = s->cur;
+            s->dumped = 1;
+        }
+    }
+}
+
 void vs_kernel_free(vs_kernel *k)
 {
     size_t  i;
+
+    for (i = 0; i < k->nnames; i++)
+    {
+        free(k->names[i]);
+    }
+    free(k->names);
 
     for (i = 0; i < k->nsigs; i++)
     {
@@ -57,6 +97,10 @@ void vs_register_signal(vs_kernel *k, vs_sig *s, uint64_t init)
     s->evt = 0;
     s->fan = NULL;
     s->nfan = 0;
+    s->name = NULL;
+    s->width = 0;
+    s->last = 0;
+    s->dumped = 0;
     if (k->nsigs == k->csigs)
     {
         k->csigs = k->csigs ? k->csigs * 2 : 256;
