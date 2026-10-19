@@ -20,6 +20,8 @@ static void usage(FILE *f)
         "  --acia BASE[,baud=N][,in=FILE|-][,out=FILE|-]\n"
         "                       an ACIA at BASE (4 bytes) whose serial line goes to the console : \"-\" is\n"
         "                       stdin for in and stdout for out ; default baud 115200, default in=- out=-\n"
+        "  --ptm BASE           a PTM (8 bytes ; up to 2)\n"
+        "  --wdg BASE           the watchdog (8 bytes) ; when it fires the chip is reset\n"
         "  --bac-base ADDR      registers of the bus arbiter (default 0xFFFFE0000)\n"
         "  --mmu-base ADDR      registers of the MMUs (default 0xFFFFE1000)\n"
         "  --ticks N            stop after N ticks (a tick is 1/144 ns ; default 100000000)\n"
@@ -111,6 +113,8 @@ int main(int argc, char **argv)
         { "elf", required_argument, NULL, 'e' },
         { "elf-offset", required_argument, NULL, 'O' },
         { "acia", required_argument, NULL, 'a' },
+        { "ptm", required_argument, NULL, 'p' },
+        { "wdg", required_argument, NULL, 'w' },
         { "bac-base", required_argument, NULL, 'b' },
         { "mmu-base", required_argument, NULL, 'm' },
         { "ticks", required_argument, NULL, 't' },
@@ -169,6 +173,18 @@ int main(int argc, char **argv)
                 break;
             case 'O':
                 cfg.elf_offset = strtoull(optarg, NULL, 0);
+                break;
+            case 'p':
+                if (cfg.nptms == SOC_MAX_PTMS)
+                {
+                    fprintf(stderr, "at most %d PTMs\n", SOC_MAX_PTMS);
+                    return 2;
+                }
+                cfg.ptm_base[cfg.nptms++] = strtoull(optarg, NULL, 0);
+                break;
+            case 'w':
+                cfg.wdg_base = strtoull(optarg, NULL, 0);
+                cfg.has_wdg = 1;
                 break;
             case 'b':
                 cfg.bac_base = strtoull(optarg, NULL, 0);

@@ -91,6 +91,9 @@ test: tools need-vhdl
 	$(PYTHON) tools/vhdl2c/blocktest.py $(VHDL_DIR) $(GHDL)
 
 # Unit tests of the runtime : no VHDL involved.
+test-soc: emu
+	sh tests/soc/run.sh $(BUILD)/soc63f09 $(BUILD)/soctest
+
 test-rt:
 	mkdir -p $(BUILD)/obj
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $(BUILD)/obj/test_vwide tests/rt/test_vwide.c src/rt/vsim.c

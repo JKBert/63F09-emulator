@@ -67,33 +67,40 @@ static void bus_run(void *inst)
     int         i;
     uint64_t    mrdy = s->mux_mrdy.cur & s->mmu_mrdy.cur;
     uint64_t    irq_n = 1;
-    int         in_acia = -1;
+    soc_win     *in_win = NULL;
+    uint64_t    wdg_n = 1;
 
-    for (i = 0; i < s->cfg.nacias; i++)
+    for (i = 0; i < s->nwin; i++)
     {
-        int hit = a >= s->cfg.acias[i].base && a < s->cfg.acias[i].base + 4;
+        soc_win *w = &s->win[i];
+        int     hit = a >= w->base && a < w->base + w->size;
 
-        vs_drive(&s->acia[i].cs, hit);
-        vs_drive(&s->acia[i].addr, a & 3);
-        mrdy &= s->acia[i].mrdy.cur;
-        irq_n &= s->acia[i].irq_n.cur;
+        vs_drive(&w->cs, hit);
+        vs_drive(&w->addr, a & (w->size - 1));
+        mrdy &= w->mrdy.cur;
+        irq_n &= w->irq_n.cur;
         if (hit)
         {
-            in_acia = i;
+            in_win = w;
         }
     }
+    if (s->cfg.has_wdg)
+    {
+        wdg_n = s->wdg.reset_n.cur;
+    }
+    vs_drive(&s->reset_n, s->ext_reset_n.cur & wdg_n);
     vs_drive(&s->irq_n, irq_n);
     vs_drive(&s->cs, in_bac);
     vs_drive(&s->mmu_cs, in_mmu ? UINT64_C(1) << owner : 0);
-    vs_drive(&s->cacheable, !(in_bac || in_mmu || in_acia >= 0));
+    vs_drive(&s->cacheable, !(in_bac || in_mmu || in_win != NULL));
     vs_drive(&s->mrdy, mrdy);
     if (in_bac)
     {
         vs_drive(&s->d_in, s->mux_d_out.cur);
     }
-    else if (in_acia >= 0)
+    else if (in_win != NULL)
     {
-        vs_drive(&s->d_in, s->acia[in_acia].d_out.cur);
+        vs_drive(&s->d_in, in_win->d_out.cur);
     }
     else if (z != NULL)
     {
@@ -108,10 +115,10 @@ static void bus_run(void *inst)
         printf("%12llu bus %llu A=%09llX %c VMA=%d BA=%d BS=%d D=%02X\n", (unsigned long long) s->k.now,
                (unsigned long long) owner, (unsigned long long) a, s->rw_n.cur ? 'R' : 'W', (int) s->vma.cur,
                (int) s->ba.cur, (int) s->bs.cur, (unsigned) (s->rw_n.cur ? s->d_in.cur : s->d_out.cur));
-        if (in_acia >= 0)
+        if (in_win != NULL)
         {
-            printf("             acia%d d_out=%02X mrdy=%d irq_n=%d\n", in_acia, (unsigned) s->acia[in_acia].d_out.cur,
-                   (int) s->acia[in_acia].mrdy.cur, (int) s->acia[in_acia].irq_n.cur);
+            printf("             window %d d_out=%02X mrdy=%d irq_n=%d\n", (int) (in_win - s->win),
+                   (unsigned) in_win->d_out.cur, (int) in_win->mrdy.cur, (int) in_win->irq_n.cur);
         }
     }
     if (vs_falling(&s->e) && s->vma.cur == 1 && s->ba.cur == 0)
@@ -123,7 +130,7 @@ static void bus_run(void *inst)
             {
                 z->data[a - z->base] = (uint8_t) s->d_out.cur;
             }
-            else if (z == NULL && !in_bac && !in_mmu && in_acia < 0)
+            else if (z == NULL && !in_bac && !in_mmu && in_win == NULL)
             {
                 s->unmapped++;
             }
@@ -131,7 +138,7 @@ static void bus_run(void *inst)
         else
         {
             s->reads++;
-            if (z == NULL && !in_bac && !in_mmu && in_acia < 0)
+            if (z == NULL && !in_bac && !in_mmu && in_win == NULL)
             {
                 s->unmapped++;
             }
@@ -145,15 +152,38 @@ static void reg(soc *s, vs_sig *sig, const char *name, unsigned width, uint64_t 
     vs_name(&s->k, sig, "soc", name, width);
 }
 
+/* A window on the bus and the signals of the peripheral behind it. */
+static soc_win *add_window(soc *s, const char *name, uint64_t base, uint64_t size, vs_sig **sens, size_t *ns)
+{
+    soc_win *w = &s->win[s->nwin++];
+    char    n[48];
+
+    w->base = base;
+    w->size = size;
+    snprintf(n, sizeof(n), "%s_cs", name);
+    reg(s, &w->cs, n, 1, 0);
+    snprintf(n, sizeof(n), "%s_addr", name);
+    reg(s, &w->addr, n, 3, 0);
+    snprintf(n, sizeof(n), "%s_d_out", name);
+    reg(s, &w->d_out, n, 8, 0);
+    snprintf(n, sizeof(n), "%s_irq_n", name);
+    reg(s, &w->irq_n, n, 1, 1);
+    snprintf(n, sizeof(n), "%s_mrdy", name);
+    reg(s, &w->mrdy, n, 1, 1);
+    sens[(*ns)++] = &w->mrdy;
+    sens[(*ns)++] = &w->irq_n;
+    return w;
+}
+
 static void release_reset(vs_kernel *k, void *arg)
 {
     (void) k;
-    vs_drive(&((soc *) arg)->reset_n, 1);
+    vs_drive(&((soc *) arg)->ext_reset_n, 1);
 }
 
 int soc_create(soc *s, const soc_cfg *c)
 {
-    vs_sig  *sens[7 + 2 * SOC_MAX_ACIAS];
+    vs_sig  *sens[12 + 2 * SOC_MAX_WINDOWS];
     size_t  ns = 7;
     int     i;
 
@@ -167,6 +197,7 @@ int soc_create(soc *s, const soc_cfg *c)
     vs_kernel_init(&s->k);
     reg(s, &s->extal, "extal", 1, 0);
     reg(s, &s->reset_n, "reset_n", 1, 0);
+    reg(s, &s->ext_reset_n, "ext_reset_n", 1, 0);
     reg(s, &s->nmi_n, "nmi_n", 1, 1);
     reg(s, &s->firq_n, "firq_n", 1, 1);
     reg(s, &s->irq_n, "irq_n", 1, 1);
@@ -208,27 +239,44 @@ int soc_create(soc *s, const soc_cfg *c)
     sens[4] = &s->mmu_mrdy;
     sens[5] = &s->bus_master;
     sens[6] = &s->vma;
+    s->nwin = 0;
     for (i = 0; i < c->nacias; i++)
     {
         soc_acia    *ac = &s->acia[i];
 
-        reg(s, &ac->cs, "acia_cs", 1, 0);
-        reg(s, &ac->addr, "acia_addr", 2, 0);
-        reg(s, &ac->d_out, "acia_d_out", 8, 0);
-        reg(s, &ac->irq_n, "acia_irq_n", 1, 1);
+        ac->w = add_window(s, "acia", c->acias[i].base, 4, sens, &ns);
         reg(s, &ac->rxd, "acia_rxd", 1, 1);
         reg(s, &ac->txd, "acia_txd", 1, 1);
         reg(s, &ac->dcd_n, "acia_dcd_n", 1, 0);
         reg(s, &ac->cts_n, "acia_cts_n", 1, 0);
         reg(s, &ac->rts_n, "acia_rts_n", 1, 0);
-        reg(s, &ac->mrdy, "acia_mrdy", 1, 1);
-        acia_63f50_create(&s->k, &ac->core, "soc.acia", &s->e, &s->sysclk, &s->reset_n, &ac->cs, &ac->mrdy, &ac->addr,
-                          &s->rw_n, &s->d_out, &ac->d_out, &ac->irq_n, &ac->rxd, &ac->txd, &ac->dcd_n, &ac->cts_n,
-                          &ac->rts_n);
+        acia_63f50_create(&s->k, &ac->core, "soc.acia", &s->e, &s->sysclk, &s->reset_n, &ac->w->cs, &ac->w->mrdy,
+                          &ac->w->addr, &s->rw_n, &s->d_out, &ac->w->d_out, &ac->w->irq_n, &ac->rxd, &ac->txd,
+                          &ac->dcd_n, &ac->cts_n, &ac->rts_n);
         console_create(&s->k, &ac->con, &ac->rxd, &ac->txd, c->acias[i].baud, c->acias[i].in, c->acias[i].out);
-        sens[ns++] = &ac->mrdy;
-        sens[ns++] = &ac->irq_n;
     }
+    for (i = 0; i < c->nptms; i++)
+    {
+        soc_ptm *pt = &s->ptm[i];
+
+        pt->w = add_window(s, "ptm", c->ptm_base[i], 8, sens, &ns);
+        reg(s, &pt->o, "ptm_o", 3, 0);
+        reg(s, &pt->c_n, "ptm_c_n", 3, 7);
+        reg(s, &pt->g_n, "ptm_g_n", 3, 0);          /* the gates are enabled */
+        ptm_63f40_create(&s->k, &pt->core, "soc.ptm", &s->e, &s->sysclk, &s->reset_n, &pt->w->cs, &pt->w->mrdy,
+                         &pt->w->addr, &s->d_out, &pt->w->d_out, &s->rw_n, &pt->w->irq_n, &pt->o, &pt->c_n, &pt->g_n);
+    }
+    if (c->has_wdg)
+    {
+        soc_wdg *wd = &s->wdg;
+
+        wd->w = add_window(s, "wdg", c->wdg_base, 8, sens, &ns);
+        reg(s, &wd->reset_n, "wdg_reset_n", 1, 1);
+        sens[ns++] = &wd->reset_n;
+        wdg_63f46_create(&s->k, &wd->core, "soc.wdg", &s->e, &s->sysclk, &s->reset_n, &wd->w->cs, &wd->w->mrdy,
+                         &wd->w->addr, &s->d_out, &wd->w->d_out, &s->rw_n, &wd->reset_n);
+    }
+    sens[ns++] = &s->ext_reset_n;
     vs_register_process(&s->k, bus_run, s, sens, ns);
     vs_clock_source(&s->k, &s->extal, SOC_EXTAL_HALF, SOC_EXTAL_HALF);
     vs_timer_add(&s->k, c->reset_ticks, release_reset, s);
