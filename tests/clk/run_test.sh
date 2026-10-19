@@ -14,8 +14,8 @@ python3 "$HERE/gen_stim.py" 600 7 > stim.txt
 "$GHDL" -a --std=08 -frelaxed -fsynopsys "$VHDL" "$HERE/tb_clk.vhd"
 "$GHDL" -e --std=08 -frelaxed -fsynopsys tb_clk
 "$GHDL" -r --std=08 -frelaxed -fsynopsys tb_clk > /dev/null
-${CC:-cc} -std=c99 -Wall -Wextra -O2 -I"$ROOT/src/rt" -I"$HERE" -o tb_c \
-    "$HERE/tb_clk.c" "$HERE/ref_clk_63f75.c" "$ROOT/src/rt/vsim.c"
+${CC:-cc} -std=c99 -Wall -Wextra -O2 -I"$ROOT/src/rt" -I"$ROOT/src/gen" -o tb_c \
+    "$HERE/tb_clk.c" "$ROOT/src/gen/clk_63f75.c" "$ROOT/src/rt/vsim.c"
 ./tb_c stim.txt > c.out
 if cmp -s ghdl.out c.out
 then

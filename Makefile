@@ -2,8 +2,9 @@
 #
 #   make help        list the targets
 #   make tools       build GHDL (once) and the Python environment of the translator
+#   make gen         translate the VHDL entities to C in src/gen   (needs VHDL_DIR)
 #   make census      list the VHDL constructs used by the design   (needs VHDL_DIR)
-#   make test        compare the C to GHDL on random stimuli       (needs VHDL_DIR)
+#   make test        compare the C in src/gen to GHDL on random stimuli (needs VHDL_DIR)
 #   make clean       remove the object files ; distclean also removes build/
 #
 # VHDL_DIR is the directory that holds the VHDL files (the sources are private and are never
@@ -28,7 +29,7 @@ export VHDL2C_GHDL_PREFIX := $(GHDL_INSTALL)
 LIBGHDL      := $(GHDL_INSTALL)/lib/libghdl-4_1_0.so
 VENV_STAMP   := $(VENV)/.pytooling
 
-.PHONY: all help tools census test clean distclean need-vhdl
+.PHONY: all help tools gen census test clean distclean need-vhdl
 
 all: tools
 
@@ -57,6 +58,12 @@ $(VENV_STAMP):
 need-vhdl:
 	@test -n "$(VHDL_DIR)" || { echo "set VHDL_DIR to the directory of the VHDL files"; exit 1; }
 	@test -d "$(VHDL_DIR)" || { echo "VHDL_DIR=$(VHDL_DIR) is not a directory"; exit 1; }
+
+# The entities translated to C (see docs/GENERATION.md).
+ENTITIES     ?= clk_63f75
+
+gen: tools need-vhdl
+	$(PYTHON) tools/vhdl2c/gen.py $(VHDL_DIR) src/gen $(ENTITIES)
 
 census: tools need-vhdl
 	$(PYTHON) tools/vhdl2c/census.py $(VHDL_DIR)

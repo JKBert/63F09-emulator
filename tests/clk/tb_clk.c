@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ref_clk_63f75.h"
+#include "clk_63f75.h"
 
 int main(int argc, char **argv)
 {

@@ -75,6 +75,12 @@ static inline void vs_drive(vs_sig *s, uint64_t v)
     }
 }
 
+/* Schedule a value on some bits of a signal. */
+static inline void vs_drive_bits(vs_sig *s, unsigned shift, uint64_t mask, uint64_t v)
+{
+    vs_drive(s, (s->nxt & ~mask) | ((v << shift) & mask));
+}
+
 static inline int vs_rising(const vs_sig *s)
 {
     return s->evt && s->cur == 1;

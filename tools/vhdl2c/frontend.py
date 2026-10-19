@@ -35,11 +35,33 @@ from pyGHDL import libghdl  # noqa: E402
 from pyGHDL.libghdl import errorout_console, libraries, name_table  # noqa: E402
 from pyGHDL.libghdl.vhdl import nodes  # noqa: E402
 
-OPTIONS = ("--std=08", "-frelaxed", "-fsynopsys")
+OPTIONS = ("--std=08", "-frelaxed", "-fsynopsys", "--warn-no-hide", "--warn-no-binding", "--warn-no-library",
+           "--warn-no-vital-generic", "--warn-no-delayed-checks", "--warn-no-static", "--warn-no-shared", "--warn-no-others")
 
 
 class AnalysisError(Exception):
     pass
+
+
+# Passes of GHDL's canonicalisation : concurrent statements become processes with their
+# sensitivity list, subprogram calls and port maps get their default arguments, "process(all)"
+# gets its explicit list. The pass "sequentials_stmts" (conditional/selected assignments inside
+# processes become if/case) is left out : it fails on the selected assignments of 63F42, and the
+# generator handles those statements itself.
+CANON_FLAGS = (
+    "concurrent_stmts",
+    "expressions",
+    "associations",
+    "specification_lists",
+    "add_labels",
+    "all_sensitivity",
+)
+
+
+def set_canon_flags():
+    lib = libghdl.libghdl
+    for name in CANON_FLAGS:
+        ctypes.c_bool.in_dll(lib, "vhdl__canon__canon_flag_" + name).value = True
 
 
 def init():
@@ -61,9 +83,27 @@ def analyze(library, path):
     return design_file
 
 
+def canonicalize(design_file):
+    """GHDL's canonicalisation of every unit of a design file (see CANON_FLAGS)."""
+    lib = libghdl.libghdl
+    set_canon_flags()
+    lib.vhdl__canon__canonicalize.argtypes = [ctypes.c_int32]
+    lib.vhdl__canon__canonicalize.restype = None
+    for unit in units(design_file):
+        if nodes.Get_Kind(nodes.Get_Library_Unit(unit)) in (nodes.Iir_Kind.Architecture_Body, nodes.Iir_Kind.Entity_Declaration):
+            if os.environ.get("VHDL2C_TRACE"):
+                sys.stderr.write("canonicalize %s\n" % ident(nodes.Get_Library_Unit(unit)))
+            lib.vhdl__canon__canonicalize(unit)
+
+
 def analyze_files(files):
     """files : list of (library, path) in compilation order. Returns the design file nodes."""
-    return [analyze(lib, path) for lib, path in files]
+    result = []
+    for lib, path in files:
+        df = analyze(lib, path)
+        canonicalize(df)
+        result.append(df)
+    return result
 
 
 def units(design_file):
@@ -202,3 +242,10 @@ def load_project(vhdl_dir, listing):
             path = compat.patched_path(name, path, os.path.join(root, "build", "vhdl-patched"))
         files.append((lib, path))
     return analyze_files(files)
+
+
+def list_elements_flist(fl):
+    """Elements of an Iir_Flist."""
+    if fl > 2:
+        for i in range(flists.Length(fl)):
+            yield flists.Get_Nth_Element(fl, i)
