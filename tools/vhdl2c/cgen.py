@@ -71,6 +71,8 @@ class Translator(Subprograms, Ops):
             if nodes.Get_Kind(decl) == K.Enumeration_Literal:
                 return ("val", str(nodes.Get_Enum_Pos(decl)), type_of(nodes.Get_Type(decl)))
             b = self.binding(decl, n)
+            if b.kind == "sigref":
+                return ("ref", self.bc(b), b.ct)
             if b.kind == "sigptr":
                 return ("sig", "(*%s)" % self.bc(b), b.ct)
             if b.kind == "sig":
@@ -103,6 +105,8 @@ class Translator(Subprograms, Ops):
         return ("val", e.code, e.ct)
 
     def read_path(self, kind, code, ct):
+        if kind == "ref":
+            return "vs_ref_get(%s)" % code
         return tdefs.get_expr(code, ct) if kind == "sig" else code
 
     def sigptr(self, n):
@@ -137,11 +141,12 @@ class Translator(Subprograms, Ops):
                 raise unsupported(n, "part of a non-vector")
             if k == K.Slice_Name:
                 lo_pos, ww = self.slice_bounds(n, bct)
-                return code, bct, lo + lo_pos, ww
+                return code, bct, (lo + lo_pos) if isinstance(lo, int) else "(%s) + %d" % (lo, lo_pos), ww
             pos = self.index_pos(n, bct)
-            if not isinstance(pos, int):
-                raise unsupported(n, "dynamic index on a connected signal")
-            return code, bct, lo + pos, 1
+            if isinstance(pos, int) and isinstance(lo, int):
+                return code, bct, lo + pos, 1
+            # an index known only when the design is built (a generate parameter) : the bit is a C expression
+            return code, bct, "(%s) + (%s)" % (lo, pos), 1
         kind, code, ct = self.path(n)
         if kind != "sig":
             raise unsupported(n, "not a signal")
@@ -327,6 +332,12 @@ class Translator(Subprograms, Ops):
         kind, base, shift, m, width, ct, bct = self.target_lvalue(target)
         o = self.out
         v = value.code
+        if kind == "ref":
+            if isinstance(shift, int) and shift == 0 and ct.width == bct.width:
+                o.line("vs_ref_drive(%s, (uint64_t)(%s));" % (base, v))
+            else:
+                o.line("vs_ref_drive_bits(%s, %s, %s, (uint64_t)(%s));" % (base, shift, m, v))
+            return
         if ct.kind in ("rec", "arr"):
             o.line(tdefs.drive_stmt(base, ct, v) if kind == "sig" else "%s = %s;" % (base, v))
             return
@@ -364,6 +375,15 @@ class Translator(Subprograms, Ops):
         if k in (K.Slice_Name,) or (k == K.Indexed_Name and self.prefix_is_vec(target)):
             return -1
         return self.path(target)[2].width
+
+    def expr_as(self, node, ct):
+        """The expression translated for an object of the given type (the elements of an aggregate)."""
+        saved = (getattr(self, "want", None), getattr(self, "want_node", None))
+        self.want, self.want_node = ct, node
+        try:
+            return self.expr(node)
+        finally:
+            self.want, self.want_node = saved
 
     def expr_to(self, node, target):
         """The expression translated for assignment to `target` : an aggregate takes its shape from the target
@@ -655,30 +675,30 @@ class Translator(Subprograms, Ops):
                 else:
                     continue
                 named.add(fname)
-                code = "%s_with_%s(%s, %s)" % (t.cname, fname, code, self.expr(expr).code)
+                fct = next(f[2] for f in t.fields if f[0] == fname)
+                code = "%s_with_%s(%s, %s)" % (t.cname, fname, code, self.expr_as(expr, fct).code)
             for kind, val, expr in items:
                 if kind == "others":
-                    e = self.expr(expr).code
                     for fname, vname, fct in t.fields:
                         if fname not in named:
-                            code = "%s_with_%s(%s, %s)" % (t.cname, fname, code, e)
+                            code = "%s_with_%s(%s, %s)" % (t.cname, fname, code, self.expr_as(expr, fct).code)
             return E(code, t)
         if t.kind == "arr":
             code = None
             for kind, val, expr in items:
                 if kind == "others":
-                    code = "%s_fill(%s)" % (t.cname, self.expr(expr).code)
+                    code = "%s_fill(%s)" % (t.cname, self.expr_as(expr, t.elem).code)
             if code is None:
                 code = "%s_zero()" % t.cname
             pos = 0
             for kind, val, expr in items:
                 if kind == "pos":
-                    code = "%s_put(%s, %d, %s)" % (t.cname, code, pos, self.expr(expr).code)
+                    code = "%s_put(%s, %d, %s)" % (t.cname, code, pos, self.expr_as(expr, t.elem).code)
                     pos += 1
                 elif kind == "index":
-                    code = "%s_put(%s, %d, %s)" % (t.cname, code, t.pos(val), self.expr(expr).code)
+                    code = "%s_put(%s, %d, %s)" % (t.cname, code, t.pos(val), self.expr_as(expr, t.elem).code)
                 elif kind == "range":
-                    e = self.expr(expr).code
+                    e = self.expr_as(expr, t.elem).code
                     for i in range(val[0], val[1] + 1):
                         code = "%s_put(%s, %d, %s)" % (t.cname, code, t.pos(i), e)
             return E(code, t)

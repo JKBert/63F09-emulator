@@ -53,7 +53,7 @@ class Iface:
         self.generics = []      # (cname, ct, decl)
         self.ports = []         # (cname, ct, mode, decl)
         g = nodes.Get_Generic_Chain(entity)
-        while g:
+        while g and self.name not in HAND_WRITTEN:      # the models of the vendor primitives take no generics
             self.generics.append((cid(frontend.ident(g)), type_of(nodes.Get_Type(g)), g))
             g = nodes.Get_Chain(g)
         p = nodes.Get_Port_Chain(entity)
@@ -148,7 +148,7 @@ class EntityGen(Translator):
                 e = self.expr(nodes.Get_Default_Value(d))
                 self.bindings[d] = Binding("const", "(" + e.code + ")", ct, None)
             elif k in (K.Type_Declaration, K.Subtype_Declaration, K.Anonymous_Type_Declaration,
-                       K.Attribute_Declaration, K.Attribute_Specification, K.Use_Clause):
+                       K.Attribute_Declaration, K.Attribute_Specification, K.Use_Clause, K.Component_Declaration):
                 pass
             elif k in (K.Function_Declaration, K.Procedure_Declaration, K.Function_Body, K.Procedure_Body):
                 pass            # implicit operators, and the subprograms : translated when called
@@ -213,12 +213,83 @@ class EntityGen(Translator):
         self.stmts(nodes.Get_Sequential_Statement_Chain(p))
         o.close()
         sens = []
-        for item in frontend.list_elements(nodes.Get_Sensitivity_List(p)):
-            ptr, shift, width, ct = self.sigptr(item)
+        if os.environ.get("VHDL2C_TRACE"):
+            sys.stderr.write("process %s line %s\n" % (index, __import__("vtypes").where(p)))
+            sys.stderr.flush()
+        items = self.sensitivity_items(p)
+        for item in items:
+            ptr, ct = self.sens_ptr(item)
             if all(ptr != x[0] for x in sens):
-                sens.append((ptr, self.storage_ct(item, ct)))
+                sens.append((ptr, ct))
         s.procs.append((fname, o.text(), sens))
         self.out = saved
+
+    ASSIGNMENTS = (K.Simple_Signal_Assignment_Statement, K.Variable_Assignment_Statement,
+                   K.Conditional_Signal_Assignment_Statement, K.Selected_Waveform_Assignment_Statement)
+
+    def sensitivity_items(self, p):
+        """The names of the sensitivity list of a process. For "process(all)" the list is not stored : it is the signals the
+        process reads, in its statements and in the subprograms it calls (a superset is harmless : a combinational process
+        woken for nothing computes what it already drove)."""
+        lst = nodes.Get_Sensitivity_List(p)
+        if lst > 1:
+            return list(frontend.list_elements(lst))
+        names = []
+        seen = set()
+
+        def signal_name(n):
+            decl = nodes.Get_Named_Entity(n)
+            b = self.bindings.get(decl)
+            return b is not None and b.kind in ("sig", "sigptr") and b.scope is not None
+
+        def visit(n, target=False):
+            k = nodes.Get_Kind(n)
+            if k in (K.Simple_Name, K.Selected_Name):
+                decl = nodes.Get_Named_Entity(n)
+                if not target and decl and signal_name(n):
+                    names.append(n)
+                return
+            if k in (K.Function_Call, K.Procedure_Call):
+                impl = nodes.Get_Implementation(n)
+                body = nodes.Get_Subprogram_Body(impl) if impl and nodes.Get_Implicit_Definition(impl) == nodes.Iir_Predefined.PNone else 0
+                if body and body not in seen:
+                    seen.add(body)
+                    for _, c in frontend.children(body):
+                        visit(c)
+            if k in (K.Indexed_Name, K.Slice_Name, K.Selected_Element) and not target:
+                # a signal element or part : the longest static prefix is the object itself
+                base = n
+                while nodes.Get_Kind(base) in (K.Indexed_Name, K.Slice_Name, K.Selected_Element):
+                    base = nodes.Get_Prefix(base)
+                if nodes.Get_Kind(base) in (K.Simple_Name, K.Selected_Name) and nodes.Get_Named_Entity(base) and signal_name(base):
+                    names.append(base)
+                    for field, c in frontend.children(n):
+                        if nodes_meta.fields(field).name in ("Index_List", "Suffix", "Prefix") and c != base:
+                            visit(c)
+                    return
+            for field, c in frontend.children(n):
+                fname = nodes_meta.fields(field).name
+                if k in self.ASSIGNMENTS and fname == "Target":
+                    visit(c, target=True)
+                else:
+                    visit(c, target)
+
+        for _, c in frontend.children(p):
+            visit(c)
+        return names
+
+    def sens_ptr(self, n):
+        """(pointer, CT of the storage) of the signal a sensitivity list item stands for : an item whose index is
+        not constant is sensitive to the whole object it indexes (a superset of what VHDL says)."""
+        while True:
+            try:
+                ptr, shift, width, ct = self.sigptr(n)
+                return ptr, self.storage_ct(n, ct)
+            except Unsupported:
+                if nodes.Get_Kind(n) in (K.Indexed_Name, K.Slice_Name, K.Selected_Element):
+                    n = nodes.Get_Prefix(n)
+                    continue
+                raise
 
     def storage_ct(self, n, ct):
         """CT of the storage that sigptr(n) points to (a vector part points to its vs_sig)."""
@@ -346,6 +417,16 @@ class EntityGen(Translator):
                 return "&%s.w[%d]" % (base, bit // 64)
             return "&%s" % base
 
+        if isinstance(lo, str):
+            # one bit at a position computed when the design is built
+            assert width == 1
+            src = ("&%s.w[(%s) / 64]" % (code, lo)) if is_wide(bct) else "&%s" % code
+            dst = word(own[1:], ct, 0)
+            if out_like:
+                s.init.line("vs_tie_fields(%s, 0, %s, (%s) %% 64, 1);" % (dst, src, lo))
+            else:
+                s.init.line("vs_tie_fields(%s, (%s) %% 64, %s, 0, 1);" % (src, lo, dst))
+            return
         i = 0
         while i < width:
             src_bit, dst_bit = lo + i, i

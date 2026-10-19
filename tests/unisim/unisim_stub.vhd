@@ -1,5 +1,6 @@
--- Declarations of the Xilinx primitives instantiated by the 63F09 sources, for analysis only.
--- Generated from the instantiations (tools/vhdl2c) ; the behaviour is modelled in C by hand.
+-- The Xilinx primitives instantiated by the 63F09 sources : their declarations (derived from the generics and
+-- ports the sources use) and, for the simple buffers, the behaviour of the UNISIM models, so that GHDL can
+-- simulate the design. The behaviour of these primitives is modelled in C by hand (src/hand).
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -308,9 +309,10 @@ entity BUFG is
     );
 end entity BUFG;
 
-architecture stub of BUFG is
+architecture sim of BUFG is
 begin
-end architecture stub;
+    O <= I;
+end architecture sim;
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -328,9 +330,17 @@ entity BUFHCE is
     );
 end entity BUFHCE;
 
-architecture stub of BUFHCE is
+architecture sim of BUFHCE is
+    signal ce_latch : std_logic := '0';
 begin
-end architecture stub;
+    process(I, CE)
+    begin
+        if I = '0' then
+            ce_latch <= CE;
+        end if;
+    end process;
+    O <= I and ce_latch;
+end architecture sim;
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -349,9 +359,11 @@ entity IOBUF is
     );
 end entity IOBUF;
 
-architecture stub of IOBUF is
+architecture sim of IOBUF is
 begin
-end architecture stub;
+    IO <= I when T = '0' else 'Z';
+    O <= IO;
+end architecture sim;
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -364,9 +376,10 @@ entity OBUF is
     );
 end entity OBUF;
 
-architecture stub of OBUF is
+architecture sim of OBUF is
 begin
-end architecture stub;
+    O <= I;
+end architecture sim;
 
 library ieee;
 use ieee.std_logic_1164.all;

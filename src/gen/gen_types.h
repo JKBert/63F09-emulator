@@ -9,6 +9,421 @@
 #include <string.h>
 #include "vwide.h"
 
+typedef struct control_type
+{
+    uint64_t a[3];
+} control_type;
+typedef struct control_type_s
+{
+    vs_sig a[3];
+} control_type_s;
+
+static inline control_type control_type_zero(void)
+{
+    control_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline control_type control_type_fill(uint64_t e)
+{
+    size_t i;
+    control_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline control_type control_type_put(control_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline control_type control_type_get(const control_type_s *s)
+{
+    size_t i;
+    control_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void control_type_drive(control_type_s *s, control_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void control_type_register(vs_kernel *k, control_type_s *s, control_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t control_type_leaves(control_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 3; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int control_type_eq(control_type a, control_type b)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct latch_type
+{
+    uint64_t a[3];
+} latch_type;
+typedef struct latch_type_s
+{
+    vs_sig a[3];
+} latch_type_s;
+
+static inline latch_type latch_type_zero(void)
+{
+    latch_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline latch_type latch_type_fill(uint64_t e)
+{
+    size_t i;
+    latch_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline latch_type latch_type_put(latch_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline latch_type latch_type_get(const latch_type_s *s)
+{
+    size_t i;
+    latch_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void latch_type_drive(latch_type_s *s, latch_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void latch_type_register(vs_kernel *k, latch_type_s *s, latch_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t latch_type_leaves(latch_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 3; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int latch_type_eq(latch_type a, latch_type b)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct counter_type
+{
+    uint64_t a[3];
+} counter_type;
+typedef struct counter_type_s
+{
+    vs_sig a[3];
+} counter_type_s;
+
+static inline counter_type counter_type_zero(void)
+{
+    counter_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline counter_type counter_type_fill(uint64_t e)
+{
+    size_t i;
+    counter_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline counter_type counter_type_put(counter_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline counter_type counter_type_get(const counter_type_s *s)
+{
+    size_t i;
+    counter_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void counter_type_drive(counter_type_s *s, counter_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void counter_type_register(vs_kernel *k, counter_type_s *s, counter_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t counter_type_leaves(counter_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 3; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int counter_type_eq(counter_type a, counter_type b)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct stage_type
+{
+    int64_t a[3];
+} stage_type;
+typedef struct stage_type_s
+{
+    vs_sig a[3];
+} stage_type_s;
+
+static inline stage_type stage_type_zero(void)
+{
+    stage_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline stage_type stage_type_fill(int64_t e)
+{
+    size_t i;
+    stage_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline stage_type stage_type_put(stage_type v, size_t pos, int64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline stage_type stage_type_get(const stage_type_s *s)
+{
+    size_t i;
+    stage_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = (int64_t) s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void stage_type_drive(stage_type_s *s, stage_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void stage_type_register(vs_kernel *k, stage_type_s *s, stage_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t stage_type_leaves(stage_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 3; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int stage_type_eq(stage_type a, stage_type b)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct std_logic_matrix
+{
+    uint64_t a[17];
+} std_logic_matrix;
+typedef struct std_logic_matrix_s
+{
+    vs_sig a[17];
+} std_logic_matrix_s;
+
+static inline std_logic_matrix std_logic_matrix_zero(void)
+{
+    std_logic_matrix v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline std_logic_matrix std_logic_matrix_fill(uint64_t e)
+{
+    size_t i;
+    std_logic_matrix v;
+    for (i = 0; i < 17; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline std_logic_matrix std_logic_matrix_put(std_logic_matrix v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline std_logic_matrix std_logic_matrix_get(const std_logic_matrix_s *s)
+{
+    size_t i;
+    std_logic_matrix v;
+    for (i = 0; i < 17; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void std_logic_matrix_drive(std_logic_matrix_s *s, std_logic_matrix v)
+{
+    size_t i;
+    for (i = 0; i < 17; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void std_logic_matrix_register(vs_kernel *k, std_logic_matrix_s *s, std_logic_matrix v)
+{
+    size_t i;
+    for (i = 0; i < 17; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t std_logic_matrix_leaves(std_logic_matrix_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 17; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int std_logic_matrix_eq(std_logic_matrix a, std_logic_matrix b)
+{
+    size_t i;
+    for (i = 0; i < 17; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
 typedef struct fp_cmp_in_type
 {
     vs_w f_data1;
@@ -5011,15 +5426,14 @@ typedef struct lut_type_s
 static inline lut_type lut_type_zero(void)
 {
     lut_type v;
-    size_t i;
     memset(&v, 0, sizeof(v));
     return v;
 }
 
 static inline lut_type lut_type_fill(uint64_t e)
 {
-    lut_type v;
     size_t i;
+    lut_type v;
     for (i = 0; i < 128; i++)
     {
         v.a[i] = e;
@@ -5035,8 +5449,8 @@ static inline lut_type lut_type_put(lut_type v, size_t pos, uint64_t e)
 
 static inline lut_type lut_type_get(const lut_type_s *s)
 {
-    lut_type v;
     size_t i;
+    lut_type v;
     for (i = 0; i < 128; i++)
     {
         v.a[i] = s->a[i].cur;
@@ -5064,8 +5478,8 @@ static inline void lut_type_register(vs_kernel *k, lut_type_s *s, lut_type v)
 
 static inline size_t lut_type_leaves(lut_type_s *s, vs_sig **out)
 {
-    size_t n = 0;
     size_t i;
+    size_t n = 0;
     for (i = 0; i < 128; i++)
     {
         out[n++] = &s->a[i];
@@ -5095,15 +5509,14 @@ typedef struct lut_root_type_s
 static inline lut_root_type lut_root_type_zero(void)
 {
     lut_root_type v;
-    size_t i;
     memset(&v, 0, sizeof(v));
     return v;
 }
 
 static inline lut_root_type lut_root_type_fill(uint64_t e)
 {
-    lut_root_type v;
     size_t i;
+    lut_root_type v;
     for (i = 0; i < 96; i++)
     {
         v.a[i] = e;
@@ -5119,8 +5532,8 @@ static inline lut_root_type lut_root_type_put(lut_root_type v, size_t pos, uint6
 
 static inline lut_root_type lut_root_type_get(const lut_root_type_s *s)
 {
-    lut_root_type v;
     size_t i;
+    lut_root_type v;
     for (i = 0; i < 96; i++)
     {
         v.a[i] = s->a[i].cur;
@@ -5148,8 +5561,8 @@ static inline void lut_root_type_register(vs_kernel *k, lut_root_type_s *s, lut_
 
 static inline size_t lut_root_type_leaves(lut_root_type_s *s, vs_sig **out)
 {
-    size_t n = 0;
     size_t i;
+    size_t n = 0;
     for (i = 0; i < 96; i++)
     {
         out[n++] = &s->a[i];
@@ -6027,6 +6440,393 @@ static inline size_t fp_unit_out_type_leaves(fp_unit_out_type_s *s, vs_sig **out
 static inline int fp_unit_out_type_eq(fp_unit_out_type a, fp_unit_out_type b)
 {
     if (!fp_exe_out_type_eq(a.f_fp_exe_o, b.f_fp_exe_o)) { return 0; }
+    return 1;
+}
+
+typedef struct registers_backup
+{
+    uint64_t f_a;
+    uint64_t f_b;
+    uint64_t f_e;
+    uint64_t f_f;
+    uint64_t f_cc;
+    uint64_t f_dp;
+    uint64_t f_ds;
+    uint64_t f_u;
+    uint64_t f_s;
+    uint64_t f_x;
+    uint64_t f_y;
+    uint64_t f_md;
+    uint64_t f_pc;
+    uint64_t f_v;
+} registers_backup;
+typedef struct registers_backup_s
+{
+    vs_sig f_a;
+    vs_sig f_b;
+    vs_sig f_e;
+    vs_sig f_f;
+    vs_sig f_cc;
+    vs_sig f_dp;
+    vs_sig f_ds;
+    vs_sig f_u;
+    vs_sig f_s;
+    vs_sig f_x;
+    vs_sig f_y;
+    vs_sig f_md;
+    vs_sig f_pc;
+    vs_sig f_v;
+} registers_backup_s;
+
+static inline registers_backup registers_backup_zero(void)
+{
+    registers_backup v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_a(registers_backup v, uint64_t e)
+{
+    v.f_a = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_b(registers_backup v, uint64_t e)
+{
+    v.f_b = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_e(registers_backup v, uint64_t e)
+{
+    v.f_e = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_f(registers_backup v, uint64_t e)
+{
+    v.f_f = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_cc(registers_backup v, uint64_t e)
+{
+    v.f_cc = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_dp(registers_backup v, uint64_t e)
+{
+    v.f_dp = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_ds(registers_backup v, uint64_t e)
+{
+    v.f_ds = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_u(registers_backup v, uint64_t e)
+{
+    v.f_u = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_s(registers_backup v, uint64_t e)
+{
+    v.f_s = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_x(registers_backup v, uint64_t e)
+{
+    v.f_x = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_y(registers_backup v, uint64_t e)
+{
+    v.f_y = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_md(registers_backup v, uint64_t e)
+{
+    v.f_md = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_pc(registers_backup v, uint64_t e)
+{
+    v.f_pc = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_with_f_v(registers_backup v, uint64_t e)
+{
+    v.f_v = e;
+    return v;
+}
+
+static inline registers_backup registers_backup_get(const registers_backup_s *s)
+{
+    registers_backup v;
+    v.f_a = s->f_a.cur;
+    v.f_b = s->f_b.cur;
+    v.f_e = s->f_e.cur;
+    v.f_f = s->f_f.cur;
+    v.f_cc = s->f_cc.cur;
+    v.f_dp = s->f_dp.cur;
+    v.f_ds = s->f_ds.cur;
+    v.f_u = s->f_u.cur;
+    v.f_s = s->f_s.cur;
+    v.f_x = s->f_x.cur;
+    v.f_y = s->f_y.cur;
+    v.f_md = s->f_md.cur;
+    v.f_pc = s->f_pc.cur;
+    v.f_v = s->f_v.cur;
+    return v;
+}
+
+static inline void registers_backup_drive(registers_backup_s *s, registers_backup v)
+{
+    vs_drive(&s->f_a, (uint64_t) (v.f_a));
+    vs_drive(&s->f_b, (uint64_t) (v.f_b));
+    vs_drive(&s->f_e, (uint64_t) (v.f_e));
+    vs_drive(&s->f_f, (uint64_t) (v.f_f));
+    vs_drive(&s->f_cc, (uint64_t) (v.f_cc));
+    vs_drive(&s->f_dp, (uint64_t) (v.f_dp));
+    vs_drive(&s->f_ds, (uint64_t) (v.f_ds));
+    vs_drive(&s->f_u, (uint64_t) (v.f_u));
+    vs_drive(&s->f_s, (uint64_t) (v.f_s));
+    vs_drive(&s->f_x, (uint64_t) (v.f_x));
+    vs_drive(&s->f_y, (uint64_t) (v.f_y));
+    vs_drive(&s->f_md, (uint64_t) (v.f_md));
+    vs_drive(&s->f_pc, (uint64_t) (v.f_pc));
+    vs_drive(&s->f_v, (uint64_t) (v.f_v));
+}
+
+static inline void registers_backup_register(vs_kernel *k, registers_backup_s *s, registers_backup v)
+{
+    vs_register_signal(k, &s->f_a, (uint64_t) (v.f_a));
+    vs_register_signal(k, &s->f_b, (uint64_t) (v.f_b));
+    vs_register_signal(k, &s->f_e, (uint64_t) (v.f_e));
+    vs_register_signal(k, &s->f_f, (uint64_t) (v.f_f));
+    vs_register_signal(k, &s->f_cc, (uint64_t) (v.f_cc));
+    vs_register_signal(k, &s->f_dp, (uint64_t) (v.f_dp));
+    vs_register_signal(k, &s->f_ds, (uint64_t) (v.f_ds));
+    vs_register_signal(k, &s->f_u, (uint64_t) (v.f_u));
+    vs_register_signal(k, &s->f_s, (uint64_t) (v.f_s));
+    vs_register_signal(k, &s->f_x, (uint64_t) (v.f_x));
+    vs_register_signal(k, &s->f_y, (uint64_t) (v.f_y));
+    vs_register_signal(k, &s->f_md, (uint64_t) (v.f_md));
+    vs_register_signal(k, &s->f_pc, (uint64_t) (v.f_pc));
+    vs_register_signal(k, &s->f_v, (uint64_t) (v.f_v));
+}
+
+static inline size_t registers_backup_leaves(registers_backup_s *s, vs_sig **out)
+{
+    size_t n = 0;
+    out[n++] = &s->f_a;
+    out[n++] = &s->f_b;
+    out[n++] = &s->f_e;
+    out[n++] = &s->f_f;
+    out[n++] = &s->f_cc;
+    out[n++] = &s->f_dp;
+    out[n++] = &s->f_ds;
+    out[n++] = &s->f_u;
+    out[n++] = &s->f_s;
+    out[n++] = &s->f_x;
+    out[n++] = &s->f_y;
+    out[n++] = &s->f_md;
+    out[n++] = &s->f_pc;
+    out[n++] = &s->f_v;
+    return n;
+}
+
+static inline int registers_backup_eq(registers_backup a, registers_backup b)
+{
+    if (!(a.f_a == b.f_a)) { return 0; }
+    if (!(a.f_b == b.f_b)) { return 0; }
+    if (!(a.f_e == b.f_e)) { return 0; }
+    if (!(a.f_f == b.f_f)) { return 0; }
+    if (!(a.f_cc == b.f_cc)) { return 0; }
+    if (!(a.f_dp == b.f_dp)) { return 0; }
+    if (!(a.f_ds == b.f_ds)) { return 0; }
+    if (!(a.f_u == b.f_u)) { return 0; }
+    if (!(a.f_s == b.f_s)) { return 0; }
+    if (!(a.f_x == b.f_x)) { return 0; }
+    if (!(a.f_y == b.f_y)) { return 0; }
+    if (!(a.f_md == b.f_md)) { return 0; }
+    if (!(a.f_pc == b.f_pc)) { return 0; }
+    if (!(a.f_v == b.f_v)) { return 0; }
+    return 1;
+}
+
+typedef struct reg_fp_type
+{
+    uint64_t a[16];
+} reg_fp_type;
+typedef struct reg_fp_type_s
+{
+    vs_sig a[16];
+} reg_fp_type_s;
+
+static inline reg_fp_type reg_fp_type_zero(void)
+{
+    reg_fp_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline reg_fp_type reg_fp_type_fill(uint64_t e)
+{
+    size_t i;
+    reg_fp_type v;
+    for (i = 0; i < 16; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline reg_fp_type reg_fp_type_put(reg_fp_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline reg_fp_type reg_fp_type_get(const reg_fp_type_s *s)
+{
+    size_t i;
+    reg_fp_type v;
+    for (i = 0; i < 16; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void reg_fp_type_drive(reg_fp_type_s *s, reg_fp_type v)
+{
+    size_t i;
+    for (i = 0; i < 16; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void reg_fp_type_register(vs_kernel *k, reg_fp_type_s *s, reg_fp_type v)
+{
+    size_t i;
+    for (i = 0; i < 16; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t reg_fp_type_leaves(reg_fp_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 16; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int reg_fp_type_eq(reg_fp_type a, reg_fp_type b)
+{
+    size_t i;
+    for (i = 0; i < 16; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
+typedef struct internal_stack_type
+{
+    uint64_t a[3];
+} internal_stack_type;
+typedef struct internal_stack_type_s
+{
+    vs_sig a[3];
+} internal_stack_type_s;
+
+static inline internal_stack_type internal_stack_type_zero(void)
+{
+    internal_stack_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline internal_stack_type internal_stack_type_fill(uint64_t e)
+{
+    size_t i;
+    internal_stack_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline internal_stack_type internal_stack_type_put(internal_stack_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline internal_stack_type internal_stack_type_get(const internal_stack_type_s *s)
+{
+    size_t i;
+    internal_stack_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void internal_stack_type_drive(internal_stack_type_s *s, internal_stack_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void internal_stack_type_register(vs_kernel *k, internal_stack_type_s *s, internal_stack_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t internal_stack_type_leaves(internal_stack_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 3; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int internal_stack_type_eq(internal_stack_type a, internal_stack_type b)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
     return 1;
 }
 

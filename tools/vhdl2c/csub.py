@@ -117,7 +117,21 @@ class Subprograms:
                 actual = dv
             declared = type_of(nodes.Get_Type(p))
             if cls == "signal":
+                if nodes.Get_Kind(actual) in (K.Indexed_Name, K.Slice_Name) and self.prefix_is_vec(actual):
+                    # a part of a vector : the parameter is a reference to those bits
+                    code, bct, lo, width = self.sigpart(actual)
+                    if is_wide(bct):
+                        raise unsupported(actual, "part of a wide vector as a signal parameter")
+                    args.append("vs_mkref(&%s, %s, %d)" % (code, lo, width))
+                    cts.append(Bit() if nodes.Get_Kind(actual) == K.Indexed_Name else Vec(width, False, 0, width - 1, False))
+                    shape.append(("ref",) + shape_key(cts[-1]))
+                    continue
                 kind, code, ct = self.path(actual)
+                if kind == "ref":
+                    args.append(code)
+                    cts.append(ct)
+                    shape.append(("ref",) + shape_key(ct))
+                    continue
                 if kind != "sig":
                     raise unsupported(actual, "signal parameter with an actual that is not a signal")
                 args.append("&" + code)
@@ -159,6 +173,7 @@ class Subprograms:
         _counter[base] = n + 1
         is_function = nodes.Get_Kind(decl) == K.Function_Declaration
         inst = FuncInst("%s_%d" % (("f_" if is_function else "p_") + base, n), decl, scope)
+        inst.shape = shape
         inst.is_function = is_function
         registry[key] = inst
         self.translate_body(inst, arg_cts)
@@ -178,6 +193,9 @@ class Subprograms:
         self.loops = []
         self.func = inst
         params = []
+        spec = nodes.Get_Subprogram_Specification(body)
+        own = self.formals(spec) if spec and spec != decl else []
+        ref_params = {p: (sh is not None and sh[0] == "ref") for p, sh in zip(self.formals(decl), inst.shape)}
         for p, ct in zip(self.formals(decl), arg_cts):
             cls = self.param_class(p)
             mode = nodes.Get_Mode(p)
@@ -186,7 +204,10 @@ class Subprograms:
             if not (declared.kind == "vec" and declared.width is None):
                 ct = declared
             from cgen import Binding
-            if cls == "signal":
+            if cls == "signal" and ref_params.get(p):
+                params.append("vs_ref %s" % name)
+                self.bindings[p] = Binding("sigref", name, ct, None)
+            elif cls == "signal":
                 params.append("%s *%s" % (ctype_sig(ct), name))
                 self.bindings[p] = Binding("sigptr", name, ct, None)
             elif mode in (M.Out_Mode, M.Inout_Mode):
@@ -195,6 +216,8 @@ class Subprograms:
             else:
                 params.append("%s %s" % (ctype_val(ct), name))
                 self.bindings[p] = Binding("var", name, ct, None)
+        for p, q in zip(self.formals(decl), own):
+            self.bindings[q] = self.bindings[p]
         self.func_result = None
         self.func_is_function = inst.is_function
         # a declared, constrained result type is known at once

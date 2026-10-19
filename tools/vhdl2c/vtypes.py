@@ -5,6 +5,8 @@ Values of the scalar types (std_logic, boolean, bit, std_logic_vector and its re
 The 9-valued std_logic is reduced to two values : '1' and 'H' are 1, every other value is 0.
 """
 
+import os
+
 import frontend
 from pyGHDL.libghdl import files_map, name_table
 from pyGHDL.libghdl.vhdl import nodes
@@ -16,14 +18,26 @@ class Unsupported(Exception):
     pass
 
 
+_file_cache = {}
+
+
 def where(node):
-    """'file:line' of a node, for the messages."""
+    """'file:line' of a node, for the messages. The line is counted here : GHDL's own line lookup raises an
+    exception that ends the process for some of its files."""
     try:
         loc = nodes.Get_Location(node)
+        if not loc:
+            return "node #%d" % node
         fe = files_map.Location_To_File(loc)
-        line = files_map.Location_File_To_Line(loc, fe)
-        name = name_table.Get_Name_Ptr(files_map.Get_File_Name(fe))
-        return "%s:%d" % (name.split("/")[-1], line)
+        if not fe:
+            return "node #%d" % node
+        pos = files_map.Location_File_To_Pos(loc, fe)
+        d = name_table.Get_Name_Ptr(files_map.Get_Directory_Name(fe))
+        f = name_table.Get_Name_Ptr(files_map.Get_File_Name(fe))
+        path = os.path.join(d, f)
+        if path not in _file_cache:
+            _file_cache[path] = open(path, "rb").read()
+        return "%s:%d" % (f.split("/")[-1], _file_cache[path].count(b"\n", 0, pos) + 1)
     except Exception:
         return "node #%d" % node
 
@@ -297,6 +311,15 @@ def type_of(t):
     if bkind == K.Array_Type_Definition:
         elem = nodes.Get_Element_Subtype(base)
         et = type_of(elem)
+        if et.kind == "vec" and et.width is None:
+            # VHDL-2008 : the constraint of the elements comes with the constraint of the array
+            node = t
+            while node and nodes.Get_Kind(node) == K.Array_Subtype_Definition:
+                ec = nodes.Get_Array_Element_Constraint(node) if frontend.has_field(nodes.Get_Kind(node), frontend.nodes_meta.fields.Array_Element_Constraint) else 0
+                if ec:
+                    et = type_of(ec)
+                    break
+                node = nodes.Get_Parent_Type(node)
         width, asc, lo, hi = constraint_of(t)
         if et.kind == "bit":
             signed = numeric_kind(base) == "signed"

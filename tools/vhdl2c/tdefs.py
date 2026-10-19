@@ -87,91 +87,84 @@ def define(ct):
     o.close(" %s_s;" % cn)
     o.line()
 
-    def each(body):
-        """Calls body(member suffix of the storage, of the value, CT) for every member and element."""
+    def fn(head, builder):
+        """A function : the loop index is declared only when the body uses it."""
+        tmp = Out()
+        tmp.level = o.level + 1
+        builder(tmp)
+        o.open(head)
+        if any("[i]" in l or "i < " in l for l in tmp.lines):
+            o.line("size_t i;")
+        o.lines.extend(tmp.lines)
+        o.close()
+        o.line()
+
+    def each(out, body):
+        """Calls body(member suffix, CT) for every member and element."""
         for name, mct, n in members(ct):
             if n:
-                o.open("for (i = 0; i < %d; i++)" % n)
+                out.open("for (i = 0; i < %d; i++)" % n)
                 body("%s[i]" % name, mct)
-                o.close()
+                out.close()
             else:
                 body(name, mct)
 
-    o.open("static inline %s %s_zero(void)" % (cn, cn))
-    o.line("%s v;" % cn)
-    if any(n for _, _, n in members(ct)):
-        o.line("size_t i;")
-    o.line("memset(&v, 0, sizeof(v));")
-    for name, mct, n in members(ct):
-        init = zero_value(mct)
-        if init is None:
-            continue
-        if n:
-            o.open("for (i = 0; i < %d; i++)" % n)
-            o.line("v.%s[i] = %s;" % (name, init))
-            o.close()
-        else:
-            o.line("v.%s = %s;" % (name, init))
-    o.line("return v;")
-    o.close()
-    o.line()
+    def zero(out):
+        out.line("%s v;" % cn)
+        out.line("memset(&v, 0, sizeof(v));")
+        for name, mct, n in members(ct):
+            init = zero_value(mct)
+            if init is None:
+                continue
+            if n:
+                out.open("for (i = 0; i < %d; i++)" % n)
+                out.line("v.%s[i] = %s;" % (name, init))
+                out.close()
+            else:
+                out.line("v.%s = %s;" % (name, init))
+        out.line("return v;")
+
+    fn("static inline %s %s_zero(void)" % (cn, cn), zero)
+
     if ct.kind == "arr":
-        o.open("static inline %s %s_fill(%s e)" % (cn, cn, ctype_val(ct.elem)))
-        o.line("%s v;" % cn)
-        o.line("size_t i;")
-        o.open("for (i = 0; i < %d; i++)" % ct.length)
-        o.line("v.a[i] = e;")
-        o.close()
-        o.line("return v;")
-        o.close()
-        o.line()
-        o.open("static inline %s %s_put(%s v, size_t pos, %s e)" % (cn, cn, cn, ctype_val(ct.elem)))
-        o.line("v.a[pos] = e;")
-        o.line("return v;")
-        o.close()
-        o.line()
+        def fill(out):
+            out.line("%s v;" % cn)
+            out.open("for (i = 0; i < %d; i++)" % ct.length)
+            out.line("v.a[i] = e;")
+            out.close()
+            out.line("return v;")
+
+        fn("static inline %s %s_fill(%s e)" % (cn, cn, ctype_val(ct.elem)), fill)
+        fn("static inline %s %s_put(%s v, size_t pos, %s e)" % (cn, cn, cn, ctype_val(ct.elem)),
+           lambda out: (out.line("v.a[pos] = e;"), out.line("return v;")))
     else:
         for fname, vname, fct in ct.fields:
-            o.open("static inline %s %s_with_%s(%s v, %s e)" % (cn, cn, fname, cn, ctype_val(fct)))
-            o.line("v.%s = e;" % fname)
-            o.line("return v;")
-            o.close()
-            o.line()
-    o.open("static inline %s %s_get(const %s_s *s)" % (cn, cn, cn))
-    o.line("%s v;" % cn)
-    if any(n for _, _, n in members(ct)):
-        o.line("size_t i;")
-    each(lambda m, mct: o.line("v.%s = %s;" % (m, get_expr("s->" + m, mct))))
-    o.line("return v;")
-    o.close()
-    o.line()
-    o.open("static inline void %s_drive(%s_s *s, %s v)" % (cn, cn, cn))
-    if any(n for _, _, n in members(ct)):
-        o.line("size_t i;")
-    each(lambda m, mct: o.line(drive_stmt("s->" + m, mct, "v." + m)))
-    o.close()
-    o.line()
-    o.open("static inline void %s_register(vs_kernel *k, %s_s *s, %s v)" % (cn, cn, cn))
-    if any(n for _, _, n in members(ct)):
-        o.line("size_t i;")
-    each(lambda m, mct: o.line(register_stmt("s->" + m, mct, "v." + m)))
-    o.close()
-    o.line()
-    o.open("static inline size_t %s_leaves(%s_s *s, vs_sig **out)" % (cn, cn))
-    o.line("size_t n = 0;")
-    if any(n for _, _, n in members(ct)):
-        o.line("size_t i;")
-    each(lambda m, mct: o.line(leaves_stmt("s->" + m, mct)))
-    o.line("return n;")
-    o.close()
-    o.line()
-    o.open("static inline int %s_eq(%s a, %s b)" % (cn, cn, cn))
-    if any(n for _, _, n in members(ct)):
-        o.line("size_t i;")
-    each(lambda m, mct: o.line("if (!%s) { return 0; }" % eq_expr("a." + m, "b." + m, mct)))
-    o.line("return 1;")
-    o.close()
-    o.line()
+            fn("static inline %s %s_with_%s(%s v, %s e)" % (cn, cn, fname, cn, ctype_val(fct)),
+               lambda out: (out.line("v.%s = e;" % fname), out.line("return v;")))
+
+    def get(out):
+        out.line("%s v;" % cn)
+        each(out, lambda m, mct: out.line("v.%s = %s;" % (m, get_expr("s->" + m, mct))))
+        out.line("return v;")
+
+    fn("static inline %s %s_get(const %s_s *s)" % (cn, cn, cn), get)
+    fn("static inline void %s_drive(%s_s *s, %s v)" % (cn, cn, cn),
+       lambda out: each(out, lambda m, mct: out.line(drive_stmt("s->" + m, mct, "v." + m))))
+    fn("static inline void %s_register(vs_kernel *k, %s_s *s, %s v)" % (cn, cn, cn),
+       lambda out: each(out, lambda m, mct: out.line(register_stmt("s->" + m, mct, "v." + m))))
+
+    def leaves(out):
+        out.line("size_t n = 0;")
+        each(out, lambda m, mct: out.line(leaves_stmt("s->" + m, mct)))
+        out.line("return n;")
+
+    fn("static inline size_t %s_leaves(%s_s *s, vs_sig **out)" % (cn, cn), leaves)
+
+    def eq(out):
+        each(out, lambda m, mct: out.line("if (!%s) { return 0; }" % eq_expr("a." + m, "b." + m, mct)))
+        out.line("return 1;")
+
+    fn("static inline int %s_eq(%s a, %s b)" % (cn, cn, cn), eq)
     return o.text()
 
 

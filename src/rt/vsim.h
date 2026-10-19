@@ -160,6 +160,29 @@ static inline uint64_t vs_parity(uint64_t v)
     return v & 1;
 }
 
+/* A reference to some bits of a signal : what a signal parameter is when its actual is a part of a vector. */
+typedef struct vs_ref
+{
+    vs_sig      *s;
+    unsigned    shift;
+    uint64_t    mask;
+} vs_ref;
+
+static inline vs_ref vs_mkref(vs_sig *s, unsigned shift, unsigned width)
+{
+    vs_ref r;
+
+    r.s = s;
+    r.shift = shift;
+    r.mask = width >= 64 ? UINT64_MAX : (UINT64_C(1) << width) - 1;
+    return r;
+}
+
+static inline uint64_t vs_ref_get(vs_ref r)
+{
+    return (r.s->cur >> r.shift) & r.mask;
+}
+
 /* Set by the VHDL procedure "finish" : the simulation must stop. */
 extern int vs_finished;
 
@@ -169,6 +192,16 @@ static inline void vs_drive_bits(vs_sig *s, unsigned shift, uint64_t mask, uint6
     uint64_t m = mask << shift;
 
     vs_drive(s, (s->nxt & ~m) | ((v << shift) & m));
+}
+
+static inline void vs_ref_drive(vs_ref r, uint64_t v)
+{
+    vs_drive_bits(r.s, r.shift, r.mask, v);
+}
+
+static inline void vs_ref_drive_bits(vs_ref r, unsigned shift, uint64_t mask, uint64_t v)
+{
+    vs_drive_bits(r.s, r.shift + shift, mask, v);
 }
 
 static inline int vs_rising(const vs_sig *s)

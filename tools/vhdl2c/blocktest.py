@@ -20,6 +20,12 @@ from pyGHDL.libghdl.vhdl import nodes
 
 K = nodes.Iir_Kind
 
+# The opcodes of the 6809 : the others raise the trap interrupt, which this design stops with "finish" ; a program
+# made of random bytes would stop at once.
+ILLEGAL_6809 = {0x01, 0x02, 0x05, 0x0B, 0x14, 0x15, 0x18, 0x1B, 0x38, 0x3E, 0x41, 0x42, 0x45, 0x4B, 0x4E, 0x51, 0x52,
+                0x55, 0x5B, 0x5E, 0x61, 0x62, 0x65, 0x6B, 0x71, 0x72, 0x75, 0x7B, 0x87, 0x8F, 0xC7, 0xCD, 0xCF}
+LEGAL_6809 = [op for op in range(256) if op not in ILLEGAL_6809 and op not in (0x10, 0x11)]
+
 # Per block : clocks (toggled every cycle), resets (asserted at the start and now and then, the
 # value is the active level), warm-up cycles ignored in the comparison, number of cycles, and the
 # probability that an input changes from one cycle to the next.
@@ -44,6 +50,9 @@ BLOCKS = {
     "fp_exe": dict(clocks=["clock"], resets={"reset": 0}, warm=1, cycles=3000, change=0.5, ones=("ce",)),
     "fp_unit": dict(clocks=["clock"], resets={"reset": 0}, warm=1, cycles=3000, change=0.5, ones=("ce",)),
     "fp_sgnj": dict(clocks=[], resets={}, warm=0, cycles=1500, change=0.6, trace=False),
+    "cpu_63f09": dict(clocks=["extal"], resets={"reset_n": 0}, warm=2, cycles=6000, change=0.5,
+                      ones=("nmi_n", "firq_n", "irq_n", "mrdy", "dma_breq_n", "halt_n", "eirq_n", "pagefault_n", "lock_granted"),
+                      choices={"d_in": LEGAL_6809}),
     "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
 }
@@ -161,8 +170,9 @@ def vhdl_bench(name, ports, cfg, lib="work", port_types=None):
     ins, outs = port_leaves(ports, clocks)
     o = []
     o.append("library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse std.textio.all;\n")
-    if lib != "work":
-        o.append("library %s;\n" % lib)
+    libs = {lib} | {t.split(".")[0] for t in (port_types or {}).values() if t.count(".") == 2}
+    for l in sorted(libs - {"work"}):
+        o.append("library %s;\n" % l)
     o.append("entity tb is\nend entity tb;\n")
     o.append("architecture sim of tb is")
     for n, ct, m in ports:
@@ -274,6 +284,7 @@ def c_bench(name, ports, cfg, generics=()):
         for c in clocks:
             o.append("        vs_drive(&p_%s, %d);" % (c, phase))
         o.append("        vs_settle(&k);")
+        o.append("        if (vs_finished)\n        {\n            break;     /* the VHDL stopped the simulation (finish) */\n        }")
         for lf in outs:
             if lf.ct.kind == "int":
                 o.append('        printf("%%lld ", (long long) (int64_t) %s.cur);' % lf.cpath)
@@ -304,6 +315,9 @@ def stimulus(ports, cfg, seed):
             ilo, ihi = cfg.get("int_range", (-1000, 1000))
             return rnd.randint(max(lo, ilo), min(hi, ihi))
         w = lf.ct.width
+        choices = cfg.get("choices", {}).get(lf.name.lower())
+        if choices and rnd.random() < 0.9:
+            return rnd.choice(choices)
         mode = rnd.randrange(8)
         if mode == 0:
             return 0
@@ -331,8 +345,8 @@ def stimulus(ports, cfg, seed):
             else:
                 if rnd.random() < cfg["change"]:
                     cur[lf.name] = fresh(lf)
-                    if lf.name.lower() in cfg.get("ones", ()):
-                        cur[lf.name] = 1 if rnd.random() < 0.9 else 0
+                    if lf.name.lower() in cfg.get("ones", ()) and rnd.random() < 0.9:
+                        cur[lf.name] = (1 << (lf.ct.width or 1)) - 1 if lf.ct.kind != "int" else 1
                 v = cur[lf.name]
             row.append(str(v) if lf.ct.kind == "int" else format(v, "0%db" % lf.ct.width))
         if reset_left:
@@ -409,7 +423,7 @@ def run_block(name, cfg, ports, ghdl, shared, root, lib="work", generics=(), por
         b = [x.strip().lower() for x in out.split("\n")][skip:]
         def same(x, y):
             """Equal, except that a bit that GHDL reports as 'X' (a 'U' signal, never assigned) matches anything."""
-            return len(x) == len(y) and all(p == q or p == "X" for p, q in zip(x, y))
+            return len(x) == len(y) and all(p == q or p == "x" for p, q in zip(x, y))
 
         if len(a) == len(b) and all(same(x, y) for x, y in zip(a, b)):
             internal = trace_diff(ghdl, shared, work, tb, wd, pp, skip) if cfg.get("trace", True) else None

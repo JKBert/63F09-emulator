@@ -107,18 +107,7 @@ void vs_kernel_free(vs_kernel *k)
 {
     size_t  i;
 
-    for (i = 0; i < k->nallocs; i++)
-    {
-        free(k->allocs[i]);
-    }
-    free(k->allocs);
-
-    for (i = 0; i < k->nnames; i++)
-    {
-        free(k->names[i]);
-    }
-    free(k->names);
-
+    /* The signals may live in memory that the kernel allocated : their lists go first. */
     for (i = 0; i < k->nsigs; i++)
     {
         free(k->sigs[i]->fan);
@@ -133,6 +122,16 @@ void vs_kernel_free(vs_kernel *k)
         free(k->procs[i]->sens);
         free(k->procs[i]);
     }
+    for (i = 0; i < k->nnames; i++)
+    {
+        free(k->names[i]);
+    }
+    for (i = 0; i < k->nallocs; i++)
+    {
+        free(k->allocs[i]);
+    }
+    free(k->allocs);
+    free(k->names);
     free(k->sigs);
     free(k->procs);
     free(k->runq);
