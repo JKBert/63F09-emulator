@@ -64,13 +64,36 @@ static void bus_run(void *inst)
     soc_zone    *z = find_zone(&s->cfg, a);
     uint64_t    owner = s->bus_master.cur;
 
+    int         i;
+    uint64_t    mrdy = s->mux_mrdy.cur & s->mmu_mrdy.cur;
+    uint64_t    irq_n = 1;
+    int         in_acia = -1;
+
+    for (i = 0; i < s->cfg.nacias; i++)
+    {
+        int hit = a >= s->cfg.acias[i].base && a < s->cfg.acias[i].base + 4;
+
+        vs_drive(&s->acia[i].cs, hit);
+        vs_drive(&s->acia[i].addr, a & 3);
+        mrdy &= s->acia[i].mrdy.cur;
+        irq_n &= s->acia[i].irq_n.cur;
+        if (hit)
+        {
+            in_acia = i;
+        }
+    }
+    vs_drive(&s->irq_n, irq_n);
     vs_drive(&s->cs, in_bac);
     vs_drive(&s->mmu_cs, in_mmu ? UINT64_C(1) << owner : 0);
-    vs_drive(&s->cacheable, !(in_bac || in_mmu));
-    vs_drive(&s->mrdy, s->mux_mrdy.cur & s->mmu_mrdy.cur);
+    vs_drive(&s->cacheable, !(in_bac || in_mmu || in_acia >= 0));
+    vs_drive(&s->mrdy, mrdy);
     if (in_bac)
     {
         vs_drive(&s->d_in, s->mux_d_out.cur);
+    }
+    else if (in_acia >= 0)
+    {
+        vs_drive(&s->d_in, s->acia[in_acia].d_out.cur);
     }
     else if (z != NULL)
     {
@@ -85,6 +108,11 @@ static void bus_run(void *inst)
         printf("%12llu bus %llu A=%09llX %c VMA=%d BA=%d BS=%d D=%02X\n", (unsigned long long) s->k.now,
                (unsigned long long) owner, (unsigned long long) a, s->rw_n.cur ? 'R' : 'W', (int) s->vma.cur,
                (int) s->ba.cur, (int) s->bs.cur, (unsigned) (s->rw_n.cur ? s->d_in.cur : s->d_out.cur));
+        if (in_acia >= 0)
+        {
+            printf("             acia%d d_out=%02X mrdy=%d irq_n=%d\n", in_acia, (unsigned) s->acia[in_acia].d_out.cur,
+                   (int) s->acia[in_acia].mrdy.cur, (int) s->acia[in_acia].irq_n.cur);
+        }
     }
     if (vs_falling(&s->e) && s->vma.cur == 1 && s->ba.cur == 0)
     {
@@ -95,7 +123,7 @@ static void bus_run(void *inst)
             {
                 z->data[a - z->base] = (uint8_t) s->d_out.cur;
             }
-            else if (z == NULL && !in_bac && !in_mmu)
+            else if (z == NULL && !in_bac && !in_mmu && in_acia < 0)
             {
                 s->unmapped++;
             }
@@ -103,7 +131,7 @@ static void bus_run(void *inst)
         else
         {
             s->reads++;
-            if (z == NULL && !in_bac && !in_mmu)
+            if (z == NULL && !in_bac && !in_mmu && in_acia < 0)
             {
                 s->unmapped++;
             }
@@ -125,7 +153,9 @@ static void release_reset(vs_kernel *k, void *arg)
 
 int soc_create(soc *s, const soc_cfg *c)
 {
-    vs_sig  *sens[7];
+    vs_sig  *sens[7 + 2 * SOC_MAX_ACIAS];
+    size_t  ns = 7;
+    int     i;
 
     if (c->ncpus < 1 || c->ncpus > 8)
     {
@@ -178,7 +208,28 @@ int soc_create(soc *s, const soc_cfg *c)
     sens[4] = &s->mmu_mrdy;
     sens[5] = &s->bus_master;
     sens[6] = &s->vma;
-    vs_register_process(&s->k, bus_run, s, sens, 7);
+    for (i = 0; i < c->nacias; i++)
+    {
+        soc_acia    *ac = &s->acia[i];
+
+        reg(s, &ac->cs, "acia_cs", 1, 0);
+        reg(s, &ac->addr, "acia_addr", 2, 0);
+        reg(s, &ac->d_out, "acia_d_out", 8, 0);
+        reg(s, &ac->irq_n, "acia_irq_n", 1, 1);
+        reg(s, &ac->rxd, "acia_rxd", 1, 1);
+        reg(s, &ac->txd, "acia_txd", 1, 1);
+        reg(s, &ac->dcd_n, "acia_dcd_n", 1, 0);
+        reg(s, &ac->cts_n, "acia_cts_n", 1, 0);
+        reg(s, &ac->rts_n, "acia_rts_n", 1, 0);
+        reg(s, &ac->mrdy, "acia_mrdy", 1, 1);
+        acia_63f50_create(&s->k, &ac->core, "soc.acia", &s->e, &s->sysclk, &s->reset_n, &ac->cs, &ac->mrdy, &ac->addr,
+                          &s->rw_n, &s->d_out, &ac->d_out, &ac->irq_n, &ac->rxd, &ac->txd, &ac->dcd_n, &ac->cts_n,
+                          &ac->rts_n);
+        console_create(&s->k, &ac->con, &ac->rxd, &ac->txd, c->acias[i].baud, c->acias[i].in, c->acias[i].out);
+        sens[ns++] = &ac->mrdy;
+        sens[ns++] = &ac->irq_n;
+    }
+    vs_register_process(&s->k, bus_run, s, sens, ns);
     vs_clock_source(&s->k, &s->extal, SOC_EXTAL_HALF, SOC_EXTAL_HALF);
     vs_timer_add(&s->k, c->reset_ticks, release_reset, s);
     return 0;

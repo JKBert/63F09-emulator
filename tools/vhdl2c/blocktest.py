@@ -56,6 +56,14 @@ BLOCKS = {
     "mmu_63f29": dict(clocks=["extal"], resets={"reset_n": 0}, warm=2, cycles=6000, change=0.5, generics={"mmu": 1},
                       ones=("nmi_n", "firq_n", "irq_n", "mrdy", "dma_breq_n", "halt_n", "eirq_n", "lock_granted"),
                       choices={"d_in": LEGAL_6809}),
+    # a directed test of the transmitter : the ACIA is set up (divisor 13, 8N1, /16) and sends 0x4F
+    "acia_tx": dict(entity="acia_63f50", clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=5000, change=0,
+                    initial={"rxd": 1, "rw_n": 1},
+                    script=[(10, {"cs": 1, "addr": 0, "rw_n": 0, "d_in": 3}), (12, {"cs": 0, "rw_n": 1}),
+                            (14, {"cs": 1, "addr": 2, "rw_n": 0, "d_in": 0}), (16, {"cs": 0, "rw_n": 1}),
+                            (18, {"cs": 1, "addr": 3, "rw_n": 0, "d_in": 13}), (20, {"cs": 0, "rw_n": 1}),
+                            (22, {"cs": 1, "addr": 0, "rw_n": 0, "d_in": 0x15}), (24, {"cs": 0, "rw_n": 1}),
+                            (30, {"cs": 1, "addr": 1, "rw_n": 0, "d_in": 0x4F}), (32, {"cs": 0, "rw_n": 1})]),
     "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
 }
@@ -345,10 +353,22 @@ def stimulus(ports, cfg, seed):
         return rnd.getrandbits(w)
 
     cur = {lf.name: fresh(lf) for lf in ins}
+    script = cfg.get("script")
+    if script:
+        # directed test : the inputs hold their values, except at the samples where the script changes them
+        cur = {lf.name: cfg.get("initial", {}).get(lf.name.lower(), 0) for lf in ins}
+        events = {}
+        for at, changes in script:
+            events.setdefault(at, {}).update(changes)
     lines = []
     reset_left = 3
-    for _ in range(cfg["cycles"]):
-        if reset_left == 0 and rnd.random() < 0.01:
+    for sample in range(cfg["cycles"]):
+        if script:
+            for n, v in events.get(sample, {}).items():
+                for lf in ins:
+                    if lf.name.lower() == n:
+                        cur[lf.name] = v
+        if reset_left == 0 and rnd.random() < 0.01 and not script:
             reset_left = rnd.randint(1, 3)
         row = []
         for lf in ins:
@@ -356,7 +376,7 @@ def stimulus(ports, cfg, seed):
                 active = resets[lf.name.lower()]
                 v = active if reset_left else 1 - active
             else:
-                if rnd.random() < cfg["change"]:
+                if not script and rnd.random() < cfg["change"]:
                     cur[lf.name] = fresh(lf)
                     if lf.name.lower() in cfg.get("ones", ()) and rnd.random() < 0.9:
                         cur[lf.name] = (1 << (lf.ct.width or 1)) - 1 if lf.ct.kind != "int" else 1
@@ -476,7 +496,8 @@ def main(argv):
             print("GHDL cannot analyse the project")
             return 1
         for name in names:
-            result = run_block(name, BLOCKS[name], port_info(entities[name]), ghdl, shared, root, libs[name], generic_defaults(entities[name], BLOCKS[name].get('generics')), port_type_texts(entities[name]))
+            ent = BLOCKS[name].get("entity", name)
+            result = run_block(ent, BLOCKS[name], port_info(entities[ent]), ghdl, shared, root, libs[ent], generic_defaults(entities[ent], BLOCKS[name].get('generics')), port_type_texts(entities[ent]))
             print("%s: %s" % (name, result))
             if not result.startswith("OK"):
                 failures += 1
