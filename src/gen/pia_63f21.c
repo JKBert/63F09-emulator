@@ -23,12 +23,16 @@ typedef struct pia_63f21_g0 pia_63f21_g0;
 static void pia_63f21_g0_create(vs_kernel *k, pia_63f21_g0 *self, const char *path)
 {
     vs_register_signal(k, &self->x1_tie_i, (uint64_t) (0));
+    vs_name(k, &self->x1_tie_i, path, "tie_i", 1);
     vs_tie_fields(&self->up->s_port_d_out, ((0) + (((self->gp_i) - 0))) % 64, &self->x1_tie_i, 0, 1);
     vs_register_signal(k, &self->x2_tie_io, (uint64_t) (0));
+    vs_name(k, &self->x2_tie_io, path, "tie_io", 1);
     vs_tie_fields(&self->x2_tie_io, 0, &(*self->up->p_port_d), ((0) + (((self->gp_i) - 0))) % 64, 1);
     vs_register_signal(k, &self->x3_tie_o, (uint64_t) (0));
+    vs_name(k, &self->x3_tie_o, path, "tie_o", 1);
     vs_tie_fields(&self->x3_tie_o, 0, &self->up->s_port_d_in, ((0) + (((self->gp_i) - 0))) % 64, 1);
     vs_register_signal(k, &self->x4_tie_t, (uint64_t) (0));
+    vs_name(k, &self->x4_tie_t, path, "tie_t", 1);
     vs_tie_fields(&self->up->s_port_d_ctrl, ((0) + (((self->gp_i) - 0))) % 64, &self->x4_tie_t, 0, 1);
     iobuf_create(k, &self->c_pia_data_bits_0, vs_join(k, path, "pia_data_bits"), &self->x1_tie_i, &self->x2_tie_io, &self->x3_tie_o, &self->x4_tie_t);
 }

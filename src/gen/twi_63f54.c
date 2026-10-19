@@ -821,8 +821,10 @@ void twi_63f54_create(vs_kernel *k, twi_63f54 *self, const char *path, vs_sig *e
     vs_name(k, &self->s_i2c_addr7, path, "i2c_addr7", 8);
     self->v3_count = INT64_C(0);
     vs_register_signal(k, &self->x1_imp_i, (uint64_t) (0));
+    vs_name(k, &self->x1_imp_i, path, "imp_i", 1);
     iobuf_create(k, &self->c_sda_iobuf_0, vs_join(k, path, "sda_iobuf"), &self->x1_imp_i, self->p_sda, &self->s_sda_in, &self->s_sda_ctrl);
     vs_register_signal(k, &self->x3_imp_i, (uint64_t) (0));
+    vs_name(k, &self->x3_imp_i, path, "imp_i", 1);
     iobuf_create(k, &self->c_scl_iobuf_2, vs_join(k, path, "scl_iobuf"), &self->x3_imp_i, self->p_scl, &self->s_scl_in, &self->s_scl_ctrl);
 
     {

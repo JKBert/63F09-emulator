@@ -41,8 +41,10 @@ typedef struct spi_63f52_g2 spi_63f52_g2;
 static void spi_63f52_g0_create(vs_kernel *k, spi_63f52_g0 *self, const char *path)
 {
     vs_register_signal(k, &self->x1_tie_i, (uint64_t) (0));
+    vs_name(k, &self->x1_tie_i, path, "tie_i", 1);
     vs_tie_fields(&self->up->s_cs_reg, ((0) + (((self->gp_i) - 0))) % 64, &self->x1_tie_i, 0, 1);
     vs_register_signal(k, &self->x2_tie_o, (uint64_t) (0));
+    vs_name(k, &self->x2_tie_o, path, "tie_o", 1);
     vs_tie_fields(&self->x2_tie_o, 0, &(*self->up->p_ss), ((0) + (((self->gp_i) - 0))) % 64, 1);
     obuf_create(k, &self->c_ss_iobuffer_0, vs_join(k, path, "ss_iobuffer"), &self->x1_tie_i, &self->x2_tie_o);
 }
@@ -629,8 +631,10 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
     vs_register_signal(k, &self->s_signal_divisor, (uint64_t) (0));
     vs_name(k, &self->s_signal_divisor, path, "signal_divisor", 1);
     vs_register_signal(k, &self->x1_imp_t, (uint64_t) (0));
+    vs_name(k, &self->x1_imp_t, path, "imp_t", 1);
     iobuf_create(k, &self->c_mosi_iobuf_0, vs_join(k, path, "mosi_iobuf"), &self->s_mosi_out, self->p_mosi, &self->s_mosi_in, &self->x1_imp_t);
     vs_register_signal(k, &self->x3_imp_t, (uint64_t) (0));
+    vs_name(k, &self->x3_imp_t, path, "imp_t", 1);
     iobuf_create(k, &self->c_miso_iobuf_2, vs_join(k, path, "miso_iobuf"), &self->s_miso_out, self->p_miso, &self->s_miso_in, &self->x3_imp_t);
     iobuf_create(k, &self->c_sclk_iobuf_4, vs_join(k, path, "sclk_iobuf"), &self->s_sclk_out, self->p_sclk, &self->s_sclk_in, &self->s_sclk_out_ctrl);
 
@@ -651,8 +655,10 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
         }
     }
     vs_register_signal(k, &self->x7_tie_i, (uint64_t) (0));
+    vs_name(k, &self->x7_tie_i, path, "tie_i", 1);
     vs_tie_fields(&self->s_cs_reg, 0, &self->x7_tie_i, 0, 1);
     vs_register_signal(k, &self->x8_tie_io, (uint64_t) (0));
+    vs_name(k, &self->x8_tie_io, path, "tie_io", 1);
     vs_tie_fields(&self->x8_tie_io, 0, &(*self->p_ss), 0, 1);
     iobuf_create(k, &self->c_ss0_iobuffer_6, vs_join(k, path, "ss0_iobuffer"), &self->x7_tie_i, &self->x8_tie_io, &self->s_ss_n, &self->s_sclk_out_ctrl);
     self->g_slave_clock_buf_cond_9 = vs_alloc(k, sizeof(*self->g_slave_clock_buf_cond_9));

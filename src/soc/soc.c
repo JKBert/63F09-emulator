@@ -238,8 +238,16 @@ int soc_create(soc *s, const soc_cfg *c)
 void soc_run(soc *s)
 {
     vs_settle(&s->k);
+    if (s->cfg.dump != NULL)
+    {
+        vs_dump(&s->k, s->cfg.dump, 0);
+    }
     while (!vs_finished && (s->cfg.max_ticks == 0 || s->k.now < s->cfg.max_ticks) && vs_advance(&s->k))
     {
+        if (s->cfg.dump != NULL)
+        {
+            vs_dump(&s->k, s->cfg.dump, (long) s->k.now);
+        }
     }
 }
 

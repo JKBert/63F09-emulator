@@ -13,7 +13,7 @@ import sys
 import frontend
 from cgen import Binding, E, Out, Translator, cid, mask
 import tdefs
-from vtypes import STATIC_GENERICS, Bit, Enum, Int, Unsupported, Vec, const_int, ctype_sig, ctype_val, is_wide, leaf_count, nwords, type_of, unsupported
+from vtypes import NCPUS_FIXED, STATIC_GENERICS, Bit, Enum, Int, Unsupported, Vec, const_int, ctype_sig, ctype_val, is_wide, leaf_count, nwords, type_of, unsupported
 from pyGHDL.libghdl.vhdl import nodes, nodes_meta
 
 K = nodes.Iir_Kind
@@ -50,9 +50,10 @@ def zero(ct):
 class Iface:
     """The interface of an entity : its C name, generics and ports."""
 
-    def __init__(self, entity):
+    def __init__(self, entity, ncpus=None):
         self.entity = entity
-        self.name = cid(frontend.ident(entity))
+        self.ncpus = ncpus
+        self.name = cid(frontend.ident(entity)) + ("_n%d" % ncpus if ncpus else "")
         self.generics = []      # (cname, ct, decl)
         self.ports = []         # (cname, ct, mode, decl)
         g = nodes.Get_Generic_Chain(entity)
@@ -65,7 +66,10 @@ class Iface:
             self.generics.append((cid(frontend.ident(g)), ct, g))
             # the value used when a type bound depends on the generic
             try:
-                if frontend.ident(g).lower() in GENERIC_MAX:
+                if frontend.ident(g).lower() == "ncpus" and ncpus:
+                    STATIC_GENERICS[g] = ncpus
+                    NCPUS_FIXED[g] = ncpus
+                elif frontend.ident(g).lower() in GENERIC_MAX:
                     STATIC_GENERICS[g] = GENERIC_MAX[frontend.ident(g).lower()]
                 elif ct.kind == "int" and ct.hi is not None:
                     STATIC_GENERICS[g] = ct.hi
@@ -84,6 +88,18 @@ class Iface:
         out += ["%s g_%s" % (ctype_decl(ct), n) for n, ct, d in self.generics]
         out += ["%s *%s" % (ctype_sig(ct), n) for n, ct, mode, d in self.ports]
         return ", ".join(out)
+
+
+MAX_NCPUS = 8
+
+
+def has_ncpus(entity):
+    g = nodes.Get_Generic_Chain(entity)
+    while g:
+        if frontend.ident(g).lower() == "ncpus":
+            return True
+        g = nodes.Get_Chain(g)
+    return False
 
 
 # Generics that size types : the structures are built for this value (NCPUS goes from 1 to 8).
@@ -105,10 +121,16 @@ class Design:
                     self.archs[ent] = lu          # the last architecture of an entity wins
         self.ifaces = {}
 
-    def iface(self, entity):
-        if entity not in self.ifaces:
-            self.ifaces[entity] = Iface(entity)
-        return self.ifaces[entity]
+    def iface(self, entity, ncpus=None):
+        """The interface of an entity. An entity with an NCPUS generic is generated once per number of cores : the
+        sizes of its signals depend on it."""
+        if not has_ncpus(entity):
+            ncpus = None
+        elif not ncpus:
+            raise Unsupported("entity %s depends on NCPUS : it is generated for 1 to %d cores" % (frontend.ident(entity), MAX_NCPUS))
+        if (entity, ncpus) not in self.ifaces:
+            self.ifaces[(entity, ncpus)] = Iface(entity, ncpus)
+        return self.ifaces[(entity, ncpus)]
 
 
 class Scope:
@@ -129,12 +151,13 @@ class Scope:
 
 
 class EntityGen(Translator):
-    def __init__(self, design, entity):
+    def __init__(self, design, entity, ncpus=None):
         super().__init__()
         self.design = design
         self.entity = entity
+        self.ncpus = ncpus
         self.arch = design.archs.get(entity)
-        self.iface = design.iface(entity)
+        self.iface = design.iface(entity, ncpus)
         self.name = self.iface.name
         self.root = Scope(self.name)
         self.scope = self.root
@@ -337,9 +360,9 @@ class EntityGen(Translator):
     def instance(self, inst):
         s = self.scope
         entity = self.child_entity(inst)
-        cname = cid(frontend.ident(entity))
         label = cid(frontend.ident(inst))
-        iface = self.design.iface(entity)
+        iface = self.design.iface(entity, self.ncpus)
+        cname = iface.name
         field = "c_%s_%d" % (label, s.nimp)
         s.nimp += 1
         if cname in HAND_WRITTEN:
@@ -481,6 +504,8 @@ class EntityGen(Translator):
         elif init == "0" and is_wide(ct):
             init = "vs_w_zero()"
         s.init.line(tdefs.register_stmt("self->" + field, ct, init))
+        if ct.kind not in ("rec", "arr") and not is_wide(ct):
+            s.init.line('vs_name(k, &self->%s, path, "%s", %d);' % (field, hint, ct.width or 64))
         return "&self->" + field
 
     def implicit_process(self, sigexpr, e, expr):
@@ -564,6 +589,18 @@ class EntityGen(Translator):
         first = True
         while clause:
             cond = nodes.Get_Condition(clause)
+            static = None
+            if cond:
+                try:
+                    static = bool(const_int(cond))
+                except Unsupported:
+                    pass
+            if static is False:
+                clause = nodes.Get_Generate_Else_Clause(clause)      # this branch does not exist in this variant
+                continue
+            if static:
+                cond = None
+                first = True
             sc = self.new_body(None)
             self.build_body(sc, nodes.Get_Generate_Statement_Body(clause))
             field = "g_%s_%d" % (label, parent.nimp)
@@ -571,6 +608,8 @@ class EntityGen(Translator):
             parent.fields.append("struct %s *%s;" % (sc.struct, field))
             if cond:
                 o.open("%sif (%s)" % ("" if first else "else ", self.expr(cond).code))
+            elif static or first:
+                o.open("")          # the branches before it do not exist in this variant
             else:
                 o.open("else")
             o.line("self->%s = vs_alloc(k, sizeof(*self->%s));" % (field, field))
@@ -578,6 +617,8 @@ class EntityGen(Translator):
             o.line('%s_create(k, self->%s, vs_join(k, path, "%s"));' % (sc.struct, field, label))
             o.close()
             first = False
+            if static:
+                break
             clause = nodes.Get_Generate_Else_Clause(clause)
 
     def block(self, b):
@@ -750,6 +791,40 @@ def all_entities(design):
             yield name
 
 
+def ncpus_entity(ifaces):
+    return len(ifaces) == MAX_NCPUS
+
+
+def write_dispatcher(out_dir, ifaces):
+    """The entity as the rest of the design sees it : one create function that chooses the variant of the core
+    count (the generic NCPUS) when the design is built."""
+    base = ifaces[0].name[:-len("_n1")]
+    names = [i.name for i in ifaces]
+
+    params = ifaces[0].params(base)
+    for i in ifaces[1:]:
+        if i.params(base) != params:
+            return              # the ports depend on the number of cores : only other variants instantiate it
+
+    h = [BANNER % base, "#ifndef GEN_%s_H" % base.upper(), "#define GEN_%s_H" % base.upper(), "", '#include "vsim.h"']
+    h += ['#include "%s.h"' % n for n in names]
+    h += ["", "typedef union %s" % base, "{"]
+    h += ["    %s n%d;" % (n, i + 1) for i, n in enumerate(names)]
+    h += ["} %s;" % base, "", "/* returns 0, or -1 when there is no variant for that number of cores */",
+          "int %s_create(%s);" % (base, params.replace("%s *self" % base, "%s *self" % base)), "", "#endif", ""]
+    open(os.path.join(out_dir, base + ".h"), "w").write("\n".join(h))
+    # the call passes the generics and ports on, by name
+    call_args = ["k", "&self->n%d", "path"] + ["g_%s" % n for n, ct, d in ifaces[0].generics] + [n for n, ct, m, d in ifaces[0].ports]
+    c = [BANNER % base, '#include "%s.h"' % base, "", "int %s_create(%s)" % (base, params), "{", "    switch (g_ncpus)", "    {"]
+    for i, n in enumerate(names):
+        a = list(call_args)
+        a[1] = "&self->n%d" % (i + 1)
+        c += ["        case %d:" % (i + 1), "            %s_create(%s);" % (n, ", ".join(a)), "            return 0;"]
+    c += ["        default:", "            return -1;", "    }", "}", ""]
+    open(os.path.join(out_dir, base + ".c"), "w").write("\n".join(c))
+    print("%s : dispatcher over %d variants" % (base, len(names)))
+
+
 def main(argv):
     vhdl_dir, out_dir = argv[1], argv[2]
     names = argv[3:]
@@ -765,27 +840,35 @@ def main(argv):
         entity = design.entities.get(name.lower())
         if entity is None:
             sys.exit("no entity " + name)
-        try:
-            h, c = EntityGen(design, entity).generate()
-        except Unsupported as e:
-            if os.environ.get("VHDL2C_DEBUG"):
+        variants = range(1, MAX_NCPUS + 1) if has_ncpus(entity) else [None]
+        done = []
+        for ncpus in variants:
+            label = name if ncpus is None else "%s (%d cores)" % (name, ncpus)
+            try:
+                gen = EntityGen(design, entity, ncpus)
+                h, c = gen.generate()
+            except Unsupported as e:
+                if os.environ.get("VHDL2C_DEBUG"):
+                    import traceback
+                    traceback.print_exc()
+                print("%s : UNSUPPORTED %s" % (label, e))
+                failed += 1
+                break
+            except Exception as e:          # a bug of the generator : report where, and go on with the other entities
                 import traceback
-                traceback.print_exc()
-            print("%s : UNSUPPORTED %s" % (name, e))
-            failed += 1
-            continue
-        except Exception as e:          # a bug of the generator : report where, and go on with the other entities
-            import traceback
-            if os.environ.get("VHDL2C_DEBUG"):
-                traceback.print_exc()
-            last = traceback.extract_tb(e.__traceback__)[-1]
-            print("%s : INTERNAL ERROR %s (%s:%d %s)" % (name, e, os.path.basename(last.filename), last.lineno, last.name))
-            failed += 1
-            continue
-        base = cid(frontend.ident(entity))
-        open(os.path.join(out_dir, base + ".h"), "w").write(h)
-        open(os.path.join(out_dir, base + ".c"), "w").write(c)
-        print("%s : generated %s.c/.h" % (name, base))
+                if os.environ.get("VHDL2C_DEBUG"):
+                    traceback.print_exc()
+                last = traceback.extract_tb(e.__traceback__)[-1]
+                print("%s : INTERNAL ERROR %s (%s:%d %s)" % (label, e, os.path.basename(last.filename), last.lineno, last.name))
+                failed += 1
+                break
+            base = gen.iface.name
+            open(os.path.join(out_dir, base + ".h"), "w").write(h)
+            open(os.path.join(out_dir, base + ".c"), "w").write(c)
+            done.append(gen.iface)
+            print("%s : generated %s.c/.h" % (label, base))
+        if ncpus_entity(done):
+            write_dispatcher(out_dir, done)
     open(os.path.join(out_dir, "gen_types.h"), "w").write(tdefs.header())
     write_funcs(out_dir)
     return 1 if failed else 0

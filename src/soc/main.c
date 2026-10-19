@@ -23,6 +23,7 @@ static void usage(FILE *f)
         "  --bac-base ADDR      registers of the bus arbiter (default 0xFFFFE0000)\n"
         "  --mmu-base ADDR      registers of the MMUs (default 0xFFFFE1000)\n"
         "  --ticks N            stop after N ticks (a tick is 1/144 ns ; default 100000000)\n"
+        "  --dump FILE          write every change of every named signal\n"
         "  --trace-bus          print every bus cycle\n"
         "  --help\n");
 }
@@ -113,6 +114,7 @@ int main(int argc, char **argv)
         { "bac-base", required_argument, NULL, 'b' },
         { "mmu-base", required_argument, NULL, 'm' },
         { "ticks", required_argument, NULL, 't' },
+        { "dump", required_argument, NULL, 'd' },
         { "trace-bus", no_argument, NULL, 'T' },
         { "help", no_argument, NULL, 'h' },
         { NULL, 0, NULL, 0 }
@@ -173,6 +175,14 @@ int main(int argc, char **argv)
                 break;
             case 'm':
                 cfg.mmu_base = strtoull(optarg, NULL, 0);
+                break;
+            case 'd':
+                cfg.dump = fopen(optarg, "w");
+                if (cfg.dump == NULL)
+                {
+                    perror(optarg);
+                    return 2;
+                }
                 break;
             case 'T':
                 cfg.trace_bus = 1;

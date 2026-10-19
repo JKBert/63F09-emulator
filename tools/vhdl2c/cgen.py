@@ -725,7 +725,10 @@ class Translator(Subprograms, Ops):
                 items.append(("index", self.static_index(nodes.Get_Choice_Expression(ch), n), cur))
             elif ck == K.Choice_By_Range:
                 left, right, asc = range_of(nodes.Get_Choice_Range(ch))
-                items.append(("range", (min(left, right), max(left, right)), cur))
+                if (left > right) if asc else (left < right):
+                    pass        # a null range (NCPUS - 2 with one core) chooses nothing
+                else:
+                    items.append(("range", (min(left, right), max(left, right)), cur))
             elif ck == K.Choice_By_Name:
                 nm = nodes.Get_Choice_Name(ch)
                 items.append(("field", frontend.ident(nodes.Get_Named_Entity(nm)).lower(), cur))
@@ -855,10 +858,16 @@ class Translator(Subprograms, Ops):
             words = ["UINT64_C(0x%X)" % ((value >> (64 * i)) & ((1 << 64) - 1)) for i in range((w + 63) // 64)]
             code = "((vs_w){{%s}})" % ", ".join(words)
             for lo, cnt, e in dyn:
+                if cnt <= 0:
+                    continue
                 code = "vs_w_set(%s, %d, %d, %s)" % (code, lo, cnt, ("(%s ? vs_w_ones(%d) : vs_w_zero())" % (e.code, cnt)) if cnt > 1 or e.ct.kind == "bit" and cnt > 1 else W(e))
             return E(code, t)
         code = "UINT64_C(0x%X)" % value
         for lo, cnt, e in dyn:
+            if cnt <= 0:
+                continue
+            if lo < 0:
+                raise unsupported(n, 'aggregate bit position %d (count %d, width %d)' % (lo, cnt, w))
             m = ((1 << cnt) - 1) << lo
             if cnt == 1:
                 code = "((%s & ~UINT64_C(0x%X)) | ((%s & 1) << %d))" % (code, m, e.code, lo)

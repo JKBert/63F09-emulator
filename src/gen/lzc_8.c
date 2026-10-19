@@ -87,9 +87,11 @@ void lzc_8_create(vs_kernel *k, lzc_8 *self, const char *path, vs_sig *a, vs_sig
     vs_register_signal(k, &self->s_s4, (uint64_t) (0));
     vs_name(k, &self->s_s4, path, "s4", 1);
     vs_register_signal(k, &self->x1_tie_a, (uint64_t) (0));
+    vs_name(k, &self->x1_tie_a, path, "tie_a", 4);
     vs_tie_fields(&(*self->p_a), 0, &self->x1_tie_a, 0, 4);
     lzc_4_create(k, &self->c_lzc_4_comp_0_0, vs_join(k, path, "lzc_4_comp_0"), &self->x1_tie_a, &self->s_z0, &self->s_v0);
     vs_register_signal(k, &self->x3_tie_a, (uint64_t) (0));
+    vs_name(k, &self->x3_tie_a, path, "tie_a", 4);
     vs_tie_fields(&(*self->p_a), 4, &self->x3_tie_a, 0, 4);
     lzc_4_create(k, &self->c_lzc_4_comp_1_2, vs_join(k, path, "lzc_4_comp_1"), &self->x3_tie_a, &self->s_z1, &self->s_v1);
 

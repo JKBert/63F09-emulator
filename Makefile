@@ -82,7 +82,7 @@ $(BUILD)/soc63f09: $(EMU_OBJ)
 
 $(BUILD)/obj/%.o: src/%.c
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(EMU_CPPFLAGS) -Wno-unused-parameter -MMD -c -o $@ $<
+	$(CC) $(CFLAGS) $(EMU_CPPFLAGS) -Wno-unused-parameter -MMD -MP -c -o $@ $<
 
 -include $(EMU_OBJ:.o=.d)
 

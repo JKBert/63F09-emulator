@@ -175,9 +175,11 @@ void lzc_128_create(vs_kernel *k, lzc_128 *self, const char *path, vs_sigw2 *a, 
     vs_register_signal(k, &self->s_s12, (uint64_t) (0));
     vs_name(k, &self->s_s12, path, "s12", 1);
     vs_register_signal(k, &self->x1_tie_a, (uint64_t) (0));
+    vs_name(k, &self->x1_tie_a, path, "tie_a", 64);
     vs_tie_fields(&(*self->p_a).w[0], 0, &self->x1_tie_a, 0, 64);
     lzc_64_create(k, &self->c_lzc_64_comp_0_0, vs_join(k, path, "lzc_64_comp_0"), &self->x1_tie_a, &self->s_z0, &self->s_v0);
     vs_register_signal(k, &self->x3_tie_a, (uint64_t) (0));
+    vs_name(k, &self->x3_tie_a, path, "tie_a", 64);
     vs_tie_fields(&(*self->p_a).w[1], 0, &self->x3_tie_a, 0, 64);
     lzc_64_create(k, &self->c_lzc_64_comp_1_2, vs_join(k, path, "lzc_64_comp_1"), &self->x3_tie_a, &self->s_z1, &self->s_v1);
 

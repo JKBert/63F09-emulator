@@ -7,66 +7,28 @@
 #define GEN_BAC_63F81_H
 
 #include "vsim.h"
-#include "gen_types.h"
-#include "hand/bufg.h"
-#include "hand/plle2_base.h"
+#include "bac_63f81_n1.h"
+#include "bac_63f81_n2.h"
+#include "bac_63f81_n3.h"
+#include "bac_63f81_n4.h"
+#include "bac_63f81_n5.h"
+#include "bac_63f81_n6.h"
+#include "bac_63f81_n7.h"
+#include "bac_63f81_n8.h"
 
-struct bac_63f81_g0;
-struct bac_63f81_g1;
-struct bac_63f81_g2;
-typedef struct bac_63f81
+typedef union bac_63f81
 {
-    int64_t g_ncpus;
-    uint64_t g_fpu_by_core;
-    vs_sig *p_extal;
-    vs_sig *p_reset_n;
-    vs_sig *p_nmi_n;
-    vs_sig *p_firq_n;
-    vs_sig *p_irq_n;
-    vs_sig *p_mrdy;
-    vs_sig *p_dma_breq_n;
-    vs_sig *p_halt_n;
-    vs_sig *p_e;
-    vs_sig *p_e_n;
-    vs_sig *p_q;
-    vs_sig *p_ba;
-    vs_sig *p_bs;
-    vs_sig *p_rw_n;
-    vs_sig *p_vma;
-    vs_sig *p_a;
-    vs_sig *p_d_in;
-    vs_sig *p_d_out;
-    vs_sig *p_eirq_n;
-    vs_sig *p_fic;
-    vs_sig *p_cacheable;
-    vs_sig *p_sysclk;
-    vs_sig *p_cpuclk;
-    vs_sig *p_memclk;
-    vs_sig *p_cs;
-    vs_sig *p_mmu_cs;
-    vs_sig *p_mmu_mrdy;
-    vs_sig *p_mux_d_in;
-    vs_sig *p_mux_d_out;
-    vs_sig *p_mux_mrdy;
-    vs_sig *p_bus_master;
-    vs_sig s_pll_locked;
-    vs_sig s_cpuclk_pll;
-    vs_sig s_clkfb;
-    vs_sig s_reset_request_n;
-    fp_unit_in_vector_type_s s_fpu_in;
-    fp_unit_out_type_s s_fpu_out;
-    fp_unit_out_type_s s_fpu_held;
-    vs_sig s_fpu_done;
-    vs_sig s_fpu_owner;
-    plle2_base_t c_clock_generator_0;
-    vs_sig x1_imp_pwrdwn;
-    vs_sig x2_imp_rst;
-    bufg_t c_cpuclk_buf_3;
-    struct bac_63f81_g0 *g_shared_fpu_4;
-    struct bac_63f81_g1 *g_smp_5;
-    struct bac_63f81_g2 *g_smp_6;
+    bac_63f81_n1 n1;
+    bac_63f81_n2 n2;
+    bac_63f81_n3 n3;
+    bac_63f81_n4 n4;
+    bac_63f81_n5 n5;
+    bac_63f81_n6 n6;
+    bac_63f81_n7 n7;
+    bac_63f81_n8 n8;
 } bac_63f81;
 
-void bac_63f81_create(vs_kernel *k, bac_63f81 *self, const char *path, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *sysclk, vs_sig *cpuclk, vs_sig *memclk, vs_sig *cs, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *mux_d_in, vs_sig *mux_d_out, vs_sig *mux_mrdy, vs_sig *bus_master);
+/* returns 0, or -1 when there is no variant for that number of cores */
+int bac_63f81_create(vs_kernel *k, bac_63f81 *self, const char *path, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *sysclk, vs_sig *cpuclk, vs_sig *memclk, vs_sig *cs, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *mux_d_in, vs_sig *mux_d_out, vs_sig *mux_mrdy, vs_sig *bus_master);
 
 #endif

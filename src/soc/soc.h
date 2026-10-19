@@ -49,6 +49,7 @@ typedef struct soc_cfg
     uint64_t    elf_offset;         /* added to the addresses of the ELF segments below 4 GiB (see soc_cfg_default) */
     uint64_t    reset_ticks;        /* RESET_n stays low this long */
     uint64_t    max_ticks;          /* the run stops there (0 : never) */
+    FILE        *dump;              /* changes of every named signal : "<ticks> <name> <value>" */
     int         trace_bus;          /* one line per bus cycle on stdout */
 } soc_cfg;
 

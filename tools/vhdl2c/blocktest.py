@@ -57,13 +57,16 @@ BLOCKS = {
                       ones=("nmi_n", "firq_n", "irq_n", "mrdy", "dma_breq_n", "halt_n", "eirq_n", "lock_granted"),
                       choices={"d_in": LEGAL_6809}),
     # a directed test of the transmitter : the ACIA is set up (divisor 13, 8N1, /16) and sends 0x4F
-    "acia_tx": dict(entity="acia_63f50", clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=5000, change=0,
+    "acia_tx": dict(entity="acia_63f50", clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=12000, change=0,
                     initial={"rxd": 1, "rw_n": 1},
                     script=[(10, {"cs": 1, "addr": 0, "rw_n": 0, "d_in": 3}), (12, {"cs": 0, "rw_n": 1}),
                             (14, {"cs": 1, "addr": 2, "rw_n": 0, "d_in": 0}), (16, {"cs": 0, "rw_n": 1}),
                             (18, {"cs": 1, "addr": 3, "rw_n": 0, "d_in": 13}), (20, {"cs": 0, "rw_n": 1}),
                             (22, {"cs": 1, "addr": 0, "rw_n": 0, "d_in": 0x15}), (24, {"cs": 0, "rw_n": 1}),
-                            (30, {"cs": 1, "addr": 1, "rw_n": 0, "d_in": 0x4F}), (32, {"cs": 0, "rw_n": 1})]),
+                            (30, {"cs": 1, "addr": 1, "rw_n": 0, "d_in": 0x4F}), (32, {"cs": 0, "rw_n": 1}),
+                            (300, {"cs": 1, "rw_n": 0, "d_in": 0x4B}), (302, {"cs": 0, "rw_n": 1}),
+                            (3000, {"cs": 1, "rw_n": 0, "d_in": 0x0A}), (3002, {"cs": 0, "rw_n": 1}),
+                            (6000, {"cs": 1, "rw_n": 1}), (6002, {"cs": 0}), (7000, {"cs": 1, "addr": 0, "rw_n": 1}), (7002, {"cs": 0})]),
     "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
 }

@@ -3,15 +3,15 @@
  * See docs/GENERATION.md.
  */
 
-#ifndef GEN_DMC_63F41_H
-#define GEN_DMC_63F41_H
+#ifndef GEN_DMC_63F41_N1_H
+#define GEN_DMC_63F41_N1_H
 
 #include "vsim.h"
 #include "gen_types.h"
 
-struct dmc_63f41_g0;
-struct dmc_63f41_g17;
-typedef struct dmc_63f41
+struct dmc_63f41_n1_g0;
+struct dmc_63f41_n1_g5;
+typedef struct dmc_63f41_n1
 {
     uint64_t g_cached_memory;
     int64_t g_cpu_number;
@@ -64,10 +64,10 @@ typedef struct dmc_63f41
     vs_sig *p_lock_request;
     vs_sig *p_lock_granted;
     vs_sig *p_reset_request_n;
-    struct dmc_63f41_g0 *g_dmc_0;
-    struct dmc_63f41_g17 *g_dmc_1;
-} dmc_63f41;
+    struct dmc_63f41_n1_g0 *g_dmc_0;
+    struct dmc_63f41_n1_g5 *g_dmc_1;
+} dmc_63f41_n1;
 
-void dmc_63f41_create(vs_kernel *k, dmc_63f41 *self, const char *path, uint64_t g_cached_memory, int64_t g_cpu_number, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *e, vs_sig *q, vs_sig *bus_request, vs_sig *bus_granted, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, std_logic_matrix_2_s *ccs_address_in, vs_sig *ccs_address_rw_n_in, vs_sig *ccs_bus_granted_in, std_logic_matrix_3_s *ccs_invalidation_pending_in, vs_sig *ccs_fic_in, vs_sig *ccs_write_gen_in, std_logic_matrix_3_s *ccs_prev_pending_in, std_logic_matrix_3_s *ccs_parked_stalled_in, vs_sig *ccs_address_out, vs_sig *ccs_address_rw_n_out, vs_sig *ccs_bus_granted_out, vs_sig *ccs_invalidation_pending_out, vs_sig *ccs_fic_out, vs_sig *ccs_write_gen_out, vs_sig *ccs_prev_pending_out, vs_sig *ccs_parked_stalled_out, std_logic_matrix_4_s *ccs_tfm_in, vs_sig *ccs_tfm_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n);
+void dmc_63f41_n1_create(vs_kernel *k, dmc_63f41_n1 *self, const char *path, uint64_t g_cached_memory, int64_t g_cpu_number, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *e, vs_sig *q, vs_sig *bus_request, vs_sig *bus_granted, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, std_logic_matrix_2_s *ccs_address_in, vs_sig *ccs_address_rw_n_in, vs_sig *ccs_bus_granted_in, std_logic_matrix_3_s *ccs_invalidation_pending_in, vs_sig *ccs_fic_in, vs_sig *ccs_write_gen_in, std_logic_matrix_3_s *ccs_prev_pending_in, std_logic_matrix_3_s *ccs_parked_stalled_in, vs_sig *ccs_address_out, vs_sig *ccs_address_rw_n_out, vs_sig *ccs_bus_granted_out, vs_sig *ccs_invalidation_pending_out, vs_sig *ccs_fic_out, vs_sig *ccs_write_gen_out, vs_sig *ccs_prev_pending_out, vs_sig *ccs_parked_stalled_out, std_logic_matrix_4_s *ccs_tfm_in, vs_sig *ccs_tfm_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n);
 
 #endif

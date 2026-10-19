@@ -43,6 +43,7 @@ static void p_bit_manipulation_postbyte_0(cpu_63f09 *self, vs_ref a_reg, vs_sig 
 static void cpu_63f09_g0_create(vs_kernel *k, cpu_63f09_g0 *self, const char *path)
 {
     vs_register_signal(k, &self->x1_open_ce, (uint64_t) (0));
+    vs_name(k, &self->x1_open_ce, path, "open_ce", 1);
     fp_unit_create(k, &self->c_fpu_63f39_0, vs_join(k, path, "fpu_63f39"), self->up->p_reset_n, &self->up->s_clk, &self->x1_open_ce, &self->up->s_fpu_in, &self->up->s_fpu_out);
 }
 
@@ -646,13 +647,13 @@ static uint64_t f_index_register_0(cpu_63f09 *self, vs_ref a_rr)
 
 static void p_execute_mem_op_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md, uint64_t a_alu_op, uint64_t a_write_result, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_cc_ctrl, vs_sig *a_a_ctrl, vs_sig *a_b_ctrl, vs_sig *a_e_ctrl, vs_sig *a_f_ctrl, vs_sig *a_v_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl, vs_sig *a_pc_ctrl, vs_sig *a_dp_ctrl, vs_sig *a_ds_ctrl)
 {
-    int64_t v_width_96848 = INT64_C(-2147483648);
+    int64_t v_width_33296 = INT64_C(-2147483648);
     vs_drive(&(*a_left_ctrl), f_register_left_0(self, &(*a_mask), &(*a_reg_md)));
     vs_drive(&(*a_right_ctrl), (UINT64_C(0x200000)));
     vs_drive(&(*a_cc_ctrl), (UINT64_C(0x2)));
-    v_width_96848 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
+    v_width_33296 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
     vs_drive(&(*a_alu_ctrl), a_alu_op);
-    switch (v_width_96848)
+    switch (v_width_33296)
     {
         case INT64_C(8):
         {

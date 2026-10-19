@@ -241,6 +241,7 @@ def base_of(t):
 # The value that stands for each generic of the entity being translated when a type bound depends on it : the
 # upper bound of its declared range (NCPUS : 8), else its default value. The structures are sized for it.
 STATIC_GENERICS = {}
+NCPUS_FIXED = {}    # NCPUS of the variant being generated : a constant there
 SIZING = [0]        # > 0 while the bounds of a type are computed : only then do generics stand for their sizing value
 
 
@@ -265,6 +266,8 @@ def const_int(expr, env=None):
             return const_int(nodes.Get_Default_Value(decl), env)
         if dk == K.Enumeration_Literal:
             return nodes.Get_Enum_Pos(decl)
+        if dk == K.Interface_Constant_Declaration and decl in NCPUS_FIXED:
+            return NCPUS_FIXED[decl]
         if dk == K.Interface_Constant_Declaration and SIZING[0] and decl in STATIC_GENERICS:
             return STATIC_GENERICS[decl]
         raise unsupported(expr, "bound is not a static constant")
