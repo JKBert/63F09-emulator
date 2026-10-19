@@ -5,6 +5,7 @@
 
 vs_sig  **vs_pendlist;
 size_t  vs_npend;
+int     vs_finished;
 
 static void *xrealloc(void *p, size_t n)
 {
@@ -20,6 +21,7 @@ void vs_kernel_init(vs_kernel *k)
 {
     memset(k, 0, sizeof(*k));
     vs_npend = 0;
+    vs_finished = 0;
 }
 
 void vs_kernel_free(vs_kernel *k)

@@ -35,6 +35,18 @@ from pyGHDL import libghdl  # noqa: E402
 from pyGHDL.libghdl import errorout_console, libraries, name_table  # noqa: E402
 from pyGHDL.libghdl.vhdl import nodes  # noqa: E402
 
+_get_kind_raw = nodes.Get_Kind
+
+
+def _get_kind(n):
+    """Get_Kind that raises in Python on a null node (GHDL's own assertion ends the process)."""
+    if not n:
+        raise ValueError("Get_Kind of a null node")
+    return _get_kind_raw(n)
+
+
+nodes.Get_Kind = _get_kind
+
 OPTIONS = ("--std=08", "-frelaxed", "-fsynopsys", "--warn-no-hide", "--warn-no-binding", "--warn-no-library",
            "--warn-no-vital-generic", "--warn-no-delayed-checks", "--warn-no-static", "--warn-no-shared", "--warn-no-others")
 
@@ -247,3 +259,10 @@ def project_files(vhdl_dir, listing):
 def load_project(vhdl_dir, listing):
     """Analyses a project (see project_files). Returns the design file nodes in order."""
     return analyze_files(project_files(vhdl_dir, listing))
+
+
+def list_elements_flist(fl):
+    """Elements of an Iir_Flist."""
+    if fl > 2:
+        for i in range(flists.Length(fl)):
+            yield flists.Get_Nth_Element(fl, i)

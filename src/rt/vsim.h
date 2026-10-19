@@ -75,6 +75,57 @@ static inline void vs_drive(vs_sig *s, uint64_t v)
     }
 }
 
+/* Helpers of the generated code. */
+
+/* Sign extension of a w-bit value (1 <= w <= 64). */
+static inline int64_t vs_sext(uint64_t v, unsigned w)
+{
+    return (int64_t) (v << (64 - w)) >> (64 - w);
+}
+
+/* VHDL "mod" : the result has the sign of the divisor. */
+static inline int64_t vs_mod(int64_t a, int64_t b)
+{
+    int64_t r = a % b;
+
+    return (r != 0 && ((r < 0) != (b < 0))) ? r + b : r;
+}
+
+static inline int64_t vs_ipow(int64_t a, int64_t n)
+{
+    int64_t r = 1;
+
+    while (n-- > 0)
+    {
+        r *= a;
+    }
+    return r;
+}
+
+static inline uint64_t vs_shl(uint64_t v, int64_t n)
+{
+    return (n < 0 || n >= 64) ? 0 : v << n;
+}
+
+static inline uint64_t vs_shr(uint64_t v, int64_t n)
+{
+    return (n < 0 || n >= 64) ? 0 : v >> n;
+}
+
+static inline uint64_t vs_parity(uint64_t v)
+{
+    v ^= v >> 32;
+    v ^= v >> 16;
+    v ^= v >> 8;
+    v ^= v >> 4;
+    v ^= v >> 2;
+    v ^= v >> 1;
+    return v & 1;
+}
+
+/* Set by the VHDL procedure "finish" : the simulation must stop. */
+extern int vs_finished;
+
 /* Schedule a value on some bits of a signal. */
 static inline void vs_drive_bits(vs_sig *s, unsigned shift, uint64_t mask, uint64_t v)
 {

@@ -23,6 +23,7 @@ K = nodes.Iir_Kind
 # probability that an input changes from one cycle to the next.
 BLOCKS = {
     "clk_63f75": dict(clocks=["tick"], resets={"reset_n": 0}, warm=2, cycles=600, change=0.3),
+    "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
 }
 
 
@@ -203,7 +204,7 @@ def run_block(name, cfg, ports, ghdl, shared, root):
         a = [x.strip() for x in open(os.path.join(work, "ghdl.out")).read().split("\n")][skip:]
         b = [x.strip() for x in out.split("\n")][skip:]
         if a == b:
-            return "OK (%d samples identical)" % len([x for x in a if x])
+            return "OK (%d samples identical, %d distinct output values)" % (len([x for x in a if x]), len(set(a)))
         for i, (x, y) in enumerate(zip(a, b)):
             if x != y:
                 return "MISMATCH at sample %d\n   ghdl: %s\n   c   : %s" % (i + skip, x, y)
