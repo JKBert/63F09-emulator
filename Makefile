@@ -69,6 +69,23 @@ gen: tools need-vhdl
 census: tools need-vhdl
 	$(PYTHON) tools/vhdl2c/census.py $(VHDL_DIR)
 
+# The emulator : the generated C (src/gen), the hand-written models (src/hand), the runtime (src/rt) and the
+# system on chip (src/soc).
+EMU_SRC := $(wildcard src/gen/*.c src/hand/*.c src/rt/*.c src/soc/*.c)
+EMU_OBJ := $(patsubst src/%.c,$(BUILD)/obj/%.o,$(EMU_SRC))
+EMU_CPPFLAGS := $(CPPFLAGS) -Isrc -Isrc/gen -Isrc/rt
+
+emu: $(BUILD)/soc63f09
+
+$(BUILD)/soc63f09: $(EMU_OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
+
+$(BUILD)/obj/%.o: src/%.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(EMU_CPPFLAGS) -Wno-unused-parameter -MMD -c -o $@ $<
+
+-include $(EMU_OBJ:.o=.d)
+
 # Each block test compares the C of one entity to GHDL on the same random stimuli.
 test: tools need-vhdl
 	$(PYTHON) tools/vhdl2c/blocktest.py $(VHDL_DIR) $(GHDL)
@@ -80,7 +97,7 @@ test-rt:
 	$(BUILD)/obj/test_vwide
 
 clean:
-	$(RM) -r $(BUILD)/obj
+	$(RM) -r $(BUILD)/obj $(BUILD)/soc63f09
 
 distclean:
 	$(RM) -r $(BUILD)
