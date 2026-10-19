@@ -7,6 +7,7 @@
 #include "mux_74f150.h"
 #include "gen_funcs.h"
 
+
 static void mux_74f150_p0(void *inst)
 {
     mux_74f150 *self = inst;

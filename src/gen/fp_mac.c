@@ -7,6 +7,7 @@
 #include "fp_mac.h"
 #include "gen_funcs.h"
 
+
 static void fp_mac_p0(void *inst)
 {
     fp_mac *self = inst;

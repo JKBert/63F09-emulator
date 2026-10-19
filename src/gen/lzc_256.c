@@ -7,6 +7,7 @@
 #include "lzc_256.h"
 #include "gen_funcs.h"
 
+
 static void lzc_256_p0(void *inst)
 {
     lzc_256 *self = inst;

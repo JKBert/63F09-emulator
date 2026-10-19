@@ -241,6 +241,7 @@ def base_of(t):
 # The value that stands for each generic of the entity being translated when a type bound depends on it : the
 # upper bound of its declared range (NCPUS : 8), else its default value. The structures are sized for it.
 STATIC_GENERICS = {}
+SIZING = [0]        # > 0 while the bounds of a type are computed : only then do generics stand for their sizing value
 
 
 class _Return(Exception):
@@ -264,7 +265,7 @@ def const_int(expr, env=None):
             return const_int(nodes.Get_Default_Value(decl), env)
         if dk == K.Enumeration_Literal:
             return nodes.Get_Enum_Pos(decl)
-        if dk == K.Interface_Constant_Declaration and decl in STATIC_GENERICS:
+        if dk == K.Interface_Constant_Declaration and SIZING[0] and decl in STATIC_GENERICS:
             return STATIC_GENERICS[decl]
         raise unsupported(expr, "bound is not a static constant")
     if kind == K.Parenthesis_Expression:
@@ -392,10 +393,21 @@ def range_of(constraint, env=None):
     if kind in (K.Integer_Subtype_Definition, K.Enumeration_Subtype_Definition):
         rng = nodes.Get_Range_Constraint(rng)
         kind = nodes.Get_Kind(rng)
+    if kind in (K.Range_Array_Attribute, K.Reverse_Range_Array_Attribute):
+        pt = nodes.Get_Prefix(rng)
+        ct = type_of(nodes.Get_Type(pt))
+        if ct.kind in ("vec", "arr") and ct.lo is not None:
+            first, last, asc = (ct.lo, ct.hi, ct.asc) if ct.asc else (ct.hi, ct.lo, ct.asc)
+            if kind == K.Reverse_Range_Array_Attribute:
+                first, last, asc = last, first, not asc
+            return first, last, asc
     if kind != K.Range_Expression:
         raise unsupported(constraint, "dynamic index range")
     le, re_ = nodes.Get_Left_Limit_Expr(rng), nodes.Get_Right_Limit_Expr(rng)
     if not le or not re_:
+        origin = nodes.Get_Range_Origin(rng)
+        if origin and nodes.Get_Kind(origin) in (K.Range_Array_Attribute, K.Reverse_Range_Array_Attribute):
+            return range_of(origin, env)
         raise unsupported(constraint, "range without explicit limits")
     left = const_int(le, env)
     right = const_int(re_, env)
@@ -405,6 +417,14 @@ def range_of(constraint, env=None):
 
 def type_of(t):
     """CT of a type or subtype node."""
+    SIZING[0] += 1
+    try:
+        return _type_of(t)
+    finally:
+        SIZING[0] -= 1
+
+
+def _type_of(t):
     kind = nodes.Get_Kind(t)
     base = base_of(t)
     bkind = nodes.Get_Kind(base)

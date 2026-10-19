@@ -13,7 +13,7 @@ import sys
 import frontend
 from cgen import Binding, E, Out, Translator, cid, mask
 import tdefs
-from vtypes import Bit, Enum, Int, Unsupported, Vec, ctype_sig, ctype_val, is_wide, leaf_count, nwords, type_of, unsupported
+from vtypes import STATIC_GENERICS, Bit, Enum, Int, Unsupported, Vec, const_int, ctype_sig, ctype_val, is_wide, leaf_count, nwords, type_of, unsupported
 from pyGHDL.libghdl.vhdl import nodes, nodes_meta
 
 K = nodes.Iir_Kind
@@ -30,6 +30,9 @@ BANNER = """/*
 # the create functions of src/hand.
 HAND_WRITTEN = ("ram_61f64x1", "ram_61f512", "ram_61f32x64", "rom_27f512",
                 "bufg", "bufhce", "iobuf", "obuf", "plle2_base", "ramb18e1", "ramb36e1")
+
+
+HAND_GENERICS = {"plle2_base": ("clkfbout_mult", "clkout0_divide", "clkout1_divide", "divclk_divide")}
 
 
 def ctype_decl(ct):
@@ -53,8 +56,23 @@ class Iface:
         self.generics = []      # (cname, ct, decl)
         self.ports = []         # (cname, ct, mode, decl)
         g = nodes.Get_Generic_Chain(entity)
-        while g and self.name not in HAND_WRITTEN:      # the models of the vendor primitives take no generics
-            self.generics.append((cid(frontend.ident(g)), type_of(nodes.Get_Type(g)), g))
+        while g:
+            # the models of the vendor primitives take no generics, but those that set the timing of the PLL
+            if self.name in HAND_WRITTEN and frontend.ident(g).lower() not in HAND_GENERICS.get(self.name, ()):
+                g = nodes.Get_Chain(g)
+                continue
+            ct = type_of(nodes.Get_Type(g))
+            self.generics.append((cid(frontend.ident(g)), ct, g))
+            # the value used when a type bound depends on the generic
+            try:
+                if frontend.ident(g).lower() in GENERIC_MAX:
+                    STATIC_GENERICS[g] = GENERIC_MAX[frontend.ident(g).lower()]
+                elif ct.kind == "int" and ct.hi is not None:
+                    STATIC_GENERICS[g] = ct.hi
+                elif nodes.Get_Default_Value(g):
+                    STATIC_GENERICS[g] = const_int(nodes.Get_Default_Value(g))
+            except Unsupported:
+                pass
             g = nodes.Get_Chain(g)
         p = nodes.Get_Port_Chain(entity)
         while p:
@@ -66,6 +84,10 @@ class Iface:
         out += ["%s g_%s" % (ctype_decl(ct), n) for n, ct, d in self.generics]
         out += ["%s *%s" % (ctype_sig(ct), n) for n, ct, mode, d in self.ports]
         return ", ".join(out)
+
+
+# Generics that size types : the structures are built for this value (NCPUS goes from 1 to 8).
+GENERIC_MAX = {"ncpus": 8}
 
 
 class Design:
@@ -121,17 +143,6 @@ class EntityGen(Translator):
 
     def declare_interface(self):
         s = self.scope
-        from vtypes import STATIC_GENERICS, const_int
-        STATIC_GENERICS.clear()
-        for n, ct, d in self.iface.generics:
-            # the value used when a type bound depends on the generic
-            try:
-                if ct.kind == "int" and ct.hi is not None:
-                    STATIC_GENERICS[d] = ct.hi
-                elif nodes.Get_Default_Value(d):
-                    STATIC_GENERICS[d] = const_int(nodes.Get_Default_Value(d))
-            except Unsupported:
-                pass
         for n, ct, d in self.iface.generics:
             s.fields.append("%s g_%s;" % (ctype_decl(ct), n))
             self.bindings[d] = Binding("var", "{S}->g_" + n, ct, s)
@@ -412,7 +423,7 @@ class EntityGen(Translator):
         if out_like:
             raise unsupported(actual, "output port connected to an expression")
         # an expression : an implicit signal driven by it
-        e = self.expr(actual)
+        e = self.expr_as(actual, ct)
         own = self.private_signal(ct, "imp_%s" % name, e.code if self.is_constant(actual) else "0")
         if not self.is_constant(actual):
             self.implicit_process(own, e, actual)
@@ -651,10 +662,6 @@ class EntityGen(Translator):
             self.emit_scope(o, b, False)
         mine = [i for i in self.local_funcs.values() if i.scope is sc]
         for i in mine:
-            o.line("static %s;" % i.proto)
-        if mine:
-            o.line()
-        for i in mine:
             o.lines.extend(i.text.rstrip("\n").split("\n"))
             o.line()
         for fname, body, sens in sc.procs:
@@ -700,6 +707,9 @@ class EntityGen(Translator):
             o.line(inc)
         o.line()
         self.emit_structs(o, self.root, True)
+        for i in self.local_funcs.values():
+            o.line("static %s;" % i.proto)
+        o.line()
         self.emit_scope(o, self.root, True)
         return o.text()
 

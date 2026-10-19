@@ -143,6 +143,8 @@ class Ops:
             arg = list(self.assoc_actuals(nodes.Get_Parameter_Association_Chain(n)))[0]
             ptr, shift, w, ct = self.sigptr(arg)
             fn = "vs_rising" if pre == P.Ieee_1164_Rising_Edge else "vs_falling"
+            if w == 1 and ct.kind == "bit" and (shift != 0 or nodes.Get_Kind(arg) == K.Indexed_Name):
+                return E("%s_bit(%s, %s)" % (fn, ptr, shift), Bit())
             return E("%s(%s)" % (fn, ptr), Bit())
         if pre == P.PNone:
             return self.user_call(n)

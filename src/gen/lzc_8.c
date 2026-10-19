@@ -7,6 +7,7 @@
 #include "lzc_8.h"
 #include "gen_funcs.h"
 
+
 static void lzc_8_p0(void *inst)
 {
     lzc_8 *self = inst;

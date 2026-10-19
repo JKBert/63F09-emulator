@@ -7,6 +7,7 @@
 #include "fp_max.h"
 #include "gen_funcs.h"
 
+
 static void fp_max_p0(void *inst)
 {
     fp_max *self = inst;

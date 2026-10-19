@@ -123,8 +123,6 @@ class Translator(Subprograms, Ops):
                     lo_pos, w = self.slice_bounds(n, pct)
                     return "&" + pcode, lo_pos, w, Vec(w)
                 pos = self.index_pos(n, pct)
-                if not isinstance(pos, int):
-                    raise unsupported(n, "dynamic index on a signal target")
                 return "&" + pcode, pos, 1, Bit()
         kind, code, ct = self.path(n)
         if kind != "sig":
@@ -752,6 +750,13 @@ class Translator(Subprograms, Ops):
             return want
         if items and all(kind == "pos" for kind, v, e in items):
             return Vec(len(items), False, 0, len(items) - 1, False)
+        if items and all(kind == "range" for kind, v, e in items):
+            lo = min(v[0] for kind, v, e in items)
+            hi = max(v[1] for kind, v, e in items)
+            from vtypes import range_of
+            ch = nodes.Get_Association_Choices_Chain(n)
+            asc = range_of(nodes.Get_Choice_Range(ch))[2]
+            return Vec(hi - lo + 1, asc, lo, hi, False)
         raise unsupported(n, "aggregate whose shape cannot be determined")
 
     def x_Aggregate(self, n):

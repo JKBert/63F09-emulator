@@ -103,9 +103,79 @@ void vs_tie_fields(vs_sig *src, unsigned src_shift, vs_sig *dst, unsigned dst_sh
     dst->nxt = (dst->nxt & ~(mask << dst_shift)) | (v << dst_shift);
 }
 
+void vs_timer_add(vs_kernel *k, uint64_t when, void (*fn)(vs_kernel *, void *), void *arg)
+{
+    size_t  i;
+
+    if (k->ntimers == k->ctimers)
+    {
+        k->ctimers = k->ctimers ? k->ctimers * 2 : 16;
+        k->timers = xrealloc(k->timers, k->ctimers * sizeof(*k->timers));
+    }
+    /* after the timers of the same time : they run in the order they were added */
+    i = k->ntimers;
+    while (i > 0 && k->timers[i - 1].when > when)
+    {
+        k->timers[i] = k->timers[i - 1];
+        i--;
+    }
+    k->timers[i].when = when;
+    k->timers[i].fn = fn;
+    k->timers[i].arg = arg;
+    k->ntimers++;
+}
+
+int vs_advance(vs_kernel *k)
+{
+    uint64_t    t;
+
+    if (k->ntimers == 0)
+    {
+        return 0;
+    }
+    t = k->timers[0].when;
+    k->now = t;
+    while (k->ntimers > 0 && k->timers[0].when == t)
+    {
+        vs_timer    due = k->timers[0];
+
+        memmove(k->timers, k->timers + 1, (k->ntimers - 1) * sizeof(*k->timers));
+        k->ntimers--;
+        due.fn(k, due.arg);
+    }
+    vs_settle(k);
+    return 1;
+}
+
+typedef struct clock_source
+{
+    vs_sig      *s;
+    uint64_t    half;
+} clock_source;
+
+static void clock_tick(vs_kernel *k, void *arg)
+{
+    clock_source    *c = arg;
+
+    vs_drive(c->s, c->s->cur ^ 1);
+    vs_timer_add(k, k->now + c->half, clock_tick, c);
+}
+
+void vs_clock_source(vs_kernel *k, vs_sig *s, uint64_t first, uint64_t half)
+{
+    clock_source    *c = vs_alloc(k, sizeof(*c));
+
+    c->s = s;
+    c->half = half;
+    vs_timer_add(k, first, clock_tick, c);
+}
+
 void vs_kernel_free(vs_kernel *k)
 {
     size_t  i;
+
+    free(k->timers);
+    k->timers = NULL;
 
     /* The signals may live in memory that the kernel allocated : their lists go first. */
     for (i = 0; i < k->nsigs; i++)
@@ -246,6 +316,10 @@ static void changed(vs_kernel *k, vs_sig *s)
 
         if (n != t->dst->cur)
         {
+            if (!t->dst->evt)
+            {
+                t->dst->prev = t->dst->cur;
+            }
             t->dst->cur = n;
             t->dst->nxt = (t->dst->nxt & ~(t->mask << t->dst_shift)) | (v << t->dst_shift);
             changed(k, t->dst);
@@ -266,6 +340,10 @@ static void commit(vs_kernel *k)
         s->pend = 0;
         if (s->nxt != s->cur)
         {
+            if (!s->evt)
+            {
+                s->prev = s->cur;
+            }
             s->cur = s->nxt;
             changed(k, s);
         }

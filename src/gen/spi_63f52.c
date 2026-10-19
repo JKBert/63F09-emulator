@@ -37,6 +37,7 @@ struct spi_63f52_g2
 };
 typedef struct spi_63f52_g2 spi_63f52_g2;
 
+
 static void spi_63f52_g0_create(vs_kernel *k, spi_63f52_g0 *self, const char *path)
 {
     vs_register_signal(k, &self->x1_tie_i, (uint64_t) (0));

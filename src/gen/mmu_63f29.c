@@ -338,6 +338,8 @@ struct mmu_63f29_g26
 };
 typedef struct mmu_63f29_g26 mmu_63f29_g26;
 
+static int64_t f_log2i_0(mmu_63f29_g0 *self, int64_t a_n);
+
 static void mmu_63f29_g1_p0(void *inst)
 {
     mmu_63f29_g1 *self = inst;
@@ -1170,18 +1172,16 @@ static void mmu_63f29_g24_create(vs_kernel *k, mmu_63f29_g24 *self, const char *
     }
 }
 
-static int64_t f_log2i_0(mmu_63f29_g0 *self, int64_t a_n);
-
 static int64_t f_log2i_0(mmu_63f29_g0 *self, int64_t a_n)
 {
-    int64_t v_r_52432 = INT64_C(0);
-    int64_t v_v_52720 = INT64_C(1);
-    while ((v_v_52720 < a_n))
+    int64_t v_r_58768 = INT64_C(0);
+    int64_t v_v_59088 = INT64_C(1);
+    while ((v_v_59088 < a_n))
     {
-        v_v_52720 = (v_v_52720 * INT64_C(2));
-        v_r_52432 = (v_r_52432 + INT64_C(1));
+        v_v_59088 = (v_v_59088 * INT64_C(2));
+        v_r_58768 = (v_r_58768 + INT64_C(1));
     }
-    return v_r_52432;
+    return v_r_58768;
 }
 
 static void mmu_63f29_g0_p0(void *inst)

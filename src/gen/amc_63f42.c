@@ -19,6 +19,7 @@ struct amc_63f42_g1
 };
 typedef struct amc_63f42_g1 amc_63f42_g1;
 
+
 static void amc_63f42_g0_create(vs_kernel *k, amc_63f42_g0 *self, const char *path)
 {
 }

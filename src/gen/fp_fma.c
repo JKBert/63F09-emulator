@@ -7,6 +7,7 @@
 #include "fp_fma.h"
 #include "gen_funcs.h"
 
+
 static void fp_fma_p0(void *inst)
 {
     fp_fma *self = inst;

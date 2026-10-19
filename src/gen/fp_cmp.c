@@ -7,6 +7,7 @@
 #include "fp_cmp.h"
 #include "gen_funcs.h"
 
+
 static void fp_cmp_p0(void *inst)
 {
     fp_cmp *self = inst;

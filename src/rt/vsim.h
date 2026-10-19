@@ -33,6 +33,7 @@ typedef struct vs_sig
 {
     uint64_t        cur;
     uint64_t        nxt;
+    uint64_t        prev;       /* value before the event of this delta */
     uint8_t         pend;
     uint8_t         evt;
     struct vs_proc  **fan;      /* processes woken by an event on this signal */
@@ -54,6 +55,16 @@ typedef struct vs_proc
     uint8_t         queued;
 } vs_proc;
 
+struct vs_kernel;
+
+/* A callback at a given time : the clock sources and the PLL are made of them. */
+typedef struct vs_timer
+{
+    uint64_t        when;
+    void            (*fn)(struct vs_kernel *k, void *arg);
+    void            *arg;
+} vs_timer;
+
 typedef struct vs_kernel
 {
     vs_sig          **sigs;
@@ -69,6 +80,9 @@ typedef struct vs_kernel
     void            **allocs;
     size_t          nallocs, callocs;
     uint64_t        deltas;
+    uint64_t        now;        /* simulated time, in ticks */
+    vs_timer        *timers;    /* sorted by time */
+    size_t          ntimers, ctimers;
     int             initialised;
     int             finalised;
 } vs_kernel;
@@ -97,6 +111,14 @@ void    vs_dump(vs_kernel *k, FILE *f, long phase);
 /* Registration, done while the design is built. */
 void    vs_register_signal(vs_kernel *k, vs_sig *s, uint64_t init);
 void    vs_register_process(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, size_t nsens);
+
+/* Timed callbacks. vs_advance moves the time to the earliest timer, runs the timers due then and settles the
+ * design ; it returns 0 when no timer is left. */
+void    vs_timer_add(vs_kernel *k, uint64_t when, void (*fn)(vs_kernel *, void *), void *arg);
+int     vs_advance(vs_kernel *k);
+
+/* A square wave on `s`: the signal rises at `first` and toggles every `half` ticks. */
+void    vs_clock_source(vs_kernel *k, vs_sig *s, uint64_t first, uint64_t half);
 
 /* Run delta cycles until nothing changes. Returns the number of delta cycles executed. */
 uint64_t vs_settle(vs_kernel *k);
@@ -212,6 +234,16 @@ static inline int vs_rising(const vs_sig *s)
 static inline int vs_falling(const vs_sig *s)
 {
     return s->evt && s->cur == 0;
+}
+
+static inline int vs_rising_bit(const vs_sig *s, unsigned pos)
+{
+    return s->evt && ((s->prev >> pos) & 1) == 0 && ((s->cur >> pos) & 1) == 1;
+}
+
+static inline int vs_falling_bit(const vs_sig *s, unsigned pos)
+{
+    return s->evt && ((s->prev >> pos) & 1) == 1 && ((s->cur >> pos) & 1) == 0;
 }
 
 #endif

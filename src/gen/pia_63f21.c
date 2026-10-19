@@ -19,6 +19,7 @@ struct pia_63f21_g0
 };
 typedef struct pia_63f21_g0 pia_63f21_g0;
 
+
 static void pia_63f21_g0_create(vs_kernel *k, pia_63f21_g0 *self, const char *path)
 {
     vs_register_signal(k, &self->x1_tie_i, (uint64_t) (0));
