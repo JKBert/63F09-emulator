@@ -186,12 +186,32 @@ def find_unit(design_files, name, kind):
     return 0
 
 
+# Entities written by hand (they wrap vendor primitives) : never translated.
+HAND_WRITTEN = ("ram_61f64x1", "ram_61f512", "ram_61f32x64", "rom_27f512")
+
+
+def all_entities(dfs):
+    for df in dfs:
+        for unit in frontend.units(df):
+            lu = nodes.Get_Library_Unit(unit)
+            if nodes.Get_Kind(lu) == K.Entity_Declaration:
+                name = frontend.ident(lu).lower()
+                lib = frontend.ident(nodes.Get_Library(nodes.Get_Design_File(unit))) if False else ""
+                if name not in HAND_WRITTEN and name not in UNISIM:
+                    yield name
+
+
+UNISIM = ("bufg", "bufhce", "iobuf", "obuf", "plle2_base", "ramb18e1", "ramb36e1")
+
+
 def main(argv):
     vhdl_dir, out_dir = argv[1], argv[2]
     names = argv[3:]
     frontend.init()
     here = os.path.dirname(os.path.abspath(__file__))
     dfs = frontend.load_project(vhdl_dir, os.path.join(here, "sources.list"))
+    if names == ["all"]:
+        names = list(all_entities(dfs))
     os.makedirs(out_dir, exist_ok=True)
     failed = 0
     for name in names:

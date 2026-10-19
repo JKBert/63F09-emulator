@@ -68,9 +68,9 @@ gen: tools need-vhdl
 census: tools need-vhdl
 	$(PYTHON) tools/vhdl2c/census.py $(VHDL_DIR)
 
-# Each test compares the C to GHDL on the same random stimuli.
+# Each block test compares the C of one entity to GHDL on the same random stimuli.
 test: tools need-vhdl
-	tests/clk/run_test.sh "$$(ls $(VHDL_DIR)/*63F75.vhd)" $(GHDL)
+	$(PYTHON) tools/vhdl2c/blocktest.py $(VHDL_DIR) $(GHDL)
 
 clean:
 	$(RM) -r $(BUILD)/obj

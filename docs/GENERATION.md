@@ -108,9 +108,13 @@ Written by hand, because the VHDL only wraps a primitive of the vendor (`RAMB18E
 
 ## Checking the result
 
-Every translated block has a test that runs the block in GHDL and in C on the same random stimuli
-and compares the outputs sample by sample (`tests/<block>/run_test.sh`). `make test` runs them all.
-The tests were checked to fail when the C is deliberately broken.
+Every translated block has a test (`tools/vhdl2c/blocktest.py`, run by `make test`). From the ports of
+the entity it builds a VHDL test bench and a C test bench that read the same random stimulus file,
+apply it phase by phase (clocks low, then clocks high) and print every output after each phase ; GHDL
+simulates the VHDL, the generated C is run with the kernel, and the two outputs must be identical.
+A block is declared in the `BLOCKS` table of that script : its clocks, its resets, the number of cycles
+and the number of warm-up cycles that are not compared (the VHDL `'U'` of the first cycles has no C
+counterpart). The test was checked to fail when the C is deliberately broken.
 
 The final reference is the Vivado simulation : record a VCD of the boot from the ROM and compare it
 with the emulator (planned, see the project notes).

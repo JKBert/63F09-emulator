@@ -224,10 +224,10 @@ def kind_name(node):
     return nodes.Iir_Kind(nodes.Get_Kind(node)).name
 
 
-def load_project(vhdl_dir, listing):
-    """Analyse a project described by `listing` : lines 'library name', where name is a logical
-    source name (resolved in vhdl_dir) or '@path' relative to the repository root. Returns the
-    design file nodes in order."""
+def project_files(vhdl_dir, listing):
+    """The (library, path) pairs of a project described by `listing` : lines 'library name', where
+    name is a logical source name (resolved in vhdl_dir) or '@path' relative to the repository
+    root. Sources that need a compatibility rewrite are replaced by their patched copy."""
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     files = []
     for line in open(listing):
@@ -241,11 +241,9 @@ def load_project(vhdl_dir, listing):
             path = find_files(vhdl_dir, [name])[name]
             path = compat.patched_path(name, path, os.path.join(root, "build", "vhdl-patched"))
         files.append((lib, path))
-    return analyze_files(files)
+    return files
 
 
-def list_elements_flist(fl):
-    """Elements of an Iir_Flist."""
-    if fl > 2:
-        for i in range(flists.Length(fl)):
-            yield flists.Get_Nth_Element(fl, i)
+def load_project(vhdl_dir, listing):
+    """Analyses a project (see project_files). Returns the design file nodes in order."""
+    return analyze_files(project_files(vhdl_dir, listing))
