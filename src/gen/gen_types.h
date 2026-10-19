@@ -13968,4 +13968,87 @@ static inline int commutation_tfm_matrix_7_eq(commutation_tfm_matrix_7 a, commut
     return 1;
 }
 
+typedef struct std_logic_matrix_48
+{
+    uint64_t a[2];
+} std_logic_matrix_48;
+typedef struct std_logic_matrix_48_s
+{
+    vs_sig a[2];
+} std_logic_matrix_48_s;
+
+static inline std_logic_matrix_48 std_logic_matrix_48_zero(void)
+{
+    std_logic_matrix_48 v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline std_logic_matrix_48 std_logic_matrix_48_fill(uint64_t e)
+{
+    size_t i;
+    std_logic_matrix_48 v;
+    for (i = 0; i < 2; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline std_logic_matrix_48 std_logic_matrix_48_put(std_logic_matrix_48 v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline std_logic_matrix_48 std_logic_matrix_48_get(const std_logic_matrix_48_s *s)
+{
+    size_t i;
+    std_logic_matrix_48 v;
+    for (i = 0; i < 2; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void std_logic_matrix_48_drive(std_logic_matrix_48_s *s, std_logic_matrix_48 v)
+{
+    size_t i;
+    for (i = 0; i < 2; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void std_logic_matrix_48_register(vs_kernel *k, std_logic_matrix_48_s *s, std_logic_matrix_48 v)
+{
+    size_t i;
+    for (i = 0; i < 2; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t std_logic_matrix_48_leaves(std_logic_matrix_48_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 2; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int std_logic_matrix_48_eq(std_logic_matrix_48 a, std_logic_matrix_48 b)
+{
+    size_t i;
+    for (i = 0; i < 2; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
 #endif

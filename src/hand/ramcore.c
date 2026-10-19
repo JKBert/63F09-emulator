@@ -26,7 +26,7 @@ static void ramcore_run(void *inst)
     }
 }
 
-void ramcore_create(vs_kernel *k, ramcore_t *self, unsigned bits, vs_sig *clk, vs_sig *rw, vs_sig *addr, vs_sig *din,
+void ramcore_create(vs_kernel *k, ramcore_t *self, const char *path, unsigned bits, vs_sig *clk, vs_sig *rw, vs_sig *addr, vs_sig *din,
                     vs_sig *dout, vs_sig *en, vs_sig *clk2, vs_sig *rw2, vs_sig *addr2, vs_sig *din2, vs_sig *dout2,
                     vs_sig *en2)
 {
@@ -34,6 +34,7 @@ void ramcore_create(vs_kernel *k, ramcore_t *self, unsigned bits, vs_sig *clk, v
 
     self->bits = bits;
     self->mem = vs_alloc(k, 65536);
+    vs_region_add(k, path, self->mem, 65536);
     self->clk[0] = clk;
     self->rw[0] = rw;
     self->addr[0] = addr;

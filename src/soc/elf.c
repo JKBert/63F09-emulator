@@ -18,17 +18,30 @@ static uint64_t get(const uint8_t *p, unsigned n, int big)
     return v;
 }
 
-static soc_zone *zone_at(soc *s, uint64_t addr)
+/* The byte of physical address `addr`, or NULL. */
+static uint8_t *byte_at(soc *s, uint64_t addr)
 {
     int i;
 
+    if (addr >= SOC_ROM_BASE && addr < SOC_ROM_BASE + 65536)
+    {
+        vs_region *r = vs_region_find(&s->k, "eprom0");
+
+        return r != NULL ? r->data + (addr - SOC_ROM_BASE) : NULL;
+    }
+    if (addr >= SOC_INTRAM_BASE && addr < SOC_INTRAM_BASE + 65536)
+    {
+        vs_region *r = vs_region_find(&s->k, "intram0");
+
+        return r != NULL ? r->data + (addr - SOC_INTRAM_BASE) : NULL;
+    }
     for (i = 0; i < s->cfg.nzones; i++)
     {
         soc_zone    *z = &s->cfg.zones[i];
 
         if (addr >= z->base && addr - z->base < z->size)
         {
-            return z;
+            return z->data + (addr - z->base);
         }
     }
     return NULL;
@@ -116,16 +129,16 @@ int soc_load_elf(soc *s, const char *path)
         }
         for (k = 0; k < memsz; k++)
         {
-            soc_zone    *z = zone_at(s, paddr + k);
+            uint8_t *p = byte_at(s, paddr + k);
 
-            if (z == NULL)
+            if (p == NULL)
             {
-                fprintf(stderr, "%s: segment %llu: address 0x%llX is in no memory zone\n", path,
+                fprintf(stderr, "%s: segment %llu: address 0x%llX is in no memory\n", path,
                         (unsigned long long) i, (unsigned long long) (paddr + k));
                 rc = -1;
                 break;
             }
-            z->data[paddr + k - z->base] = k < filesz ? buf[off + k] : 0;
+            *p = k < filesz ? buf[off + k] : 0;
         }
     }
     free(buf);

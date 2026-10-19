@@ -38,6 +38,18 @@ package vcomponents is
             T : in std_logic
         );
     end component;
+    component OBUFT
+        generic
+        (
+            SLEW : string := "SLOW"
+        );
+        port
+        (
+            I : in std_logic;
+            O : out std_logic;
+            T : in std_logic
+        );
+    end component;
     component OBUF
         port
         (
@@ -363,6 +375,27 @@ architecture sim of IOBUF is
 begin
     IO <= I when T = '0' else 'Z';
     O <= IO;
+end architecture sim;
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity OBUFT is
+    generic
+    (
+        SLEW : string := "SLOW"
+    );
+    port
+    (
+        I : in std_logic;
+        O : out std_logic;
+        T : in std_logic
+    );
+end entity OBUFT;
+
+architecture sim of OBUFT is
+begin
+    O <= I when T = '0' else 'Z';
 end architecture sim;
 
 library ieee;

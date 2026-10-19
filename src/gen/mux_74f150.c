@@ -11,13 +11,13 @@
 static void mux_74f150_p0(void *inst)
 {
     mux_74f150 *self = inst;
-    self->v0_switch_ = INT64_C(17);
+    self->v0_switch_ = (INT64_C(17));
     std_logic_matrix_drive(&(*self->p_mux_data_out), std_logic_matrix_fill(UINT64_C(0xFF)));
     vs_drive(&(*self->p_data_out), UINT64_C(0xFF));
     vs_drive(&(*self->p_mrdy), 0);
     if (((*self->p_reset_n).cur == 1))
     {
-        for (int64_t i_1 = INT64_C(1); i_1 <= INT64_C(17); i_1++)
+        for (int64_t i_1 = INT64_C(1); i_1 <= (INT64_C(17)); i_1++)
         {
             if (((((*self->p_cs).cur >> (17 - (i_1))) & 1) == 1))
             {
@@ -41,7 +41,7 @@ void mux_74f150_create(vs_kernel *k, mux_74f150 *self, const char *path, vs_sig 
     self->p_mux_data_out = mux_data_out;
     self->p_mux_mrdy = mux_mrdy;
     self->p_cs = cs;
-    self->v0_switch_ = INT64_C(17);
+    self->v0_switch_ = (INT64_C(17));
 
     {
         vs_sig *sens[21];

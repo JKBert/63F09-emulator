@@ -1,5 +1,6 @@
 #!/bin/sh
-# Smoke test of the emulator : the reset vector is read, then the program is fetched and executed.
+# Smoke test of the emulator : the reset vector is read from the ROM, the program jumps to the external memory,
+# loads A and stores it. The external bus shows every cycle, internal ones included.
 # usage: run.sh EMULATOR WORKDIR
 set -e
 emu=$1
@@ -7,15 +8,14 @@ work=$2
 here=$(dirname "$0")
 mkdir -p "$work"
 
-# LDA #$55 ; STA $0000 (extended) ; BRA *.  The reset vector F000 sends the core to 0xFFFFF000.
+# 0xFFFFF000 (ROM): JMP $F100 ; 0xF100 (external memory): LDA #$55 ; STA $0010 ; BRA *
 python3 "$here/mkelf.py" "$work/smoke.elf" "0xFFFFF000=7E F1 00" "0xFFFFFFFE=F0 00" "0xF100=86 55 B7 00 10 20 FE"
 for n in 1 2 4 8
 do
-    "$emu" --ncpus "$n" --elf "$work/smoke.elf" --ticks 400000 --trace-bus \
-        --ram 0xF00000000:0xE000 --rom 0xFFFFF0000:0x10000 --rom 0xF0000F000:0x1000 > "$work/smoke.$n.log"
-    grep -q 'A=FFFFFFFFE R' "$work/smoke.$n.log"          # reset vector, high byte
-    grep -q 'A=FFFFFF000 R .* D=7E' "$work/smoke.$n.log"  # first opcode (JMP)
-    grep -q 'A=F0000F100 R .* D=86' "$work/smoke.$n.log"  # LDA # fetched after the jump
-    grep -q 'A=F00000010 W .* D=55' "$work/smoke.$n.log"  # STA wrote A
+    "$emu" --ncpus "$n" --elf "$work/smoke.elf" --ticks 600000 --trace-bus > "$work/smoke.$n.log"
+    grep -q 'A=FFFFFFFF8 mask=40 R' "$work/smoke.$n.log"                 # reset vector, high byte
+    grep -q 'A=FFFFFF000 mask=01 R' "$work/smoke.$n.log"                 # first opcode, from the ROM
+    grep -q 'A=F0000F100 mask=01 R D=.*86$' "$work/smoke.$n.log"      # LDA # fetched after the jump
+    grep -q 'A=F00000010 mask=01 W D=5555555555555555' "$work/smoke.$n.log"   # STA wrote 0x55
     echo "smoke test with $n core(s): ok"
 done

@@ -86,7 +86,7 @@ static void fp_fma_p0(void *inst)
     if ((self->v0_exponent_neg == 1))
     {
         self->v0_counter_dif = INT64_C(56);
-        if ((vs_sext(self->v0_exponent_dif, 14) > INT64_C(-56)))
+        if ((vs_sext(self->v0_exponent_dif, 14) > (-INT64_C(56))))
         {
             self->v0_counter_dif = (-vs_sext(self->v0_exponent_dif, 14));
         }
@@ -269,7 +269,7 @@ static void fp_fma_p5(void *inst)
     if ((self->v5_exponent_rnd <= INT64_C(0)))
     {
         self->v5_counter_sub = INT64_C(63);
-        if ((self->v5_exponent_rnd > INT64_C(-63)))
+        if ((self->v5_exponent_rnd > (-INT64_C(63))))
         {
             self->v5_counter_sub = (INT64_C(1) - self->v5_exponent_rnd);
         }

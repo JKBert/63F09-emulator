@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 #include "vsim.h"
 
@@ -170,9 +171,41 @@ void vs_clock_source(vs_kernel *k, vs_sig *s, uint64_t first, uint64_t half)
     vs_timer_add(k, first, clock_tick, c);
 }
 
+void vs_region_add(vs_kernel *k, const char *path, uint8_t *data, size_t size)
+{
+    if (k->nregions == k->cregions)
+    {
+        k->cregions = k->cregions ? k->cregions * 2 : 8;
+        k->regions = xrealloc(k->regions, k->cregions * sizeof(*k->regions));
+    }
+    k->regions[k->nregions].path = path;
+    k->regions[k->nregions].data = data;
+    k->regions[k->nregions].size = size;
+    k->nregions++;
+}
+
+vs_region *vs_region_find(vs_kernel *k, const char *suffix)
+{
+    size_t  i, ls = strlen(suffix);
+
+    for (i = 0; i < k->nregions; i++)
+    {
+        size_t  lp = strlen(k->regions[i].path);
+
+        if (lp >= ls && strcasecmp(k->regions[i].path + lp - ls, suffix) == 0)
+        {
+            return &k->regions[i];
+        }
+    }
+    return NULL;
+}
+
 void vs_kernel_free(vs_kernel *k)
 {
     size_t  i;
+
+    free(k->regions);
+    k->regions = NULL;
 
     free(k->timers);
     k->timers = NULL;

@@ -33,7 +33,7 @@ static void fp_cvt_p0(void *inst)
     if ((self->v0_exponent_rnd <= INT64_C(0)))
     {
         self->v0_counter_cvt = INT64_C(63);
-        if ((self->v0_exponent_rnd > INT64_C(-63)))
+        if ((self->v0_exponent_rnd > (-INT64_C(63))))
         {
             self->v0_counter_cvt = (INT64_C(1) - self->v0_exponent_rnd);
         }

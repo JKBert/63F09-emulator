@@ -539,7 +539,7 @@ static void dmc_63f41_n1_g0_p4(void *inst)
 static void dmc_63f41_n1_g0_p5(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if (((((int64_t) self->s_ticks_since_e.cur >= INT64_C(2)) & (self->s_captured.cur == 0)) & (self->s_cpu_mrdy_fsm.cur == 1)))
+    if (((((int64_t) self->s_ticks_since_e.cur >= ((INT64_C(3)) - INT64_C(1))) & (self->s_captured.cur == 0)) & (self->s_cpu_mrdy_fsm.cur == 1)))
     {
         vs_drive(&self->s_capture_strobe, 1);
     }
@@ -552,7 +552,7 @@ static void dmc_63f41_n1_g0_p5(void *inst)
 static void dmc_63f41_n1_g0_p6(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if ((((self->s_cpu_vma_raw.cur == 1) & (self->s_captured.cur == 0)) & ((((int64_t) self->s_ticks_since_e.cur >= INT64_C(1)) & ((int64_t) self->s_ticks_since_e.cur < INT64_C(3))) | ((self->s_cpu_e.cur == 1) & (self->s_cpu_q.cur == 0)))))
+    if ((((self->s_cpu_vma_raw.cur == 1) & (self->s_captured.cur == 0)) & ((((int64_t) self->s_ticks_since_e.cur >= (INT64_C(1))) & ((int64_t) self->s_ticks_since_e.cur < (INT64_C(3)))) | ((self->s_cpu_e.cur == 1) & (self->s_cpu_q.cur == 0)))))
     {
         vs_drive(&self->s_early_stall, 1);
     }
@@ -1020,7 +1020,7 @@ static void dmc_63f41_n1_g0_p30(void *inst)
                             vs_drive(&self->s_next_last_rw_n, self->s_buffered_rw_n.cur);
                             vs_drive(&self->s_next_last_a_valid, 1);
                             vs_drive(&self->s_next_state, 1);
-                            vs_drive(&self->s_next_bram_wait_states, (uint64_t)(INT64_C(1)));
+                            vs_drive(&self->s_next_bram_wait_states, (uint64_t)((INT64_C(1))));
                         }
                         else
                         {
@@ -1182,7 +1182,7 @@ static void dmc_63f41_n1_g0_p30(void *inst)
                                     vs_drive(&self->s_next_state, 6);
                                     vs_drive(&self->s_memclk_internal, 1);
                                     vs_drive(&self->s_next_cache_write_clk, 1);
-                                    vs_drive(&self->s_next_cache_write_clk_count, (uint64_t)(INT64_C(1)));
+                                    vs_drive(&self->s_next_cache_write_clk_count, (uint64_t)((INT64_C(1))));
                                 }
                                 else
                                 {
@@ -1408,9 +1408,9 @@ static void dmc_63f41_n1_g0_p30(void *inst)
                         vs_drive(&self->s_next_bram_wait_states, (uint64_t)(INT64_C(0)));
                         vs_drive(&self->s_next_state, 5);
                         vs_drive(&self->s_next_cache_write_clk, 1);
-                        vs_drive(&self->s_next_cache_write_clk_count, (uint64_t)(INT64_C(1)));
+                        vs_drive(&self->s_next_cache_write_clk_count, (uint64_t)((INT64_C(1))));
                         vs_drive(&self->s_next_tag_write_clk, 1);
-                        vs_drive(&self->s_next_tag_write_clk_count, (uint64_t)(INT64_C(1)));
+                        vs_drive(&self->s_next_tag_write_clk_count, (uint64_t)((INT64_C(1))));
                     }
                     else
                     {
@@ -1467,7 +1467,7 @@ static void dmc_63f41_n1_g0_p30(void *inst)
                 else
                 {
                     vs_drive(&self->s_next_state, 0);
-                    vs_drive(&self->s_next_bram_wait_states, (uint64_t)(INT64_C(3)));
+                    vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((INT64_C(2)) + INT64_C(1))));
                     if ((self->s_moved_on.cur == 0))
                     {
                         vs_drive(&self->s_cpu_mrdy_fsm, self->s_local_cache_mrdy.cur);

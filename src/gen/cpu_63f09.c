@@ -647,13 +647,13 @@ static uint64_t f_index_register_0(cpu_63f09 *self, vs_ref a_rr)
 
 static void p_execute_mem_op_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md, uint64_t a_alu_op, uint64_t a_write_result, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_cc_ctrl, vs_sig *a_a_ctrl, vs_sig *a_b_ctrl, vs_sig *a_e_ctrl, vs_sig *a_f_ctrl, vs_sig *a_v_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl, vs_sig *a_pc_ctrl, vs_sig *a_dp_ctrl, vs_sig *a_ds_ctrl)
 {
-    int64_t v_width_33296 = INT64_C(-2147483648);
+    int64_t v_width_45680 = INT64_C(-2147483648);
     vs_drive(&(*a_left_ctrl), f_register_left_0(self, &(*a_mask), &(*a_reg_md)));
     vs_drive(&(*a_right_ctrl), (UINT64_C(0x200000)));
     vs_drive(&(*a_cc_ctrl), (UINT64_C(0x2)));
-    v_width_33296 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
+    v_width_45680 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
     vs_drive(&(*a_alu_ctrl), a_alu_op);
-    switch (v_width_33296)
+    switch (v_width_45680)
     {
         case INT64_C(8):
         {
@@ -3793,7 +3793,7 @@ static void cpu_63f09_p38(void *inst)
             case 1:
             {
                 vs_drive(&self->s_state_stack.a[2], self->s_return_state.cur);
-                for (int64_t i_3 = INT64_C(1); i_3 <= INT64_C(2); i_3++)
+                for (int64_t i_3 = INT64_C(1); i_3 <= (INT64_C(3) - INT64_C(1)); i_3++)
                 {
                     vs_drive(&self->s_state_stack.a[2 - (i_3)], self->s_state_stack.a[2 - ((i_3 - INT64_C(1)))].cur);
                 }
@@ -3801,7 +3801,7 @@ static void cpu_63f09_p38(void *inst)
             }
             case 2:
             {
-                for (int64_t i_5 = INT64_C(1); i_5 <= INT64_C(2); i_5++)
+                for (int64_t i_5 = INT64_C(1); i_5 <= (INT64_C(3) - INT64_C(1)); i_5++)
                 {
                     vs_drive(&self->s_state_stack.a[2 - ((i_5 - INT64_C(1)))], self->s_state_stack.a[2 - (i_5)].cur);
                 }
@@ -3810,7 +3810,7 @@ static void cpu_63f09_p38(void *inst)
             }
             default:
             {
-                for (int64_t i_7 = INT64_C(0); i_7 <= INT64_C(2); i_7++)
+                for (int64_t i_7 = INT64_C(0); i_7 <= (INT64_C(3) - INT64_C(1)); i_7++)
                 {
                     vs_drive(&self->s_state_stack.a[2 - (i_7)], self->s_state_stack.a[2 - (i_7)].cur);
                 }
@@ -5780,7 +5780,7 @@ static void cpu_63f09_p58(void *inst)
         {
             case 1:
             {
-                for (int64_t i_19 = INT64_C(14); i_19 >= INT64_C(0); i_19--)
+                for (int64_t i_19 = (INT64_C(16) - INT64_C(2)); i_19 >= INT64_C(0); i_19--)
                 {
                     vs_drive(&self->s_reg_fp.a[((i_19 + INT64_C(1))) - 0], self->s_reg_fp.a[(i_19) - 0].cur);
                 }
@@ -5791,7 +5791,7 @@ static void cpu_63f09_p58(void *inst)
             {
                 if ((self->s_fp_stack_conf_eff.cur == 0))
                 {
-                    for (int64_t i_21 = INT64_C(14); i_21 >= INT64_C(0); i_21--)
+                    for (int64_t i_21 = (INT64_C(16) - INT64_C(2)); i_21 >= INT64_C(0); i_21--)
                     {
                         vs_drive(&self->s_reg_fp.a[((i_21 + INT64_C(1))) - 0], self->s_reg_fp.a[(i_21) - 0].cur);
                     }
@@ -5809,7 +5809,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 2:
             {
-                for (int64_t i_23 = INT64_C(14); i_23 >= INT64_C(0); i_23--)
+                for (int64_t i_23 = (INT64_C(16) - INT64_C(2)); i_23 >= INT64_C(0); i_23--)
                 {
                     vs_drive(&self->s_reg_fp.a[((i_23 + INT64_C(1))) - 0], self->s_reg_fp.a[(i_23) - 0].cur);
                 }
@@ -5874,7 +5874,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 32:
             {
-                for (int64_t i_25 = INT64_C(14); i_25 >= INT64_C(0); i_25--)
+                for (int64_t i_25 = (INT64_C(16) - INT64_C(2)); i_25 >= INT64_C(0); i_25--)
                 {
                     vs_drive(&self->s_reg_fp.a[((i_25 + INT64_C(1))) - 0], self->s_reg_fp.a[(i_25) - 0].cur);
                 }
@@ -5916,7 +5916,7 @@ static void cpu_63f09_p58(void *inst)
                 vs_drive(&self->s_fpu_in.f_fp_exe_i.f_data1, self->s_reg_fp.a[0].cur);
                 if ((self->s_fp_stack_conf_eff.cur == 0))
                 {
-                    for (int64_t i_27 = INT64_C(1); i_27 <= INT64_C(15); i_27++)
+                    for (int64_t i_27 = INT64_C(1); i_27 <= (INT64_C(16) - INT64_C(1)); i_27++)
                     {
                         vs_drive(&self->s_reg_fp.a[((i_27 - INT64_C(1))) - 0], self->s_reg_fp.a[(i_27) - 0].cur);
                     }
@@ -5929,7 +5929,7 @@ static void cpu_63f09_p58(void *inst)
                 vs_drive(&self->s_fpu_in.f_fp_exe_i.f_data2, self->s_reg_fp.a[0].cur);
                 if ((self->s_fp_stack_conf_eff.cur == 0))
                 {
-                    for (int64_t i_29 = INT64_C(2); i_29 <= INT64_C(15); i_29++)
+                    for (int64_t i_29 = INT64_C(2); i_29 <= (INT64_C(16) - INT64_C(1)); i_29++)
                     {
                         vs_drive(&self->s_reg_fp.a[((i_29 - INT64_C(2))) - 0], self->s_reg_fp.a[(i_29) - 0].cur);
                     }
@@ -5943,7 +5943,7 @@ static void cpu_63f09_p58(void *inst)
                 vs_drive(&self->s_fpu_in.f_fp_exe_i.f_data3, self->s_reg_fp.a[0].cur);
                 if ((self->s_fp_stack_conf_eff.cur == 0))
                 {
-                    for (int64_t i_31 = INT64_C(3); i_31 <= INT64_C(15); i_31++)
+                    for (int64_t i_31 = INT64_C(3); i_31 <= (INT64_C(16) - INT64_C(1)); i_31++)
                     {
                         vs_drive(&self->s_reg_fp.a[((i_31 - INT64_C(3))) - 0], self->s_reg_fp.a[(i_31) - 0].cur);
                     }
@@ -5952,7 +5952,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 10:
             {
-                for (int64_t i_33 = INT64_C(1); i_33 <= INT64_C(15); i_33++)
+                for (int64_t i_33 = INT64_C(1); i_33 <= (INT64_C(16) - INT64_C(1)); i_33++)
                 {
                     vs_drive(&self->s_reg_fp.a[((i_33 - INT64_C(1))) - 0], self->s_reg_fp.a[(i_33) - 0].cur);
                 }
@@ -5961,7 +5961,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 11:
             {
-                for (int64_t i_35 = INT64_C(2); i_35 <= INT64_C(15); i_35++)
+                for (int64_t i_35 = INT64_C(2); i_35 <= (INT64_C(16) - INT64_C(1)); i_35++)
                 {
                     vs_drive(&self->s_reg_fp.a[((i_35 - INT64_C(2))) - 0], self->s_reg_fp.a[(i_35) - 0].cur);
                 }
@@ -5980,7 +5980,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(1):
                     {
-                        for (int64_t i_37 = INT64_C(1); i_37 <= INT64_C(15); i_37++)
+                        for (int64_t i_37 = INT64_C(1); i_37 <= (INT64_C(16) - INT64_C(1)); i_37++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_37 - INT64_C(1))) - 0], self->s_reg_fp.a[(i_37) - 0].cur);
                         }
@@ -5989,7 +5989,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(2):
                     {
-                        for (int64_t i_39 = INT64_C(2); i_39 <= INT64_C(15); i_39++)
+                        for (int64_t i_39 = INT64_C(2); i_39 <= (INT64_C(16) - INT64_C(1)); i_39++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_39 - INT64_C(2))) - 0], self->s_reg_fp.a[(i_39) - 0].cur);
                         }
@@ -6001,7 +6001,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(3):
                     {
-                        for (int64_t i_43 = INT64_C(3); i_43 <= INT64_C(15); i_43++)
+                        for (int64_t i_43 = INT64_C(3); i_43 <= (INT64_C(16) - INT64_C(1)); i_43++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_43 - INT64_C(3))) - 0], self->s_reg_fp.a[(i_43) - 0].cur);
                         }
@@ -6013,7 +6013,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(4):
                     {
-                        for (int64_t i_47 = INT64_C(4); i_47 <= INT64_C(15); i_47++)
+                        for (int64_t i_47 = INT64_C(4); i_47 <= (INT64_C(16) - INT64_C(1)); i_47++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_47 - INT64_C(4))) - 0], self->s_reg_fp.a[(i_47) - 0].cur);
                         }
@@ -6025,7 +6025,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(5):
                     {
-                        for (int64_t i_51 = INT64_C(5); i_51 <= INT64_C(15); i_51++)
+                        for (int64_t i_51 = INT64_C(5); i_51 <= (INT64_C(16) - INT64_C(1)); i_51++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_51 - INT64_C(5))) - 0], self->s_reg_fp.a[(i_51) - 0].cur);
                         }
@@ -6037,7 +6037,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(6):
                     {
-                        for (int64_t i_55 = INT64_C(6); i_55 <= INT64_C(15); i_55++)
+                        for (int64_t i_55 = INT64_C(6); i_55 <= (INT64_C(16) - INT64_C(1)); i_55++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_55 - INT64_C(6))) - 0], self->s_reg_fp.a[(i_55) - 0].cur);
                         }
@@ -6049,7 +6049,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(7):
                     {
-                        for (int64_t i_59 = INT64_C(7); i_59 <= INT64_C(15); i_59++)
+                        for (int64_t i_59 = INT64_C(7); i_59 <= (INT64_C(16) - INT64_C(1)); i_59++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_59 - INT64_C(7))) - 0], self->s_reg_fp.a[(i_59) - 0].cur);
                         }
@@ -6061,7 +6061,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(8):
                     {
-                        for (int64_t i_63 = INT64_C(8); i_63 <= INT64_C(15); i_63++)
+                        for (int64_t i_63 = INT64_C(8); i_63 <= (INT64_C(16) - INT64_C(1)); i_63++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_63 - INT64_C(8))) - 0], self->s_reg_fp.a[(i_63) - 0].cur);
                         }
@@ -6073,7 +6073,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(9):
                     {
-                        for (int64_t i_67 = INT64_C(9); i_67 <= INT64_C(15); i_67++)
+                        for (int64_t i_67 = INT64_C(9); i_67 <= (INT64_C(16) - INT64_C(1)); i_67++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_67 - INT64_C(9))) - 0], self->s_reg_fp.a[(i_67) - 0].cur);
                         }
@@ -6085,7 +6085,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(10):
                     {
-                        for (int64_t i_71 = INT64_C(10); i_71 <= INT64_C(15); i_71++)
+                        for (int64_t i_71 = INT64_C(10); i_71 <= (INT64_C(16) - INT64_C(1)); i_71++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_71 - INT64_C(10))) - 0], self->s_reg_fp.a[(i_71) - 0].cur);
                         }
@@ -6097,7 +6097,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(11):
                     {
-                        for (int64_t i_75 = INT64_C(11); i_75 <= INT64_C(15); i_75++)
+                        for (int64_t i_75 = INT64_C(11); i_75 <= (INT64_C(16) - INT64_C(1)); i_75++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_75 - INT64_C(11))) - 0], self->s_reg_fp.a[(i_75) - 0].cur);
                         }
@@ -6109,7 +6109,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(12):
                     {
-                        for (int64_t i_79 = INT64_C(12); i_79 <= INT64_C(15); i_79++)
+                        for (int64_t i_79 = INT64_C(12); i_79 <= (INT64_C(16) - INT64_C(1)); i_79++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_79 - INT64_C(12))) - 0], self->s_reg_fp.a[(i_79) - 0].cur);
                         }
@@ -6121,7 +6121,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(13):
                     {
-                        for (int64_t i_83 = INT64_C(13); i_83 <= INT64_C(15); i_83++)
+                        for (int64_t i_83 = INT64_C(13); i_83 <= (INT64_C(16) - INT64_C(1)); i_83++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_83 - INT64_C(13))) - 0], self->s_reg_fp.a[(i_83) - 0].cur);
                         }
@@ -6133,7 +6133,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(14):
                     {
-                        for (int64_t i_87 = INT64_C(14); i_87 <= INT64_C(15); i_87++)
+                        for (int64_t i_87 = INT64_C(14); i_87 <= (INT64_C(16) - INT64_C(1)); i_87++)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_87 - INT64_C(14))) - 0], self->s_reg_fp.a[(i_87) - 0].cur);
                         }
@@ -6165,7 +6165,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 12:
             {
-                for (int64_t i_95 = INT64_C(14); i_95 >= INT64_C(0); i_95--)
+                for (int64_t i_95 = (INT64_C(16) - INT64_C(2)); i_95 >= INT64_C(0); i_95--)
                 {
                     vs_drive(&self->s_reg_fp.a[((i_95 + INT64_C(1))) - 0], self->s_reg_fp.a[(i_95) - 0].cur);
                 }
@@ -6173,7 +6173,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 13:
             {
-                for (int64_t i_97 = INT64_C(13); i_97 >= INT64_C(0); i_97--)
+                for (int64_t i_97 = (INT64_C(16) - INT64_C(3)); i_97 >= INT64_C(0); i_97--)
                 {
                     vs_drive(&self->s_reg_fp.a[((i_97 + INT64_C(2))) - 0], self->s_reg_fp.a[(i_97) - 0].cur);
                 }
@@ -6185,7 +6185,7 @@ static void cpu_63f09_p58(void *inst)
                 {
                     case INT64_C(1):
                     {
-                        for (int64_t i_99 = INT64_C(14); i_99 >= INT64_C(0); i_99--)
+                        for (int64_t i_99 = (INT64_C(16) - INT64_C(2)); i_99 >= INT64_C(0); i_99--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_99 + INT64_C(1))) - 0], self->s_reg_fp.a[(i_99) - 0].cur);
                         }
@@ -6193,7 +6193,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(2):
                     {
-                        for (int64_t i_101 = INT64_C(13); i_101 >= INT64_C(0); i_101--)
+                        for (int64_t i_101 = (INT64_C(16) - INT64_C(3)); i_101 >= INT64_C(0); i_101--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_101 + INT64_C(2))) - 0], self->s_reg_fp.a[(i_101) - 0].cur);
                         }
@@ -6201,7 +6201,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(3):
                     {
-                        for (int64_t i_103 = INT64_C(12); i_103 >= INT64_C(0); i_103--)
+                        for (int64_t i_103 = (INT64_C(16) - INT64_C(4)); i_103 >= INT64_C(0); i_103--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_103 + INT64_C(3))) - 0], self->s_reg_fp.a[(i_103) - 0].cur);
                         }
@@ -6209,7 +6209,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(4):
                     {
-                        for (int64_t i_105 = INT64_C(11); i_105 >= INT64_C(0); i_105--)
+                        for (int64_t i_105 = (INT64_C(16) - INT64_C(5)); i_105 >= INT64_C(0); i_105--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_105 + INT64_C(4))) - 0], self->s_reg_fp.a[(i_105) - 0].cur);
                         }
@@ -6217,7 +6217,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(5):
                     {
-                        for (int64_t i_107 = INT64_C(10); i_107 >= INT64_C(0); i_107--)
+                        for (int64_t i_107 = (INT64_C(16) - INT64_C(6)); i_107 >= INT64_C(0); i_107--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_107 + INT64_C(5))) - 0], self->s_reg_fp.a[(i_107) - 0].cur);
                         }
@@ -6225,7 +6225,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(6):
                     {
-                        for (int64_t i_109 = INT64_C(9); i_109 >= INT64_C(0); i_109--)
+                        for (int64_t i_109 = (INT64_C(16) - INT64_C(7)); i_109 >= INT64_C(0); i_109--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_109 + INT64_C(6))) - 0], self->s_reg_fp.a[(i_109) - 0].cur);
                         }
@@ -6233,7 +6233,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(7):
                     {
-                        for (int64_t i_111 = INT64_C(8); i_111 >= INT64_C(0); i_111--)
+                        for (int64_t i_111 = (INT64_C(16) - INT64_C(8)); i_111 >= INT64_C(0); i_111--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_111 + INT64_C(7))) - 0], self->s_reg_fp.a[(i_111) - 0].cur);
                         }
@@ -6241,7 +6241,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(8):
                     {
-                        for (int64_t i_113 = INT64_C(7); i_113 >= INT64_C(0); i_113--)
+                        for (int64_t i_113 = (INT64_C(16) - INT64_C(9)); i_113 >= INT64_C(0); i_113--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_113 + INT64_C(8))) - 0], self->s_reg_fp.a[(i_113) - 0].cur);
                         }
@@ -6249,7 +6249,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(9):
                     {
-                        for (int64_t i_115 = INT64_C(6); i_115 >= INT64_C(0); i_115--)
+                        for (int64_t i_115 = (INT64_C(16) - INT64_C(10)); i_115 >= INT64_C(0); i_115--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_115 + INT64_C(9))) - 0], self->s_reg_fp.a[(i_115) - 0].cur);
                         }
@@ -6257,7 +6257,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(10):
                     {
-                        for (int64_t i_117 = INT64_C(5); i_117 >= INT64_C(0); i_117--)
+                        for (int64_t i_117 = (INT64_C(16) - INT64_C(11)); i_117 >= INT64_C(0); i_117--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_117 + INT64_C(10))) - 0], self->s_reg_fp.a[(i_117) - 0].cur);
                         }
@@ -6265,7 +6265,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(11):
                     {
-                        for (int64_t i_119 = INT64_C(4); i_119 >= INT64_C(0); i_119--)
+                        for (int64_t i_119 = (INT64_C(16) - INT64_C(12)); i_119 >= INT64_C(0); i_119--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_119 + INT64_C(11))) - 0], self->s_reg_fp.a[(i_119) - 0].cur);
                         }
@@ -6273,7 +6273,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(12):
                     {
-                        for (int64_t i_121 = INT64_C(3); i_121 >= INT64_C(0); i_121--)
+                        for (int64_t i_121 = (INT64_C(16) - INT64_C(13)); i_121 >= INT64_C(0); i_121--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_121 + INT64_C(12))) - 0], self->s_reg_fp.a[(i_121) - 0].cur);
                         }
@@ -6281,7 +6281,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(13):
                     {
-                        for (int64_t i_123 = INT64_C(2); i_123 >= INT64_C(0); i_123--)
+                        for (int64_t i_123 = (INT64_C(16) - INT64_C(14)); i_123 >= INT64_C(0); i_123--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_123 + INT64_C(13))) - 0], self->s_reg_fp.a[(i_123) - 0].cur);
                         }
@@ -6289,7 +6289,7 @@ static void cpu_63f09_p58(void *inst)
                     }
                     case INT64_C(14):
                     {
-                        for (int64_t i_125 = INT64_C(1); i_125 >= INT64_C(0); i_125--)
+                        for (int64_t i_125 = (INT64_C(16) - INT64_C(15)); i_125 >= INT64_C(0); i_125--)
                         {
                             vs_drive(&self->s_reg_fp.a[((i_125 + INT64_C(14))) - 0], self->s_reg_fp.a[(i_125) - 0].cur);
                         }
@@ -6598,7 +6598,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 21:
             {
-                for (int64_t i_183 = INT64_C(14); i_183 >= INT64_C(0); i_183--)
+                for (int64_t i_183 = (INT64_C(16) - INT64_C(2)); i_183 >= INT64_C(0); i_183--)
                 {
                     vs_drive(&self->s_reg_fp.a[((i_183 + INT64_C(1))) - 0], self->s_reg_fp.a[(i_183) - 0].cur);
                 }
@@ -6626,7 +6626,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 15:
             {
-                for (int64_t i_185 = INT64_C(14); i_185 >= INT64_C(0); i_185--)
+                for (int64_t i_185 = (INT64_C(16) - INT64_C(2)); i_185 >= INT64_C(0); i_185--)
                 {
                     vs_drive(&self->s_reg_fp.a[((i_185 + INT64_C(1))) - 0], self->s_reg_fp.a[(i_185) - 0].cur);
                 }
@@ -6635,7 +6635,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 23:
             {
-                for (int64_t i_187 = INT64_C(0); i_187 <= INT64_C(15); i_187++)
+                for (int64_t i_187 = INT64_C(0); i_187 <= (INT64_C(16) - INT64_C(1)); i_187++)
                 {
                     vs_drive(&self->s_reg_fp.a[(i_187) - 0], UINT64_C(0x0));
                 }

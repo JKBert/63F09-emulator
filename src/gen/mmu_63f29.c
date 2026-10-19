@@ -452,7 +452,7 @@ static void mmu_63f29_g2_create(vs_kernel *k, mmu_63f29_g2 *self, const char *pa
 {
 
     {
-        int64_t l = INT64_C(0), r = ((INT64_C(64) / vs_ipow(INT64_C(2), self->gp_l)) - INT64_C(1)), i, n;
+        int64_t l = INT64_C(0), r = (((INT64_C(64)) / vs_ipow(INT64_C(2), self->gp_l)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_level_0 = n;
         self->g_level_0 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_level_0));
@@ -552,7 +552,7 @@ static void mmu_63f29_g6_create(vs_kernel *k, mmu_63f29_g6 *self, const char *pa
 {
 
     {
-        int64_t l = INT64_C(0), r = ((INT64_C(64) / vs_ipow(INT64_C(2), self->gp_l)) - INT64_C(1)), i, n;
+        int64_t l = INT64_C(0), r = (((INT64_C(64)) / vs_ipow(INT64_C(2), self->gp_l)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_level_0 = n;
         self->g_level_0 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_level_0));
@@ -823,7 +823,7 @@ static void mmu_63f29_g17_create(vs_kernel *k, mmu_63f29_g17 *self, const char *
     vs_name(k, &self->s_vt, path, "vt", 64);
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(63), i, n;
+        int64_t l = INT64_C(0), r = ((INT64_C(64)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_payload_terms_0 = n;
         self->g_payload_terms_0 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_payload_terms_0));
@@ -1155,7 +1155,7 @@ static void mmu_63f29_g24_create(vs_kernel *k, mmu_63f29_g24 *self, const char *
 {
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(63), i, n;
+        int64_t l = INT64_C(0), r = ((INT64_C(64)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_array_entries_0 = n;
         self->g_array_entries_0 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_array_entries_0));
@@ -1174,14 +1174,14 @@ static void mmu_63f29_g24_create(vs_kernel *k, mmu_63f29_g24 *self, const char *
 
 static int64_t f_log2i_0(mmu_63f29_g0 *self, int64_t a_n)
 {
-    int64_t v_r_57360 = INT64_C(0);
-    int64_t v_v_57680 = INT64_C(1);
-    while ((v_v_57680 < a_n))
+    int64_t v_r_10448 = INT64_C(0);
+    int64_t v_v_10768 = INT64_C(1);
+    while ((v_v_10768 < a_n))
     {
-        v_v_57680 = (v_v_57680 * INT64_C(2));
-        v_r_57360 = (v_r_57360 + INT64_C(1));
+        v_v_10768 = (v_v_10768 * INT64_C(2));
+        v_r_10448 = (v_r_10448 + INT64_C(1));
     }
-    return v_r_57360;
+    return v_r_10448;
 }
 
 static void mmu_63f29_g0_p0(void *inst)
@@ -1460,7 +1460,7 @@ static void mmu_63f29_g0_p27(void *inst)
 static void mmu_63f29_g0_p28(void *inst)
 {
     mmu_63f29_g0 *self = inst;
-    if (((((self->s_w_reg.cur == 1) & (((self->up->s_cpu_a.cur >> (9)) & UINT64_C(0x7)) == UINT64_C(0x3))) & ((int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7F))) < INT64_C(64))) & ((int64_t) self->s_current_ring.cur <= (int64_t)((self->s_maxring.cur & UINT64_C(0x3))))))
+    if (((((self->s_w_reg.cur == 1) & (((self->up->s_cpu_a.cur >> (9)) & UINT64_C(0x7)) == UINT64_C(0x3))) & ((int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7F))) < (INT64_C(64)))) & ((int64_t) self->s_current_ring.cur <= (int64_t)((self->s_maxring.cur & UINT64_C(0x3))))))
     {
         vs_drive(&self->s_w_lruw, 1);
     }
@@ -1473,7 +1473,7 @@ static void mmu_63f29_g0_p28(void *inst)
 static void mmu_63f29_g0_p29(void *inst)
 {
     mmu_63f29_g0 *self = inst;
-    if ((((((self->s_w_reg.cur == 1) & (((self->up->s_cpu_a.cur >> 11) & 1) == 0)) & ((int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7FF))) >= INT64_C(256))) & ((int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7FF))) < INT64_C(896))) & ((int64_t) self->s_current_ring.cur <= (int64_t)((self->s_maxring.cur & UINT64_C(0x3))))))
+    if ((((((self->s_w_reg.cur == 1) & (((self->up->s_cpu_a.cur >> 11) & 1) == 0)) & ((int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7FF))) >= INT64_C(256))) & ((int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7FF))) < (INT64_C(256) + (INT64_C(10) * (INT64_C(64)))))) & ((int64_t) self->s_current_ring.cur <= (int64_t)((self->s_maxring.cur & UINT64_C(0x3))))))
     {
         vs_drive(&self->s_w_bankw, 1);
     }
@@ -1488,7 +1488,7 @@ static void mmu_63f29_g0_p30(void *inst)
     mmu_63f29_g0 *self = inst;
     if ((self->s_w_bankw.cur == 1))
     {
-        vs_drive(&self->s_w_flat_ring, (uint64_t)(((((int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7FF))) - INT64_C(256)) / INT64_C(5)) / INT64_C(32))));
+        vs_drive(&self->s_w_flat_ring, (uint64_t)(((((int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7FF))) - INT64_C(256)) / INT64_C(5)) / ((INT64_C(64)) / INT64_C(2)))));
     }
     else
     {
@@ -1501,7 +1501,7 @@ static void mmu_63f29_g0_p31(void *inst)
     mmu_63f29_g0 *self = inst;
     if ((self->s_w_bankw.cur == 1))
     {
-        vs_drive(&self->s_w_flat_a, (uint64_t)((vs_mod((((int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7FF))) - INT64_C(256)) / INT64_C(5)), INT64_C(32)) * INT64_C(2))));
+        vs_drive(&self->s_w_flat_a, (uint64_t)((vs_mod((((int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7FF))) - INT64_C(256)) / INT64_C(5)), ((INT64_C(64)) / INT64_C(2))) * INT64_C(2))));
     }
     else
     {
@@ -1664,7 +1664,7 @@ static void mmu_63f29_g0_p35(void *inst)
                     {
                         self->v35_ring_sel = (int64_t)(((self->up->s_cpu_a.cur >> (7)) & UINT64_C(0x3)));
                         self->v35_index_sel = (int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7F)));
-                        if ((self->v35_index_sel < INT64_C(64)))
+                        if ((self->v35_index_sel < (INT64_C(64))))
                         {
                             vs_drive(&self->up->s_mmu_reg_d_out, self->s_lru_array.a[(self->v35_ring_sel) - 0].a[(self->v35_index_sel) - 0].cur);
                         }
@@ -1673,7 +1673,7 @@ static void mmu_63f29_g0_p35(void *inst)
                     {
                         self->v35_ring_sel = (int64_t)(((self->up->s_cpu_a.cur >> (9)) & UINT64_C(0x3)));
                         self->v35_index_sel = (int64_t)(((self->up->s_cpu_a.cur >> (2)) & UINT64_C(0x7F)));
-                        if ((self->v35_index_sel < INT64_C(64)))
+                        if ((self->v35_index_sel < (INT64_C(64))))
                         {
                             switch ((self->up->s_cpu_a.cur & UINT64_C(0x3)))
                             {
@@ -1703,12 +1703,12 @@ static void mmu_63f29_g0_p35(void *inst)
                     else
                     {
                         self->v35_flat_raw = (int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7FF)));
-                        if (((self->v35_flat_raw >= INT64_C(256)) & (self->v35_flat_raw < INT64_C(896))))
+                        if (((self->v35_flat_raw >= INT64_C(256)) & (self->v35_flat_raw < (INT64_C(256) + (INT64_C(10) * (INT64_C(64)))))))
                         {
                             self->v35_flat_addr = (self->v35_flat_raw - INT64_C(256));
                             self->v35_pair_index = (self->v35_flat_addr / INT64_C(5));
                             self->v35_phase = vs_mod(self->v35_flat_addr, INT64_C(5));
-                            self->v35_pairs_per_ring = INT64_C(32);
+                            self->v35_pairs_per_ring = ((INT64_C(64)) / INT64_C(2));
                             self->v35_ring_sel = (self->v35_pair_index / self->v35_pairs_per_ring);
                             self->v35_pair_in_ring = vs_mod(self->v35_pair_index, self->v35_pairs_per_ring);
                             self->v35_entry_a = (self->v35_pair_in_ring * INT64_C(2));
@@ -1810,7 +1810,7 @@ static void mmu_63f29_g0_p35(void *inst)
                     {
                         self->v35_ring_sel = (int64_t)(((self->up->s_cpu_a.cur >> (7)) & UINT64_C(0x3)));
                         self->v35_index_sel = (int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7F)));
-                        if (((self->v35_index_sel < INT64_C(64)) & ((int64_t) self->s_current_ring.cur <= (int64_t)((self->s_maxring.cur & UINT64_C(0x3))))))
+                        if (((self->v35_index_sel < (INT64_C(64))) & ((int64_t) self->s_current_ring.cur <= (int64_t)((self->s_maxring.cur & UINT64_C(0x3))))))
                         {
                             ;
                         }
@@ -1861,12 +1861,12 @@ static void mmu_63f29_g0_p35(void *inst)
                     else
                     {
                         self->v35_flat_raw = (int64_t)((self->up->s_cpu_a.cur & UINT64_C(0x7FF)));
-                        if ((((self->v35_flat_raw >= INT64_C(256)) & (self->v35_flat_raw < INT64_C(896))) & ((int64_t) self->s_current_ring.cur <= (int64_t)((self->s_maxring.cur & UINT64_C(0x3))))))
+                        if ((((self->v35_flat_raw >= INT64_C(256)) & (self->v35_flat_raw < (INT64_C(256) + (INT64_C(10) * (INT64_C(64)))))) & ((int64_t) self->s_current_ring.cur <= (int64_t)((self->s_maxring.cur & UINT64_C(0x3))))))
                         {
                             self->v35_flat_addr = (self->v35_flat_raw - INT64_C(256));
                             self->v35_pair_index = (self->v35_flat_addr / INT64_C(5));
                             self->v35_phase = vs_mod(self->v35_flat_addr, INT64_C(5));
-                            self->v35_pairs_per_ring = INT64_C(32);
+                            self->v35_pairs_per_ring = ((INT64_C(64)) / INT64_C(2));
                             self->v35_ring_sel = (self->v35_pair_index / self->v35_pairs_per_ring);
                             self->v35_pair_in_ring = vs_mod(self->v35_pair_index, self->v35_pairs_per_ring);
                             self->v35_entry_a = (self->v35_pair_in_ring * INT64_C(2));
@@ -2137,7 +2137,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     vs_name(k, &self->s_w_flat_phase, path, "w_flat_phase", 64);
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(63), i, n;
+        int64_t l = INT64_C(0), r = ((INT64_C(64)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_stage0_0 = n;
         self->g_stage0_0 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_stage0_0));
@@ -2171,7 +2171,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(63), i, n;
+        int64_t l = INT64_C(0), r = ((INT64_C(64)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_reg_1_2 = n;
         self->g_reg_1_2 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_reg_1_2));
@@ -2188,7 +2188,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(7), i, n;
+        int64_t l = INT64_C(0), r = (((INT64_C(64)) / INT64_C(8)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_reg_1g_3 = n;
         self->g_reg_1g_3 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_reg_1g_3));
@@ -2205,7 +2205,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(4), r = (f_log2i_0(self, INT64_C(64))), i, n;
+        int64_t l = INT64_C(4), r = (f_log2i_0(self, (INT64_C(64)))), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_tournament_2_4 = n;
         self->g_tournament_2_4 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_tournament_2_4));
@@ -2222,7 +2222,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(7), i, n;
+        int64_t l = INT64_C(0), r = (((INT64_C(64)) / INT64_C(8)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_firstfree_5 = n;
         self->g_firstfree_5 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_firstfree_5));
@@ -2239,7 +2239,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(63), i, n;
+        int64_t l = INT64_C(0), r = ((INT64_C(64)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_reg_2_6 = n;
         self->g_reg_2_6 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_reg_2_6));
@@ -2256,7 +2256,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(63), i, n;
+        int64_t l = INT64_C(0), r = ((INT64_C(64)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_victims_7 = n;
         self->g_victims_7 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_victims_7));
@@ -2273,7 +2273,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(63), i, n;
+        int64_t l = INT64_C(0), r = ((INT64_C(64)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_vmatches_8 = n;
         self->g_vmatches_8 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_vmatches_8));
@@ -2307,7 +2307,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(63), i, n;
+        int64_t l = INT64_C(0), r = ((INT64_C(64)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_perms_10 = n;
         self->g_perms_10 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_perms_10));
@@ -2324,7 +2324,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(15), i, n;
+        int64_t l = INT64_C(0), r = ((((INT64_C(64)) / INT64_C(4))) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_quads_11 = n;
         self->g_quads_11 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_quads_11));
@@ -2341,7 +2341,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(63), i, n;
+        int64_t l = INT64_C(0), r = ((INT64_C(64)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_tests_12 = n;
         self->g_tests_12 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_tests_12));
@@ -2358,7 +2358,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        int64_t l = INT64_C(0), r = INT64_C(3), i, n;
+        int64_t l = INT64_C(0), r = ((INT64_C(4)) - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
         self->n_g_array_rings_13 = n;
         self->g_array_rings_13 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_array_rings_13));

@@ -231,11 +231,29 @@ class Translator(Subprograms, Ops):
     # ------------------------------------------------------------------ expressions
 
     def expr(self, n):
+        w = self.as_written(n)
+        if w != n:
+            try:
+                return self.expr(w)
+            except Unsupported:
+                pass            # what was written cannot be translated : the value will do
         k = nodes.Get_Kind(n)
         m = getattr(self, "x_" + frontend.kind_name(n), None)
         if m is None:
             raise unsupported(n, "expression")
         return m(n)
+
+    def as_written(self, n):
+        """The analyser replaces a static expression (NCPUS - 1) by its value and keeps what was written as the
+        origin of the literal : the written form is translated, as it may depend on a parameter of the create
+        function."""
+        k = nodes.Get_Kind(n)
+        if k in (K.Integer_Literal, K.Enumeration_Literal):
+            if frontend.has_field(k, frontend.nodes_meta.fields.Literal_Origin):
+                origin = nodes.Get_Literal_Origin(n)
+                if origin:
+                    return origin
+        return n
 
     def x_Parenthesis_Expression(self, n):
         return self.expr(nodes.Get_Expression(n))

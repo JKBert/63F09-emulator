@@ -255,6 +255,13 @@ def const_int(expr, env=None):
     a function that is being interpreted) to their values."""
     env = env if env is not None else {}
     kind = nodes.Get_Kind(expr)
+    if kind in (K.Integer_Literal, K.Enumeration_Literal) and frontend.has_field(kind, frontend.nodes_meta.fields.Literal_Origin):
+        origin = nodes.Get_Literal_Origin(expr)
+        if origin:
+            try:
+                return const_int(origin, env)       # what was written : it may name NCPUS
+            except Unsupported:
+                pass
     if kind == K.Integer_Literal:
         return nodes.Get_Value(expr)
     if kind in (K.Simple_Name, K.Selected_Name):
@@ -262,6 +269,8 @@ def const_int(expr, env=None):
         if decl in env:
             return env[decl]
         dk = nodes.Get_Kind(decl)
+        if decl in NCPUS_FIXED:
+            return NCPUS_FIXED[decl]
         if dk == K.Constant_Declaration and nodes.Get_Default_Value(decl):
             return const_int(nodes.Get_Default_Value(decl), env)
         if dk == K.Enumeration_Literal:

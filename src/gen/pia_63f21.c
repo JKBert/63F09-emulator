@@ -28,6 +28,7 @@ static void pia_63f21_g0_create(vs_kernel *k, pia_63f21_g0 *self, const char *pa
     vs_register_signal(k, &self->x2_tie_io, (uint64_t) (0));
     vs_name(k, &self->x2_tie_io, path, "tie_io", 1);
     vs_tie_fields(&self->x2_tie_io, 0, &(*self->up->p_port_d), ((0) + (((self->gp_i) - 0))) % 64, 1);
+    vs_tie_fields(&(*self->up->p_port_d), ((0) + (((self->gp_i) - 0))) % 64, &self->x2_tie_io, 0, 1);
     vs_register_signal(k, &self->x3_tie_o, (uint64_t) (0));
     vs_name(k, &self->x3_tie_o, path, "tie_o", 1);
     vs_tie_fields(&self->x3_tie_o, 0, &self->up->s_port_d_in, ((0) + (((self->gp_i) - 0))) % 64, 1);

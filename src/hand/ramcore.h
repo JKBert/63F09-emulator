@@ -17,7 +17,7 @@ typedef struct ramcore_t
 } ramcore_t;
 
 /* en[p] may be NULL (port always enabled). */
-void ramcore_create(vs_kernel *k, ramcore_t *self, unsigned bits, vs_sig *clk, vs_sig *rw, vs_sig *addr, vs_sig *din,
+void ramcore_create(vs_kernel *k, ramcore_t *self, const char *path, unsigned bits, vs_sig *clk, vs_sig *rw, vs_sig *addr, vs_sig *din,
                     vs_sig *dout, vs_sig *en, vs_sig *clk2, vs_sig *rw2, vs_sig *addr2, vs_sig *din2, vs_sig *dout2,
                     vs_sig *en2);
 

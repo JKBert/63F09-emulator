@@ -5,7 +5,6 @@ void ram_61f512_create(vs_kernel *k, ram_61f512_t *self, const char *path, vs_si
                        vs_sig *address2, vs_sig *data_in2, vs_sig *data_out2, vs_sig *valid_addr,
                        vs_sig *valid_addr2)
 {
-    (void) path;
-    ramcore_create(k, &self->core, 8, memclk, rw, address, data_in, data_out, valid_addr,
+    ramcore_create(k, &self->core, path, 8, memclk, rw, address, data_in, data_out, valid_addr,
                    memclk2, rw2, address2, data_in2, data_out2, valid_addr2);
 }

@@ -397,7 +397,7 @@ static void spi_63f52_p9(void *inst)
                             vs_drive(&self->s_signal_tx_empty_m, 1);
                             vs_drive(&self->s_assert_data, (~((self->s_cc_reg.cur >> 2) & 1) & UINT64_C(0x1)));
                             vs_drive(&self->s_clk_toggles, (uint64_t)(INT64_C(0)));
-                            vs_drive(&self->s_last_bit_rx, (uint64_t)(((INT64_C(16) + (int64_t)(((self->s_cc_reg.cur >> 2) & 1))) - INT64_C(1))));
+                            vs_drive(&self->s_last_bit_rx, (uint64_t)((((INT64_C(8) * INT64_C(2)) + (int64_t)(((self->s_cc_reg.cur >> 2) & 1))) - INT64_C(1))));
                             vs_drive(&self->s_state, 1);
                         }
                         else
@@ -412,7 +412,7 @@ static void spi_63f52_p9(void *inst)
                         {
                             vs_drive(&self->s_clock_counter, UINT64_C(0x0));
                             vs_drive(&self->s_assert_data, (~self->s_assert_data.cur & UINT64_C(0x1)));
-                            if (((int64_t) self->s_clk_toggles.cur == INT64_C(17)))
+                            if (((int64_t) self->s_clk_toggles.cur == ((INT64_C(8) * INT64_C(2)) + INT64_C(1))))
                             {
                                 vs_drive(&self->s_clk_toggles, (uint64_t)(INT64_C(0)));
                             }
@@ -420,7 +420,7 @@ static void spi_63f52_p9(void *inst)
                             {
                                 vs_drive(&self->s_clk_toggles, (uint64_t)(((int64_t) self->s_clk_toggles.cur + INT64_C(1))));
                             }
-                            if (((int64_t) self->s_clk_toggles.cur <= INT64_C(16)))
+                            if (((int64_t) self->s_clk_toggles.cur <= (INT64_C(8) * INT64_C(2))))
                             {
                                 vs_drive(&self->s_sclk_out, (~self->s_sclk_out.cur & UINT64_C(0x1)));
                             }
@@ -433,7 +433,7 @@ static void spi_63f52_p9(void *inst)
                                 vs_drive(&self->s_mosi_out, ((self->s_tx_buffer_m.cur >> 7) & 1));
                                 vs_drive(&self->s_tx_buffer_m, (((uint64_t)((self->s_tx_buffer_m.cur & UINT64_C(0x7F))) << 1) | 0));
                             }
-                            if (((int64_t) self->s_clk_toggles.cur == INT64_C(17)))
+                            if (((int64_t) self->s_clk_toggles.cur == ((INT64_C(8) * INT64_C(2)) + INT64_C(1))))
                             {
                                 vs_drive(&self->s_rx_reg_m, self->s_rx_buffer_m.cur);
                                 vs_drive(&self->s_state, 0);
@@ -660,6 +660,7 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
     vs_register_signal(k, &self->x8_tie_io, (uint64_t) (0));
     vs_name(k, &self->x8_tie_io, path, "tie_io", 1);
     vs_tie_fields(&self->x8_tie_io, 0, &(*self->p_ss), 0, 1);
+    vs_tie_fields(&(*self->p_ss), 0, &self->x8_tie_io, 0, 1);
     iobuf_create(k, &self->c_ss0_iobuffer_6, vs_join(k, path, "ss0_iobuffer"), &self->x7_tie_i, &self->x8_tie_io, &self->s_ss_n, &self->s_sclk_out_ctrl);
     self->g_slave_clock_buf_cond_9 = vs_alloc(k, sizeof(*self->g_slave_clock_buf_cond_9));
     self->g_slave_clock_buf_cond_9->up = self;

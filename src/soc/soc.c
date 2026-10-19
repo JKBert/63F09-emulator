@@ -6,17 +6,15 @@
 void soc_cfg_default(soc_cfg *c)
 {
     memset(c, 0, sizeof(*c));
-    c->ncpus = 1;
-    c->fpu_shared = 0;
+    c->ncpus = 2;                                   /* NCPUS of SoC.vhd */
+    c->fpu_shared = 1;                              /* FPU_BY_CORE = false in SoC.vhd */
     /* A is 36 bits wide. Without MMU the physical address is 0xF followed by the 32 bits of the core, so a program
-     * linked at 0x00000000 runs at 0xF00000000, and the reset vector sits at 0xFFFFFFFFE. */
+     * linked at 0x00000000 runs at 0xF00000000 (the external bus), the reset vector is at 0xFFFFFFFFE (the ROM). */
     c->elf_offset = UINT64_C(0xF00000000);
-    c->bac_base = UINT64_C(0xFFFFE0000);
-    c->mmu_base = UINT64_C(0xFFFFE1000);
     c->reset_ticks = 10 * 2 * SOC_EXTAL_HALF;       /* ten EXTAL periods */
 }
 
-int soc_add_zone(soc_cfg *c, uint64_t base, uint64_t size, int writable)
+int soc_add_zone(soc_cfg *c, uint64_t base, uint64_t size)
 {
     soc_zone    *z;
 
@@ -25,15 +23,13 @@ int soc_add_zone(soc_cfg *c, uint64_t base, uint64_t size, int writable)
         return -1;
     }
     z = &c->zones[c->nzones];
-    z->data = malloc((size_t) size);
+    z->data = calloc(1, (size_t) size);
     if (z->data == NULL)
     {
         return -1;
     }
-    memset(z->data, writable ? 0 : 0xFF, (size_t) size);
     z->base = base;
     z->size = size;
-    z->writable = writable;
     c->nzones++;
     return 0;
 }
@@ -54,83 +50,54 @@ static soc_zone *find_zone(soc_cfg *c, uint64_t addr)
     return NULL;
 }
 
-/* The external bus : decoding of the chip selects, read data and write capture. */
-static void bus_run(void *inst)
+/* The companion on the external bus : 64-bit data, the lane of the byte is given by BYTE_MASK. A read puts the
+ * 8 bytes of the line on DATA while the bus owner reads ; a write is captured when E falls. The pad is driven by
+ * the SoC (IOBUF) during a write and by the host otherwise. */
+static void companion_run(void *inst)
 {
     soc         *s = inst;
-    uint64_t    a = s->a.cur;
-    int         in_bac = a >= s->cfg.bac_base && a < s->cfg.bac_base + 32;
-    int         in_mmu = a >= s->cfg.mmu_base && a < s->cfg.mmu_base + 4096;
-    soc_zone    *z = find_zone(&s->cfg, a);
-    uint64_t    owner = s->bus_master.cur;
+    uint64_t    base = s->addr.cur << 3;
+    soc_zone    *z = find_zone(&s->cfg, base);
+    int         lane;
 
-    int         i;
-    uint64_t    mrdy = s->mux_mrdy.cur & s->mmu_mrdy.cur;
-    uint64_t    irq_n = 1;
-    soc_win     *in_win = NULL;
-    uint64_t    wdg_n = 1;
-
-    for (i = 0; i < s->nwin; i++)
+    if (s->rw_n.cur == 1 && s->vma.cur == 1)
     {
-        soc_win *w = &s->win[i];
-        int     hit = a >= w->base && a < w->base + w->size;
+        uint64_t v = 0;
 
-        vs_drive(&w->cs, hit);
-        vs_drive(&w->addr, a & (w->size - 1));
-        mrdy &= w->mrdy.cur;
-        irq_n &= w->irq_n.cur;
-        if (hit)
+        if (z != NULL)
         {
-            in_win = w;
+            for (lane = 0; lane < 8; lane++)
+            {
+                v |= (uint64_t) z->data[base - z->base + lane] << (8 * lane);
+            }
         }
-    }
-    if (s->cfg.has_wdg)
-    {
-        wdg_n = s->wdg.reset_n.cur;
-    }
-    vs_drive(&s->reset_n, s->ext_reset_n.cur & wdg_n);
-    vs_drive(&s->irq_n, irq_n);
-    vs_drive(&s->cs, in_bac);
-    vs_drive(&s->mmu_cs, in_mmu ? UINT64_C(1) << owner : 0);
-    vs_drive(&s->cacheable, !(in_bac || in_mmu || in_win != NULL));
-    vs_drive(&s->mrdy, mrdy);
-    if (in_bac)
-    {
-        vs_drive(&s->d_in, s->mux_d_out.cur);
-    }
-    else if (in_win != NULL)
-    {
-        vs_drive(&s->d_in, in_win->d_out.cur);
-    }
-    else if (z != NULL)
-    {
-        vs_drive(&s->d_in, z->data[a - z->base]);
-    }
-    else
-    {
-        vs_drive(&s->d_in, 0xFF);
-    }
-    if (s->cfg.trace_bus && vs_falling(&s->e))
-    {
-        printf("%12llu bus %llu A=%09llX %c VMA=%d BA=%d BS=%d D=%02X\n", (unsigned long long) s->k.now,
-               (unsigned long long) owner, (unsigned long long) a, s->rw_n.cur ? 'R' : 'W', (int) s->vma.cur,
-               (int) s->ba.cur, (int) s->bs.cur, (unsigned) (s->rw_n.cur ? s->d_in.cur : s->d_out.cur));
-        if (in_win != NULL)
+        else
         {
-            printf("             window %d d_out=%02X mrdy=%d irq_n=%d\n", (int) (in_win - s->win),
-                   (unsigned) in_win->d_out.cur, (int) in_win->mrdy.cur, (int) in_win->irq_n.cur);
+            v = UINT64_MAX;
         }
+        vs_drive(&s->data, v);
     }
     if (vs_falling(&s->e) && s->vma.cur == 1 && s->ba.cur == 0)
     {
+        uint64_t mask = s->byte_mask.cur;
+
+        if (s->cfg.trace_bus)
+        {
+            printf("%12llu ext A=%09llX mask=%02X %c D=%016llX\n", (unsigned long long) s->k.now,
+                   (unsigned long long) base, (unsigned) mask, s->rw_n.cur ? 'R' : 'W',
+                   (unsigned long long) s->data.cur);
+        }
         if (s->rw_n.cur == 0)
         {
             s->writes++;
-            if (z != NULL && z->writable)
+            for (lane = 0; lane < 8; lane++)
             {
-                z->data[a - z->base] = (uint8_t) s->d_out.cur;
+                if (((mask >> lane) & 1) && z != NULL)
+                {
+                    z->data[base - z->base + lane] = (uint8_t) (s->data.cur >> (8 * lane));
+                }
             }
-            else if (z == NULL && !in_bac && !in_mmu && in_win == NULL)
+            if (z == NULL)
             {
                 s->unmapped++;
             }
@@ -138,7 +105,7 @@ static void bus_run(void *inst)
         else
         {
             s->reads++;
-            if (z == NULL && !in_bac && !in_mmu && in_win == NULL)
+            if (z == NULL)
             {
                 s->unmapped++;
             }
@@ -152,39 +119,15 @@ static void reg(soc *s, vs_sig *sig, const char *name, unsigned width, uint64_t 
     vs_name(&s->k, sig, "soc", name, width);
 }
 
-/* A window on the bus and the signals of the peripheral behind it. */
-static soc_win *add_window(soc *s, const char *name, uint64_t base, uint64_t size, vs_sig **sens, size_t *ns)
-{
-    soc_win *w = &s->win[s->nwin++];
-    char    n[48];
-
-    w->base = base;
-    w->size = size;
-    snprintf(n, sizeof(n), "%s_cs", name);
-    reg(s, &w->cs, n, 1, 0);
-    snprintf(n, sizeof(n), "%s_addr", name);
-    reg(s, &w->addr, n, 3, 0);
-    snprintf(n, sizeof(n), "%s_d_out", name);
-    reg(s, &w->d_out, n, 8, 0);
-    snprintf(n, sizeof(n), "%s_irq_n", name);
-    reg(s, &w->irq_n, n, 1, 1);
-    snprintf(n, sizeof(n), "%s_mrdy", name);
-    reg(s, &w->mrdy, n, 1, 1);
-    sens[(*ns)++] = &w->mrdy;
-    sens[(*ns)++] = &w->irq_n;
-    return w;
-}
-
 static void release_reset(vs_kernel *k, void *arg)
 {
     (void) k;
-    vs_drive(&((soc *) arg)->ext_reset_n, 1);
+    vs_drive(&((soc *) arg)->reset_n, 1);
 }
 
 int soc_create(soc *s, const soc_cfg *c)
 {
-    vs_sig  *sens[12 + 2 * SOC_MAX_WINDOWS];
-    size_t  ns = 7;
+    vs_sig  *sens[4];
     int     i;
 
     if (c->ncpus < 1 || c->ncpus > 8)
@@ -197,7 +140,6 @@ int soc_create(soc *s, const soc_cfg *c)
     vs_kernel_init(&s->k);
     reg(s, &s->extal, "extal", 1, 0);
     reg(s, &s->reset_n, "reset_n", 1, 0);
-    reg(s, &s->ext_reset_n, "ext_reset_n", 1, 0);
     reg(s, &s->nmi_n, "nmi_n", 1, 1);
     reg(s, &s->firq_n, "firq_n", 1, 1);
     reg(s, &s->irq_n, "irq_n", 1, 1);
@@ -205,79 +147,68 @@ int soc_create(soc *s, const soc_cfg *c)
     reg(s, &s->dma_breq_n, "dma_breq_n", 1, 1);
     reg(s, &s->halt_n, "halt_n", 1, 1);
     reg(s, &s->e, "e", 1, 0);
-    reg(s, &s->e_n, "e_n", 1, 1);
-    reg(s, &s->q, "q", 1, 0);
     reg(s, &s->ba, "ba", 1, 0);
     reg(s, &s->bs, "bs", 1, 0);
     reg(s, &s->rw_n, "rw_n", 1, 1);
-    reg(s, &s->vma, "vma", 1, 0);
-    reg(s, &s->a, "a", 36, 0);
-    reg(s, &s->d_in, "d_in", 8, 0xFF);
-    reg(s, &s->d_out, "d_out", 8, 0);
-    reg(s, &s->eirq_n, "eirq_n", 24, 0xFFFFFF);
-    reg(s, &s->fic, "fic", 1, 0);
-    reg(s, &s->cacheable, "cacheable", 1, 1);
-    reg(s, &s->sysclk, "sysclk", 1, 0);
+    reg(s, &s->q, "q", 1, 0);
+    reg(s, &s->addr, "addr", 33, 0);
+    reg(s, &s->data, "data", 64, UINT64_MAX);
+    reg(s, &s->ext_eirq_n, "ext_eirq_n", 8, 0xFF);
     reg(s, &s->cpuclk, "cpuclk", 1, 0);
+    reg(s, &s->sysclk, "sysclk", 1, 0);
     reg(s, &s->memclk, "memclk", 1, 0);
-    reg(s, &s->cs, "cs", 1, 0);
-    reg(s, &s->mmu_cs, "mmu_cs", 8, 0);
-    reg(s, &s->mmu_mrdy, "mmu_mrdy", 1, 1);
-    reg(s, &s->mux_d_in, "mux_d_in", 8, 0);
-    reg(s, &s->mux_d_out, "mux_d_out", 8, 0);
-    reg(s, &s->mux_mrdy, "mux_mrdy", 1, 1);
-    reg(s, &s->bus_master, "bus_master", 64, 0);
-    bac_63f81_create(&s->k, &s->bac, "soc.bac", c->ncpus, !c->fpu_shared, &s->extal, &s->reset_n, &s->nmi_n,
-                     &s->firq_n, &s->irq_n, &s->mrdy, &s->dma_breq_n, &s->halt_n, &s->e, &s->e_n, &s->q, &s->ba,
-                     &s->bs, &s->rw_n, &s->vma, &s->a, &s->d_in, &s->d_out, &s->eirq_n, &s->fic, &s->cacheable,
-                     &s->sysclk, &s->cpuclk, &s->memclk, &s->cs, &s->mmu_cs, &s->mmu_mrdy, &s->mux_d_in,
-                     &s->mux_d_out, &s->mux_mrdy, &s->bus_master);
-    sens[0] = &s->a;
+    reg(s, &s->fic, "fic", 1, 0);
+    reg(s, &s->vma, "vma", 1, 0);
+    reg(s, &s->byte_mask, "byte_mask", 8, 0);
+    std_logic_matrix_register(&s->k, &s->pia_port_data, std_logic_matrix_zero());
+    reg(s, &s->pia_c1, "pia_c1", 5, 0);
+    reg(s, &s->pia_c2, "pia_c2", 5, 0);
+    reg(s, &s->acia_rx, "acia_rx", 2, 3);
+    reg(s, &s->acia_tx, "acia_tx", 2, 3);
+    reg(s, &s->acia_rts_n, "acia_rts_n", 2, 0);
+    reg(s, &s->acia_cts_n, "acia_cts_n", 2, 0);
+    reg(s, &s->acia_dcd_n, "acia_dcd_n", 2, 0);
+    std_logic_matrix_2_register(&s->k, &s->ptm_o, std_logic_matrix_2_zero());
+    std_logic_matrix_2_register(&s->k, &s->ptm_c_n, std_logic_matrix_2_zero());
+    std_logic_matrix_2_register(&s->k, &s->ptm_g_n, std_logic_matrix_2_zero());
+    reg(s, &s->spi_miso, "spi_miso", 1, 0);
+    reg(s, &s->spi_mosi, "spi_mosi", 1, 0);
+    reg(s, &s->spi_ss, "spi_ss", 16, 0xFFFF);
+    reg(s, &s->spi_sclk, "spi_sclk", 1, 0);
+    reg(s, &s->twi_sda, "twi_sda", 1, 1);
+    reg(s, &s->twi_scl, "twi_scl", 1, 1);
+    for (i = 0; i < 2; i++)
+    {
+        s->ptm_c_n.a[i].cur = s->ptm_c_n.a[i].nxt = 7;      /* external clocks idle, gates enabled (G_n = 0) */
+    }
+    if (soc09_create(&s->k, &s->dut, "soc", 5, 2, 2, !c->fpu_shared, c->ncpus, &s->extal, &s->reset_n, &s->nmi_n,
+                     &s->firq_n, &s->irq_n, &s->mrdy, &s->dma_breq_n, &s->halt_n, &s->e, &s->ba, &s->bs, &s->rw_n,
+                     &s->q, &s->addr, &s->data, &s->ext_eirq_n, &s->cpuclk, &s->sysclk, &s->memclk, &s->fic,
+                     &s->vma, &s->byte_mask, &s->pia_port_data, &s->pia_c1, &s->pia_c2, &s->acia_rx, &s->acia_tx,
+                     &s->acia_rts_n, &s->acia_cts_n, &s->acia_dcd_n, &s->ptm_o, &s->ptm_c_n, &s->ptm_g_n,
+                     &s->spi_miso, &s->spi_mosi, &s->spi_ss, &s->spi_sclk, &s->twi_sda, &s->twi_scl) != 0)
+    {
+        return -1;
+    }
+    sens[0] = &s->addr;
     sens[1] = &s->e;
-    sens[2] = &s->mux_d_out;
-    sens[3] = &s->mux_mrdy;
-    sens[4] = &s->mmu_mrdy;
-    sens[5] = &s->bus_master;
-    sens[6] = &s->vma;
-    s->nwin = 0;
-    for (i = 0; i < c->nacias; i++)
+    sens[2] = &s->rw_n;
+    sens[3] = &s->vma;
+    vs_register_process(&s->k, companion_run, s, sens, 4);
+    /* the serial lines : ACIA_RX(i) and ACIA_TX(i) are bits (1 - i) of the vectors (0 to 1) */
+    for (i = 0; i < SOC_NACIA; i++)
     {
-        soc_acia    *ac = &s->acia[i];
-
-        ac->w = add_window(s, "acia", c->acias[i].base, 4, sens, &ns);
-        reg(s, &ac->rxd, "acia_rxd", 1, 1);
-        reg(s, &ac->txd, "acia_txd", 1, 1);
-        reg(s, &ac->dcd_n, "acia_dcd_n", 1, 0);
-        reg(s, &ac->cts_n, "acia_cts_n", 1, 0);
-        reg(s, &ac->rts_n, "acia_rts_n", 1, 0);
-        acia_63f50_create(&s->k, &ac->core, "soc.acia", &s->e, &s->sysclk, &s->reset_n, &ac->w->cs, &ac->w->mrdy,
-                          &ac->w->addr, &s->rw_n, &s->d_out, &ac->w->d_out, &ac->w->irq_n, &ac->rxd, &ac->txd,
-                          &ac->dcd_n, &ac->cts_n, &ac->rts_n);
-        console_create(&s->k, &ac->con, &ac->rxd, &ac->txd, c->acias[i].baud, c->acias[i].in, c->acias[i].out);
+        if (!c->serial[i].enabled)
+        {
+            continue;
+        }
+        vs_register_signal(&s->k, &s->con_rx[i], 1);
+        vs_register_signal(&s->k, &s->con_tx[i], 1);
+        vs_tie_fields(&s->con_rx[i], 0, &s->acia_rx, (unsigned) (SOC_NACIA - 1 - i), 1);
+        vs_tie_fields(&s->acia_tx, (unsigned) (SOC_NACIA - 1 - i), &s->con_tx[i], 0, 1);
+        console_create(&s->k, &s->con[i], &s->con_rx[i], &s->con_tx[i], c->serial[i].baud, c->serial[i].in,
+                       c->serial[i].out);
     }
-    for (i = 0; i < c->nptms; i++)
-    {
-        soc_ptm *pt = &s->ptm[i];
-
-        pt->w = add_window(s, "ptm", c->ptm_base[i], 8, sens, &ns);
-        reg(s, &pt->o, "ptm_o", 3, 0);
-        reg(s, &pt->c_n, "ptm_c_n", 3, 7);
-        reg(s, &pt->g_n, "ptm_g_n", 3, 0);          /* the gates are enabled */
-        ptm_63f40_create(&s->k, &pt->core, "soc.ptm", &s->e, &s->sysclk, &s->reset_n, &pt->w->cs, &pt->w->mrdy,
-                         &pt->w->addr, &s->d_out, &pt->w->d_out, &s->rw_n, &pt->w->irq_n, &pt->o, &pt->c_n, &pt->g_n);
-    }
-    if (c->has_wdg)
-    {
-        soc_wdg *wd = &s->wdg;
-
-        wd->w = add_window(s, "wdg", c->wdg_base, 8, sens, &ns);
-        reg(s, &wd->reset_n, "wdg_reset_n", 1, 1);
-        sens[ns++] = &wd->reset_n;
-        wdg_63f46_create(&s->k, &wd->core, "soc.wdg", &s->e, &s->sysclk, &s->reset_n, &wd->w->cs, &wd->w->mrdy,
-                         &wd->w->addr, &s->d_out, &wd->w->d_out, &s->rw_n, &wd->reset_n);
-    }
-    sens[ns++] = &s->ext_reset_n;
-    vs_register_process(&s->k, bus_run, s, sens, ns);
     vs_clock_source(&s->k, &s->extal, SOC_EXTAL_HALF, SOC_EXTAL_HALF);
     vs_timer_add(&s->k, c->reset_ticks, release_reset, s);
     return 0;

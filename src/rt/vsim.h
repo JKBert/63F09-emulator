@@ -65,6 +65,14 @@ typedef struct vs_timer
     void            *arg;
 } vs_timer;
 
+/* A memory that the host can load or inspect (ROM, RAM) : registered by its model under the path of its instance. */
+typedef struct vs_region
+{
+    const char  *path;
+    uint8_t     *data;
+    size_t      size;
+} vs_region;
+
 typedef struct vs_kernel
 {
     vs_sig          **sigs;
@@ -80,6 +88,8 @@ typedef struct vs_kernel
     void            **allocs;
     size_t          nallocs, callocs;
     uint64_t        deltas;
+    vs_region       *regions;
+    size_t          nregions, cregions;
     uint64_t        now;        /* simulated time, in ticks */
     vs_timer        *timers;    /* sorted by time */
     size_t          ntimers, ctimers;
@@ -116,6 +126,10 @@ void    vs_register_process(vs_kernel *k, void (*run)(void *), void *inst, vs_si
  * design ; it returns 0 when no timer is left. */
 void    vs_timer_add(vs_kernel *k, uint64_t when, void (*fn)(vs_kernel *, void *), void *arg);
 int     vs_advance(vs_kernel *k);
+
+/* Memories. vs_region_find returns the first region whose path ends with `suffix`, or NULL. */
+void    vs_region_add(vs_kernel *k, const char *path, uint8_t *data, size_t size);
+vs_region *vs_region_find(vs_kernel *k, const char *suffix);
 
 /* A square wave on `s`: the signal rises at `first` and toggles every `half` ticks. */
 void    vs_clock_source(vs_kernel *k, vs_sig *s, uint64_t first, uint64_t half);

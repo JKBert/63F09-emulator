@@ -10,40 +10,39 @@ static void usage(FILE *f)
 {
     fprintf(f,
         "usage: soc63f09 [options]\n"
-        "  --ncpus N            number of cores, 1 to 8 (default 1)\n"
-        "  --fpu by-core|shared one FPU per core, or one shared by all the cores (default by-core)\n"
-        "  --ram BASE:SIZE      add a RAM zone (several allowed ; default 0xF00000000:0x10000)\n"
-        "  --rom BASE:SIZE      add a ROM zone (several allowed ; default 0xFFFFF0000:0x10000)\n"
-        "  --elf FILE           load the segments of an ELF file into the zones (addresses below 4 GiB get\n"
-        "                       the offset 0xF00000000, the physical address when the MMU is off)\n"
+        "  --ncpus N            number of cores, 1 to 8 (default 2, as SoC.vhd)\n"
+        "  --fpu by-core|shared one FPU per core, or one shared by all the cores (default shared, as SoC.vhd)\n"
+        "  --ext BASE:SIZE      a memory of the external bus, standing for the companion (several allowed ;\n"
+        "                       default 0xF00000000:0x1000000)\n"
+        "  --elf FILE           load the segments of an ELF file : ROM at 0xFFFFF0000, internal RAM at\n"
+        "                       0xFFFFC0000, the rest in the external memories. Addresses below 4 GiB get\n"
+        "                       the offset 0xF00000000, the physical address when the MMU is off\n"
         "  --elf-offset ADDR    change that offset\n"
-        "  --acia BASE[,baud=N][,in=FILE|-][,out=FILE|-]\n"
-        "                       an ACIA at BASE (4 bytes) whose serial line goes to the console : \"-\" is\n"
-        "                       stdin for in and stdout for out ; default baud 115200, default in=- out=-\n"
-        "  --ptm BASE           a PTM (8 bytes ; up to 2)\n"
-        "  --wdg BASE           the watchdog (8 bytes) ; when it fires the chip is reset\n"
-        "  --bac-base ADDR      registers of the bus arbiter (default 0xFFFFE0000)\n"
-        "  --mmu-base ADDR      registers of the MMUs (default 0xFFFFE1000)\n"
+        "  --acia N[,baud=B][,in=FILE|-|none][,out=FILE|-|none]\n"
+        "                       the serial line of ACIA N (0 or 1) goes to the console : \"-\" is stdin for in\n"
+        "                       and stdout for out ; default baud 115200. B is the rate of the host side : the\n"
+        "                       program must set the same one in the ACIA (divider /16 : 24e6 / (16 * (div + 1)))\n"
         "  --ticks N            stop after N ticks (a tick is 1/144 ns ; default 100000000)\n"
         "  --dump FILE          write every change of every named signal\n"
-        "  --trace-bus          print every bus cycle\n"
+        "  --trace-bus          print the cycles of the external bus\n"
         "  --help\n");
 }
 
 static int acia_arg(soc_cfg *c, char *arg)
 {
-    soc_acia_cfg    *a;
+    soc_serial      *a;
     char            *tok;
     FILE            *in = stdin, *out = stdout;
     unsigned        baud = 115200;
+    unsigned long   n;
 
-    if (c->nacias == SOC_MAX_ACIAS)
+    tok = strtok(arg, ",");
+    n = strtoul(tok, NULL, 0);
+    if (n >= SOC_NACIA)
     {
         return -1;
     }
-    tok = strtok(arg, ",");
-    a = &c->acias[c->nacias];
-    a->base = strtoull(tok, NULL, 0);
+    a = &c->serial[n];
     while ((tok = strtok(NULL, ",")) != NULL)
     {
         if (strncmp(tok, "baud=", 5) == 0)
@@ -77,14 +76,14 @@ static int acia_arg(soc_cfg *c, char *arg)
     {
         return -1;
     }
+    a->enabled = 1;
     a->baud = baud;
     a->in = in;
     a->out = out;
-    c->nacias++;
     return 0;
 }
 
-static int zone_arg(soc_cfg *c, const char *arg, int writable)
+static int zone_arg(soc_cfg *c, const char *arg)
 {
     char        *end;
     uint64_t    base = strtoull(arg, &end, 0);
@@ -99,7 +98,7 @@ static int zone_arg(soc_cfg *c, const char *arg, int writable)
     {
         return -1;
     }
-    return soc_add_zone(c, base, size, writable);
+    return soc_add_zone(c, base, size);
 }
 
 int main(int argc, char **argv)
@@ -108,15 +107,10 @@ int main(int argc, char **argv)
     {
         { "ncpus", required_argument, NULL, 'n' },
         { "fpu", required_argument, NULL, 'f' },
-        { "ram", required_argument, NULL, 'r' },
-        { "rom", required_argument, NULL, 'o' },
+        { "ext", required_argument, NULL, 'x' },
         { "elf", required_argument, NULL, 'e' },
         { "elf-offset", required_argument, NULL, 'O' },
         { "acia", required_argument, NULL, 'a' },
-        { "ptm", required_argument, NULL, 'p' },
-        { "wdg", required_argument, NULL, 'w' },
-        { "bac-base", required_argument, NULL, 'b' },
-        { "mmu-base", required_argument, NULL, 'm' },
         { "ticks", required_argument, NULL, 't' },
         { "dump", required_argument, NULL, 'd' },
         { "trace-bus", no_argument, NULL, 'T' },
@@ -126,7 +120,7 @@ int main(int argc, char **argv)
     soc_cfg     cfg;
     soc         *s;
     const char  *elf = NULL;
-    int         opt, nz = 0;
+    int         opt;
 
     soc_cfg_default(&cfg);
     cfg.max_ticks = 100000000;
@@ -152,14 +146,12 @@ int main(int argc, char **argv)
                     return 2;
                 }
                 break;
-            case 'r':
-            case 'o':
-                if (zone_arg(&cfg, optarg, opt == 'r') != 0)
+            case 'x':
+                if (zone_arg(&cfg, optarg) != 0)
                 {
-                    fprintf(stderr, "bad zone: %s\n", optarg);
+                    fprintf(stderr, "bad memory: %s\n", optarg);
                     return 2;
                 }
-                nz++;
                 break;
             case 'a':
                 if (acia_arg(&cfg, optarg) != 0)
@@ -174,23 +166,8 @@ int main(int argc, char **argv)
             case 'O':
                 cfg.elf_offset = strtoull(optarg, NULL, 0);
                 break;
-            case 'p':
-                if (cfg.nptms == SOC_MAX_PTMS)
-                {
-                    fprintf(stderr, "at most %d PTMs\n", SOC_MAX_PTMS);
-                    return 2;
-                }
-                cfg.ptm_base[cfg.nptms++] = strtoull(optarg, NULL, 0);
-                break;
-            case 'w':
-                cfg.wdg_base = strtoull(optarg, NULL, 0);
-                cfg.has_wdg = 1;
-                break;
-            case 'b':
-                cfg.bac_base = strtoull(optarg, NULL, 0);
-                break;
-            case 'm':
-                cfg.mmu_base = strtoull(optarg, NULL, 0);
+            case 't':
+                cfg.max_ticks = strtoull(optarg, NULL, 0);
                 break;
             case 'd':
                 cfg.dump = fopen(optarg, "w");
@@ -203,18 +180,14 @@ int main(int argc, char **argv)
             case 'T':
                 cfg.trace_bus = 1;
                 break;
-            case 't':
-                cfg.max_ticks = strtoull(optarg, NULL, 0);
-                break;
             default:
                 usage(opt == 'h' ? stdout : stderr);
                 return opt == 'h' ? 0 : 2;
         }
     }
-    if (nz == 0)
+    if (cfg.nzones == 0)
     {
-        soc_add_zone(&cfg, UINT64_C(0xF00000000), 0x10000, 1);
-        soc_add_zone(&cfg, UINT64_C(0xFFFFF0000), 0x10000, 0);
+        soc_add_zone(&cfg, UINT64_C(0xF00000000), 0x1000000);
     }
     s = malloc(sizeof(*s));
     if (s == NULL || soc_create(s, &cfg) != 0)
@@ -226,8 +199,9 @@ int main(int argc, char **argv)
         return 1;
     }
     soc_run(s);
-    printf("time %llu ticks, %llu reads, %llu writes, %llu unmapped\n", (unsigned long long) s->k.now,
-           (unsigned long long) s->reads, (unsigned long long) s->writes, (unsigned long long) s->unmapped);
+    printf("time %llu ticks, %llu external reads, %llu external writes, %llu unmapped\n",
+           (unsigned long long) s->k.now, (unsigned long long) s->reads, (unsigned long long) s->writes,
+           (unsigned long long) s->unmapped);
     soc_destroy(s);
     free(s);
     return 0;

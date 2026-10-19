@@ -29,7 +29,7 @@ BANNER = """/*
 # Entities written by hand (they wrap vendor primitives) : never translated, instantiated through
 # the create functions of src/hand.
 HAND_WRITTEN = ("ram_61f64x1", "ram_61f512", "ram_61f32x64", "rom_27f512",
-                "bufg", "bufhce", "iobuf", "obuf", "plle2_base", "ramb18e1", "ramb36e1")
+                "bufg", "bufhce", "iobuf", "obuf", "obuft", "plle2_base", "ramb18e1", "ramb36e1")
 
 
 HAND_GENERICS = {"plle2_base": ("clkfbout_mult", "clkout0_divide", "clkout1_divide", "divclk_divide")}
@@ -53,6 +53,7 @@ class Iface:
     def __init__(self, entity, ncpus=None):
         self.entity = entity
         self.ncpus = ncpus
+        self.fixed = {}
         self.name = cid(frontend.ident(entity)) + ("_n%d" % ncpus if ncpus else "")
         self.generics = []      # (cname, ct, decl)
         self.ports = []         # (cname, ct, mode, decl)
@@ -69,15 +70,23 @@ class Iface:
                 if frontend.ident(g).lower() == "ncpus" and ncpus:
                     STATIC_GENERICS[g] = ncpus
                     NCPUS_FIXED[g] = ncpus
+                    self.fixed[g] = ncpus
                 elif frontend.ident(g).lower() in GENERIC_MAX:
                     STATIC_GENERICS[g] = GENERIC_MAX[frontend.ident(g).lower()]
-                elif ct.kind == "int" and ct.hi is not None:
+                elif ct.kind == "int" and ct.hi is not None and ct.hi < 1 << 20:
                     STATIC_GENERICS[g] = ct.hi
                 elif nodes.Get_Default_Value(g):
                     STATIC_GENERICS[g] = const_int(nodes.Get_Default_Value(g))
             except Unsupported:
                 pass
             g = nodes.Get_Chain(g)
+        for gname, cdecl in sorted(promoted_constants(entity).items()):
+            ct = type_of(nodes.Get_Type(cdecl))
+            self.generics.append((gname, ct, cdecl))
+            if gname == "ncpus" and ncpus:
+                NCPUS_FIXED[cdecl] = ncpus
+                STATIC_GENERICS[cdecl] = ncpus
+                self.fixed[cdecl] = ncpus
         p = nodes.Get_Port_Chain(entity)
         while p:
             self.ports.append((cid(frontend.ident(p)), type_of(nodes.Get_Type(p)), nodes.Get_Mode(p), p))
@@ -93,7 +102,25 @@ class Iface:
 MAX_NCPUS = 8
 
 
+ARCH_OF = {}        # entity -> its architecture
+
+
+def promoted_constants(entity):
+    """The constants of the architecture that stand for NCPUS and FPU_BY_CORE when the entity has no such generics
+    (the top level fixes them) : they become parameters of the create function."""
+    arch = ARCH_OF.get(entity)
+    out = {}
+    d = nodes.Get_Declaration_Chain(arch) if arch else 0
+    while d:
+        if nodes.Get_Kind(d) == K.Constant_Declaration and frontend.ident(d).lower() in ("ncpus", "fpu_by_core"):
+            out[frontend.ident(d).lower()] = d
+        d = nodes.Get_Chain(d)
+    return out
+
+
 def has_ncpus(entity):
+    if "ncpus" in promoted_constants(entity):
+        return True
     g = nodes.Get_Generic_Chain(entity)
     while g:
         if frontend.ident(g).lower() == "ncpus":
@@ -120,6 +147,7 @@ class Design:
                     ent = nodes.Get_Named_Entity(nodes.Get_Entity_Name(lu))
                     self.archs[ent] = lu          # the last architecture of an entity wins
         self.ifaces = {}
+        ARCH_OF.update(self.archs)
 
     def iface(self, entity, ncpus=None):
         """The interface of an entity. An entity with an NCPUS generic is generated once per number of cores : the
@@ -158,6 +186,9 @@ class EntityGen(Translator):
         self.ncpus = ncpus
         self.arch = design.archs.get(entity)
         self.iface = design.iface(entity, ncpus)
+        for decl, v in self.iface.fixed.items():
+            NCPUS_FIXED[decl] = v
+            STATIC_GENERICS[decl] = v
         self.name = self.iface.name
         self.root = Scope(self.name)
         self.scope = self.root
@@ -188,6 +219,8 @@ class EntityGen(Translator):
                 if ct.kind not in ("rec", "arr") and not is_wide(ct):
                     s.init.line('vs_name(k, &self->s_%s, path, "%s", %d);' % (name, name, ct.width if ct.width else 64))
                 self.bindings[d] = Binding("sig", "{S}->s_" + name, ct, s)
+            elif k == K.Constant_Declaration and any(x[2] == d for x in self.iface.generics):
+                pass            # a parameter of the create function (see promoted_constants), bound with the generics
             elif k == K.Constant_Declaration:
                 ct = type_of(nodes.Get_Type(d))
                 e = self.expr(nodes.Get_Default_Value(d))
@@ -357,6 +390,17 @@ class EntityGen(Translator):
             return self.design.entities[name]
         return decl
 
+    def unfolded(self, expr):
+        """The expression as written : the analyser replaces a static expression (NCPUS) by its value, and keeps what
+        was written as the origin of the literal."""
+        k = nodes.Get_Kind(expr)
+        if k in (K.Integer_Literal, K.Enumeration_Literal, K.Physical_Int_Literal, K.Floating_Point_Literal):
+            if frontend.has_field(k, frontend.nodes_meta.fields.Literal_Origin):
+                origin = nodes.Get_Literal_Origin(expr)
+                if origin:
+                    return origin
+        return expr
+
     def instance(self, inst):
         s = self.scope
         entity = self.child_entity(inst)
@@ -388,7 +432,7 @@ class EntityGen(Translator):
                 if not dv:
                     raise unsupported(inst, "generic %s has no actual and no default" % n)
                 actual = dv
-            gargs.append(self.expr(actual).code)
+            gargs.append(self.expr(self.unfolded(actual)).code)
         # ports
         pm = {}
         a = nodes.Get_Port_Map_Aspect_Chain(inst)
@@ -437,7 +481,7 @@ class EntityGen(Translator):
             code, bct, lo, width = self.sigpart(actual)
             if bct.kind == "vec":
                 own = self.private_signal(ct, "tie_%s" % name, "0")
-                self.tie_vector(own, ct, code, bct, lo, width, out_like)
+                self.tie_vector(own, ct, code, bct, lo, width, out_like, mode == M.Inout_Mode)
                 return own
             kind, pcode, pct = self.path(actual)
             if kind == "sig" and pct.kind in ("rec", "arr"):
@@ -452,7 +496,7 @@ class EntityGen(Translator):
             self.implicit_process(own, e, actual)
         return own
 
-    def tie_vector(self, own, ct, code, bct, lo, width, out_like):
+    def tie_vector(self, own, ct, code, bct, lo, width, out_like, both=False):
         """Links the bits [lo, lo + width) of the vector signal `code` to the port signal `own` : zero-delay ties,
         one per piece that stays inside one 64-bit word on both sides."""
         s = self.scope
@@ -469,7 +513,7 @@ class EntityGen(Translator):
             dst = word(own[1:], ct, 0)
             if out_like:
                 s.init.line("vs_tie_fields(%s, 0, %s, (%s) %% 64, 1);" % (dst, src, lo))
-            else:
+            if both or not out_like:
                 s.init.line("vs_tie_fields(%s, (%s) %% 64, %s, 0, 1);" % (src, lo, dst))
             return
         i = 0
@@ -480,7 +524,7 @@ class EntityGen(Translator):
             dst = word(own[1:], ct, dst_bit)
             if out_like:
                 s.init.line("vs_tie_fields(%s, %d, %s, %d, %d);" % (dst, dst_bit % 64, src, src_bit % 64, n))
-            else:
+            if both or not out_like:
                 s.init.line("vs_tie_fields(%s, %d, %s, %d, %d);" % (src, src_bit % 64, dst, dst_bit % 64, n))
             i += n
 

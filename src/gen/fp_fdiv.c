@@ -487,7 +487,7 @@ static void fp_fdiv_g0_p1(void *inst)
             if ((self->v1_v.f_exponent_rnd <= INT64_C(0)))
             {
                 self->v1_v.f_counter_rnd = INT64_C(54);
-                if ((self->v1_v.f_exponent_rnd > INT64_C(-54)))
+                if ((self->v1_v.f_exponent_rnd > (-INT64_C(54))))
                 {
                     self->v1_v.f_counter_rnd = (INT64_C(1) - self->v1_v.f_exponent_rnd);
                 }
@@ -808,7 +808,7 @@ static void fp_fdiv_g1_p4(void *inst)
             if ((self->v4_v.f_exponent_rnd <= INT64_C(0)))
             {
                 self->v4_v.f_counter_rnd = INT64_C(54);
-                if ((self->v4_v.f_exponent_rnd > INT64_C(-54)))
+                if ((self->v4_v.f_exponent_rnd > (-INT64_C(54))))
                 {
                     self->v4_v.f_counter_rnd = (INT64_C(1) - self->v4_v.f_exponent_rnd);
                 }

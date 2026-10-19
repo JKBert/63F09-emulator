@@ -450,6 +450,8 @@ def run_block(name, cfg, ports, ghdl, shared, root, lib="work", generics=(), por
         out = subprocess.run(["./tb_c", "stim.txt"], cwd=work, capture_output=True, text=True).stdout
         keep = os.environ.get("BLOCKTEST_KEEP")
         if keep:
+            if keep in ("1", "yes", "true"):
+                keep = os.path.join(root, "build", "blocktest-keep")      # a flag, not a directory name
             os.makedirs(keep, exist_ok=True)
             open(os.path.join(keep, name + ".c.out"), "w").write(out)
             for f in ("ghdl.out", "stim.txt", "tb.c"):
