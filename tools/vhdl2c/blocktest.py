@@ -68,6 +68,7 @@ BLOCKS = {
                             (3000, {"cs": 1, "rw_n": 0, "d_in": 0x0A}), (3002, {"cs": 0, "rw_n": 1}),
                             (6000, {"cs": 1, "rw_n": 1}), (6002, {"cs": 0}), (7000, {"cs": 1, "addr": 0, "rw_n": 1}), (7002, {"cs": 0})]),
     "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
+    "ptm_63f40": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=6000, change=0.1),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
 }
 
