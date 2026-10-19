@@ -142,3 +142,20 @@ with the emulator (planned, see the project notes).
 - *A new construct is rejected by GHDL but accepted by Vivado* : see the compatibility rewrites above.
 - *`STORAGE_ERROR` inside the translator* : an access to the tree with the wrong kind of node ; run
   `tools/vhdl2c/dump.py <vhdl dir> <unit>` to look at the tree.
+
+## Constructs handled by the translator (reference)
+
+* Types : bits, vectors up to 64 bits in a `uint64_t` and wider ones as `vs_w` (512 bits), integers, enumerations,
+  records and arrays (also of vectors : `std_logic_matrix`). Bounds that depend on a generic are computed with
+  the largest value of the generic (`GENERIC_MAX` in `gen.py` : NCPUS is 8) ; the generic itself keeps its
+  run-time value. Constants and functions used in bounds (`log2i`) are evaluated by the interpreter of `vtypes.py`.
+* Sub-programs are monomorphised per argument shape. Signals passed as parameters are pointers, or `vs_ref` when
+  the actual is a part of a vector.
+* `case?` (matching case) with `-` is translated to a chain of masked comparisons.
+* Slices whose bounds depend on a generate parameter or a loop variable must have a constant width
+  (`X(g*8 to g*8+7)`), except as the operand of a reduction (`or X(0 to g-1)`).
+* `rising_edge` / `falling_edge` of a bit of a vector use the value kept before the event (`prev`).
+* `HAND_WRITTEN` entities (RAMs, ROM, PLL, buffers) are not translated : their models are in `src/hand`. Of their
+  generics only those in `HAND_GENERICS` (the PLL multipliers and dividers) are passed.
+* New block tests : `mmu_63f29` (with `generics={"mmu": 1}`) and the directed `acia_tx` (a `script` of input
+  changes in `BLOCKS`).
