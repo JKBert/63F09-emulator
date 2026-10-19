@@ -1,8 +1,10 @@
 """C generation : expressions and statements of the VHDL subset used by the 63F09 design."""
 
 import frontend
-from cops import E, Ops, mask
-from vtypes import Bit, Enum, Int, Unsupported, Vec, const_int, type_name, type_of, unsupported
+import tdefs
+from cout import Out
+from cops import E, Ops, W, mask, wide
+from vtypes import Arr, Bit, Enum, Int, Rec, Unsupported, Vec, const_int, ctype_val, is_wide, nwords, type_name, type_of, unsupported
 from pyGHDL.libghdl.vhdl import nodes, nodes_meta
 
 K = nodes.Iir_Kind
@@ -17,29 +19,6 @@ void volatile while main errno stdin stdout stderr abs""".split())
 def cid(name):
     name = name.lower()
     return name + "_" if name in C_KEYWORDS else name
-
-
-class Out:
-    """Indented C writer, Allman style."""
-
-    def __init__(self):
-        self.lines = []
-        self.level = 0
-
-    def line(self, text=""):
-        self.lines.append(("    " * self.level + text) if text else "")
-
-    def open(self, head):
-        self.line(head)
-        self.line("{")
-        self.level += 1
-
-    def close(self, tail=""):
-        self.level -= 1
-        self.line("}" + tail)
-
-    def text(self):
-        return "\n".join(self.lines) + "\n"
 
 
 class Binding:
@@ -76,30 +55,94 @@ class Translator(Ops):
             raise unsupported(node, "name has no C binding (%s)" % frontend.ident(decl))
         return b
 
-    def sigptr(self, n):
-        """C expression of the vs_sig that holds the signal denoted by name node `n`, with the
-        offset of the denoted part : returns (ptr, shift, width, ct)."""
+    def path(self, n):
+        """('sig' | 'var' | 'val', C code, CT) of a name : the C lvalue of the storage of a signal, the lvalue
+        of a variable, or an rvalue."""
         k = nodes.Get_Kind(n)
         if k in (K.Simple_Name, K.Selected_Name):
             decl = nodes.Get_Named_Entity(n)
+            if nodes.Get_Kind(decl) == K.Enumeration_Literal:
+                return ("val", str(nodes.Get_Enum_Pos(decl)), type_of(nodes.Get_Type(decl)))
             b = self.binding(decl, n)
             if b.kind == "sigptr":
-                return self.bc(b), 0, b.ct.width, b.ct
+                return ("sig", "(*%s)" % self.bc(b), b.ct)
             if b.kind == "sig":
-                return "&" + self.bc(b), 0, b.ct.width, b.ct
-            raise unsupported(n, "not a signal")
+                return ("sig", self.bc(b), b.ct)
+            return ("var", self.bc(b), b.ct)
+        if k == K.Selected_Element:
+            kind, code, ct = self.path(nodes.Get_Prefix(n))
+            if ct.kind != "rec":
+                raise unsupported(n, "field of a non-record")
+            name = frontend.ident(n).lower()
+            for cname, vname, fct in ct.fields:
+                if vname.lower() == name:
+                    return (kind, "%s.%s" % (code, cname), fct)
+            raise unsupported(n, "no field %s" % name)
+        if k == K.Indexed_Name:
+            kind, code, ct = self.path(nodes.Get_Prefix(n))
+            if ct.kind == "arr":
+                idx = list(frontend.list_elements_flist(nodes.Get_Index_List(n)))
+                if len(idx) != 1:
+                    raise unsupported(n, "multi-dimensional array")
+                v = self.static_or_code(idx[0])
+                if v is not None:
+                    pos = str(ct.pos(v))
+                elif ct.asc:
+                    pos = "(%s) - %d" % (self.expr(idx[0]).code, ct.lo)
+                else:
+                    pos = "%d - (%s)" % (ct.hi, self.expr(idx[0]).code)
+                return (kind, "%s.a[%s]" % (code, pos), ct.elem)
+        e = self.expr(n)
+        return ("val", e.code, e.ct)
+
+    def read_path(self, kind, code, ct):
+        return tdefs.get_expr(code, ct) if kind == "sig" else code
+
+    def sigptr(self, n):
+        """(pointer to the storage of the signal denoted by `n`, bit shift, width, CT) : for a part of a
+        vector the pointer is that of the vector and shift and width select the part."""
+        k = nodes.Get_Kind(n)
         if k in (K.Slice_Name, K.Indexed_Name):
-            ptr, shift, width, ct = self.sigptr(nodes.Get_Prefix(n))
-            if ct.kind != "vec":
-                raise unsupported(n, "indexing a non-vector signal")
+            pk, pcode, pct = self.path(nodes.Get_Prefix(n)) if (k == K.Slice_Name or
+                                                              self.prefix_is_vec(n)) else (None, None, None)
+            if pct is not None and pct.kind == "vec":
+                if pk != "sig":
+                    raise unsupported(n, "not a signal")
+                if k == K.Slice_Name:
+                    lo_pos, w = self.slice_bounds(n, pct)
+                    return "&" + pcode, lo_pos, w, Vec(w)
+                pos = self.index_pos(n, pct)
+                if not isinstance(pos, int):
+                    raise unsupported(n, "dynamic index on a signal target")
+                return "&" + pcode, pos, 1, Bit()
+        kind, code, ct = self.path(n)
+        if kind != "sig":
+            raise unsupported(n, "not a signal")
+        return "&" + code, 0, ct.width, ct
+
+    def sigpart(self, n):
+        """(storage lvalue, CT of the whole object, low bit, width) of a signal name that may be a part of a
+        vector : the part is bits [low, low + width) of the object."""
+        k = nodes.Get_Kind(n)
+        if k in (K.Slice_Name, K.Indexed_Name) and (k == K.Slice_Name or self.prefix_is_vec(n)):
+            code, bct, lo, w = self.sigpart(nodes.Get_Prefix(n))
+            if bct.kind != "vec":
+                raise unsupported(n, "part of a non-vector")
             if k == K.Slice_Name:
-                lo_pos, w = self.slice_bounds(n, ct)
-            else:
-                lo_pos, w = self.index_pos(n, ct), 1
-            if not isinstance(lo_pos, int):
-                raise unsupported(n, "dynamic index on a signal target")
-            return ptr, shift + lo_pos, w, (Bit() if w == 1 and k == K.Indexed_Name else Vec(w))
-        raise unsupported(n, "signal name")
+                lo_pos, ww = self.slice_bounds(n, bct)
+                return code, bct, lo + lo_pos, ww
+            pos = self.index_pos(n, bct)
+            if not isinstance(pos, int):
+                raise unsupported(n, "dynamic index on a connected signal")
+            return code, bct, lo + pos, 1
+        kind, code, ct = self.path(n)
+        if kind != "sig":
+            raise unsupported(n, "not a signal")
+        return code, ct, 0, ct.width
+
+    def prefix_is_vec(self, n):
+        pk, pcode, pct = self.path(nodes.Get_Prefix(n))
+        return pct.kind == "vec"
 
     def static_or_code(self, expr):
         try:
@@ -156,19 +199,11 @@ class Translator(Ops):
         return E("1" if ch in ("1", "H") else "0", Bit())
 
     def x_Simple_Name(self, n):
-        decl = nodes.Get_Named_Entity(n)
-        dk = nodes.Get_Kind(decl)
-        if dk == K.Enumeration_Literal:
-            t = type_of(nodes.Get_Type(decl))
-            return E(str(nodes.Get_Enum_Pos(decl)), t)
-        b = self.binding(decl, n)
-        if b.kind == "sigptr":
-            return E("%s->cur" % self.bc(b), b.ct)
-        if b.kind == "sig":
-            return E("%s.cur" % self.bc(b), b.ct)
-        return E(self.bc(b), b.ct)
+        kind, code, ct = self.path(n)
+        return E(self.read_path(kind, code, ct), ct)
 
     x_Selected_Name = x_Simple_Name
+    x_Selected_Element = x_Simple_Name
 
     def x_String_Literal8(self, n):
         """A string literal holds the positions of its elements in the element's enumeration type."""
@@ -182,6 +217,10 @@ class Translator(Ops):
         bits = "".join("1" if names[ord(c)] in ("1", "H") else "0" for c in raw)
         signed = type_name(arr) == "signed"
         width = len(bits)
+        if width > 64:
+            v = int(bits, 2)
+            words = ["UINT64_C(0x%X)" % ((v >> (64 * i)) & ((1 << 64) - 1)) for i in range((width + 63) // 64)]
+            return E("((vs_w){{%s}})" % ", ".join(words), Vec(width, False, 0, width - 1, signed))
         return E("UINT64_C(0x%X)" % int(bits, 2) if bits else "0", Vec(width, False, 0, width - 1, signed))
 
     def x_Slice_Name(self, n):
@@ -189,14 +228,20 @@ class Translator(Ops):
         if pe.ct.kind != "vec":
             raise unsupported(n, "slice of a non-vector")
         pos_lo, w = self.slice_bounds(n, pe.ct)
+        if wide(pe):
+            code = "vs_w_slice(%s, %d, %d)" % (pe.code, pos_lo, w)
+            return E(code if w > 64 else "vs_w_u64(%s)" % code, Vec(w, pe.ct.asc, 0, w - 1, pe.ct.signed))
         code = "((%s >> %d) & %s)" % (pe.code, pos_lo, mask(w)) if pos_lo else "(%s & %s)" % (pe.code, mask(w))
         return E(code, Vec(w, pe.ct.asc, 0, w - 1, pe.ct.signed))
 
     def x_Indexed_Name(self, n):
+        if not self.prefix_is_vec(n):
+            kind, code, ct = self.path(n)
+            return E(self.read_path(kind, code, ct), ct)
         pe = self.expr(nodes.Get_Prefix(n))
-        if pe.ct.kind != "vec":
-            raise unsupported(n, "index of a non-vector")
         pos = self.index_pos(n, pe.ct)
+        if wide(pe):
+            return E("vs_w_bit(%s, %s)" % (pe.code, pos), Bit())
         return E("((%s >> %s) & 1)" % (pe.code, pos), Bit())
 
     def assoc_actuals(self, chain):
@@ -243,59 +288,69 @@ class Translator(Ops):
     def s_Null_Statement(self, s):
         self.out.line(";")
 
-    def s_Simple_Signal_Assignment_Statement(self, s):
-        wf = nodes.Get_Waveform_Chain(s)
-        if not wf or nodes.Get_Chain(wf):
-            raise unsupported(s, "waveform with several elements")
-        if nodes.Get_Time(wf):
-            raise unsupported(s, "delayed assignment")
-        value = self.expr(nodes.Get_We_Value(wf))
-        self.drive(nodes.Get_Target(s), value, s)
-
     # ------------------------------------------------------------------ assignments
 
     def target_lvalue(self, target):
-        """('sig', ptr, shift, mask, width) or ('var', lvalue, shift, mask, width) for a target
-        name ; shift and mask are C code (or ints)."""
+        """(kind, base C code, shift, mask, width, CT, base CT) of a target name : kind is 'sig' (base is the
+        storage lvalue) or 'var' (base is the variable lvalue) ; shift and mask select the part of a vector."""
         k = nodes.Get_Kind(target)
-        if k in (K.Simple_Name, K.Selected_Name):
-            decl = nodes.Get_Named_Entity(target)
-            b = self.binding(decl, target)
-            if b.kind == "sigptr":
-                return ("sig", self.bc(b), 0, mask(b.ct.width), b.ct.width, b.ct)
-            if b.kind == "sig":
-                return ("sig", "&" + self.bc(b), 0, mask(b.ct.width), b.ct.width, b.ct)
-            return ("var", self.bc(b), 0, mask(b.ct.width), b.ct.width, b.ct)
-        if k in (K.Slice_Name, K.Indexed_Name):
-            kind, base, shift, m, width, ct = self.target_lvalue(nodes.Get_Prefix(target))
+        if k in (K.Slice_Name, K.Indexed_Name) and (k == K.Slice_Name or self.prefix_is_vec(target)):
+            kind, base, shift, m, width, ct, bct = self.target_lvalue(nodes.Get_Prefix(target))
             if ct.kind != "vec":
                 raise unsupported(target, "indexing a non-vector target")
             if k == K.Slice_Name:
                 lo_pos, w = self.slice_bounds(target, ct)
-                return (kind, base, lo_pos, mask(w), w, Vec(w))
+                return (kind, base, lo_pos, mask(w) if w < 64 else "UINT64_MAX", w, Vec(w), bct)
             pos = self.index_pos(target, ct)
             if isinstance(pos, int):
-                return (kind, base, pos, mask(1), 1, Bit())
-            return (kind, base, pos, "(UINT64_C(1) << (%s))" % pos, 1, Bit())
-        raise unsupported(target, "assignment target")
+                return (kind, base, pos, mask(1), 1, Bit(), bct)
+            return (kind, base, pos, "(UINT64_C(1))", 1, Bit(), bct)
+        kind, code, ct = self.path(target)
+        if kind == "val":
+            raise unsupported(target, "assignment target")
+        return (kind, code, 0, mask(ct.width) if ct.width and ct.width <= 64 else "0", ct.width, ct, ct)
 
     def assign(self, target, value, scope_kind):
-        kind, base, shift, m, width, ct = self.target_lvalue(target)
+        kind, base, shift, m, width, ct, bct = self.target_lvalue(target)
         o = self.out
-        whole = isinstance(shift, int) and shift == 0 and width == ct_width_of(self, target)
         v = value.code
+        if ct.kind in ("rec", "arr"):
+            o.line(tdefs.drive_stmt(base, ct, v) if kind == "sig" else "%s = %s;" % (base, v))
+            return
+        if is_wide(bct):
+            nw = nwords(bct)
+            whole = is_wide(ct)
+            if kind == "sig":
+                if whole:
+                    o.line("vs_w_drive(%s.w, %d, %s);" % (base, nw, W(value)))
+                else:
+                    o.line("vs_w_drive_bits(%s.w, %d, %s, %d, %s);" % (base, nw, shift, width, W(value)))
+            else:
+                if whole:
+                    o.line("%s = %s;" % (base, W(value)))
+                else:
+                    o.line("%s = vs_w_set(%s, %s, %d, %s);" % (base, base, shift, width, W(value)))
+            return
+        whole = isinstance(shift, int) and shift == 0 and (ct.width == self.object_width(target))
         if ct.kind == "int" or value.ct.kind == "int":
             v = "(uint64_t)(%s)" % v if kind == "sig" else v
         if kind == "sig":
             if whole:
-                o.line("vs_drive(%s, %s);" % (base, v))
+                o.line("vs_drive(&%s, %s);" % (base, v))
             else:
-                o.line("vs_drive_bits(%s, %s, %s, %s);" % (base, shift, m, v))
+                o.line("vs_drive_bits(&%s, %s, %s, %s);" % (base, shift, m, v))
         else:
             if whole:
                 o.line("%s = %s;" % (base, v))
             else:
                 o.line("%s = (%s & ~(%s << %s)) | ((%s << %s) & (%s << %s));" % (base, base, m, shift, v, shift, m, shift))
+
+    def object_width(self, target):
+        """Width of the whole object a target denotes (-1 when the target is a part of a vector)."""
+        k = nodes.Get_Kind(target)
+        if k in (K.Slice_Name,) or (k == K.Indexed_Name and self.prefix_is_vec(target)):
+            return -1
+        return self.path(target)[2].width
 
     def s_Simple_Signal_Assignment_Statement(self, s):
         wf = nodes.Get_Waveform_Chain(s)
@@ -485,46 +540,118 @@ class Translator(Ops):
 
     # ------------------------------------------------------------------ aggregates and attributes
 
-    def x_Aggregate(self, n):
-        t = type_of(nodes.Get_Type(n))
-        if t.kind not in ("vec", "bit"):
-            raise unsupported(n, "aggregate of this type")
-        w = need_w(n, t.width)
-        others = None
-        named = []
-        pos = []
+    def aggregate_items(self, n):
+        """[(kind, value, expr)] of an aggregate : kind is 'others', 'pos', 'index' (value = index), 'range'
+        (value = (lo, hi)) or 'field' (value = field name) ; expr is the associated expression node."""
+        from vtypes import range_of
+        items = []
         ch = nodes.Get_Association_Choices_Chain(n)
+        cur = 0
         while ch:
             ck = nodes.Get_Kind(ch)
-            val = nodes.Get_Associated_Expr(ch)
+            if not nodes.Get_Same_Alternative_Flag(ch):
+                cur = nodes.Get_Associated_Expr(ch)
             if ck == K.Choice_By_Others:
-                others = self.expr(val)
+                items.append(("others", None, cur))
             elif ck == K.Choice_By_None:
-                pos.append(self.expr(val))
+                items.append(("pos", None, cur))
             elif ck == K.Choice_By_Expression:
-                named.append((self.static_index(nodes.Get_Choice_Expression(ch), n), 1, self.expr(val)))
+                items.append(("index", self.static_index(nodes.Get_Choice_Expression(ch), n), cur))
             elif ck == K.Choice_By_Range:
-                from vtypes import range_of
                 left, right, asc = range_of(nodes.Get_Choice_Range(ch))
-                lo, hi = (left, right) if asc else (right, left)
-                named.append((lo, hi - lo + 1, self.expr(val)))
+                items.append(("range", (min(left, right), max(left, right)), cur))
+            elif ck == K.Choice_By_Name:
+                nm = nodes.Get_Choice_Name(ch)
+                items.append(("field", frontend.ident(nodes.Get_Named_Entity(nm)).lower(), cur))
             else:
                 raise unsupported(ch, "aggregate choice")
             ch = nodes.Get_Chain(ch)
+        return items
+
+    def x_Aggregate(self, n):
+        t = type_of(nodes.Get_Type(n))
+        items = self.aggregate_items(n)
+        if t.kind == "rec":
+            code = "%s_zero()" % t.cname
+            named = set()
+            pos = 0
+            for kind, val, expr in items:
+                if kind == "pos":
+                    fname = t.fields[pos][0]
+                    pos += 1
+                elif kind == "field":
+                    fname = next(f[0] for f in t.fields if f[1].lower() == val)
+                else:
+                    continue
+                named.add(fname)
+                code = "%s_with_%s(%s, %s)" % (t.cname, fname, code, self.expr(expr).code)
+            for kind, val, expr in items:
+                if kind == "others":
+                    e = self.expr(expr).code
+                    for fname, vname, fct in t.fields:
+                        if fname not in named:
+                            code = "%s_with_%s(%s, %s)" % (t.cname, fname, code, e)
+            return E(code, t)
+        if t.kind == "arr":
+            code = None
+            for kind, val, expr in items:
+                if kind == "others":
+                    code = "%s_fill(%s)" % (t.cname, self.expr(expr).code)
+            if code is None:
+                code = "%s_zero()" % t.cname
+            pos = 0
+            for kind, val, expr in items:
+                if kind == "pos":
+                    code = "%s_put(%s, %d, %s)" % (t.cname, code, pos, self.expr(expr).code)
+                    pos += 1
+                elif kind == "index":
+                    code = "%s_put(%s, %d, %s)" % (t.cname, code, t.pos(val), self.expr(expr).code)
+                elif kind == "range":
+                    e = self.expr(expr).code
+                    for i in range(val[0], val[1] + 1):
+                        code = "%s_put(%s, %d, %s)" % (t.cname, code, t.pos(i), e)
+            return E(code, t)
+        if t.kind not in ("vec", "bit"):
+            raise unsupported(n, "aggregate of this type")
+        w = t.width
+        if w is None:
+            raise unsupported(n, "aggregate of unconstrained vector")
+        if w > 64:
+            code = "vs_w_zero()"
+            for kind, val, expr in items:
+                if kind == "others":
+                    code = "(%s ? vs_w_ones(%d) : vs_w_zero())" % (self.expr(expr).code, w)
+            pos = 0
+            for kind, val, expr in items:
+                e = self.expr(expr)
+                if kind == "pos":
+                    code = "vs_w_set(%s, %d, 1, %s)" % (code, w - 1 - pos, W(e))
+                    pos += 1
+                elif kind == "index":
+                    code = "vs_w_set(%s, %d, 1, %s)" % (code, t.pos(val), W(e))
+                elif kind == "range":
+                    lo = t.pos(val[0]) if not t.asc else t.pos(val[1])
+                    cnt = val[1] - val[0] + 1
+                    code = "vs_w_set(%s, %d, %d, (%s ? vs_w_ones(%d) : vs_w_zero()))" % (code, lo, cnt, e.code, cnt)
+            return E(code, t)
         code = "0"
-        if others is not None:
-            code = "(%s ? %s : 0)" % (others.code, mask(w))
-        if pos:
-            # positional : the first element is the leftmost
-            for i, e in enumerate(pos):
-                p = w - 1 - i
+        for kind, val, expr in items:
+            if kind == "others":
+                code = "(%s ? %s : 0)" % (self.expr(expr).code, mask(w))
+        pos = 0
+        for kind, val, expr in items:
+            e = self.expr(expr)
+            if kind == "pos":
+                p = w - 1 - pos
                 code = "((%s & ~(UINT64_C(1) << %d)) | ((%s & 1) << %d))" % (code, p, e.code, p)
-        for idx, count, e in named:
-            p = t.pos(idx)
-            m = (((1 << count) - 1) << p)
-            if count == 1:
-                code = "((%s & ~UINT64_C(0x%X)) | ((%s & 1) << %d))" % (code, m, e.code, p)
-            else:
+                pos += 1
+            elif kind == "index":
+                p = t.pos(val)
+                code = "((%s & ~(UINT64_C(1) << %d)) | ((%s & 1) << %d))" % (code, p, e.code, p)
+            elif kind == "range":
+                lo = t.pos(val[0]) if not t.asc else t.pos(val[1])
+                cnt = val[1] - val[0] + 1
+                m = ((1 << cnt) - 1) << lo
                 code = "((%s & ~UINT64_C(0x%X)) | (%s ? UINT64_C(0x%X) : 0))" % (code, m, e.code, m)
         return E(code, Vec(w, t.asc, t.lo, t.hi, t.signed) if t.kind == "vec" else t)
 

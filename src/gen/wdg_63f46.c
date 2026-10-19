@@ -11,32 +11,32 @@ static void wdg_63f46_p0(void *inst)
     wdg_63f46 *self = inst;
     if (((self->s_counter.cur == UINT64_C(0x0)) & (((self->s_status_register.cur >> 0) & 1) == 1)))
     {
-        vs_drive(self->p_wdg_reset_n, 0);
+        vs_drive(&(*self->p_wdg_reset_n), 0);
     }
     else
     {
-        vs_drive(self->p_wdg_reset_n, 1);
+        vs_drive(&(*self->p_wdg_reset_n), 1);
     }
 }
 
 static void wdg_63f46_p1(void *inst)
 {
     wdg_63f46 *self = inst;
-    vs_drive(self->p_mrdy, 1);
+    vs_drive(&(*self->p_mrdy), 1);
 }
 
 static void wdg_63f46_p2(void *inst)
 {
     wdg_63f46 *self = inst;
-    if ((self->p_rst_n->cur == 0))
+    if (((*self->p_rst_n).cur == 0))
     {
         vs_drive(&self->s_subcounter, (uint64_t)(INT64_C(0)));
     }
-    else if (vs_falling(self->p_sysclk))
+    else if (vs_falling(&(*self->p_sysclk)))
     {
-        if ((self->s_subcounter.cur != INT64_C(0)))
+        if (((int64_t) self->s_subcounter.cur != INT64_C(0)))
         {
-            vs_drive(&self->s_subcounter, (uint64_t)((self->s_subcounter.cur - INT64_C(1))));
+            vs_drive(&self->s_subcounter, (uint64_t)(((int64_t) self->s_subcounter.cur - INT64_C(1))));
         }
         else
         {
@@ -70,11 +70,11 @@ static void wdg_63f46_p2(void *inst)
 static void wdg_63f46_p3(void *inst)
 {
     wdg_63f46 *self = inst;
-    if ((self->p_rst_n->cur == 0))
+    if (((*self->p_rst_n).cur == 0))
     {
         vs_drive(&self->s_counter, (0 ? UINT64_C(0xFFFFFFFF) : 0));
     }
-    else if (vs_falling(self->p_sysclk))
+    else if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_counter.cur != UINT64_C(0x0)))
         {
@@ -86,45 +86,45 @@ static void wdg_63f46_p3(void *inst)
 static void wdg_63f46_p4(void *inst)
 {
     wdg_63f46 *self = inst;
-    if ((self->p_rst_n->cur == 0))
+    if (((*self->p_rst_n).cur == 0))
     {
         vs_drive(&self->s_default_value, (0 ? UINT64_C(0xFFFFFFFF) : 0));
         vs_drive(&self->s_status_register, (0 ? UINT64_C(0xFF) : 0));
     }
     else
     {
-        if ((self->p_cs->cur == 1))
+        if (((*self->p_cs).cur == 1))
         {
-            if ((self->p_rw_n->cur == 0))
+            if (((*self->p_rw_n).cur == 0))
             {
-                if (vs_falling(self->p_e))
+                if (vs_falling(&(*self->p_e)))
                 {
-                    vs_drive(self->p_d_out, (0 ? UINT64_C(0xFF) : 0));
-                    switch (self->p_addr->cur)
+                    vs_drive(&(*self->p_d_out), (0 ? UINT64_C(0xFF) : 0));
+                    switch ((*self->p_addr).cur)
                     {
                         case UINT64_C(0x0):
                         {
-                            vs_drive_bits(&self->s_default_value, 24, UINT64_C(0xFF), self->p_d_in->cur);
+                            vs_drive_bits(&self->s_default_value, 24, UINT64_C(0xFF), (*self->p_d_in).cur);
                             break;
                         }
                         case UINT64_C(0x1):
                         {
-                            vs_drive_bits(&self->s_default_value, 16, UINT64_C(0xFF), self->p_d_in->cur);
+                            vs_drive_bits(&self->s_default_value, 16, UINT64_C(0xFF), (*self->p_d_in).cur);
                             break;
                         }
                         case UINT64_C(0x2):
                         {
-                            vs_drive_bits(&self->s_default_value, 8, UINT64_C(0xFF), self->p_d_in->cur);
+                            vs_drive_bits(&self->s_default_value, 8, UINT64_C(0xFF), (*self->p_d_in).cur);
                             break;
                         }
                         case UINT64_C(0x3):
                         {
-                            vs_drive_bits(&self->s_default_value, 0, UINT64_C(0xFF), self->p_d_in->cur);
+                            vs_drive_bits(&self->s_default_value, 0, UINT64_C(0xFF), (*self->p_d_in).cur);
                             break;
                         }
                         case UINT64_C(0x4):
                         {
-                            vs_drive(&self->s_status_register, self->p_d_in->cur);
+                            vs_drive(&self->s_status_register, (*self->p_d_in).cur);
                             break;
                         }
                         default:
@@ -137,31 +137,31 @@ static void wdg_63f46_p4(void *inst)
             }
             else
             {
-                switch (self->p_addr->cur)
+                switch ((*self->p_addr).cur)
                 {
                     case UINT64_C(0x0):
                     {
-                        vs_drive(self->p_d_out, ((self->s_counter.cur >> 24) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_counter.cur >> 24) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x1):
                     {
-                        vs_drive(self->p_d_out, ((self->s_counter.cur >> 16) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_counter.cur >> 16) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x2):
                     {
-                        vs_drive(self->p_d_out, ((self->s_counter.cur >> 8) & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), ((self->s_counter.cur >> 8) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x3):
                     {
-                        vs_drive(self->p_d_out, (self->s_counter.cur & UINT64_C(0xFF)));
+                        vs_drive(&(*self->p_d_out), (self->s_counter.cur & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x4):
                     {
-                        vs_drive(self->p_d_out, self->s_status_register.cur);
+                        vs_drive(&(*self->p_d_out), self->s_status_register.cur);
                         break;
                     }
                     default:
@@ -174,7 +174,7 @@ static void wdg_63f46_p4(void *inst)
         }
         else
         {
-            vs_drive(self->p_d_out, (0 ? UINT64_C(0xFF) : 0));
+            vs_drive(&(*self->p_d_out), (0 ? UINT64_C(0xFF) : 0));
         }
     }
 }
@@ -191,45 +191,49 @@ void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e
     self->p_d_out = d_out;
     self->p_rw_n = rw_n;
     self->p_wdg_reset_n = wdg_reset_n;
-    vs_register_signal(k, &self->s_default_value, 0);
+    vs_register_signal(k, &self->s_default_value, (uint64_t) (0));
     vs_name(k, &self->s_default_value, path, "default_value", 32);
-    vs_register_signal(k, &self->s_counter, 0);
+    vs_register_signal(k, &self->s_counter, (uint64_t) (0));
     vs_name(k, &self->s_counter, path, "counter", 32);
-    vs_register_signal(k, &self->s_subcounter, 0);
+    vs_register_signal(k, &self->s_subcounter, (uint64_t) (0));
     vs_name(k, &self->s_subcounter, path, "subcounter", 64);
-    vs_register_signal(k, &self->s_status_register, 0);
+    vs_register_signal(k, &self->s_status_register, (uint64_t) (0));
     vs_name(k, &self->s_status_register, path, "status_register", 8);
 
     {
         vs_sig *sens[2];
-        sens[0] = &self->s_counter;
-        sens[1] = &self->s_status_register;
-        vs_register_process(k, wdg_63f46_p0, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &self->s_counter;
+        sens[n++] = &self->s_status_register;
+        vs_register_process(k, wdg_63f46_p0, self, sens, n);
     }
     vs_register_process(k, wdg_63f46_p1, self, NULL, 0);
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_rst_n;
-        sens[1] = self->p_sysclk;
-        vs_register_process(k, wdg_63f46_p2, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_rst_n);
+        sens[n++] = &(*self->p_sysclk);
+        vs_register_process(k, wdg_63f46_p2, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_rst_n;
-        sens[1] = self->p_sysclk;
-        vs_register_process(k, wdg_63f46_p3, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_rst_n);
+        sens[n++] = &(*self->p_sysclk);
+        vs_register_process(k, wdg_63f46_p3, self, sens, n);
     }
 
     {
         vs_sig *sens[5];
-        sens[0] = self->p_e;
-        sens[1] = self->p_rst_n;
-        sens[2] = self->p_cs;
-        sens[3] = self->p_addr;
-        sens[4] = self->p_rw_n;
-        vs_register_process(k, wdg_63f46_p4, self, sens, 5);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &(*self->p_rst_n);
+        sens[n++] = &(*self->p_cs);
+        sens[n++] = &(*self->p_addr);
+        sens[n++] = &(*self->p_rw_n);
+        vs_register_process(k, wdg_63f46_p4, self, sens, n);
     }
 }
 

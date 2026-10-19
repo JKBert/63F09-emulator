@@ -7,6 +7,7 @@
 #define GEN_CLK_63F75_H
 
 #include "vsim.h"
+#include "gen_types.h"
 
 typedef struct clk_63f75
 {

@@ -5,6 +5,7 @@
 #   make gen         translate the VHDL entities to C in src/gen   (needs VHDL_DIR)
 #   make census      list the VHDL constructs used by the design   (needs VHDL_DIR)
 #   make test        compare the C in src/gen to GHDL on random stimuli (needs VHDL_DIR)
+#   make test-rt     unit tests of the C runtime (no VHDL needed)
 #   make clean       remove the object files ; distclean also removes build/
 #
 # VHDL_DIR is the directory that holds the VHDL files (the sources are private and are never
@@ -29,7 +30,7 @@ export VHDL2C_GHDL_PREFIX := $(GHDL_INSTALL)
 LIBGHDL      := $(GHDL_INSTALL)/lib/libghdl-4_1_0.so
 VENV_STAMP   := $(VENV)/.pytooling
 
-.PHONY: all help tools gen census test clean distclean need-vhdl
+.PHONY: all help tools gen census test test-rt clean distclean need-vhdl
 
 all: tools
 
@@ -60,7 +61,7 @@ need-vhdl:
 	@test -d "$(VHDL_DIR)" || { echo "VHDL_DIR=$(VHDL_DIR) is not a directory"; exit 1; }
 
 # The entities translated to C (see docs/GENERATION.md).
-ENTITIES     ?= clk_63f75 wdg_63f46 acia_63f50 lzc_4 lzc_8 lzc_16 lzc_32 lzc_64
+ENTITIES     ?= clk_63f75 wdg_63f46 acia_63f50 amc_63f42 lzc_4 lzc_8 lzc_16 lzc_32 lzc_64 lzc_128 lzc_256 fp_sgnj
 
 gen: tools need-vhdl
 	$(PYTHON) tools/vhdl2c/gen.py $(VHDL_DIR) src/gen $(ENTITIES)
@@ -71,6 +72,12 @@ census: tools need-vhdl
 # Each block test compares the C of one entity to GHDL on the same random stimuli.
 test: tools need-vhdl
 	$(PYTHON) tools/vhdl2c/blocktest.py $(VHDL_DIR) $(GHDL)
+
+# Unit tests of the runtime : no VHDL involved.
+test-rt:
+	mkdir -p $(BUILD)/obj
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $(BUILD)/obj/test_vwide tests/rt/test_vwide.c src/rt/vsim.c
+	$(BUILD)/obj/test_vwide
 
 clean:
 	$(RM) -r $(BUILD)/obj

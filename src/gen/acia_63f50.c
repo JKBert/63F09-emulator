@@ -9,25 +9,25 @@
 static void acia_63f50_p0(void *inst)
 {
     acia_63f50 *self = inst;
-    vs_drive(self->p_irq_n, (~self->s_irq.cur & UINT64_C(0x1)));
+    vs_drive(&(*self->p_irq_n), (~self->s_irq.cur & UINT64_C(0x1)));
 }
 
 static void acia_63f50_p1(void *inst)
 {
     acia_63f50 *self = inst;
-    vs_drive(self->p_mrdy, 1);
+    vs_drive(&(*self->p_mrdy), 1);
 }
 
 static void acia_63f50_p2(void *inst)
 {
     acia_63f50 *self = inst;
-    if (((self->p_rst_n->cur == 0) | (self->s_clockrst.cur == 1)))
+    if ((((*self->p_rst_n).cur == 0) | (self->s_clockrst.cur == 1)))
     {
         vs_drive(&self->s_clockcnt, UINT64_C(0x0));
         vs_drive(&self->s_rxc, (~self->s_rxc.cur & UINT64_C(0x1)));
         vs_drive(&self->s_txc, (~self->s_txc.cur & UINT64_C(0x1)));
     }
-    else if (vs_falling(self->p_sysclk))
+    else if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_clockcnt.cur == self->s_clockdiv.cur))
         {
@@ -45,24 +45,24 @@ static void acia_63f50_p2(void *inst)
 static void acia_63f50_p3(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
-        vs_drive(&self->s_ac_rst, ((((self->s_control_reg.cur >> 1) & 1) & ((self->s_control_reg.cur >> 0) & 1)) | (~self->p_rst_n->cur & UINT64_C(0x1))));
+        vs_drive(&self->s_ac_rst, ((((self->s_control_reg.cur >> 1) & 1) & ((self->s_control_reg.cur >> 0) & 1)) | (~(*self->p_rst_n).cur & UINT64_C(0x1))));
     }
-    vs_drive(&self->s_rx_rst, (self->s_ac_rst.cur | self->p_dcd_n->cur));
+    vs_drive(&self->s_rx_rst, (self->s_ac_rst.cur | (*self->p_dcd_n).cur));
     vs_drive(&self->s_tx_rst, self->s_ac_rst.cur);
 }
 
 static void acia_63f50_p4(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         vs_drive(&self->s_status_read, 0);
         vs_drive(&self->s_tx_data_write, 0);
         vs_drive(&self->s_rx_data_read, 0);
         vs_drive(&self->s_clockrst, 0);
-        if ((self->p_rst_n->cur == 0))
+        if (((*self->p_rst_n).cur == 0))
         {
             vs_drive_bits(&self->s_control_reg, 0, UINT64_C(0x3), UINT64_C(0x3));
             vs_drive_bits(&self->s_control_reg, 2, UINT64_C(0x3F), (0 ? UINT64_C(0x3F) : 0));
@@ -70,15 +70,15 @@ static void acia_63f50_p4(void *inst)
         }
         else
         {
-            if ((self->p_cs->cur == 1))
+            if (((*self->p_cs).cur == 1))
             {
-                switch (self->p_addr->cur)
+                switch ((*self->p_addr).cur)
                 {
                     case UINT64_C(0x0):
                     {
-                        if ((self->p_rw_n->cur == 0))
+                        if (((*self->p_rw_n).cur == 0))
                         {
-                            vs_drive(&self->s_control_reg, self->p_d_in->cur);
+                            vs_drive(&self->s_control_reg, (*self->p_d_in).cur);
                         }
                         else
                         {
@@ -88,9 +88,9 @@ static void acia_63f50_p4(void *inst)
                     }
                     case UINT64_C(0x1):
                     {
-                        if ((self->p_rw_n->cur == 0))
+                        if (((*self->p_rw_n).cur == 0))
                         {
-                            vs_drive(&self->s_tx_data_reg, self->p_d_in->cur);
+                            vs_drive(&self->s_tx_data_reg, (*self->p_d_in).cur);
                             vs_drive(&self->s_tx_data_write, 1);
                         }
                         else
@@ -101,13 +101,13 @@ static void acia_63f50_p4(void *inst)
                     }
                     case UINT64_C(0x2):
                     {
-                        vs_drive_bits(&self->s_clockdiv, 8, UINT64_C(0xFF), self->p_d_in->cur);
+                        vs_drive_bits(&self->s_clockdiv, 8, UINT64_C(0xFF), (*self->p_d_in).cur);
                         vs_drive(&self->s_clockrst, 1);
                         break;
                     }
                     default:
                     {
-                        vs_drive_bits(&self->s_clockdiv, 0, UINT64_C(0xFF), self->p_d_in->cur);
+                        vs_drive_bits(&self->s_clockdiv, 0, UINT64_C(0xFF), (*self->p_d_in).cur);
                         vs_drive(&self->s_clockrst, 1);
                         break;
                     }
@@ -123,9 +123,9 @@ static void acia_63f50_p5(void *inst)
     vs_drive(&self->s_txie, ((~((self->s_control_reg.cur >> 6) & 1) & UINT64_C(0x1)) & ((self->s_control_reg.cur >> 5) & 1)));
     vs_drive(&self->s_rxie, ((self->s_control_reg.cur >> 7) & 1));
     vs_drive_bits(&self->s_status_reg, 0, UINT64_C(0x1), self->s_rxrdy.cur);
-    vs_drive_bits(&self->s_status_reg, 1, UINT64_C(0x1), (self->s_txrdy.cur & (~self->p_cts_n->cur & UINT64_C(0x1))));
+    vs_drive_bits(&self->s_status_reg, 1, UINT64_C(0x1), (self->s_txrdy.cur & (~(*self->p_cts_n).cur & UINT64_C(0x1))));
     vs_drive_bits(&self->s_status_reg, 2, UINT64_C(0x1), self->s_dcdint.cur);
-    vs_drive_bits(&self->s_status_reg, 3, UINT64_C(0x1), self->p_cts_n->cur);
+    vs_drive_bits(&self->s_status_reg, 3, UINT64_C(0x1), (*self->p_cts_n).cur);
     vs_drive_bits(&self->s_status_reg, 4, UINT64_C(0x1), self->s_ferr.cur);
     vs_drive_bits(&self->s_status_reg, 5, UINT64_C(0x1), self->s_oerr.cur);
     vs_drive_bits(&self->s_status_reg, 6, UINT64_C(0x1), self->s_perr.cur);
@@ -136,7 +136,7 @@ static void acia_63f50_p5(void *inst)
 static void acia_63f50_p6(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -159,7 +159,7 @@ static void acia_63f50_p6(void *inst)
 static void acia_63f50_p7(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -182,7 +182,7 @@ static void acia_63f50_p7(void *inst)
 static void acia_63f50_p8(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -205,7 +205,7 @@ static void acia_63f50_p8(void *inst)
 static void acia_63f50_p9(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -228,7 +228,7 @@ static void acia_63f50_p9(void *inst)
 static void acia_63f50_p10(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -252,26 +252,26 @@ static void acia_63f50_p10(void *inst)
 static void acia_63f50_p11(void *inst)
 {
     acia_63f50 *self = inst;
-    switch (self->p_addr->cur)
+    switch ((*self->p_addr).cur)
     {
         case UINT64_C(0x0):
         {
-            vs_drive(self->p_d_out, self->s_status_reg.cur);
+            vs_drive(&(*self->p_d_out), self->s_status_reg.cur);
             break;
         }
         case UINT64_C(0x1):
         {
-            vs_drive(self->p_d_out, self->s_rx_data_reg.cur);
+            vs_drive(&(*self->p_d_out), self->s_rx_data_reg.cur);
             break;
         }
         case UINT64_C(0x2):
         {
-            vs_drive(self->p_d_out, ((self->s_clockdiv.cur >> 8) & UINT64_C(0xFF)));
+            vs_drive(&(*self->p_d_out), ((self->s_clockdiv.cur >> 8) & UINT64_C(0xFF)));
             break;
         }
         default:
         {
-            vs_drive(self->p_d_out, (self->s_clockdiv.cur & UINT64_C(0xFF)));
+            vs_drive(&(*self->p_d_out), (self->s_clockdiv.cur & UINT64_C(0xFF)));
             break;
         }
     }
@@ -280,7 +280,7 @@ static void acia_63f50_p11(void *inst)
 static void acia_63f50_p12(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_ac_rst.cur == 1))
         {
@@ -289,8 +289,8 @@ static void acia_63f50_p12(void *inst)
         }
         else
         {
-            vs_drive(&self->s_dcddel, self->p_dcd_n->cur);
-            vs_drive(&self->s_dcdedge, (self->p_dcd_n->cur & (~self->s_dcddel.cur & UINT64_C(0x1))));
+            vs_drive(&self->s_dcddel, (*self->p_dcd_n).cur);
+            vs_drive(&self->s_dcdedge, ((*self->p_dcd_n).cur & (~self->s_dcddel.cur & UINT64_C(0x1))));
         }
     }
 }
@@ -298,7 +298,7 @@ static void acia_63f50_p12(void *inst)
 static void acia_63f50_p13(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_ac_rst.cur == 1))
         {
@@ -307,7 +307,7 @@ static void acia_63f50_p13(void *inst)
         }
         else
         {
-            switch (self->s_dcdstate.cur)
+            switch ((uint32_t) self->s_dcdstate.cur)
             {
                 case 0:
                 {
@@ -348,7 +348,7 @@ static void acia_63f50_p13(void *inst)
 static void acia_63f50_p14(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -367,17 +367,17 @@ static void acia_63f50_p14(void *inst)
 static void acia_63f50_p15(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
-            vs_drive(&self->s_rxddel, self->p_rxd->cur);
+            vs_drive(&self->s_rxddel, (*self->p_rxd).cur);
             vs_drive(&self->s_rxdedge, 0);
         }
         else
         {
-            vs_drive(&self->s_rxddel, self->p_rxd->cur);
-            vs_drive(&self->s_rxdedge, ((~self->p_rxd->cur & UINT64_C(0x1)) & self->s_rxddel.cur));
+            vs_drive(&self->s_rxddel, (*self->p_rxd).cur);
+            vs_drive(&self->s_rxdedge, ((~(*self->p_rxd).cur & UINT64_C(0x1)) & self->s_rxddel.cur));
         }
     }
 }
@@ -385,7 +385,7 @@ static void acia_63f50_p15(void *inst)
 static void acia_63f50_p16(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if (((self->s_rx_rst.cur == 1) | (self->s_rxdedge.cur == 1)))
         {
@@ -401,7 +401,7 @@ static void acia_63f50_p16(void *inst)
 static void acia_63f50_p17(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         switch ((self->s_control_reg.cur & UINT64_C(0x3)))
         {
@@ -432,7 +432,7 @@ static void acia_63f50_p17(void *inst)
 static void acia_63f50_p18(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -462,7 +462,7 @@ static void acia_63f50_p19(void *inst)
     vs_drive(&self->s_status_oer_set, 0);
     vs_drive(&self->s_status_per_clr, 0);
     vs_drive(&self->s_status_per_set, 0);
-    switch (self->s_rx_current_state.cur)
+    switch ((uint32_t) self->s_rx_current_state.cur)
     {
         case 0:
         {
@@ -554,7 +554,7 @@ static void acia_63f50_p19(void *inst)
 static void acia_63f50_p20(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_rx_rst.cur == 0))
         {
@@ -564,7 +564,7 @@ static void acia_63f50_p20(void *inst)
         {
             if ((self->s_rxbdedgefall.cur == 1))
             {
-                vs_drive(&self->s_rx_current_state, self->s_rx_next_state.cur);
+                vs_drive(&self->s_rx_current_state, (uint32_t) self->s_rx_next_state.cur);
             }
         }
     }
@@ -573,7 +573,7 @@ static void acia_63f50_p20(void *inst)
 static void acia_63f50_p21(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -584,8 +584,8 @@ static void acia_63f50_p21(void *inst)
         }
         else if ((self->s_rxbdedgerise.cur == 1))
         {
-            vs_drive(&self->s_rxdat, self->p_rxd->cur);
-            switch (self->s_rx_shift_ctrl.cur)
+            vs_drive(&self->s_rxdat, (*self->p_rxd).cur);
+            switch ((uint32_t) self->s_rx_shift_ctrl.cur)
             {
                 case 0:
                 {
@@ -604,8 +604,8 @@ static void acia_63f50_p21(void *inst)
                 case 2:
                 {
                     vs_drive(&self->s_rx_bit_count, ((self->s_rx_bit_count.cur - UINT64_C(0x1)) & UINT64_C(0xF)));
-                    vs_drive(&self->s_rx_shift_reg, ((self->p_rxd->cur << 7) | ((self->s_rx_shift_reg.cur >> 1) & UINT64_C(0x7F))));
-                    vs_drive(&self->s_rx_parity, (self->s_rx_parity.cur ^ self->p_rxd->cur));
+                    vs_drive(&self->s_rx_shift_reg, (((*self->p_rxd).cur << 7) | ((self->s_rx_shift_reg.cur >> 1) & UINT64_C(0x7F))));
+                    vs_drive(&self->s_rx_parity, (self->s_rx_parity.cur ^ (*self->p_rxd).cur));
                     break;
                 }
                 default:
@@ -621,7 +621,7 @@ static void acia_63f50_p21(void *inst)
 static void acia_63f50_p22(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -629,7 +629,7 @@ static void acia_63f50_p22(void *inst)
         }
         else if ((self->s_rxbdedgefall.cur == 1))
         {
-            switch (self->s_rx_data_ctrl.cur)
+            switch ((uint32_t) self->s_rx_data_ctrl.cur)
             {
                 case 0:
                 {
@@ -658,26 +658,26 @@ static void acia_63f50_p23(void *inst)
     {
         case UINT64_C(0x0):
         {
-            vs_drive(self->p_txd, self->s_txdat.cur);
-            vs_drive(self->p_rts_n, 0);
+            vs_drive(&(*self->p_txd), self->s_txdat.cur);
+            vs_drive(&(*self->p_rts_n), 0);
             break;
         }
         case UINT64_C(0x1):
         {
-            vs_drive(self->p_txd, self->s_txdat.cur);
-            vs_drive(self->p_rts_n, 0);
+            vs_drive(&(*self->p_txd), self->s_txdat.cur);
+            vs_drive(&(*self->p_rts_n), 0);
             break;
         }
         case UINT64_C(0x2):
         {
-            vs_drive(self->p_txd, self->s_txdat.cur);
-            vs_drive(self->p_rts_n, 1);
+            vs_drive(&(*self->p_txd), self->s_txdat.cur);
+            vs_drive(&(*self->p_rts_n), 1);
             break;
         }
         case UINT64_C(0x3):
         {
-            vs_drive(self->p_txd, 0);
-            vs_drive(self->p_rts_n, 0);
+            vs_drive(&(*self->p_txd), 0);
+            vs_drive(&(*self->p_rts_n), 0);
             break;
         }
         default:
@@ -691,7 +691,7 @@ static void acia_63f50_p23(void *inst)
 static void acia_63f50_p24(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -709,7 +709,7 @@ static void acia_63f50_p24(void *inst)
 static void acia_63f50_p25(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -725,7 +725,7 @@ static void acia_63f50_p25(void *inst)
 static void acia_63f50_p26(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         switch ((self->s_control_reg.cur & UINT64_C(0x3)))
         {
@@ -756,7 +756,7 @@ static void acia_63f50_p26(void *inst)
 static void acia_63f50_p27(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -777,7 +777,7 @@ static void acia_63f50_p28(void *inst)
 {
     acia_63f50 *self = inst;
     vs_drive(&self->s_status_txr_set, 0);
-    switch (self->s_tx_current_state.cur)
+    switch ((uint32_t) self->s_tx_current_state.cur)
     {
         case 0:
         {
@@ -864,7 +864,7 @@ static void acia_63f50_p28(void *inst)
 static void acia_63f50_p29(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -874,7 +874,7 @@ static void acia_63f50_p29(void *inst)
         {
             if ((self->s_txbdedgerise.cur == 1))
             {
-                vs_drive(&self->s_tx_current_state, self->s_tx_next_state.cur);
+                vs_drive(&self->s_tx_current_state, (uint32_t) self->s_tx_next_state.cur);
             }
         }
     }
@@ -883,7 +883,7 @@ static void acia_63f50_p29(void *inst)
 static void acia_63f50_p30(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(self->p_e))
+    if (vs_falling(&(*self->p_e)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -895,7 +895,7 @@ static void acia_63f50_p30(void *inst)
         else if ((self->s_txbdedgefall.cur == 1))
         {
             vs_drive(&self->s_txdat, self->s_txout.cur);
-            switch (self->s_tx_shift_ctrl.cur)
+            switch ((uint32_t) self->s_tx_shift_ctrl.cur)
             {
                 case 1:
                 {
@@ -945,397 +945,427 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
     self->p_dcd_n = dcd_n;
     self->p_cts_n = cts_n;
     self->p_rts_n = rts_n;
-    vs_register_signal(k, &self->s_ac_rst, 0);
+    vs_register_signal(k, &self->s_ac_rst, (uint64_t) (0));
     vs_name(k, &self->s_ac_rst, path, "ac_rst", 1);
-    vs_register_signal(k, &self->s_rx_rst, 0);
+    vs_register_signal(k, &self->s_rx_rst, (uint64_t) (0));
     vs_name(k, &self->s_rx_rst, path, "rx_rst", 1);
-    vs_register_signal(k, &self->s_tx_rst, 0);
+    vs_register_signal(k, &self->s_tx_rst, (uint64_t) (0));
     vs_name(k, &self->s_tx_rst, path, "tx_rst", 1);
-    vs_register_signal(k, &self->s_status_reg, (0 ? UINT64_C(0xFF) : 0));
+    vs_register_signal(k, &self->s_status_reg, (uint64_t) ((0 ? UINT64_C(0xFF) : 0)));
     vs_name(k, &self->s_status_reg, path, "status_reg", 8);
-    vs_register_signal(k, &self->s_control_reg, (0 ? UINT64_C(0xFF) : 0));
+    vs_register_signal(k, &self->s_control_reg, (uint64_t) ((0 ? UINT64_C(0xFF) : 0)));
     vs_name(k, &self->s_control_reg, path, "control_reg", 8);
-    vs_register_signal(k, &self->s_rx_data_reg, (0 ? UINT64_C(0xFF) : 0));
+    vs_register_signal(k, &self->s_rx_data_reg, (uint64_t) ((0 ? UINT64_C(0xFF) : 0)));
     vs_name(k, &self->s_rx_data_reg, path, "rx_data_reg", 8);
-    vs_register_signal(k, &self->s_tx_data_reg, (0 ? UINT64_C(0xFF) : 0));
+    vs_register_signal(k, &self->s_tx_data_reg, (uint64_t) ((0 ? UINT64_C(0xFF) : 0)));
     vs_name(k, &self->s_tx_data_reg, path, "tx_data_reg", 8);
-    vs_register_signal(k, &self->s_status_read, 0);
+    vs_register_signal(k, &self->s_status_read, (uint64_t) (0));
     vs_name(k, &self->s_status_read, path, "status_read", 1);
-    vs_register_signal(k, &self->s_rx_data_read, 0);
+    vs_register_signal(k, &self->s_rx_data_read, (uint64_t) (0));
     vs_name(k, &self->s_rx_data_read, path, "rx_data_read", 1);
-    vs_register_signal(k, &self->s_tx_data_write, 0);
+    vs_register_signal(k, &self->s_tx_data_write, (uint64_t) (0));
     vs_name(k, &self->s_tx_data_write, path, "tx_data_write", 1);
-    vs_register_signal(k, &self->s_rxrdy, 0);
+    vs_register_signal(k, &self->s_rxrdy, (uint64_t) (0));
     vs_name(k, &self->s_rxrdy, path, "rxrdy", 1);
-    vs_register_signal(k, &self->s_txrdy, 1);
+    vs_register_signal(k, &self->s_txrdy, (uint64_t) (1));
     vs_name(k, &self->s_txrdy, path, "txrdy", 1);
-    vs_register_signal(k, &self->s_dcdint, 0);
+    vs_register_signal(k, &self->s_dcdint, (uint64_t) (0));
     vs_name(k, &self->s_dcdint, path, "dcdint", 1);
-    vs_register_signal(k, &self->s_ferr, 0);
+    vs_register_signal(k, &self->s_ferr, (uint64_t) (0));
     vs_name(k, &self->s_ferr, path, "ferr", 1);
-    vs_register_signal(k, &self->s_oerr, 0);
+    vs_register_signal(k, &self->s_oerr, (uint64_t) (0));
     vs_name(k, &self->s_oerr, path, "oerr", 1);
-    vs_register_signal(k, &self->s_perr, 0);
+    vs_register_signal(k, &self->s_perr, (uint64_t) (0));
     vs_name(k, &self->s_perr, path, "perr", 1);
-    vs_register_signal(k, &self->s_txie, 0);
+    vs_register_signal(k, &self->s_txie, (uint64_t) (0));
     vs_name(k, &self->s_txie, path, "txie", 1);
-    vs_register_signal(k, &self->s_rxie, 0);
+    vs_register_signal(k, &self->s_rxie, (uint64_t) (0));
     vs_name(k, &self->s_rxie, path, "rxie", 1);
-    vs_register_signal(k, &self->s_status_rxr_set, 0);
+    vs_register_signal(k, &self->s_status_rxr_set, (uint64_t) (0));
     vs_name(k, &self->s_status_rxr_set, path, "status_rxr_set", 1);
-    vs_register_signal(k, &self->s_status_txr_set, 0);
+    vs_register_signal(k, &self->s_status_txr_set, (uint64_t) (0));
     vs_name(k, &self->s_status_txr_set, path, "status_txr_set", 1);
-    vs_register_signal(k, &self->s_status_fer_set, 0);
+    vs_register_signal(k, &self->s_status_fer_set, (uint64_t) (0));
     vs_name(k, &self->s_status_fer_set, path, "status_fer_set", 1);
-    vs_register_signal(k, &self->s_status_fer_clr, 0);
+    vs_register_signal(k, &self->s_status_fer_clr, (uint64_t) (0));
     vs_name(k, &self->s_status_fer_clr, path, "status_fer_clr", 1);
-    vs_register_signal(k, &self->s_status_oer_set, 0);
+    vs_register_signal(k, &self->s_status_oer_set, (uint64_t) (0));
     vs_name(k, &self->s_status_oer_set, path, "status_oer_set", 1);
-    vs_register_signal(k, &self->s_status_oer_clr, 0);
+    vs_register_signal(k, &self->s_status_oer_clr, (uint64_t) (0));
     vs_name(k, &self->s_status_oer_clr, path, "status_oer_clr", 1);
-    vs_register_signal(k, &self->s_status_per_set, 0);
+    vs_register_signal(k, &self->s_status_per_set, (uint64_t) (0));
     vs_name(k, &self->s_status_per_set, path, "status_per_set", 1);
-    vs_register_signal(k, &self->s_status_per_clr, 0);
+    vs_register_signal(k, &self->s_status_per_clr, (uint64_t) (0));
     vs_name(k, &self->s_status_per_clr, path, "status_per_clr", 1);
-    vs_register_signal(k, &self->s_dcdstate, 0);
+    vs_register_signal(k, &self->s_dcdstate, (uint64_t) (0));
     vs_name(k, &self->s_dcdstate, path, "dcdstate", 32);
-    vs_register_signal(k, &self->s_dcddel, 0);
+    vs_register_signal(k, &self->s_dcddel, (uint64_t) (0));
     vs_name(k, &self->s_dcddel, path, "dcddel", 1);
-    vs_register_signal(k, &self->s_dcdedge, 0);
+    vs_register_signal(k, &self->s_dcdedge, (uint64_t) (0));
     vs_name(k, &self->s_dcdedge, path, "dcdedge", 1);
-    vs_register_signal(k, &self->s_rx_current_state, 0);
+    vs_register_signal(k, &self->s_rx_current_state, (uint64_t) (0));
     vs_name(k, &self->s_rx_current_state, path, "rx_current_state", 32);
-    vs_register_signal(k, &self->s_rx_next_state, 0);
+    vs_register_signal(k, &self->s_rx_next_state, (uint64_t) (0));
     vs_name(k, &self->s_rx_next_state, path, "rx_next_state", 32);
-    vs_register_signal(k, &self->s_rxdat, 1);
+    vs_register_signal(k, &self->s_rxdat, (uint64_t) (1));
     vs_name(k, &self->s_rxdat, path, "rxdat", 1);
-    vs_register_signal(k, &self->s_rxddel, 1);
+    vs_register_signal(k, &self->s_rxddel, (uint64_t) (1));
     vs_name(k, &self->s_rxddel, path, "rxddel", 1);
-    vs_register_signal(k, &self->s_rxdedge, 0);
+    vs_register_signal(k, &self->s_rxdedge, (uint64_t) (0));
     vs_name(k, &self->s_rxdedge, path, "rxdedge", 1);
-    vs_register_signal(k, &self->s_rxcdel, UINT64_C(0x0));
+    vs_register_signal(k, &self->s_rxcdel, (uint64_t) (UINT64_C(0x0)));
     vs_name(k, &self->s_rxcdel, path, "rxcdel", 2);
-    vs_register_signal(k, &self->s_rxcedge, 0);
+    vs_register_signal(k, &self->s_rxcedge, (uint64_t) (0));
     vs_name(k, &self->s_rxcedge, path, "rxcedge", 1);
-    vs_register_signal(k, &self->s_rxclkcnt, (0 ? UINT64_C(0x3F) : 0));
+    vs_register_signal(k, &self->s_rxclkcnt, (uint64_t) ((0 ? UINT64_C(0x3F) : 0)));
     vs_name(k, &self->s_rxclkcnt, path, "rxclkcnt", 6);
-    vs_register_signal(k, &self->s_rxbdclk, 0);
+    vs_register_signal(k, &self->s_rxbdclk, (uint64_t) (0));
     vs_name(k, &self->s_rxbdclk, path, "rxbdclk", 1);
-    vs_register_signal(k, &self->s_rxbddel, 0);
+    vs_register_signal(k, &self->s_rxbddel, (uint64_t) (0));
     vs_name(k, &self->s_rxbddel, path, "rxbddel", 1);
-    vs_register_signal(k, &self->s_rxbdedgerise, 0);
+    vs_register_signal(k, &self->s_rxbdedgerise, (uint64_t) (0));
     vs_name(k, &self->s_rxbdedgerise, path, "rxbdedgerise", 1);
-    vs_register_signal(k, &self->s_rxbdedgefall, 0);
+    vs_register_signal(k, &self->s_rxbdedgefall, (uint64_t) (0));
     vs_name(k, &self->s_rxbdedgefall, path, "rxbdedgefall", 1);
-    vs_register_signal(k, &self->s_rx_parity, 0);
+    vs_register_signal(k, &self->s_rx_parity, (uint64_t) (0));
     vs_name(k, &self->s_rx_parity, path, "rx_parity", 1);
-    vs_register_signal(k, &self->s_rx_bit_count, (0 ? UINT64_C(0xF) : 0));
+    vs_register_signal(k, &self->s_rx_bit_count, (uint64_t) ((0 ? UINT64_C(0xF) : 0)));
     vs_name(k, &self->s_rx_bit_count, path, "rx_bit_count", 4);
-    vs_register_signal(k, &self->s_rx_shift_reg, (0 ? UINT64_C(0xFF) : 0));
+    vs_register_signal(k, &self->s_rx_shift_reg, (uint64_t) ((0 ? UINT64_C(0xFF) : 0)));
     vs_name(k, &self->s_rx_shift_reg, path, "rx_shift_reg", 8);
-    vs_register_signal(k, &self->s_tx_current_state, 0);
+    vs_register_signal(k, &self->s_tx_current_state, (uint64_t) (0));
     vs_name(k, &self->s_tx_current_state, path, "tx_current_state", 32);
-    vs_register_signal(k, &self->s_tx_next_state, 0);
+    vs_register_signal(k, &self->s_tx_next_state, (uint64_t) (0));
     vs_name(k, &self->s_tx_next_state, path, "tx_next_state", 32);
-    vs_register_signal(k, &self->s_txout, 1);
+    vs_register_signal(k, &self->s_txout, (uint64_t) (1));
     vs_name(k, &self->s_txout, path, "txout", 1);
-    vs_register_signal(k, &self->s_txdat, 1);
+    vs_register_signal(k, &self->s_txdat, (uint64_t) (1));
     vs_name(k, &self->s_txdat, path, "txdat", 1);
-    vs_register_signal(k, &self->s_txcdel, 0);
+    vs_register_signal(k, &self->s_txcdel, (uint64_t) (0));
     vs_name(k, &self->s_txcdel, path, "txcdel", 1);
-    vs_register_signal(k, &self->s_txcedge, 0);
+    vs_register_signal(k, &self->s_txcedge, (uint64_t) (0));
     vs_name(k, &self->s_txcedge, path, "txcedge", 1);
-    vs_register_signal(k, &self->s_txclkcnt, (0 ? UINT64_C(0x3F) : 0));
+    vs_register_signal(k, &self->s_txclkcnt, (uint64_t) ((0 ? UINT64_C(0x3F) : 0)));
     vs_name(k, &self->s_txclkcnt, path, "txclkcnt", 6);
-    vs_register_signal(k, &self->s_txbdclk, 0);
+    vs_register_signal(k, &self->s_txbdclk, (uint64_t) (0));
     vs_name(k, &self->s_txbdclk, path, "txbdclk", 1);
-    vs_register_signal(k, &self->s_txbddel, 0);
+    vs_register_signal(k, &self->s_txbddel, (uint64_t) (0));
     vs_name(k, &self->s_txbddel, path, "txbddel", 1);
-    vs_register_signal(k, &self->s_txbdedgerise, 0);
+    vs_register_signal(k, &self->s_txbdedgerise, (uint64_t) (0));
     vs_name(k, &self->s_txbdedgerise, path, "txbdedgerise", 1);
-    vs_register_signal(k, &self->s_txbdedgefall, 0);
+    vs_register_signal(k, &self->s_txbdedgefall, (uint64_t) (0));
     vs_name(k, &self->s_txbdedgefall, path, "txbdedgefall", 1);
-    vs_register_signal(k, &self->s_tx_parity, 0);
+    vs_register_signal(k, &self->s_tx_parity, (uint64_t) (0));
     vs_name(k, &self->s_tx_parity, path, "tx_parity", 1);
-    vs_register_signal(k, &self->s_tx_bit_count, (0 ? UINT64_C(0xF) : 0));
+    vs_register_signal(k, &self->s_tx_bit_count, (uint64_t) ((0 ? UINT64_C(0xF) : 0)));
     vs_name(k, &self->s_tx_bit_count, path, "tx_bit_count", 4);
-    vs_register_signal(k, &self->s_tx_shift_reg, (0 ? UINT64_C(0xFF) : 0));
+    vs_register_signal(k, &self->s_tx_shift_reg, (uint64_t) ((0 ? UINT64_C(0xFF) : 0)));
     vs_name(k, &self->s_tx_shift_reg, path, "tx_shift_reg", 8);
-    vs_register_signal(k, &self->s_rx_data_ctrl, 0);
+    vs_register_signal(k, &self->s_rx_data_ctrl, (uint64_t) (0));
     vs_name(k, &self->s_rx_data_ctrl, path, "rx_data_ctrl", 32);
-    vs_register_signal(k, &self->s_rx_shift_ctrl, 0);
+    vs_register_signal(k, &self->s_rx_shift_ctrl, (uint64_t) (0));
     vs_name(k, &self->s_rx_shift_ctrl, path, "rx_shift_ctrl", 32);
-    vs_register_signal(k, &self->s_tx_shift_ctrl, 0);
+    vs_register_signal(k, &self->s_tx_shift_ctrl, (uint64_t) (0));
     vs_name(k, &self->s_tx_shift_ctrl, path, "tx_shift_ctrl", 32);
-    vs_register_signal(k, &self->s_rx_count_ctrl, 0);
+    vs_register_signal(k, &self->s_rx_count_ctrl, (uint64_t) (0));
     vs_name(k, &self->s_rx_count_ctrl, path, "rx_count_ctrl", 32);
-    vs_register_signal(k, &self->s_tx_count_ctrl, 0);
+    vs_register_signal(k, &self->s_tx_count_ctrl, (uint64_t) (0));
     vs_name(k, &self->s_tx_count_ctrl, path, "tx_count_ctrl", 32);
-    vs_register_signal(k, &self->s_rxc, 0);
+    vs_register_signal(k, &self->s_rxc, (uint64_t) (0));
     vs_name(k, &self->s_rxc, path, "rxc", 1);
-    vs_register_signal(k, &self->s_txc, 0);
+    vs_register_signal(k, &self->s_txc, (uint64_t) (0));
     vs_name(k, &self->s_txc, path, "txc", 1);
-    vs_register_signal(k, &self->s_clockdiv, 0);
+    vs_register_signal(k, &self->s_clockdiv, (uint64_t) (0));
     vs_name(k, &self->s_clockdiv, path, "clockdiv", 16);
-    vs_register_signal(k, &self->s_clockcnt, 0);
+    vs_register_signal(k, &self->s_clockcnt, (uint64_t) (0));
     vs_name(k, &self->s_clockcnt, path, "clockcnt", 16);
-    vs_register_signal(k, &self->s_clockrst, 0);
+    vs_register_signal(k, &self->s_clockrst, (uint64_t) (0));
     vs_name(k, &self->s_clockrst, path, "clockrst", 1);
-    vs_register_signal(k, &self->s_irq, 0);
+    vs_register_signal(k, &self->s_irq, (uint64_t) (0));
     vs_name(k, &self->s_irq, path, "irq", 1);
 
     {
         vs_sig *sens[1];
-        sens[0] = &self->s_irq;
-        vs_register_process(k, acia_63f50_p0, self, sens, 1);
+        size_t n = 0;
+        sens[n++] = &self->s_irq;
+        vs_register_process(k, acia_63f50_p0, self, sens, n);
     }
     vs_register_process(k, acia_63f50_p1, self, NULL, 0);
 
     {
         vs_sig *sens[3];
-        sens[0] = self->p_sysclk;
-        sens[1] = self->p_rst_n;
-        sens[2] = &self->s_clockrst;
-        vs_register_process(k, acia_63f50_p2, self, sens, 3);
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &(*self->p_rst_n);
+        sens[n++] = &self->s_clockrst;
+        vs_register_process(k, acia_63f50_p2, self, sens, n);
     }
 
     {
         vs_sig *sens[4];
-        sens[0] = self->p_e;
-        sens[1] = self->p_rst_n;
-        sens[2] = &self->s_ac_rst;
-        sens[3] = self->p_dcd_n;
-        vs_register_process(k, acia_63f50_p3, self, sens, 4);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &(*self->p_rst_n);
+        sens[n++] = &self->s_ac_rst;
+        sens[n++] = &(*self->p_dcd_n);
+        vs_register_process(k, acia_63f50_p3, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_e;
-        sens[1] = self->p_rst_n;
-        vs_register_process(k, acia_63f50_p4, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &(*self->p_rst_n);
+        vs_register_process(k, acia_63f50_p4, self, sens, n);
     }
 
     {
         vs_sig *sens[11];
-        sens[0] = &self->s_rxrdy;
-        sens[1] = &self->s_txrdy;
-        sens[2] = &self->s_dcdint;
-        sens[3] = self->p_cts_n;
-        sens[4] = &self->s_ferr;
-        sens[5] = &self->s_oerr;
-        sens[6] = &self->s_perr;
-        sens[7] = &self->s_rxie;
-        sens[8] = &self->s_txie;
-        sens[9] = &self->s_status_reg;
-        sens[10] = &self->s_control_reg;
-        vs_register_process(k, acia_63f50_p5, self, sens, 11);
+        size_t n = 0;
+        sens[n++] = &self->s_rxrdy;
+        sens[n++] = &self->s_txrdy;
+        sens[n++] = &self->s_dcdint;
+        sens[n++] = &(*self->p_cts_n);
+        sens[n++] = &self->s_ferr;
+        sens[n++] = &self->s_oerr;
+        sens[n++] = &self->s_perr;
+        sens[n++] = &self->s_rxie;
+        sens[n++] = &self->s_txie;
+        sens[n++] = &self->s_status_reg;
+        sens[n++] = &self->s_control_reg;
+        vs_register_process(k, acia_63f50_p5, self, sens, n);
     }
 
     {
         vs_sig *sens[4];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_rx_rst;
-        sens[2] = &self->s_rxbdedgefall;
-        sens[3] = &self->s_status_rxr_set;
-        vs_register_process(k, acia_63f50_p6, self, sens, 4);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &self->s_rxbdedgefall;
+        sens[n++] = &self->s_status_rxr_set;
+        vs_register_process(k, acia_63f50_p6, self, sens, n);
     }
 
     {
         vs_sig *sens[4];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_tx_rst;
-        sens[2] = &self->s_txbdedgerise;
-        sens[3] = &self->s_status_txr_set;
-        vs_register_process(k, acia_63f50_p7, self, sens, 4);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_tx_rst;
+        sens[n++] = &self->s_txbdedgerise;
+        sens[n++] = &self->s_status_txr_set;
+        vs_register_process(k, acia_63f50_p7, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
-        sens[0] = self->p_e;
-        vs_register_process(k, acia_63f50_p8, self, sens, 1);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        vs_register_process(k, acia_63f50_p8, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
-        sens[0] = self->p_e;
-        vs_register_process(k, acia_63f50_p9, self, sens, 1);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        vs_register_process(k, acia_63f50_p9, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
-        sens[0] = self->p_e;
-        vs_register_process(k, acia_63f50_p10, self, sens, 1);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        vs_register_process(k, acia_63f50_p10, self, sens, n);
     }
 
     {
         vs_sig *sens[3];
-        sens[0] = self->p_addr;
-        sens[1] = &self->s_rx_data_reg;
-        sens[2] = &self->s_status_reg;
-        vs_register_process(k, acia_63f50_p11, self, sens, 3);
+        size_t n = 0;
+        sens[n++] = &(*self->p_addr);
+        sens[n++] = &self->s_rx_data_reg;
+        sens[n++] = &self->s_status_reg;
+        vs_register_process(k, acia_63f50_p11, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_ac_rst;
-        vs_register_process(k, acia_63f50_p12, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_ac_rst;
+        vs_register_process(k, acia_63f50_p12, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_ac_rst;
-        vs_register_process(k, acia_63f50_p13, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_ac_rst;
+        vs_register_process(k, acia_63f50_p13, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_rx_rst;
-        vs_register_process(k, acia_63f50_p14, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_rx_rst;
+        vs_register_process(k, acia_63f50_p14, self, sens, n);
     }
 
     {
         vs_sig *sens[4];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_rx_rst;
-        sens[2] = self->p_rxd;
-        sens[3] = &self->s_rxddel;
-        vs_register_process(k, acia_63f50_p15, self, sens, 4);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &(*self->p_rxd);
+        sens[n++] = &self->s_rxddel;
+        vs_register_process(k, acia_63f50_p15, self, sens, n);
     }
 
     {
         vs_sig *sens[4];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_rx_rst;
-        sens[2] = &self->s_rxdedge;
-        sens[3] = &self->s_rxcedge;
-        vs_register_process(k, acia_63f50_p16, self, sens, 4);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &self->s_rxdedge;
+        sens[n++] = &self->s_rxcedge;
+        vs_register_process(k, acia_63f50_p16, self, sens, n);
     }
 
     {
         vs_sig *sens[4];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_control_reg;
-        sens[2] = &self->s_rxc;
-        sens[3] = &self->s_rxclkcnt;
-        vs_register_process(k, acia_63f50_p17, self, sens, 4);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_control_reg;
+        sens[n++] = &self->s_rxc;
+        sens[n++] = &self->s_rxclkcnt;
+        vs_register_process(k, acia_63f50_p17, self, sens, n);
     }
 
     {
         vs_sig *sens[4];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_rx_rst;
-        sens[2] = &self->s_rxbdclk;
-        sens[3] = &self->s_rxbddel;
-        vs_register_process(k, acia_63f50_p18, self, sens, 4);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &self->s_rxbdclk;
+        sens[n++] = &self->s_rxbddel;
+        vs_register_process(k, acia_63f50_p18, self, sens, n);
     }
 
     {
         vs_sig *sens[7];
-        sens[0] = &self->s_rx_current_state;
-        sens[1] = &self->s_control_reg;
-        sens[2] = &self->s_rx_bit_count;
-        sens[3] = self->p_rxd;
-        sens[4] = &self->s_rxdat;
-        sens[5] = &self->s_rx_parity;
-        sens[6] = &self->s_rxrdy;
-        vs_register_process(k, acia_63f50_p19, self, sens, 7);
+        size_t n = 0;
+        sens[n++] = &self->s_rx_current_state;
+        sens[n++] = &self->s_control_reg;
+        sens[n++] = &self->s_rx_bit_count;
+        sens[n++] = &(*self->p_rxd);
+        sens[n++] = &self->s_rxdat;
+        sens[n++] = &self->s_rx_parity;
+        sens[n++] = &self->s_rxrdy;
+        vs_register_process(k, acia_63f50_p19, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
-        sens[0] = self->p_e;
-        vs_register_process(k, acia_63f50_p20, self, sens, 1);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        vs_register_process(k, acia_63f50_p20, self, sens, n);
     }
 
     {
         vs_sig *sens[6];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_rx_rst;
-        sens[2] = &self->s_rxbdedgerise;
-        sens[3] = &self->s_rx_shift_reg;
-        sens[4] = self->p_rxd;
-        sens[5] = &self->s_rx_parity;
-        vs_register_process(k, acia_63f50_p21, self, sens, 6);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &self->s_rxbdedgerise;
+        sens[n++] = &self->s_rx_shift_reg;
+        sens[n++] = &(*self->p_rxd);
+        sens[n++] = &self->s_rx_parity;
+        vs_register_process(k, acia_63f50_p21, self, sens, n);
     }
 
     {
         vs_sig *sens[3];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_rx_rst;
-        sens[2] = &self->s_rx_shift_reg;
-        vs_register_process(k, acia_63f50_p22, self, sens, 3);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &self->s_rx_shift_reg;
+        vs_register_process(k, acia_63f50_p22, self, sens, n);
     }
 
     {
         vs_sig *sens[4];
-        sens[0] = &self->s_control_reg;
-        sens[1] = &self->s_txdat;
-        sens[2] = &self->s_txc;
-        sens[3] = &self->s_txclkcnt;
-        vs_register_process(k, acia_63f50_p23, self, sens, 4);
+        size_t n = 0;
+        sens[n++] = &self->s_control_reg;
+        sens[n++] = &self->s_txdat;
+        sens[n++] = &self->s_txc;
+        sens[n++] = &self->s_txclkcnt;
+        vs_register_process(k, acia_63f50_p23, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_tx_rst;
-        vs_register_process(k, acia_63f50_p24, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_tx_rst;
+        vs_register_process(k, acia_63f50_p24, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_tx_rst;
-        vs_register_process(k, acia_63f50_p25, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_tx_rst;
+        vs_register_process(k, acia_63f50_p25, self, sens, n);
     }
 
     {
         vs_sig *sens[5];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_control_reg;
-        sens[2] = &self->s_txdat;
-        sens[3] = &self->s_txc;
-        sens[4] = &self->s_txclkcnt;
-        vs_register_process(k, acia_63f50_p26, self, sens, 5);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_control_reg;
+        sens[n++] = &self->s_txdat;
+        sens[n++] = &self->s_txc;
+        sens[n++] = &self->s_txclkcnt;
+        vs_register_process(k, acia_63f50_p26, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_tx_rst;
-        vs_register_process(k, acia_63f50_p27, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_tx_rst;
+        vs_register_process(k, acia_63f50_p27, self, sens, n);
     }
 
     {
         vs_sig *sens[6];
-        sens[0] = &self->s_tx_current_state;
-        sens[1] = &self->s_txrdy;
-        sens[2] = &self->s_tx_bit_count;
-        sens[3] = &self->s_tx_shift_reg;
-        sens[4] = &self->s_control_reg;
-        sens[5] = &self->s_tx_parity;
-        vs_register_process(k, acia_63f50_p28, self, sens, 6);
+        size_t n = 0;
+        sens[n++] = &self->s_tx_current_state;
+        sens[n++] = &self->s_txrdy;
+        sens[n++] = &self->s_tx_bit_count;
+        sens[n++] = &self->s_tx_shift_reg;
+        sens[n++] = &self->s_control_reg;
+        sens[n++] = &self->s_tx_parity;
+        vs_register_process(k, acia_63f50_p28, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_tx_rst;
-        vs_register_process(k, acia_63f50_p29, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_tx_rst;
+        vs_register_process(k, acia_63f50_p29, self, sens, n);
     }
 
     {
         vs_sig *sens[6];
-        sens[0] = self->p_e;
-        sens[1] = &self->s_txbdedgefall;
-        sens[2] = &self->s_tx_shift_ctrl;
-        sens[3] = &self->s_tx_data_reg;
-        sens[4] = &self->s_tx_shift_reg;
-        sens[5] = &self->s_tx_parity;
-        vs_register_process(k, acia_63f50_p30, self, sens, 6);
+        size_t n = 0;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_txbdedgefall;
+        sens[n++] = &self->s_tx_shift_ctrl;
+        sens[n++] = &self->s_tx_data_reg;
+        sens[n++] = &self->s_tx_shift_reg;
+        sens[n++] = &self->s_tx_parity;
+        vs_register_process(k, acia_63f50_p30, self, sens, n);
     }
 }
 

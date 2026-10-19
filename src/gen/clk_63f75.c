@@ -9,21 +9,21 @@
 static void clk_63f75_p0(void *inst)
 {
     clk_63f75 *self = inst;
-    if ((self->p_reset_n->cur == 0))
+    if (((*self->p_reset_n).cur == 0))
     {
         vs_drive(&self->s_position, UINT64_C(0x1));
-        vs_drive(self->p_e, 0);
-        vs_drive(self->p_q, 1);
-        vs_drive(self->p_c, 1);
+        vs_drive(&(*self->p_e), 0);
+        vs_drive(&(*self->p_q), 1);
+        vs_drive(&(*self->p_c), 1);
     }
-    else if (vs_rising(self->p_tick))
+    else if (vs_rising(&(*self->p_tick)))
     {
-        if ((self->p_mrdy->cur == 1))
+        if (((*self->p_mrdy).cur == 1))
         {
             vs_drive(&self->s_position, (((self->s_position.cur & UINT64_C(0x7)) << 1) | ((self->s_position.cur >> 3) & 1)));
-            vs_drive(self->p_e, (((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)));
-            vs_drive(self->p_q, (((self->s_position.cur >> 3) & 1) | ((self->s_position.cur >> 0) & 1)));
-            vs_drive(self->p_c, (~(((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)) & UINT64_C(0x1)));
+            vs_drive(&(*self->p_e), (((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)));
+            vs_drive(&(*self->p_q), (((self->s_position.cur >> 3) & 1) | ((self->s_position.cur >> 0) & 1)));
+            vs_drive(&(*self->p_c), (~(((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)) & UINT64_C(0x1)));
         }
     }
 }
@@ -36,14 +36,15 @@ void clk_63f75_create(vs_kernel *k, clk_63f75 *self, const char *path, vs_sig *r
     self->p_e = e;
     self->p_q = q;
     self->p_c = c;
-    vs_register_signal(k, &self->s_position, UINT64_C(0x1));
+    vs_register_signal(k, &self->s_position, (uint64_t) (UINT64_C(0x1)));
     vs_name(k, &self->s_position, path, "position", 4);
 
     {
         vs_sig *sens[2];
-        sens[0] = self->p_reset_n;
-        sens[1] = self->p_tick;
-        vs_register_process(k, clk_63f75_p0, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &(*self->p_reset_n);
+        sens[n++] = &(*self->p_tick);
+        vs_register_process(k, clk_63f75_p0, self, sens, n);
     }
 }
 

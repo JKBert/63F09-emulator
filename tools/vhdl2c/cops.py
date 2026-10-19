@@ -42,9 +42,23 @@ def ival(e):
 
 
 def need_width(n, w):
-    if w is None or w > 64:
-        raise unsupported(n, "vector wider than 64 bits")
+    if w is None or w > 512:
+        raise unsupported(n, "vector wider than 512 bits")
     return w
+
+
+def wide(e):
+    """True when the expression is a vector wider than 64 bits : its code is a vs_w."""
+    return e.ct.kind == "vec" and e.ct.width is not None and e.ct.width > 64
+
+
+def W(e):
+    """The code of the expression as a vs_w (zero-extended when it is narrow)."""
+    if wide(e):
+        return e.code
+    if e.ct.kind == "int":
+        return "vs_w_from((uint64_t)(%s))" % e.code
+    return "vs_w_from(%s)" % e.code
 
 
 INT_BIN = {"Integer_Plus": "+", "Integer_Minus": "-", "Integer_Mul": "*", "Integer_Div": "/", "Integer_Rem": "%"}
@@ -116,10 +130,16 @@ class Ops:
             return E("((%s) < 0 ? -(%s) : (%s))" % ((ival(a[0]),) * 3), Int())
         if name in INT_CMP:
             return E("(%s %s %s)" % (ival(a[0]), INT_CMP[name], ival(a[1])), Bit())
-        if name in ("Enum_Equality", "Array_Equality"):
-            return E("(%s == %s)" % (a[0].code, a[1].code), Bit())
-        if name in ("Enum_Inequality", "Array_Inequality"):
-            return E("(%s != %s)" % (a[0].code, a[1].code), Bit())
+        if name in ("Enum_Equality", "Array_Equality", "Record_Equality", "Enum_Inequality", "Array_Inequality",
+                    "Record_Inequality"):
+            neg = name.endswith("Inequality")
+            if a[0].ct.kind in ("rec", "arr") or wide(a[0]) or wide(a[1]):
+                if a[0].ct.kind in ("rec", "arr"):
+                    code = "%s_eq(%s, %s)" % (a[0].ct.cname, a[0].code, a[1].code)
+                else:
+                    code = "vs_w_eq(%s, %s)" % (W(a[0]), W(a[1]))
+                return E("(!%s)" % code if neg else code, Bit())
+            return E("(%s %s %s)" % (a[0].code, "!=" if neg else "==", a[1].code), Bit())
         m = re.match(r"(Boolean|Ieee_1164_Scalar)_(And|Or|Xor|Nand|Nor|Xnor|Not)$", name)
         if m:
             return self.bitwise(m.group(2), a, 1)
@@ -140,6 +160,15 @@ class Ops:
         raise unsupported(n, "predefined function %s" % name)
 
     def bitwise(self, op, a, w):
+        if wide(a[0]) or wide(a[-1]):
+            ww = a[0].ct.width if wide(a[0]) else a[-1].ct.width
+            if op == "Not":
+                return E("vs_w_not(%s, %d)" % (W(a[0]), ww), a[0].ct)
+            fn = {"And": "vs_w_and", "Nand": "vs_w_and", "Or": "vs_w_or", "Nor": "vs_w_or", "Xor": "vs_w_xor", "Xnor": "vs_w_xor"}[op]
+            code = "%s(%s, %s)" % (fn, W(a[0]), W(a[1]))
+            if op in ("Nand", "Nor", "Xnor"):
+                code = "vs_w_not(%s, %d)" % (code, ww)
+            return E(code, a[0].ct if wide(a[0]) else a[-1].ct)
         m = mask(w)
         ct = a[0].ct if a[0].ct.kind in ("bit", "vec") else Bit()
         if op == "Not":
@@ -152,6 +181,16 @@ class Ops:
 
     def reduction(self, op, e, n):
         w = need_width(n, e.ct.width)
+        if wide(e):
+            if op in ("Or", "Nor"):
+                code = "(!vs_w_is_zero(%s))" % e.code
+            elif op in ("And", "Nand"):
+                code = "vs_w_eq(%s, vs_w_ones(%d))" % (e.code, w)
+            else:
+                code = "vs_w_parity(%s)" % e.code
+            if op in ("Nor", "Nand", "Xnor"):
+                code = "(%s ^ 1)" % code
+            return E(code, Bit())
         if op in ("Or", "Nor"):
             code = "(%s != 0)" % e.code
         elif op in ("And", "Nand"):
@@ -168,11 +207,20 @@ class Ops:
                 raise unsupported(n, "concatenation of these types")
         w = sum(need_width(n, e.ct.width) for e in a)
         if w > 64:
-            raise unsupported(n, "concatenation wider than 64 bits")
+            code = W(a[0])
+            for e in a[1:]:
+                code = "vs_w_cat(%s, %s, %d)" % (code, W(e), e.ct.width)
+            return E(code, Vec(w))
         code = a[0].code
         for e in a[1:]:
             code = "((%s << %d) | %s)" % (code, e.ct.width, e.code)
         return E(code, Vec(w))
+
+    def wide_compare(self, op, a):
+        x, y = W(a[0]), W(a[1])
+        return {"Eq": "vs_w_eq(%s, %s)", "Ne": "(!vs_w_eq(%s, %s))", "Lt": "vs_w_ult(%s, %s)",
+                "Le": "(!vs_w_ult(%s, %s))", "Gt": "vs_w_ult(%s, %s)", "Ge": "(!vs_w_ult(%s, %s))"}[op] % \
+            ((y, x) if op in ("Gt", "Le") else (x, y))
 
     # std_logic_unsigned : the vectors are numbers, the result takes the width of the widest vector
     def slv_unsigned(self, n, name, a):
@@ -183,9 +231,14 @@ class Ops:
             w = need_width(n, max(e.ct.width for e in vecs))
             if m.group(1) == "Mul":
                 w = need_width(n, sum(e.ct.width for e in vecs))
+            if w > 64:
+                fn = {"Add": "vs_w_add", "Sub": "vs_w_sub", "Mul": "vs_w_mul"}[m.group(1)]
+                return E("%s(%s, %s, %d)" % (fn, W(a[0]), W(a[1]), w), Vec(w))
             return E("((%s %s %s) & %s)" % (uval(a[0]), op, uval(a[1]), mask(w)), Vec(w))
         m = re.match(r"(Eq|Ne|Lt|Le|Gt|Ge)_(Slv|Int)_(Slv|Int)$", name)
         if m:
+            if wide(a[0]) or wide(a[1]):
+                return E(self.wide_compare(m.group(1), a), Bit())
             return E("(%s %s %s)" % (uval(a[0]), CMP[m.group(1)], uval(a[1])), Bit())
         if name.startswith("Conv_Integer"):
             return E("(int64_t)(%s)" % a[0].code, Int())
@@ -228,6 +281,11 @@ class Ops:
             if m.group(1) == "Mul":
                 w = sum(e.ct.width for e in vecs)
             need_width(n, w)
+            if w > 64:
+                if signed:
+                    raise unsupported(n, "signed arithmetic wider than 64 bits")
+                fn = {"Add": "vs_w_add", "Sub": "vs_w_sub", "Mul": "vs_w_mul"}[m.group(1)]
+                return E("%s(%s, %s, %d)" % (fn, W(a[0]), W(a[1]), w), Vec(w, False, 0, w - 1, False))
             if signed:
                 code = "((uint64_t)(%s %s %s) & %s)" % (ival(a[0]), op, ival(a[1]), mask(w))
             else:
@@ -239,6 +297,8 @@ class Ops:
             return E("((uint64_t)(-%s) & %s)" % (ival(a[0]), mask(w)), Vec(w, False, 0, w - 1, True))
         m = re.match(r"(Eq|Ne|Lt|Le|Gt|Ge)_(Uns|Sgn|Nat|Int)_(Uns|Sgn|Nat|Int)$", name)
         if m:
+            if wide(a[0]) or wide(a[1]):
+                return E(self.wide_compare(m.group(1), a), Bit())
             signed = any(x == "Sgn" or x == "Int" for x in (m.group(2), m.group(3)))
             lhs, rhs = (ival(a[0]), ival(a[1])) if signed else (uval(a[0]), uval(a[1]))
             return E("(%s %s %s)" % (lhs, CMP[m.group(1)], rhs), Bit())
@@ -246,6 +306,12 @@ class Ops:
         if m:
             e = a[0]
             w = e.ct.width
+            if wide(e):
+                if m.group(1) == "Left":
+                    return E("vs_w_shl(%s, %s, %d)" % (e.code, ival(a[1]), w), e.ct)
+                if m.group(2) == "Sgn":
+                    raise unsupported(n, "arithmetic shift wider than 64 bits")
+                return E("vs_w_shr(%s, %s)" % (e.code, ival(a[1])), e.ct)
             if m.group(1) == "Left":
                 return E("(vs_shl(%s, %s) & %s)" % (e.code, ival(a[1]), mask(w)), e.ct)
             if m.group(2) == "Sgn":

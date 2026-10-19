@@ -7,6 +7,7 @@
 #define GEN_LZC_4_H
 
 #include "vsim.h"
+#include "gen_types.h"
 
 typedef struct lzc_4
 {

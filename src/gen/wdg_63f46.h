@@ -7,6 +7,7 @@
 #define GEN_WDG_63F46_H
 
 #include "vsim.h"
+#include "gen_types.h"
 
 typedef struct wdg_63f46
 {

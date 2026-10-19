@@ -7,6 +7,7 @@
 #define GEN_ACIA_63F50_H
 
 #include "vsim.h"
+#include "gen_types.h"
 
 typedef struct acia_63f50
 {

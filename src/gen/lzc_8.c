@@ -39,25 +39,25 @@ static void lzc_8_p4(void *inst)
 static void lzc_8_p5(void *inst)
 {
     lzc_8 *self = inst;
-    vs_drive(self->p_v, self->s_s0.cur);
+    vs_drive(&(*self->p_v), self->s_s0.cur);
 }
 
 static void lzc_8_p6(void *inst)
 {
     lzc_8 *self = inst;
-    vs_drive_bits(self->p_z, 0, UINT64_C(0x1), self->s_s2.cur);
+    vs_drive_bits(&(*self->p_z), 0, UINT64_C(0x1), self->s_s2.cur);
 }
 
 static void lzc_8_p7(void *inst)
 {
     lzc_8 *self = inst;
-    vs_drive_bits(self->p_z, 1, UINT64_C(0x1), self->s_s4.cur);
+    vs_drive_bits(&(*self->p_z), 1, UINT64_C(0x1), self->s_s4.cur);
 }
 
 static void lzc_8_p8(void *inst)
 {
     lzc_8 *self = inst;
-    vs_drive_bits(self->p_z, 2, UINT64_C(0x1), self->s_v1.cur);
+    vs_drive_bits(&(*self->p_z), 2, UINT64_C(0x1), self->s_v1.cur);
 }
 
 void lzc_8_create(vs_kernel *k, lzc_8 *self, const char *path, vs_sig *a, vs_sig *z, vs_sig *v)
@@ -65,88 +65,97 @@ void lzc_8_create(vs_kernel *k, lzc_8 *self, const char *path, vs_sig *a, vs_sig
     self->p_a = a;
     self->p_z = z;
     self->p_v = v;
-    vs_register_signal(k, &self->s_z0, 0);
+    vs_register_signal(k, &self->s_z0, (uint64_t) (0));
     vs_name(k, &self->s_z0, path, "z0", 2);
-    vs_register_signal(k, &self->s_z1, 0);
+    vs_register_signal(k, &self->s_z1, (uint64_t) (0));
     vs_name(k, &self->s_z1, path, "z1", 2);
-    vs_register_signal(k, &self->s_v0, 0);
+    vs_register_signal(k, &self->s_v0, (uint64_t) (0));
     vs_name(k, &self->s_v0, path, "v0", 1);
-    vs_register_signal(k, &self->s_v1, 0);
+    vs_register_signal(k, &self->s_v1, (uint64_t) (0));
     vs_name(k, &self->s_v1, path, "v1", 1);
-    vs_register_signal(k, &self->s_s0, 0);
+    vs_register_signal(k, &self->s_s0, (uint64_t) (0));
     vs_name(k, &self->s_s0, path, "s0", 1);
-    vs_register_signal(k, &self->s_s1, 0);
+    vs_register_signal(k, &self->s_s1, (uint64_t) (0));
     vs_name(k, &self->s_s1, path, "s1", 1);
-    vs_register_signal(k, &self->s_s2, 0);
+    vs_register_signal(k, &self->s_s2, (uint64_t) (0));
     vs_name(k, &self->s_s2, path, "s2", 1);
-    vs_register_signal(k, &self->s_s3, 0);
+    vs_register_signal(k, &self->s_s3, (uint64_t) (0));
     vs_name(k, &self->s_s3, path, "s3", 1);
-    vs_register_signal(k, &self->s_s4, 0);
+    vs_register_signal(k, &self->s_s4, (uint64_t) (0));
     vs_name(k, &self->s_s4, path, "s4", 1);
-    vs_register_signal(k, &self->x1_tie_a, 0);
-    vs_tie_fields(self->p_a, 0, &self->x1_tie_a, 0, 4);
+    vs_register_signal(k, &self->x1_tie_a, (uint64_t) (0));
+    vs_tie_fields(&(*self->p_a), 0, &self->x1_tie_a, 0, 4);
     lzc_4_create(k, &self->c_lzc_4_comp_0_0, vs_join(k, path, "lzc_4_comp_0"), &self->x1_tie_a, &self->s_z0, &self->s_v0);
-    vs_register_signal(k, &self->x3_tie_a, 0);
-    vs_tie_fields(self->p_a, 4, &self->x3_tie_a, 0, 4);
+    vs_register_signal(k, &self->x3_tie_a, (uint64_t) (0));
+    vs_tie_fields(&(*self->p_a), 4, &self->x3_tie_a, 0, 4);
     lzc_4_create(k, &self->c_lzc_4_comp_1_2, vs_join(k, path, "lzc_4_comp_1"), &self->x3_tie_a, &self->s_z1, &self->s_v1);
 
     {
         vs_sig *sens[2];
-        sens[0] = &self->s_v1;
-        sens[1] = &self->s_v0;
-        vs_register_process(k, lzc_8_p0, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &self->s_v1;
+        sens[n++] = &self->s_v0;
+        vs_register_process(k, lzc_8_p0, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = &self->s_v1;
-        sens[1] = &self->s_z0;
-        vs_register_process(k, lzc_8_p1, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &self->s_v1;
+        sens[n++] = &self->s_z0;
+        vs_register_process(k, lzc_8_p1, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = &self->s_z1;
-        sens[1] = &self->s_s1;
-        vs_register_process(k, lzc_8_p2, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &self->s_z1;
+        sens[n++] = &self->s_s1;
+        vs_register_process(k, lzc_8_p2, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = &self->s_v1;
-        sens[1] = &self->s_z0;
-        vs_register_process(k, lzc_8_p3, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &self->s_v1;
+        sens[n++] = &self->s_z0;
+        vs_register_process(k, lzc_8_p3, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
-        sens[0] = &self->s_z1;
-        sens[1] = &self->s_s3;
-        vs_register_process(k, lzc_8_p4, self, sens, 2);
+        size_t n = 0;
+        sens[n++] = &self->s_z1;
+        sens[n++] = &self->s_s3;
+        vs_register_process(k, lzc_8_p4, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
-        sens[0] = &self->s_s0;
-        vs_register_process(k, lzc_8_p5, self, sens, 1);
+        size_t n = 0;
+        sens[n++] = &self->s_s0;
+        vs_register_process(k, lzc_8_p5, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
-        sens[0] = &self->s_s2;
-        vs_register_process(k, lzc_8_p6, self, sens, 1);
+        size_t n = 0;
+        sens[n++] = &self->s_s2;
+        vs_register_process(k, lzc_8_p6, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
-        sens[0] = &self->s_s4;
-        vs_register_process(k, lzc_8_p7, self, sens, 1);
+        size_t n = 0;
+        sens[n++] = &self->s_s4;
+        vs_register_process(k, lzc_8_p7, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
-        sens[0] = &self->s_v1;
-        vs_register_process(k, lzc_8_p8, self, sens, 1);
+        size_t n = 0;
+        sens[n++] = &self->s_v1;
+        vs_register_process(k, lzc_8_p8, self, sens, n);
     }
 }
 

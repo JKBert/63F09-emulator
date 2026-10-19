@@ -12,7 +12,8 @@ import sys
 
 import frontend
 from cgen import Binding, E, Out, Translator, cid, mask
-from vtypes import Bit, Enum, Int, Unsupported, Vec, type_of, unsupported
+import tdefs
+from vtypes import Bit, Enum, Int, Unsupported, Vec, ctype_sig, ctype_val, is_wide, leaf_count, nwords, type_of, unsupported
 from pyGHDL.libghdl.vhdl import nodes, nodes_meta
 
 K = nodes.Iir_Kind
@@ -32,11 +33,11 @@ HAND_WRITTEN = ("ram_61f64x1", "ram_61f512", "ram_61f32x64", "rom_27f512",
 
 
 def ctype_decl(ct):
-    if ct.kind == "int":
-        return "int64_t"
-    if ct.kind == "enum":
-        return "uint32_t"
-    return "uint64_t"
+    return ctype_val(ct)
+
+
+def zero(ct):
+    return "%s_zero()" % ct.cname if ct.kind in ("rec", "arr") else "0"
 
 
 class Iface:
@@ -59,7 +60,7 @@ class Iface:
     def params(self, struct):
         out = ["vs_kernel *k", "%s *self" % struct, "const char *path"]
         out += ["%s g_%s" % (ctype_decl(ct), n) for n, ct, d in self.generics]
-        out += ["vs_sig *%s" % n for n, ct, mode, d in self.ports]
+        out += ["%s *%s" % (ctype_sig(ct), n) for n, ct, mode, d in self.ports]
         return ", ".join(out)
 
 
@@ -120,7 +121,7 @@ class EntityGen(Translator):
             s.fields.append("%s g_%s;" % (ctype_decl(ct), n))
             self.bindings[d] = Binding("var", "{S}->g_" + n, ct, s)
         for n, ct, mode, d in self.iface.ports:
-            s.fields.append("vs_sig *p_%s;" % n)
+            s.fields.append("%s *p_%s;" % (ctype_sig(ct), n))
             self.bindings[d] = Binding("sigptr", "{S}->p_" + n, ct, s)
 
     def declare(self, chain):
@@ -131,11 +132,12 @@ class EntityGen(Translator):
             if k == K.Signal_Declaration:
                 ct = type_of(nodes.Get_Type(d))
                 name = cid(frontend.ident(d))
-                s.fields.append("vs_sig s_%s;" % name)
+                s.fields.append("%s s_%s;" % (ctype_sig(ct), name))
                 init = nodes.Get_Default_Value(d)
-                val = self.expr(init).code if init else "0"
-                s.init.line("vs_register_signal(k, &self->s_%s, %s);" % (name, val))
-                s.init.line('vs_name(k, &self->s_%s, path, "%s", %d);' % (name, name, ct.width if ct.width else 64))
+                val = self.expr(init).code if init else zero(ct)
+                s.init.line(tdefs.register_stmt("self->s_" + name, ct, val))
+                if ct.kind not in ("rec", "arr"):
+                    s.init.line('vs_name(k, &self->s_%s, path, "%s", %d);' % (name, name, ct.width if ct.width else 64))
                 self.bindings[d] = Binding("sig", "{S}->s_" + name, ct, s)
             elif k == K.Constant_Declaration:
                 ct = type_of(nodes.Get_Type(d))
@@ -191,7 +193,7 @@ class EntityGen(Translator):
                 field = "v%d_%s" % (index, cid(frontend.ident(d)))
                 s.fields.append("%s %s;" % (ctype_decl(ct), field))
                 init = nodes.Get_Default_Value(d)
-                s.init.line("self->%s = %s;" % (field, self.expr(init).code if init else "0"))
+                s.init.line("self->%s = %s;" % (field, self.expr(init).code if init else zero(ct)))
                 self.bindings[d] = Binding("var", "{S}->" + field, ct, s)
             elif k == K.Constant_Declaration:
                 ct = type_of(nodes.Get_Type(d))
@@ -209,11 +211,15 @@ class EntityGen(Translator):
         o.close()
         sens = []
         for item in frontend.list_elements(nodes.Get_Sensitivity_List(p)):
-            ptr = self.sigptr(item)[0]
-            if ptr not in sens:
-                sens.append(ptr)
+            ptr, shift, width, ct = self.sigptr(item)
+            if all(ptr != x[0] for x in sens):
+                sens.append((ptr, self.storage_ct(item, ct)))
         s.procs.append((fname, o.text(), sens))
         self.out = saved
+
+    def storage_ct(self, n, ct):
+        """CT of the storage that sigptr(n) points to (a vector part points to its vs_sig)."""
+        return ct if ct.kind in ("rec", "arr") else Bit()
 
     # ------------------------------------------------------------------ instances
 
@@ -301,13 +307,15 @@ class EntityGen(Translator):
             if b is not None and b.kind in ("sig", "sigptr"):
                 return self.bc(b) if b.kind == "sigptr" else "&" + self.bc(b)
         if k in (K.Indexed_Name, K.Slice_Name):
-            ptr, shift, width, pct = self.sigptr(actual)
-            own = self.private_signal(ct, "tie_%s" % name, "0")
-            if out_like:
-                s.init.line("vs_tie_fields(%s, 0, %s, %d, %d);" % (own, ptr, shift, width))
-            else:
-                s.init.line("vs_tie_fields(%s, %d, %s, 0, %d);" % (ptr, shift, own, width))
-            return own
+            code, bct, lo, width = self.sigpart(actual)
+            if bct.kind == "vec":
+                own = self.private_signal(ct, "tie_%s" % name, "0")
+                self.tie_vector(own, ct, code, bct, lo, width, out_like)
+                return own
+            kind, pcode, pct = self.path(actual)
+            if kind == "sig" and pct.kind in ("rec", "arr"):
+                return "&" + pcode
+            raise unsupported(actual, "port connected to this part of a signal")
         if out_like:
             raise unsupported(actual, "output port connected to an expression")
         # an expression : an implicit signal driven by it
@@ -316,6 +324,28 @@ class EntityGen(Translator):
         if not self.is_constant(actual):
             self.implicit_process(own, e, actual)
         return own
+
+    def tie_vector(self, own, ct, code, bct, lo, width, out_like):
+        """Links the bits [lo, lo + width) of the vector signal `code` to the port signal `own` : zero-delay ties,
+        one per piece that stays inside one 64-bit word on both sides."""
+        s = self.scope
+
+        def word(base, base_ct, bit):
+            if is_wide(base_ct):
+                return "&%s.w[%d]" % (base, bit // 64)
+            return "&%s" % base
+
+        i = 0
+        while i < width:
+            src_bit, dst_bit = lo + i, i
+            n = min(64 - src_bit % 64, 64 - dst_bit % 64, width - i)
+            src = word(code, bct, src_bit)
+            dst = word(own[1:], ct, dst_bit)
+            if out_like:
+                s.init.line("vs_tie_fields(%s, %d, %s, %d, %d);" % (dst, dst_bit % 64, src, src_bit % 64, n))
+            else:
+                s.init.line("vs_tie_fields(%s, %d, %s, %d, %d);" % (src, src_bit % 64, dst, dst_bit % 64, n))
+            i += n
 
     def is_constant(self, expr):
         for n in frontend.walk(expr):
@@ -331,8 +361,12 @@ class EntityGen(Translator):
         s = self.scope
         field = "x%d_%s" % (s.nimp, hint)
         s.nimp += 1
-        s.fields.append("vs_sig %s;" % field)
-        s.init.line("vs_register_signal(k, &self->%s, %s);" % (field, init))
+        s.fields.append("%s %s;" % (ctype_sig(ct), field))
+        if init == "0" and ct.kind in ("rec", "arr"):
+            init = "%s_zero()" % ct.cname
+        elif init == "0" and is_wide(ct):
+            init = "vs_w_zero()"
+        s.init.line(tdefs.register_stmt("self->" + field, ct, init))
         return "&self->" + field
 
     def implicit_process(self, sigexpr, e, expr):
@@ -350,8 +384,8 @@ class EntityGen(Translator):
                 b = self.bindings.get(nodes.Get_Named_Entity(n))
                 if b is not None and b.kind in ("sig", "sigptr"):
                     p = self.bc(b) if b.kind == "sigptr" else "&" + self.bc(b)
-                    if p not in sens:
-                        sens.append(p)
+                    if all(p != x[0] for x in sens):
+                        sens.append((p, b.ct if b.ct.kind in ("rec", "arr") else Bit()))
         s.procs.append((fname, body.text(), sens))
 
     # ------------------------------------------------------------------ generate and block
@@ -474,6 +508,7 @@ class EntityGen(Translator):
         o.line("#define %s" % guard)
         o.line()
         o.line('#include "vsim.h"')
+        o.line('#include "gen_types.h"')
         for inc in sorted(set(self.root.includes)):
             o.line(inc)
         o.line()
@@ -518,11 +553,16 @@ class EntityGen(Translator):
         o.lines.extend("    " + l if l else l for l in sc.init.lines)
         for fname, body, sens in sc.procs:
             if sens:
+                total = sum(leaf_count(ct) for ptr, ct in sens)
                 o.open("")
-                o.line("vs_sig *sens[%d];" % len(sens))
-                for i, x in enumerate(sens):
-                    o.line("sens[%d] = %s;" % (i, x))
-                o.line("vs_register_process(k, %s, self, sens, %d);" % (fname, len(sens)))
+                o.line("vs_sig *sens[%d];" % total)
+                o.line("size_t n = 0;")
+                for ptr, ct in sens:
+                    if ct.kind in ("rec", "arr"):
+                        o.line("n += %s_leaves(%s, sens + n);" % (ct.cname, ptr))
+                    else:
+                        o.line("sens[n++] = %s;" % ptr)
+                o.line("vs_register_process(k, %s, self, sens, n);" % fname)
                 o.close()
             else:
                 o.line("vs_register_process(k, %s, self, NULL, 0);" % fname)
@@ -576,6 +616,7 @@ def main(argv):
         open(os.path.join(out_dir, base + ".h"), "w").write(h)
         open(os.path.join(out_dir, base + ".c"), "w").write(c)
         print("%s : generated %s.c/.h" % (name, base))
+    open(os.path.join(out_dir, "gen_types.h"), "w").write(tdefs.header())
     return 1 if failed else 0
 
 
