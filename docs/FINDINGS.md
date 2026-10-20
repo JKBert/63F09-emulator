@@ -78,9 +78,13 @@ The latch is never read back : the read registers (63F40.vhd, lines 1166 to 1184
 In 16-bit mode `COUNTER` (19 bits) holds the count in bits 18..3 : it is loaded with `LATCH_REGISTER & "000"` (lines 133,
 171, 191...) and decremented by 8 per clock. The registers return bits 15..0 of it, i.e. the count multiplied by 8 and
 truncated to 16 bits. After a latch of 0x0040 is loaded the counter reads 0x02 / 0x00 (0x0200), not 0x00 / 0x40, and a
-latch above 0x1FFF gives a wrong value. The 6840 returns the count itself (bits 18..3 would be needed). In 8-bit mode
-the layout is different (two 8-bit counters and the divide-by-8 prescaler) and I have not checked it. The emulator
-reproduces the VHDL.
+latch above 0x1FFF gives a wrong value. The 6840 returns the count itself : bits 18..11 and 10..3 are needed.
+
+The 8-bit (dual) mode is affected too. There `COUNTER` is the high counter in bits 18..11, the low counter in bits 10..3
+and the divide-by-8 prescaler in bits 2..0 (lines 565 to 618 : `COUNTER(18 downto 11) <= COUNTER(18 downto 11) - 1`,
+`COUNTER(10 downto 0) <= LATCH_REGISTER(7 downto 0) & "000"`). The registers return bits 15..8 and 7..0, which mix the
+five low bits of the high counter with the three high bits of the low counter, and the five low bits of the low counter
+with the prescaler : neither counter can be read. The emulator reproduces the VHDL.
 
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*
