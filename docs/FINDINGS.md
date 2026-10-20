@@ -125,11 +125,14 @@ instead of `'0'` made the ACIA divider toggle once more at time 0.
 `acia_init` read its first argument with `LDX 4,U` after `PSHS U ; LEAU ,S` : that is the return address, the
 argument is at 8,U (`PSHS U` pushes 4 bytes in 32-bit mode, `JSR` 4 more). The VHDL was right.
 
-### B3. `ANDCC` takes two immediate bytes in 32-bit mode
+### B3. Core stalls on an instruction-cache line fill after a PTM write (to investigate)
 
-As for `PSHS`, the post byte of `ANDCC`/`ORCC` is two bytes wide after `LDMD #$31` (`1C EF FF`). With a single byte the
-core fetches the following byte as part of the instruction and the program derails (and in a tight `BRA *` the bus
-stops after a cache-line fill). Same behaviour in GHDL.
+(An earlier version of this note blamed a two-byte `ANDCC` ; that was wrong : in 32-bit mode `1C FF` is two bytes long
+and the next instruction runs normally.) With the program `LDMD #$31 ; LDS #$FFFCFFF0 ; ... ; STA PTM0+0 ; ANDCC #$EF ;
+BRA *` at `0xFFFFF000` (timer 1 of PTM 0 started by the last write, interrupts then enabled) the bus stops in the
+middle of the fill of the line at `0xFFFFF030` : bytes 0 to 6 are read, byte 7 never is, and E stops. GHDL does the same
+(`tests/ghdl/cosim.py`, identical over 63 cycles), so it is in the design, not in the emulator. The same code without
+the stall is obtained by reading a PTM register after the write. Not analysed further.
 
 ### B2. `LDMD` and the first load of S
 *Status : for information.*
