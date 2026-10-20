@@ -1,14 +1,13 @@
 # Findings
 
 Problems met while translating and running the design. Each entry says what was observed, how it was checked, and
-who has to act. **The emulator reproduces the VHDL** : where a finding concerns the behaviour of the chip, GHDL
+who has to act. Only open points are kept here. **The emulator reproduces the VHDL** : where a finding concerns the behaviour of the chip, GHDL
 and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL or in what the software expects.
 
 ## Summary
 
 | Entry | Subject | Status |
 |---|---|---|
-| A0 | 63F09 `INCV` | fixed |
 | A0b | SoC09 SPI chip-select decode | open |
 | A0c | 63F52 ninth SCLK edge | open, to confirm |
 | A1 | 63F50 TDRE / first character lost | open |
@@ -16,8 +15,6 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 | A2 | SoC09 `CACHEABLE_EXT` undriven | to confirm |
 | A3 | reset values | by design |
 | A4 | 63F40 16-bit counter read | open |
-| A5 | 63F21 read multiplexer | fixed |
-| B1 | gcc call frame | fixed |
 | B2 | `LDMD` and the first load of S | for information |
 | B3 | stall on a cache line fill after a PTM write | to investigate |
 
@@ -63,30 +60,6 @@ transmitter's equivalent (`acia_tx_state`) tests `TX_RST = '1'`. Result : no cha
 `RDRF` = 0 in GHDL as well as in the emulator, at the bit times 112, 224, 448 and 896 cycles. The `echo` program
 sends nothing back for the same reason. Fix : `RX_RST = '1'`.
 
-### A0. 63F09 : `INCV` (opcode 107C) increments Q instead of V
-*Status : fixed in 63F09.vhd by the author (`REG_V_LEFT`) ; the C was regenerated from the corrected file.*
-
-Found with the recompiled `hello`, identical in GHDL and the emulator ; a typo in the VHDL.
-
-In 63F09.vhd (line 8905 of the file received), the decoder of 107C is
-
-    -- 107C : INCV immediate
-    LEFT_CTRL <= REG_Q_LEFT;          <-- should be REG_V_LEFT, as in 107A DECV
-    RIGHT_CTRL <= ONE_RIGHT;
-    ALU_CTRL <= ALU_INC;
-    ALU_WIDTH <= ALU_WIDTH_32;
-    V_CTRL <= LOAD_V;
-
-so `V := Q + 1`. The compiled `acia_puts` keeps its string pointer in V (`LDV #$FFFF0081`, then `INCV` for every
-character) : after the first character V is `0x15480081` (Q with the low part of V ... ) instead of `0xFFFF0082`,
-the second character is read at `0xF15480000`, and the ACIA receives `0xFF` for the rest of the string.
-Seen in the emulator with `--dump` (`...cpu.reg_v`: `FFFF0081` then `15480081`) and in the co-simulation. A scan of
-the decoders for `INC/DEC/TST/NEG/COM/CLR/shift` whose operand register differs from the one in the mnemonic finds no
-other case (only the comment of opcode 57, which is ASRB). Fix : `REG_Q_LEFT` to `REG_V_LEFT` in the INCV branch ;
-nothing to change in the compiler. Before the fix was made it was checked without touching the sources : `VHDL2C_FIX_INCV=1 make gen` (now obsolete)
-applied the one-line correction to a temporary copy ; the program then sent `ello from the 63F09` (see A1 for the
-missing `H`).
-
 ### A0b. SoC09 : the SPI chip-select register cannot be reached
 *Status : read in `SoC.vhd`, confirmed by running a program.*
 
@@ -112,15 +85,6 @@ return `COUNTER(15 downto 8)` and `COUNTER(7 downto 0)`, i.e. the count multipli
 0x0040 reads back as 0x0200 truncated to 0x02 / 0x00). The 6840 returns the count itself. The emulator reproduces the
 VHDL, so a program sees the same values as on the board.
 
-### A5. 63F21 : the read multiplexer of the data port is inverted
-*Status : fixed in 63F21.vhd by the author (`PORT_DDR(i) = '1'` on line 138) ; the C was regenerated.*
-
-In `PIA_READ`, a bit whose `PORT_DDR` is 0 (input) returns `PORT_DATA` (the output register) and a bit whose
-`PORT_DDR` is 1 (output) returns the pad (`PORT_D_IN`). A 6821 does the opposite : an input reads the pad, an output
-reads back the output register. As written, a port configured as input can never be read, whatever the outside world
-drives. With the fix `tests/soc/pins_pia.py` reads 0xF0 on an input port and the co-simulation stays identical to
-GHDL (`VHDL2C_FIX_PIA_READ` is obsolete).
-
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*
 
@@ -138,12 +102,6 @@ The outputs of the vendor primitives matter too : in the first co-simulation, a 
 instead of `'0'` made the ACIA divider toggle once more at time 0.
 
 ## B. Software and tool chain
-
-### B1. Call frame of the gcc back end
-*Status : fixed in the compiler by the author's colleague ; the recompiled programs run correctly.*
-
-`acia_init` read its first argument with `LDX 4,U` after `PSHS U ; LEAU ,S` : that is the return address, the
-argument is at 8,U (`PSHS U` pushes 4 bytes in 32-bit mode, `JSR` 4 more). The VHDL was right.
 
 ### B2. `LDMD` and the first load of S
 *Status : for information.*
