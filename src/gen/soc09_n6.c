@@ -768,9 +768,11 @@ void soc09_n6_create(vs_kernel *k, soc09_n6 *self, const char *path, int64_t g_n
     vs_register_signal(k, &self->x21_tie_c1, (uint64_t) (0));
     vs_name(k, &self->x21_tie_c1, path, "tie_c1", 1);
     vs_tie_fields(&(*self->p_pia_c1), 4, &self->x21_tie_c1, 0, 1);
-    vs_register_signal(k, &self->x22_open_c2, (uint64_t) (0));
-    vs_name(k, &self->x22_open_c2, path, "open_c2", 1);
-    pia_63f21_create(k, &self->c_pia0_15, vs_join(k, path, "pia0"), self->p_e, &self->x16_imp_reset_n, &self->x17_tie_cs, &self->x18_tie_mrdy, self->p_rw_n, &self->x19_tie_a, &self->s_d_mux_out.a[1], &self->s_d_mux_in.a[1], &(*self->p_pia_port_data).a[0], &self->x20_tie_irq_n, &self->x21_tie_c1, &self->x22_open_c2);
+    vs_register_signal(k, &self->x22_tie_c2, (uint64_t) (0));
+    vs_name(k, &self->x22_tie_c2, path, "tie_c2", 1);
+    vs_tie_fields(&self->x22_tie_c2, 0, &(*self->p_pia_c2), 4, 1);
+    vs_tie_fields(&(*self->p_pia_c2), 4, &self->x22_tie_c2, 0, 1);
+    pia_63f21_create(k, &self->c_pia0_15, vs_join(k, path, "pia0"), self->p_e, self->p_sysclk, &self->x16_imp_reset_n, &self->x17_tie_cs, &self->x18_tie_mrdy, self->p_rw_n, &self->x19_tie_a, &self->s_d_mux_out.a[1], &self->s_d_mux_in.a[1], &(*self->p_pia_port_data).a[0], &self->x20_tie_irq_n, &self->x21_tie_c1, &self->x22_tie_c2);
     vs_register_signal(k, &self->x24_imp_reset_n, (uint64_t) (0));
     vs_name(k, &self->x24_imp_reset_n, path, "imp_reset_n", 1);
     vs_register_signal(k, &self->x25_tie_cs, (uint64_t) (0));
@@ -792,7 +794,7 @@ void soc09_n6_create(vs_kernel *k, soc09_n6 *self, const char *path, int64_t g_n
     vs_name(k, &self->x30_tie_c2, path, "tie_c2", 1);
     vs_tie_fields(&self->x30_tie_c2, 0, &(*self->p_pia_c2), 3, 1);
     vs_tie_fields(&(*self->p_pia_c2), 3, &self->x30_tie_c2, 0, 1);
-    pia_63f21_create(k, &self->c_pia1_23, vs_join(k, path, "pia1"), self->p_e, &self->x24_imp_reset_n, &self->x25_tie_cs, &self->x26_tie_mrdy, self->p_rw_n, &self->x27_tie_a, &self->s_d_mux_out.a[2], &self->s_d_mux_in.a[2], &(*self->p_pia_port_data).a[1], &self->x28_tie_irq_n, &self->x29_tie_c1, &self->x30_tie_c2);
+    pia_63f21_create(k, &self->c_pia1_23, vs_join(k, path, "pia1"), self->p_e, self->p_sysclk, &self->x24_imp_reset_n, &self->x25_tie_cs, &self->x26_tie_mrdy, self->p_rw_n, &self->x27_tie_a, &self->s_d_mux_out.a[2], &self->s_d_mux_in.a[2], &(*self->p_pia_port_data).a[1], &self->x28_tie_irq_n, &self->x29_tie_c1, &self->x30_tie_c2);
     vs_register_signal(k, &self->x32_imp_reset_n, (uint64_t) (0));
     vs_name(k, &self->x32_imp_reset_n, path, "imp_reset_n", 1);
     vs_register_signal(k, &self->x33_tie_cs, (uint64_t) (0));
@@ -814,7 +816,7 @@ void soc09_n6_create(vs_kernel *k, soc09_n6 *self, const char *path, int64_t g_n
     vs_name(k, &self->x38_tie_c2, path, "tie_c2", 1);
     vs_tie_fields(&self->x38_tie_c2, 0, &(*self->p_pia_c2), 2, 1);
     vs_tie_fields(&(*self->p_pia_c2), 2, &self->x38_tie_c2, 0, 1);
-    pia_63f21_create(k, &self->c_pia2_31, vs_join(k, path, "pia2"), self->p_e, &self->x32_imp_reset_n, &self->x33_tie_cs, &self->x34_tie_mrdy, self->p_rw_n, &self->x35_tie_a, &self->s_d_mux_out.a[3], &self->s_d_mux_in.a[3], &(*self->p_pia_port_data).a[2], &self->x36_tie_irq_n, &self->x37_tie_c1, &self->x38_tie_c2);
+    pia_63f21_create(k, &self->c_pia2_31, vs_join(k, path, "pia2"), self->p_e, self->p_sysclk, &self->x32_imp_reset_n, &self->x33_tie_cs, &self->x34_tie_mrdy, self->p_rw_n, &self->x35_tie_a, &self->s_d_mux_out.a[3], &self->s_d_mux_in.a[3], &(*self->p_pia_port_data).a[2], &self->x36_tie_irq_n, &self->x37_tie_c1, &self->x38_tie_c2);
     vs_register_signal(k, &self->x40_imp_reset_n, (uint64_t) (0));
     vs_name(k, &self->x40_imp_reset_n, path, "imp_reset_n", 1);
     vs_register_signal(k, &self->x41_tie_cs, (uint64_t) (0));
@@ -836,7 +838,7 @@ void soc09_n6_create(vs_kernel *k, soc09_n6 *self, const char *path, int64_t g_n
     vs_name(k, &self->x46_tie_c2, path, "tie_c2", 1);
     vs_tie_fields(&self->x46_tie_c2, 0, &(*self->p_pia_c2), 1, 1);
     vs_tie_fields(&(*self->p_pia_c2), 1, &self->x46_tie_c2, 0, 1);
-    pia_63f21_create(k, &self->c_pia3_39, vs_join(k, path, "pia3"), self->p_e, &self->x40_imp_reset_n, &self->x41_tie_cs, &self->x42_tie_mrdy, self->p_rw_n, &self->x43_tie_a, &self->s_d_mux_out.a[4], &self->s_d_mux_in.a[4], &(*self->p_pia_port_data).a[3], &self->x44_tie_irq_n, &self->x45_tie_c1, &self->x46_tie_c2);
+    pia_63f21_create(k, &self->c_pia3_39, vs_join(k, path, "pia3"), self->p_e, self->p_sysclk, &self->x40_imp_reset_n, &self->x41_tie_cs, &self->x42_tie_mrdy, self->p_rw_n, &self->x43_tie_a, &self->s_d_mux_out.a[4], &self->s_d_mux_in.a[4], &(*self->p_pia_port_data).a[3], &self->x44_tie_irq_n, &self->x45_tie_c1, &self->x46_tie_c2);
     vs_register_signal(k, &self->x48_imp_reset_n, (uint64_t) (0));
     vs_name(k, &self->x48_imp_reset_n, path, "imp_reset_n", 1);
     vs_register_signal(k, &self->x49_tie_cs, (uint64_t) (0));
@@ -858,7 +860,7 @@ void soc09_n6_create(vs_kernel *k, soc09_n6 *self, const char *path, int64_t g_n
     vs_name(k, &self->x54_tie_c2, path, "tie_c2", 1);
     vs_tie_fields(&self->x54_tie_c2, 0, &(*self->p_pia_c2), 0, 1);
     vs_tie_fields(&(*self->p_pia_c2), 0, &self->x54_tie_c2, 0, 1);
-    pia_63f21_create(k, &self->c_pia4_47, vs_join(k, path, "pia4"), self->p_e, &self->x48_imp_reset_n, &self->x49_tie_cs, &self->x50_tie_mrdy, self->p_rw_n, &self->x51_tie_a, &self->s_d_mux_out.a[5], &self->s_d_mux_in.a[5], &(*self->p_pia_port_data).a[4], &self->x52_tie_irq_n, &self->x53_tie_c1, &self->x54_tie_c2);
+    pia_63f21_create(k, &self->c_pia4_47, vs_join(k, path, "pia4"), self->p_e, self->p_sysclk, &self->x48_imp_reset_n, &self->x49_tie_cs, &self->x50_tie_mrdy, self->p_rw_n, &self->x51_tie_a, &self->s_d_mux_out.a[5], &self->s_d_mux_in.a[5], &(*self->p_pia_port_data).a[4], &self->x52_tie_irq_n, &self->x53_tie_c1, &self->x54_tie_c2);
     vs_register_signal(k, &self->x56_imp_rst_n, (uint64_t) (0));
     vs_name(k, &self->x56_imp_rst_n, path, "imp_rst_n", 1);
     vs_register_signal(k, &self->x57_tie_cs, (uint64_t) (0));

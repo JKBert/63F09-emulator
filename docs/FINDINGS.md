@@ -14,7 +14,7 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 | A2 | SoC09 `CACHEABLE_EXT` undriven | to confirm |
 | A3 | reset values | by design |
 | B2 | `LDMD` and the first load of S | for information |
-| B3 | interrupt flags of the PIA, ACIA, SPI, TWI generated on E | being corrected |
+| B3 | interrupt flags of the ACIA, SPI, TWI generated on E | being corrected |
 
 ## A. Behaviour of the chip
 
@@ -93,7 +93,7 @@ sequence given in the conversation (`LDMD #$31 ; PSHS U`) pushes with S uninitia
 after `LDMD`, as `crt0` does (`11 3D 11`, then `10 CE ...`).
 
 ### B3. The interrupt flags of the other peripherals are still generated on E
-*Status : PTM (63F40) and BAC (63F81) fixed by the author ; the other peripherals are being corrected.*
+*Status : PTM (63F40), BAC (63F81) and PIA (63F21) fixed by the author ; the other peripherals are being corrected.*
 
 The E clock only runs for bus cycles : a core that loops in its instruction cache makes none, E stops, and whatever is
 clocked on `falling_edge(E)` stops with it. A timer interrupt then never wakes the core. `tests/soc/programs/b3_cache_idle.asm`
@@ -101,11 +101,13 @@ clocked on `falling_edge(E)` stops with it. A timer interrupt then never wakes t
 taken by the handler. With the corrected 63F40 and 63F81 both loops give 0x46 after 12 000 000 ticks on 1, 2, 4 and
 8 cores, and the co-simulation is identical to GHDL.
 
-What is left is the same pattern in the other peripherals whose interrupt flag is a register written on E : PIA
-(`C1_INPUT`, `C2_INPUT`, `C2_OUTPUT` : `IRQ1` and `IRQ2` are set on `falling_edge(E)` from the C1/C2 edges), ACIA
+PIA (63F21, corrected : edge detection and flags on SYSCLK, acknowledge on E) : `tests/soc/pia_irq.py` raises C1 of
+PIA 0 three times (`at` command of the pins socket) while the core loops in its cache ; the handler counts 3 interrupts
+on 1 and on 2 cores.
+
+What is left is the same pattern in the other peripherals whose interrupt flag is a register written on E : ACIA
 (`falling_edge(E)` in 23 places of 63F50.vhd, including the status bits that give `IRQ_n`), SPI (63F52) and TWI (63F54).
-An edge on C1/C2 or the end of a byte that happens while E is stopped is seen only when E restarts, if the
-edge detection (`C1_DEL`, `C1_RISE`...) also runs on E it can miss the edge altogether.
+An end of byte that happens while E is stopped is seen only when E restarts.
 
 ## C. Files and tools
 

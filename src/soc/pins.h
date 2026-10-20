@@ -3,6 +3,7 @@
  *
  *   emulator to peer   "<ns> <pin> <0|1>\n"     the pin changed (and, at connection, its current level)
  *   peer to emulator   "<pin> <0|1|z>\n"        drive an input pin ; for an open-drain pad 0 pulls it low and 1 or z releases it
+ *                      "at <ns> <pin> <0|1|z>\n"  the same, at that simulated time (nanoseconds)
  *                      "watch <prefix>\n"       only the pins whose name starts with the prefix are reported (default : all)
  *                      "unwatch <prefix>\n"     the opposite
  *

@@ -14,6 +14,7 @@ struct pia_63f21_g0;
 typedef struct pia_63f21
 {
     vs_sig *p_e;
+    vs_sig *p_sysclk;
     vs_sig *p_reset_n;
     vs_sig *p_cs;
     vs_sig *p_mrdy;
@@ -45,12 +46,29 @@ typedef struct pia_63f21
     vs_sig s_port_d_ctrl;
     vs_sig s_port_d_in;
     vs_sig s_port_d_out;
+    vs_sig s_c1_s1;
+    vs_sig s_c1_s2;
+    vs_sig s_c2_s1;
+    vs_sig s_c2_s2;
+    vs_sig s_pol1_s;
+    vs_sig s_pol2_s;
+    vs_sig s_out2_s;
+    vs_sig s_set1_tog;
+    vs_sig s_set2_tog;
+    vs_sig s_ack1;
+    vs_sig s_ack2;
+    vs_sig s_tog1_e1;
+    vs_sig s_tog1_e2;
+    vs_sig s_tog1_e3;
+    vs_sig s_tog2_e1;
+    vs_sig s_tog2_e2;
+    vs_sig s_c1_edge_e;
     struct pia_63f21_g0 *g_pia_data_ports_0;
     int64_t n_g_pia_data_ports_0;
     iobuf_t c_pia_c2s_1;
     int64_t v1_i;
 } pia_63f21;
 
-void pia_63f21_create(vs_kernel *k, pia_63f21 *self, const char *path, vs_sig *e, vs_sig *reset_n, vs_sig *cs, vs_sig *mrdy, vs_sig *rw_n, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *port_d, vs_sig *irq_n, vs_sig *c1, vs_sig *c2);
+void pia_63f21_create(vs_kernel *k, pia_63f21 *self, const char *path, vs_sig *e, vs_sig *sysclk, vs_sig *reset_n, vs_sig *cs, vs_sig *mrdy, vs_sig *rw_n, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *port_d, vs_sig *irq_n, vs_sig *c1, vs_sig *c2);
 
 #endif

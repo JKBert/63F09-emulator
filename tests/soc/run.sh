@@ -52,3 +52,7 @@ python3 "$here/spi_slave.py" "$work/spi.elf"
 "$emu" --ncpus 2 --elf "$work/spi.elf" --spi-slave --peek 0xF00001000:2 --ticks 30000000 > "$work/spi.log"
 grep -q '^F00001000: A5 B4' "$work/spi.log"
 echo "SPI test: ok"
+
+# PIA 0 interrupt on C1 (EIRQ19) while the core loops in its cache : the peer raises C1 three times, the handler counts.
+python3 "$here/pia_irq.py" "$emu" "$work/piairq" 1
+python3 "$here/pia_irq.py" "$emu" "$work/piairq" 2

@@ -82,6 +82,7 @@ write cycle time and no clock stretching. `tests/soc/twi_eeprom.py` assembles by
 |---|---|---|
 | emulator to peer | `<ns> <pin> <0 or 1>` | the pin changed ; at connection the current level of every pin is sent |
 | peer to emulator | `<pin> <0, 1 or z>` | drives an input ; on an open-drain pad `0` pulls the line low, `1` or `z` lets it go |
+| peer to emulator | `at <ns> <pin> <0, 1 or z>` | the same, at that simulated time in nanoseconds |
 | peer to emulator | `watch <prefix>`, `unwatch <prefix>` | restricts the pins reported (default : all) |
 
 The names are `pia<0-4>.pa<0-7>` and `pia<n>.c2` (open drain), `pia<n>.c1` (input), `ptm<0-1>.o<1-3>` (output),

@@ -121,7 +121,7 @@ typedef struct soc09_n3
     vs_sig x19_tie_a;
     vs_sig x20_tie_irq_n;
     vs_sig x21_tie_c1;
-    vs_sig x22_open_c2;
+    vs_sig x22_tie_c2;
     pia_63f21 c_pia1_23;
     vs_sig x24_imp_reset_n;
     vs_sig x25_tie_cs;

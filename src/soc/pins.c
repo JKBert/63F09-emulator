@@ -101,12 +101,38 @@ static void set_watch(pins *p, const char *prefix, int on)
     }
 }
 
+static void command(pins *p, char *line);
+
+typedef struct delayed
+{
+    pins    *p;
+    char    line[48];
+} delayed;
+
+static void run_delayed(vs_kernel *k, void *arg)
+{
+    delayed *d = arg;
+
+    (void) k;
+    command(d->p, d->line);
+}
+
 static void command(pins *p, char *line)
 {
-    char    name[32], val[8];
-    int     i;
+    char                name[32], val[8];
+    int                 i;
+    unsigned long long  ns;
+    int                 skip;
 
-    if (sscanf(line, "watch %31s", name) == 1)
+    if (sscanf(line, "at %llu %n", &ns, &skip) == 1 && skip > 0)
+    {
+        delayed *d = vs_alloc(p->k, sizeof(*d));
+
+        d->p = p;
+        snprintf(d->line, sizeof(d->line), "%s", line + skip);
+        vs_timer_add(p->k, (uint64_t) ns * 144, run_delayed, d);        /* simulated time, in nanoseconds */
+    }
+    else if (sscanf(line, "watch %31s", name) == 1)
     {
         set_watch(p, name, 1);
     }
