@@ -21,7 +21,9 @@ static void usage(FILE *f)
         "  --acia N[,baud=B][,in=FILE|-|none][,out=FILE|-|none]\n"
         "                       the serial line of ACIA N (0 or 1) goes to the console : \"-\" is stdin for in\n"
         "                       and stdout for out ; default baud 115200. B is the rate of the host side : the\n"
-        "                       program must set the same one in the ACIA (divider /16 : 24e6 / (16 * (div + 1)))\n"
+        "                       program must set the same one in the ACIA (divider /16 : 24e6 / (32 * (div + 1)))\n"
+        "                       socket=PATH replaces in/out by a Unix domain socket the emulator listens on\n"
+        "                       (one peer at a time, raw bytes) ; wait blocks until a peer connects\n"
         "  --ticks N            stop after N ticks (a tick is 1/144 ns ; default 100000000)\n"
         "  --dump FILE          write every change of every named signal\n"
         "  --peek ADDR:LEN      print LEN bytes of memory at the physical address ADDR when the run ends\n"
@@ -44,6 +46,7 @@ static int acia_arg(soc_cfg *c, char *arg)
         return -1;
     }
     a = &c->serial[n];
+    memset(a, 0, sizeof(*a));
     while ((tok = strtok(NULL, ",")) != NULL)
     {
         if (strncmp(tok, "baud=", 5) == 0)
@@ -58,6 +61,14 @@ static int acia_arg(soc_cfg *c, char *arg)
                 perror(tok + 3);
                 return -1;
             }
+        }
+        else if (strncmp(tok, "socket=", 7) == 0)
+        {
+            snprintf(a->socket, sizeof(a->socket), "%s", tok + 7);
+        }
+        else if (strcmp(tok, "wait") == 0)
+        {
+            a->wait = 1;
         }
         else if (strncmp(tok, "out=", 4) == 0)
         {

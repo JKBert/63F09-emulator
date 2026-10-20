@@ -854,7 +854,14 @@ def write_dispatcher(out_dir, ifaces):
     h += ['#include "%s.h"' % n for n in names]
     h += ["", "typedef union %s" % base, "{"]
     h += ["    %s n%d;" % (n, i + 1) for i, n in enumerate(names)]
-    h += ["} %s;" % base, "", "/* returns 0, or -1 when there is no variant for that number of cores */",
+    h += ["} %s;" % base, ""]
+    # the composite ports have type names that depend on the order of generation : give them stable ones
+    for n, ct, m, d in ifaces[0].ports:
+        if ct.kind in ("rec", "arr"):
+            h += ["typedef %s %s_%s_t;" % (ctype_sig(ct), base, n),
+                  "static inline void %s_%s_init(vs_kernel *k, %s_%s_t *s)" % (base, n, base, n),
+                  "{", "    %s_register(k, s, %s_zero());" % (ct.cname, ct.cname), "}", ""]
+    h += [ "/* returns 0, or -1 when there is no variant for that number of cores */",
           "int %s_create(%s);" % (base, params.replace("%s *self" % base, "%s *self" % base)), "", "#endif", ""]
     open(os.path.join(out_dir, base + ".h"), "w").write("\n".join(h))
     # the call passes the generics and ports on, by name

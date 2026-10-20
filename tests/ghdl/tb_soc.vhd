@@ -120,4 +120,82 @@ begin
             end if;
         end if;
     end process;
+
+    -- the transmit lines of the ACIAs : instant (ps) and level of each change
+    TXLOG : process(ACIA_TX) is
+        variable L : line;
+    begin
+        write(L, string'("tx "));
+        write(L, now / 1 ps);
+        write(L, string'(" "));
+        write(L, std_logic'image(ACIA_TX(0)));
+        write(L, string'(" "));
+        write(L, std_logic'image(ACIA_TX(1)));
+        writeline(output, L);
+    end process;
+
+    CLKLOG : process(E, SYSCLK, CPUCLK, MEMCLK) is
+        variable L : line;
+    begin
+        write(L, string'("clk "));
+        write(L, now / 1 ps);
+        write(L, string'(" E="));
+        write(L, std_logic'image(E));
+        write(L, string'(" SYSCLK="));
+        write(L, std_logic'image(SYSCLK));
+        write(L, string'(" CPUCLK="));
+        write(L, std_logic'image(CPUCLK));
+        write(L, string'(" MEMCLK="));
+        write(L, std_logic'image(MEMCLK));
+        writeline(output, L);
+    end process;
+
+    -- ACIA 0 seen from outside, sampled every nanosecond (VHDL-2008 external names)
+    A0LOG : process is
+        variable L    : line;
+        variable LAST : string(1 to 160) := (others => ' ');
+        variable S, T, C : std_logic_vector(7 downto 0);
+        variable TC : std_logic_vector(5 downto 0);
+        variable CC, CD : std_logic_vector(15 downto 0);
+        variable BD, AR, TR, TXC, TXCD, TXCE : std_logic;
+        variable CUR  : line;
+    begin
+        wait for 100 ps;
+        S := << signal .tb_soc.dut.acia0.status_reg : std_logic_vector(7 downto 0) >>;
+        T := << signal .tb_soc.dut.acia0.tx_data_reg : std_logic_vector(7 downto 0) >>;
+        C := << signal .tb_soc.dut.acia0.control_reg : std_logic_vector(7 downto 0) >>;
+        TC := << signal .tb_soc.dut.acia0.txclkcnt : std_logic_vector(5 downto 0) >>;
+        CC := << signal .tb_soc.dut.acia0.clockcnt : std_logic_vector(15 downto 0) >>;
+        CD := << signal .tb_soc.dut.acia0.clockdiv : std_logic_vector(15 downto 0) >>;
+        BD := << signal .tb_soc.dut.acia0.txbdclk : std_logic >>;
+        AR := << signal .tb_soc.dut.acia0.ac_rst : std_logic >>;
+        TR := << signal .tb_soc.dut.acia0.tx_rst : std_logic >>;
+        TXC := << signal .tb_soc.dut.acia0.txc : std_logic >>;
+        TXCD := << signal .tb_soc.dut.acia0.txcdel : std_logic >>;
+        TXCE := << signal .tb_soc.dut.acia0.txcedge : std_logic >>;
+        write(CUR, string'(" rst="));
+        write(CUR, std_logic'image(AR) & std_logic'image(TR) & std_logic'image(TXC) & std_logic'image(TXCD) & std_logic'image(TXCE));
+        write(CUR, string'(" txclkcnt="));
+        hwrite(CUR, "00" & TC);
+        write(CUR, string'(" clockcnt="));
+        hwrite(CUR, CC);
+        write(CUR, string'(" clockdiv="));
+        hwrite(CUR, CD);
+        write(CUR, string'(" txbdclk="));
+        write(CUR, std_logic'image(BD));
+        write(CUR, string'(" status="));
+        hwrite(CUR, S);
+        write(CUR, string'(" txdata="));
+        hwrite(CUR, T);
+        write(CUR, string'(" control="));
+        hwrite(CUR, C);
+        if CUR.all /= LAST(1 to CUR.all'length) then
+            LAST(1 to CUR.all'length) := CUR.all;
+            write(L, string'("acia "));
+            write(L, now / 1 ps);
+            write(L, CUR.all);
+            writeline(output, L);
+        end if;
+        deallocate(CUR);
+    end process;
 end architecture;

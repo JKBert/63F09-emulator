@@ -16,6 +16,8 @@ typedef struct console
     vs_sig      *txd;               /* driven by the ACIA */
     uint64_t    bit_ticks;
     FILE        *in, *out;
+    int         listen_fd;          /* Unix socket the host side listens on (-1 : none) */
+    int         conn_fd;            /* the connected peer (-1 : none) : bytes go there instead of `out` */
     int         in_is_tty_or_pipe;  /* poll before reading */
     /* transmit side (ACIA to host) */
     int         tx_busy;
@@ -25,9 +27,19 @@ typedef struct console
     int         rx_busy;
     int         in_done;
     uint64_t    tx_count, rx_count;
+    char        sock_path[108];
 } console;
 
-/* `baud` in bits per second. `in` and `out` may be NULL. The console watches `txd` and drives `rxd`. */
+/* Call console_init, then (optionally) console_listen, then console_create.
+ * `baud` in bits per second. `in` and `out` may be NULL. The console watches `txd` and drives `rxd`. */
+void console_init(console *c);
 void console_create(vs_kernel *k, console *c, vs_sig *rxd, vs_sig *txd, unsigned baud, FILE *in, FILE *out);
+
+/* The serial line goes to a Unix domain socket (stream) : the emulator listens on `path` and serves one peer at a
+ * time, bytes are exchanged raw. With `wait` the call blocks until a peer connects. Returns 0 on success. */
+int  console_listen(console *c, const char *path, int wait);
+
+/* Closes the descriptors and removes the socket file. */
+void console_close(console *c);
 
 #endif

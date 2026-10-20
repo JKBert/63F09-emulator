@@ -1174,14 +1174,14 @@ static void mmu_63f29_g24_create(vs_kernel *k, mmu_63f29_g24 *self, const char *
 
 static int64_t f_log2i_0(mmu_63f29_g0 *self, int64_t a_n)
 {
-    int64_t v_r_10448 = INT64_C(0);
-    int64_t v_v_10768 = INT64_C(1);
-    while ((v_v_10768 < a_n))
+    int64_t v_r_63280 = INT64_C(0);
+    int64_t v_v_63600 = INT64_C(1);
+    while ((v_v_63600 < a_n))
     {
-        v_v_10768 = (v_v_10768 * INT64_C(2));
-        v_r_10448 = (v_r_10448 + INT64_C(1));
+        v_v_63600 = (v_v_63600 * INT64_C(2));
+        v_r_63280 = (v_r_63280 + INT64_C(1));
     }
-    return v_r_10448;
+    return v_r_63280;
 }
 
 static void mmu_63f29_g0_p0(void *inst)

@@ -51,10 +51,18 @@ until the design is stable. RESET_n is released after ten EXTAL periods.
 * `--acia N,baud=B` connects the serial line of ACIA N (0 or 1) to the console : bytes read from stdin (`in=-`)
   are sent to RxD as 8N1 frames, frames sent on TxD are written to stdout (`out=-`). A file name can replace `-`,
   `none` disables a direction. `B` is the rate of the host side, it must be the one the program sets in the ACIA
-  (divider /16 : `24e6 / (16 * (divisor + 1))`).
+  (divider /16 : `24e6 / (32 * (divisor + 1))`).
 * `--trace-bus` prints every cycle seen on the external pins. The address and byte mask are output for the internal
   ROM and RAM too, so it is a trace of the whole bus.
 * `--dump FILE` writes every change of every named signal of the design, with its hierarchical name.
+
+## Serial lines on a Unix socket
+
+`--acia N,baud=B,socket=PATH[,wait]` replaces stdin/stdout by a Unix domain socket (stream) on which the emulator
+listens : one peer at a time, raw bytes (`socat - UNIX-CONNECT:PATH`, `nc -U PATH`, a script). The frames are 8N1 at
+the rate `B`. Without `wait` the emulator runs at once and the peer can connect later (the bytes sent by the chip
+before that are dropped) ; with `wait` it blocks until a peer is there. When the peer leaves, the next one is
+accepted. The socket file is removed when the emulator ends.
 
 ## Pads
 

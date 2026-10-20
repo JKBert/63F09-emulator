@@ -1,4 +1,4 @@
-/* Echoes what ACIA 0 receives.  echo "abc" | soc63f09 --elf echo.elf --acia 0,baud=107142,in=- --ticks ... */
+/* Echoes what ACIA 0 receives.  echo "abc" | soc63f09 --elf echo.elf --acia 0,baud=53571,in=- --ticks ... */
 
 #include "acia.h"
 

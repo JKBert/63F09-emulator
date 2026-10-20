@@ -28,6 +28,30 @@ typedef union soc09
     soc09_n8 n8;
 } soc09;
 
+typedef std_logic_matrix_42_s soc09_pia_port_data_t;
+static inline void soc09_pia_port_data_init(vs_kernel *k, soc09_pia_port_data_t *s)
+{
+    std_logic_matrix_42_register(k, s, std_logic_matrix_42_zero());
+}
+
+typedef std_logic_matrix_48_s soc09_ptm_o_t;
+static inline void soc09_ptm_o_init(vs_kernel *k, soc09_ptm_o_t *s)
+{
+    std_logic_matrix_48_register(k, s, std_logic_matrix_48_zero());
+}
+
+typedef std_logic_matrix_48_s soc09_ptm_c_n_t;
+static inline void soc09_ptm_c_n_init(vs_kernel *k, soc09_ptm_c_n_t *s)
+{
+    std_logic_matrix_48_register(k, s, std_logic_matrix_48_zero());
+}
+
+typedef std_logic_matrix_48_s soc09_ptm_g_n_t;
+static inline void soc09_ptm_g_n_init(vs_kernel *k, soc09_ptm_g_n_t *s)
+{
+    std_logic_matrix_48_register(k, s, std_logic_matrix_48_zero());
+}
+
 /* returns 0, or -1 when there is no variant for that number of cores */
 int soc09_create(vs_kernel *k, soc09 *self, const char *path, int64_t g_number_of_pia, int64_t g_number_of_acia, int64_t g_number_of_ptm, uint64_t g_fpu_by_core, int64_t g_ncpus, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *q, vs_sig *addr, vs_sig *data, vs_sig *ext_eirq_n, vs_sig *cpuclk, vs_sig *sysclk, vs_sig *memclk, vs_sig *fic, vs_sig *vma, vs_sig *byte_mask, std_logic_matrix_42_s *pia_port_data, vs_sig *pia_c1, vs_sig *pia_c2, vs_sig *acia_rx, vs_sig *acia_tx, vs_sig *acia_rts_n, vs_sig *acia_cts_n, vs_sig *acia_dcd_n, std_logic_matrix_48_s *ptm_o, std_logic_matrix_48_s *ptm_c_n, std_logic_matrix_48_s *ptm_g_n, vs_sig *spi_miso, vs_sig *spi_mosi, vs_sig *spi_ss, vs_sig *spi_sclk, vs_sig *twi_sda, vs_sig *twi_scl);
 

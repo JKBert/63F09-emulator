@@ -117,6 +117,18 @@ static void companion_run(void *inst)
     }
 }
 
+/* with --trace-bus : the changes of the transmit lines (the VHDL test bench prints the same) */
+static void tx_run(void *inst)
+{
+    soc *s = inst;
+
+    if (s->cfg.trace_bus)
+    {
+        printf("%12llu tx %d %d\n", (unsigned long long) s->k.now, (int) ((s->acia_tx.cur >> 1) & 1),
+               (int) (s->acia_tx.cur & 1));
+    }
+}
+
 static void reg(soc *s, vs_sig *sig, const char *name, unsigned width, uint64_t init)
 {
     vs_register_signal(&s->k, sig, init);
@@ -164,7 +176,7 @@ int soc_create(soc *s, const soc_cfg *c)
     reg(s, &s->fic, "fic", 1, 0);
     reg(s, &s->vma, "vma", 1, 0);
     reg(s, &s->byte_mask, "byte_mask", 8, 0);
-    std_logic_matrix_register(&s->k, &s->pia_port_data, std_logic_matrix_zero());
+    soc09_pia_port_data_init(&s->k, &s->pia_port_data);
     reg(s, &s->pia_c1, "pia_c1", 5, 0);
     reg(s, &s->pia_c2, "pia_c2", 5, 0);
     reg(s, &s->acia_rx, "acia_rx", 2, 3);
@@ -172,9 +184,9 @@ int soc_create(soc *s, const soc_cfg *c)
     reg(s, &s->acia_rts_n, "acia_rts_n", 2, 0);
     reg(s, &s->acia_cts_n, "acia_cts_n", 2, 0);
     reg(s, &s->acia_dcd_n, "acia_dcd_n", 2, 0);
-    std_logic_matrix_2_register(&s->k, &s->ptm_o, std_logic_matrix_2_zero());
-    std_logic_matrix_2_register(&s->k, &s->ptm_c_n, std_logic_matrix_2_zero());
-    std_logic_matrix_2_register(&s->k, &s->ptm_g_n, std_logic_matrix_2_zero());
+    soc09_ptm_o_init(&s->k, &s->ptm_o);
+    soc09_ptm_c_n_init(&s->k, &s->ptm_c_n);
+    soc09_ptm_g_n_init(&s->k, &s->ptm_g_n);
     reg(s, &s->spi_miso, "spi_miso", 1, 0);
     reg(s, &s->spi_mosi, "spi_mosi", 1, 0);
     reg(s, &s->spi_ss, "spi_ss", 16, 0xFFFF);
@@ -199,6 +211,8 @@ int soc_create(soc *s, const soc_cfg *c)
     sens[2] = &s->rw_n;
     sens[3] = &s->vma;
     vs_register_process(&s->k, companion_run, s, sens, 4);
+    sens[0] = &s->acia_tx;
+    vs_register_process(&s->k, tx_run, s, sens, 1);
     /* the serial lines : ACIA_RX(i) and ACIA_TX(i) are bits (1 - i) of the vectors (0 to 1) */
     for (i = 0; i < SOC_NACIA; i++)
     {
@@ -210,8 +224,13 @@ int soc_create(soc *s, const soc_cfg *c)
         vs_register_signal(&s->k, &s->con_tx[i], 1);
         vs_tie_fields(&s->con_rx[i], 0, &s->acia_rx, (unsigned) (SOC_NACIA - 1 - i), 1);
         vs_tie_fields(&s->acia_tx, (unsigned) (SOC_NACIA - 1 - i), &s->con_tx[i], 0, 1);
-        console_create(&s->k, &s->con[i], &s->con_rx[i], &s->con_tx[i], c->serial[i].baud, c->serial[i].in,
-                       c->serial[i].out);
+        console_init(&s->con[i]);
+        if (c->serial[i].socket[0] != '\0' && console_listen(&s->con[i], c->serial[i].socket, c->serial[i].wait) != 0)
+        {
+            return -1;
+        }
+        console_create(&s->k, &s->con[i], &s->con_rx[i], &s->con_tx[i], c->serial[i].baud,
+                       c->serial[i].socket[0] ? NULL : c->serial[i].in, c->serial[i].socket[0] ? NULL : c->serial[i].out);
     }
     vs_clock_source(&s->k, &s->extal, SOC_EXTAL_HALF, SOC_EXTAL_HALF);
     vs_timer_add(&s->k, c->reset_ticks, release_reset, s);
@@ -241,6 +260,13 @@ void soc_destroy(soc *s)
     for (i = 0; i < s->cfg.nzones; i++)
     {
         free(s->cfg.zones[i].data);
+    }
+    for (i = 0; i < SOC_NACIA; i++)
+    {
+        if (s->cfg.serial[i].enabled)
+        {
+            console_close(&s->con[i]);
+        }
     }
     vs_kernel_free(&s->k);
 }

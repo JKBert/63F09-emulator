@@ -36,6 +36,8 @@ typedef struct soc_serial
     unsigned    baud;               /* rate of the host side : the program must set the same in the ACIA */
     FILE        *in;                /* bytes sent to the ACIA (NULL : none) */
     FILE        *out;               /* bytes received from the ACIA (NULL : dropped) */
+    char        socket[108];        /* Unix socket path (empty : none) : replaces in and out */
+    int         wait;               /* wait for a peer to connect before the run starts */
 } soc_serial;
 
 typedef struct soc_cfg
@@ -60,10 +62,12 @@ typedef struct soc
     /* pins */
     vs_sig      extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n;
     vs_sig      e, ba, bs, rw_n, q, addr, data, ext_eirq_n, cpuclk, sysclk, memclk, fic, vma, byte_mask;
-    std_logic_matrix_s pia_port_data;
+    soc09_pia_port_data_t pia_port_data;
     vs_sig      pia_c1, pia_c2;
     vs_sig      acia_rx, acia_tx, acia_rts_n, acia_cts_n, acia_dcd_n;
-    std_logic_matrix_2_s ptm_o, ptm_c_n, ptm_g_n;
+    soc09_ptm_o_t ptm_o;
+    soc09_ptm_c_n_t ptm_c_n;
+    soc09_ptm_g_n_t ptm_g_n;
     vs_sig      spi_miso, spi_mosi, spi_ss, spi_sclk, twi_sda, twi_scl;
     console     con[SOC_NACIA];
     vs_sig      con_rx[SOC_NACIA], con_tx[SOC_NACIA];

@@ -77,6 +77,12 @@ def main(argv):
     stub = open(os.path.join(ROOT, "tests", "unisim", "unisim_stub.vhd")).read()
     pll = open(os.path.join(HERE, "pll.vhd")).read()
     stub = re.sub(r"architecture stub of PLLE2_BASE is\s*begin\s*end architecture stub;", lambda m: pll, stub)
+    # the flip-flops of the FPGA start at 0 (the emulator too) : the outputs of the primitives of the stub, which the
+    # test-only rewrite does not touch, start at '0' instead of 'U' ; otherwise the first assignment of the PLL
+    # (CLKOUT1 <= '0') is an event at time 0 and a process that is sensitive to it runs once more than in the emulator
+    stub = re.sub(r"(entity\s+\w+\s+is.*?end entity)", lambda m: re.sub(
+        r"\b(O|CLKFBOUT|CLKOUT0|CLKOUT1|LOCKED)(\s*:\s*out std_logic)\b", r"\1\2 := '0'",
+        re.sub(r"\b(IO)(\s*:\s*inout std_logic)\b", r"\1\2 := '0'", m.group(1))), stub, flags=re.S | re.I)
     stub_path = os.path.join(work, "unisim_stub.vhd")
     open(stub_path, "w").write(stub)
     out = []
@@ -92,13 +98,19 @@ def main(argv):
         else:
             out.append((lib, path))
     out.append(("work", os.path.join(HERE, "tb_soc.vhd")))
+    raw = lambda p: p.startswith(HERE) or p.endswith("unisim_stub.vhd")
     dfs = []
+    user = []
     for lib, path in out:
+        if path.endswith("tb_soc.vhd"):     # external names : the front end of the translator does not read them
+            continue
         df = frontend.analyze(lib, path)
-        if lib != "unisim":             # the canonicalisation cannot handle the processes with `wait` of the behavioural PLL
-            frontend.canonicalize(df)
-        dfs.append(df)
-    test_files = zeroinit.patch(dfs, out, os.path.join(work, "zeroinit"))
+        if not raw(path):
+            frontend.canonicalize(df)       # (the waits of the behavioural PLL cannot be canonicalised either)
+            dfs.append(df)
+            user.append((lib, path))
+    patched = dict(zip([p for l, p in user], [p for l, p in zeroinit.patch(dfs, user, os.path.join(work, "zeroinit"))]))
+    test_files = [(lib, path if raw(path) else patched[path]) for lib, path in out]
     wd = os.path.join(work, "lib")
     os.makedirs(wd, exist_ok=True)
     for lib, path in test_files:
@@ -108,23 +120,41 @@ def main(argv):
     write_hex(os.path.join(work, "ext.hex"), ext)
     vhd_log = run([ghdl, "--elab-run"] + STD + ["--workdir=" + wd, "-P" + wd, "tb_soc", "--stop-time=%dus" % us], work)
     ghdl_lines = [l.strip() for l in vhd_log.splitlines() if l.startswith("ext ")]
+    ghdl_tx = [l.split() for l in vhd_log.splitlines() if l.startswith("tx ")]
     ticks = int(us * 1e6 / 6.95)
     emu = os.path.join(ROOT, "build", "soc63f09")
     c_log = run([emu, "--ext", "0xF00000000:0x10000", "--elf", elf, "--ticks", str(ticks), "--trace-bus"], work)
     c_lines = [re.sub(r"^\s*\d+\s+", "", l).strip() for l in c_log.splitlines() if " ext " in l]
+    c_tx = [l.split() for l in c_log.splitlines() if " tx " in l]
     # a pad that nobody drives is 'Z' in VHDL and keeps its pull-up (all ones) in the emulator
     ghdl_lines = [re.sub(r"D=[ZU]+$", lambda m: "D=" + "F" * len(m.group(0)[2:]), l) for l in ghdl_lines]
     n = min(len(ghdl_lines), len(c_lines))
     print("GHDL: %d bus cycles, emulator: %d bus cycles in %d us" % (len(ghdl_lines), len(c_lines), us))
+    bus_ok = True
     for i in range(n):
         if ghdl_lines[i] != c_lines[i]:
             print("first difference at cycle %d :" % i)
             for j in range(max(0, i - 3), min(n, i + 3)):
                 print("  %s ghdl: %s" % ("*" if j == i else " ", ghdl_lines[j]))
                 print("  %s c   : %s" % ("*" if j == i else " ", c_lines[j]))
-            return 1
-    print("identical over %d cycles" % n)
-    return 0 if n > 0 else 1
+            bus_ok = False
+            break
+    if bus_ok:
+        print("identical over %d cycles" % n)
+    # the transmit lines : same levels, instants within 1 %  (the clock of the bench has a period rounded to the ps)
+    # the first entry is the initial value of the line
+    g = [(int(t[1]), t[2].strip("'"), t[3].strip("'")) for t in ghdl_tx]
+    c = [(int(t[0]) * 6.95, t[2], t[3]) for t in c_tx]
+    g = [e for i, e in enumerate(g) if i == 0 or e[1:] != g[i - 1][1:]]
+    c = [e for i, e in enumerate(c) if i == 0 or e[1:] != c[i - 1][1:]]
+    ok = True
+    for i in range(min(len(g), len(c))):
+        if g[i][1:] != c[i][1:] or abs(g[i][0] - c[i][0]) > max(2000, 0.01 * g[i][0]):
+            print("transmit line differs at change %d : ghdl %s, emulator %s" % (i, g[i], c[i]))
+            ok = False
+            break
+    print("transmit lines: %d changes in GHDL, %d in the emulator%s" % (len(g), len(c), "" if ok else " : DIFFERENT"))
+    return 0 if n > 0 and ok and bus_ok else 1
 
 
 if __name__ == "__main__":
