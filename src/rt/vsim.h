@@ -6,7 +6,10 @@
  * changed raise an event. The processes sensitive to those events run in the next delta
  * cycle. The simulation is quiescent when a delta cycle commits no change.
  *
- * One simulation per program : the list of pending signals is shared by vs_drive().
+ * One simulation per program. The design can be cut in partitions (vs_part_enter) that several threads run : each signal
+ * and each process belongs to the partition that was current when it was registered, and the pending values of a
+ * signal are those of its partition (vs_drive). An event is a change in the last commit : it is stamped with the
+ * generation of that commit (vs_gen), so nothing has to be cleared afterwards.
  */
 
 #ifndef VSIM_H
@@ -35,9 +38,10 @@ typedef struct vs_sig
     uint64_t        nxt;
     uint64_t        prev;       /* value before the event of this delta */
     uint64_t        pulled;     /* bits that the outside world pulls low (open-drain pads) : cur = nxt & ~pulled */
+    uint32_t        evt;        /* generation (vs_gen) of the last commit that changed it */
     uint8_t         wand;       /* a pad whose drivers are wired-AND : a released IOBUF drives ones */
     uint8_t         pend;
-    uint8_t         evt;
+    uint8_t         part;       /* partition of the signal (its pending values, the processes it wakes) */
     struct vs_fan   *fan;       /* processes woken by an event on this signal */
     uint32_t        nfan;
     const char      *name;      /* for the traces, NULL when unnamed */
@@ -65,7 +69,25 @@ typedef struct vs_proc
     uint8_t         *edges;     /* per entry of sens, NULL : every event (see vs_fan) */
     size_t          nsens;
     uint8_t         queued;
+    uint8_t         part;       /* partition that runs the process */
 } vs_proc;
+
+#define VS_MAX_PARTS    9
+
+/* The work of one partition. `mail[t]` holds the processes of partition t that this partition's commit has woken : t
+ * merges them into its run queue before the next delta (no thread writes in the lists of another). */
+typedef struct vs_part
+{
+    struct vs_sig   **pend;
+    size_t          npend;
+    struct vs_proc  **runq;
+    size_t          nrun;
+    struct vs_proc  **mail[VS_MAX_PARTS];
+    size_t          nmail[VS_MAX_PARTS], cmail[VS_MAX_PARTS];
+} vs_part;
+
+extern vs_part  *vs_parts[VS_MAX_PARTS];
+extern uint32_t vs_gen;
 
 struct vs_kernel;
 
@@ -91,10 +113,8 @@ typedef struct vs_kernel
     size_t          nsigs, csigs;
     vs_proc         **procs;
     size_t          nprocs, cprocs;
-    vs_proc         **runq;
-    size_t          nrun;
-    vs_sig          **events;
-    size_t          nevents;
+    unsigned        nparts;
+    unsigned        cur_part;   /* partition of what is registered now */
     char            **names;
     size_t          nnames, cnames;
     void            **allocs;
@@ -109,8 +129,11 @@ typedef struct vs_kernel
     int             finalised;
 } vs_kernel;
 
-extern vs_sig   **vs_pendlist;
-extern size_t   vs_npend;
+/* The partition that what is registered from now on belongs to (0 at the start). */
+void    vs_part_enter(vs_kernel *k, unsigned part);
+
+/* After a snapshot was loaded : the scratch lists of the partitions are empty again. */
+void    vs_parts_reset(vs_kernel *k);
 
 void    vs_kernel_init(vs_kernel *k);
 void    vs_kernel_free(vs_kernel *k);
@@ -169,8 +192,10 @@ static inline void vs_drive(vs_sig *s, uint64_t v)
     s->nxt = v;
     if (!s->pend)
     {
+        vs_part *pt = vs_parts[s->part];
+
         s->pend = 1;
-        vs_pendlist[vs_npend++] = s;
+        pt->pend[pt->npend++] = s;
     }
 }
 
@@ -266,24 +291,30 @@ static inline void vs_ref_drive_bits(vs_ref r, unsigned shift, uint64_t mask, ui
     vs_drive_bits(r.s, r.shift + shift, mask, v);
 }
 
+/* The signal changed in the commit that the running processes see. */
+static inline int vs_event(const vs_sig *s)
+{
+    return s->evt == vs_gen;
+}
+
 static inline int vs_rising(const vs_sig *s)
 {
-    return s->evt && s->cur == 1;
+    return vs_event(s) && s->cur == 1;
 }
 
 static inline int vs_falling(const vs_sig *s)
 {
-    return s->evt && s->cur == 0;
+    return vs_event(s) && s->cur == 0;
 }
 
 static inline int vs_rising_bit(const vs_sig *s, unsigned pos)
 {
-    return s->evt && ((s->prev >> pos) & 1) == 0 && ((s->cur >> pos) & 1) == 1;
+    return vs_event(s) && ((s->prev >> pos) & 1) == 0 && ((s->cur >> pos) & 1) == 1;
 }
 
 static inline int vs_falling_bit(const vs_sig *s, unsigned pos)
 {
-    return s->evt && ((s->prev >> pos) & 1) == 1 && ((s->cur >> pos) & 1) == 0;
+    return vs_event(s) && ((s->prev >> pos) & 1) == 1 && ((s->cur >> pos) & 1) == 0;
 }
 
 #endif

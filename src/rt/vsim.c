@@ -7,8 +7,8 @@
 
 #include "vsim.h"
 
-vs_sig  **vs_pendlist;
-size_t  vs_npend;
+vs_part  *vs_parts[VS_MAX_PARTS];
+uint32_t vs_gen = 1;
 int     vs_finished;
 static int mapped_ok;
 
@@ -112,11 +112,41 @@ static void *xrealloc(void *old, size_t n)
     return q;
 }
 
+void vs_part_enter(vs_kernel *k, unsigned part)
+{
+    if (part >= VS_MAX_PARTS)
+    {
+        abort();
+    }
+    while (k->nparts <= part)
+    {
+        vs_parts[k->nparts] = xrealloc(NULL, sizeof(vs_part));
+        memset(vs_parts[k->nparts], 0, sizeof(vs_part));
+        k->nparts++;
+    }
+    k->cur_part = part;
+}
+
+void vs_parts_reset(vs_kernel *k)
+{
+    unsigned    i, j;
+
+    for (i = 0; i < k->nparts; i++)
+    {
+        for (j = 0; j < VS_MAX_PARTS; j++)
+        {
+            vs_parts[i]->mail[j] = NULL;            /* scratch lists : malloc'ed, not part of a snapshot */
+            vs_parts[i]->nmail[j] = vs_parts[i]->cmail[j] = 0;
+        }
+    }
+}
+
 void vs_kernel_init(vs_kernel *k)
 {
     memset(k, 0, sizeof(*k));
-    vs_npend = 0;
     vs_finished = 0;
+    vs_gen = 1;
+    vs_part_enter(k, 0);
 }
 
 void vs_name(vs_kernel *k, vs_sig *s, const char *path, const char *name, unsigned width)
@@ -323,9 +353,17 @@ vs_region *vs_region_find(vs_kernel *k, const char *suffix)
 
 void vs_kernel_free(vs_kernel *k)
 {
-    /* the memory is in the arena : nothing to free, the process is ending */
-    vs_pendlist = NULL;
-    vs_npend = 0;
+    unsigned    i, j;
+
+    /* the memory is in the arena : nothing to free, the process is ending (only the scratch lists are malloc'ed) */
+    for (i = 0; i < k->nparts; i++)
+    {
+        for (j = 0; j < VS_MAX_PARTS; j++)
+        {
+            free(vs_parts[i]->mail[j]);
+        }
+        vs_parts[i] = NULL;
+    }
     memset(k, 0, sizeof(*k));
 }
 
@@ -335,6 +373,7 @@ void vs_register_signal(vs_kernel *k, vs_sig *s, uint64_t init)
     s->nxt = init;
     s->pend = 0;
     s->evt = 0;
+    s->part = (uint8_t) k->cur_part;
     s->fan = NULL;
     s->nfan = 0;
     s->name = NULL;
@@ -362,6 +401,7 @@ void vs_register_process_edges(vs_kernel *k, void (*run)(void *), void *inst, vs
     p->inst = inst;
     p->nsens = nsens;
     p->queued = 0;
+    p->part = (uint8_t) k->cur_part;
     p->sens = xrealloc(NULL, nsens * sizeof(*p->sens));
     memcpy(p->sens, sens, nsens * sizeof(*p->sens));
     p->masks = NULL;
@@ -435,22 +475,33 @@ static void finalise(vs_kernel *k)
             }
         }
     }
-    k->runq = xrealloc(NULL, k->nprocs * sizeof(*k->runq));
-    k->events = xrealloc(NULL, k->nsigs * sizeof(*k->events));
-    vs_pendlist = xrealloc(vs_pendlist, k->nsigs * sizeof(*vs_pendlist));
+    for (i = 0; i < k->nparts; i++)
+    {
+        size_t  ns = 0, np = 0;
+
+        for (j = 0; j < k->nsigs; j++)
+        {
+            ns += k->sigs[j]->part == i;
+        }
+        for (j = 0; j < k->nprocs; j++)
+        {
+            np += k->procs[j]->part == i;
+        }
+        vs_parts[i]->runq = xrealloc(NULL, (np ? np : 1) * sizeof(*vs_parts[i]->runq));
+        vs_parts[i]->pend = xrealloc(NULL, (ns ? ns : 1) * sizeof(*vs_parts[i]->pend));
+        vs_parts[i]->nrun = vs_parts[i]->npend = 0;
+    }
     k->finalised = 1;
 }
 
-/* A signal has changed : raise its event, queue the processes it wakes, and let the nets tied to it follow. */
-static void changed(vs_kernel *k, vs_sig *s)
+/* A signal has changed in the commit `next` of partition `cp`: it raises its event, wakes the processes (those of other
+ * partitions through the mail), and the nets tied to it follow. */
+static void changed(vs_kernel *k, unsigned cp, vs_sig *s, uint32_t next)
 {
     uint32_t    m;
+    vs_part     *pt = vs_parts[cp];
 
-    if (!s->evt)
-    {
-        s->evt = 1;
-        k->events[k->nevents++] = s;
-    }
+    s->evt = next;
     for (m = 0; m < s->nfan; m++)
     {
         vs_proc *p = s->fan[m].p;
@@ -463,10 +514,28 @@ static void changed(vs_kernel *k, vs_sig *s)
         {
             continue;           /* the process only looks at the other edge */
         }
-        if (!p->queued)
+        if (p->part == cp)
         {
-            p->queued = 1;
-            k->runq[k->nrun++] = p;
+            if (!p->queued)
+            {
+                p->queued = 1;
+                pt->runq[pt->nrun++] = p;
+            }
+        }
+        else
+        {
+            unsigned    t = p->part;
+
+            if (pt->nmail[t] == pt->cmail[t])
+            {
+                pt->cmail[t] = pt->cmail[t] ? pt->cmail[t] * 2 : 256;
+                pt->mail[t] = realloc(pt->mail[t], pt->cmail[t] * sizeof(*pt->mail[t]));
+                if (pt->mail[t] == NULL)
+                {
+                    abort();
+                }
+            }
+            pt->mail[t][pt->nmail[t]++] = p;
         }
     }
     for (m = 0; m < s->nties; m++)
@@ -477,58 +546,113 @@ static void changed(vs_kernel *k, vs_sig *s)
 
         if (n != t->dst->cur)
         {
-            if (!t->dst->evt)
+            if (t->dst->evt != next)
             {
                 t->dst->prev = t->dst->cur;
             }
             t->dst->cur = n;
             t->dst->nxt = (t->dst->nxt & ~(t->mask << t->dst_shift)) | (v << t->dst_shift);
-            changed(k, t->dst);
+            changed(k, cp, t->dst, next);
         }
     }
 }
 
-/* Commit the pending values : raises the events and queues the processes they wake. */
-static void commit(vs_kernel *k)
+/* Commit the pending values of partition `cp`. */
+static void commit(vs_kernel *k, unsigned cp)
 {
-    size_t  i;
+    vs_part     *pt = vs_parts[cp];
+    uint32_t    next = vs_gen + 1;
+    size_t      i;
 
-    k->nevents = 0;
-    for (i = 0; i < vs_npend; i++)
+    for (i = 0; i < pt->npend; i++)
     {
-        vs_sig  *s = vs_pendlist[i];
+        vs_sig  *s = pt->pend[i];
 
         uint64_t    eff = s->nxt & ~s->pulled;
 
         s->pend = 0;
         if (eff != s->cur)
         {
-            if (!s->evt)
+            if (s->evt != next)
             {
                 s->prev = s->cur;
             }
             s->cur = eff;
-            changed(k, s);
+            changed(k, cp, s, next);
         }
     }
-    vs_npend = 0;
+    pt->npend = 0;
 }
 
-static void clear_events(vs_kernel *k)
+/* The processes that the other partitions woke join the run queue. */
+static void merge_mail(vs_kernel *k, unsigned me)
 {
-    size_t  i;
+    vs_part *pt = vs_parts[me];
+    unsigned    src;
+    size_t      i;
 
-    for (i = 0; i < k->nevents; i++)
+    for (src = 0; src < k->nparts; src++)
     {
-        k->events[i]->evt = 0;
+        vs_part *from = vs_parts[src];
+
+        if (src == me)
+        {
+            continue;
+        }
+        for (i = 0; i < from->nmail[me]; i++)
+        {
+            vs_proc *p = from->mail[me][i];
+
+            if (!p->queued)
+            {
+                p->queued = 1;
+                pt->runq[pt->nrun++] = p;
+            }
+        }
+        from->nmail[me] = 0;
     }
-    k->nevents = 0;
+}
+
+/* The end of a commit round, for all the partitions : the new events are the ones of the next generation. */
+static void next_generation(vs_kernel *k)
+{
+    unsigned    i;
+
+    if (++vs_gen == 0)                  /* wrapped : the stamps of the old events must not match again */
+    {
+        size_t  j;
+
+        for (j = 0; j < k->nsigs; j++)
+        {
+            k->sigs[j]->evt = 0;
+        }
+        vs_gen = 1;
+    }
+    for (i = 0; i < k->nparts; i++)
+    {
+        merge_mail(k, i);
+    }
+}
+
+static int work_left(vs_kernel *k)
+{
+    unsigned    i;
+
+    for (i = 0; i < k->nparts; i++)
+    {
+        if (vs_parts[i]->nrun > 0)
+        {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 uint64_t vs_settle(vs_kernel *k)
 {
     uint64_t    start = k->deltas;
     size_t      i;
+    unsigned    pi;
 
     if (!k->finalised)
     {
@@ -547,26 +671,36 @@ uint64_t vs_settle(vs_kernel *k)
     }
 
     /* Values driven by the test bench, or by the initialisation phase. */
-    commit(k);
-
-    while (k->nrun > 0)
+    for (pi = 0; pi < k->nparts; pi++)
     {
-        size_t  n = k->nrun;
+        commit(k, pi);
+    }
+    next_generation(k);
 
-        k->nrun = 0;
+    while (work_left(k))
+    {
         /* Processes see the events of the previous commit while they run. Nothing is queued while they run (queueing is
          * done by commit), so the flag of a process can be cleared just before it runs. */
-        for (i = 0; i < n; i++)
+        for (pi = 0; pi < k->nparts; pi++)
         {
-            vs_proc *p = k->runq[i];
+            vs_part *pt = vs_parts[pi];
+            size_t  n = pt->nrun;
 
-            p->queued = 0;
-            p->run(p->inst);
+            pt->nrun = 0;
+            for (i = 0; i < n; i++)
+            {
+                vs_proc *p = pt->runq[i];
+
+                p->queued = 0;
+                p->run(p->inst);
+            }
         }
-        clear_events(k);
         k->deltas++;
-        commit(k);
+        for (pi = 0; pi < k->nparts; pi++)
+        {
+            commit(k, pi);
+        }
+        next_generation(k);
     }
-    clear_events(k);
     return k->deltas - start;
 }

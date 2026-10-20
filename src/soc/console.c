@@ -63,7 +63,7 @@ static void txd_run(void *inst)
 {
     console *c = inst;
 
-    if (getenv("CONSOLE_DEBUG") && c->txd->evt)
+    if (getenv("CONSOLE_DEBUG") && vs_event(c->txd))
     {
         fprintf(stderr, "txd=%d at %llu\n", (int) c->txd->cur, (unsigned long long) c->k->now);
     }

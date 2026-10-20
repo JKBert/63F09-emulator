@@ -939,7 +939,7 @@ class Translator(Subprograms, Ops):
 
     def x_Event_Attribute(self, n):
         ptr, shift, w, ct = self.sigptr(nodes.Get_Prefix(n))
-        return E("(%s)->evt" % ptr, Bit())
+        return E("vs_event(%s)" % ptr, Bit())
 
     def x_High_Type_Attribute(self, n):
         raise unsupported(n, "'high of a type")

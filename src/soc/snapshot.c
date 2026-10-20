@@ -5,7 +5,7 @@
 #include "soc/snapshot.h"
 
 #define SNAP_MAGIC      "63F09SNP"
-#define SNAP_VERSION    1
+#define SNAP_VERSION    2
 #define PAGE            4096
 
 typedef struct snap_hdr
@@ -17,8 +17,8 @@ typedef struct snap_hdr
     uint64_t    arena_used;
     uint64_t    soc_addr;
     uint64_t    soc_size;
-    uint64_t    pendlist;
-    uint64_t    npend;
+    uint64_t    parts[VS_MAX_PARTS];    /* the partitions of the kernel */
+    uint64_t    gen;
     uint64_t    finished;
     uint64_t    now;
 } snap_hdr;
@@ -82,8 +82,11 @@ int snapshot_save(soc *s, const char *path)
     h.arena_used = used;
     h.soc_addr = (uint64_t) (uintptr_t) s;
     h.soc_size = sizeof(*s);
-    h.pendlist = (uint64_t) (uintptr_t) vs_pendlist;
-    h.npend = vs_npend;
+    for (i = 0; i < VS_MAX_PARTS; i++)
+    {
+        h.parts[i] = (uint64_t) (uintptr_t) vs_parts[i];
+    }
+    h.gen = vs_gen;
     h.finished = (uint64_t) vs_finished;
     h.now = s->k.now;
     fwrite(&h, sizeof(h), 1, f);
@@ -187,9 +190,13 @@ soc *snapshot_load(const char *path)
     }
     fclose(f);
     vs_arena_set_used(h.arena_used);
-    vs_pendlist = (vs_sig **) (uintptr_t) h.pendlist;
-    vs_npend = h.npend;
+    for (i = 0; i < VS_MAX_PARTS; i++)
+    {
+        vs_parts[i] = (vs_part *) (uintptr_t) h.parts[i];
+    }
+    vs_gen = (uint32_t) h.gen;
     vs_finished = (int) h.finished;
+    vs_parts_reset(&((soc *) (uintptr_t) h.soc_addr)->k);
     return (soc *) (uintptr_t) h.soc_addr;
 }
 
