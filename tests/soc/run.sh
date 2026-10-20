@@ -33,3 +33,13 @@ python3 "$here/mkelf.py" "$work/pia.elf" "0xFFFFF000=11 3D 31 7E 00 00 F1 00" "0
 "$emu" --ncpus 2 --elf "$work/pia.elf" --peek 0xF00001000:2 --ticks 3000000 > "$work/pia.log"
 grep -q '^F00001000: A5 04' "$work/pia.log"
 echo "PIA test: ok"
+
+# The PTM : timer 1 of PTM 0 in continuous mode on SYSCLK, interrupt EIRQ21 (vector 0xFFEA) -> BAC -> core ;
+# the handler (ROM 0xFFFFF200) increments a counter in the external memory, acknowledges by reading status and LSB.
+PAD="12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12"
+python3 "$here/mkelf.py" "$work/ptmirq.elf" \
+    "0xFFFFF000=11 3D 31 10 CE FF FC FF F0 86 00 B7 00 00 10 00 86 01 B7 FF FE D0 01 86 01 B7 FF FE D0 00 86 00 B7 FF FE D0 02 86 04 B7 FF FE D0 03 86 42 B7 FF FE D0 00 1C EF FF 20 FE $PAD" \
+    "0xFFFFF200=B6 00 00 10 00 8B 01 B7 00 00 10 00 B6 FF FE D0 01 B6 FF FE D0 03 3B" "0xFFFFFFEA=F2 00" "0xFFFFFFFE=F0 00"
+"$emu" --ncpus 1 --elf "$work/ptmirq.elf" --peek 0xF00001000:1 --ticks 12000000 > "$work/ptmirq.log"
+! grep -q '^F00001000: 00' "$work/ptmirq.log"       # the handler ran at least once
+echo "PTM interrupt test: ok"

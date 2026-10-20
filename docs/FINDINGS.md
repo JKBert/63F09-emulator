@@ -86,6 +86,13 @@ rising edges, shifts once too many and answers `B4` instead of `5A` to the next 
 `A5`, is right). Either the extra edge belongs to the design (the last bit is sampled on it) and the slaves must
 ignore it, or the master should stop at 16 toggles.
 
+### A4. 63F40 : the 16-bit counter is read without the divide-by-8 shift
+
+In 16-bit mode `COUNTER` holds the count in bits 18..3 (`LATCH & "000"`, decremented by 8), but the read registers
+return `COUNTER(15 downto 8)` and `COUNTER(7 downto 0)`, i.e. the count multiplied by 8 and truncated (a latch of
+0x0040 reads back as 0x0200 truncated to 0x02 / 0x00). The 6840 returns the count itself. The emulator reproduces the
+VHDL, so a program sees the same values as on the board.
+
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*
 
@@ -109,6 +116,12 @@ instead of `'0'` made the ACIA divider toggle once more at time 0.
 
 `acia_init` read its first argument with `LDX 4,U` after `PSHS U ; LEAU ,S` : that is the return address, the
 argument is at 8,U (`PSHS U` pushes 4 bytes in 32-bit mode, `JSR` 4 more). The VHDL was right.
+
+### B3. `ANDCC` takes two immediate bytes in 32-bit mode
+
+As for `PSHS`, the post byte of `ANDCC`/`ORCC` is two bytes wide after `LDMD #$31` (`1C EF FF`). With a single byte the
+core fetches the following byte as part of the instruction and the program derails (and in a tight `BRA *` the bus
+stops after a cache-line fill). Same behaviour in GHDL.
 
 ### B2. `LDMD` and the first load of S
 *Status : for information.*
