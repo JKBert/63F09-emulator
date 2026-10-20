@@ -9,54 +9,12 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 | Entry | Subject | Status |
 |---|---|---|
 | A0c | 63F52 ninth SCLK edge | open, to confirm |
-| A1 | 63F50 TDRE / first character lost | open |
-| A1b | 63F50 receiver never leaves `start_state` | open |
 | A2 | SoC09 `CACHEABLE_EXT` undriven | to confirm |
 | A3 | reset values | by design |
 | B2 | `LDMD` and the first load of S | for information |
-| B3 | interrupt flags of the ACIA, SPI, TWI generated on E | being corrected |
+| B3 | interrupt flags of the SPI, TWI generated on E | being corrected |
 
 ## A. Behaviour of the chip
-
-### A1. ACIA 63F50 : TDRE rises before the byte is in the shift register, the next write overwrites it
-*Status : mechanism found in the signals ; identical in GHDL and the emulator ; to correct in the VHDL.*
-
-With the recompiled `hello`, the line comes out as `ello from the 63F09` : the first character is lost, and so would be
-the first character after any idle period. The signals of the ACIA (`soc63f09 --dump`, names `soc.acia0.*`) show why :
-
-    1203840  tx_data_reg = 'H'     (write by the CPU, TDRE falls)
-    2333160  txrdy = 1             TDRE rises : the transmitter is in start_state, tx_shift_ctrl = load
-    2365920  tx_data_reg = 'e'     the program saw TDRE = 1 and writes the next character
-    3682440  txdat falls           the frame that goes out is that of 'e'
-
-The transfer of `tx_data_reg` into the shift register happens one baud-clock step *after* TDRE has been set, so a
-program that writes as soon as TDRE is set (the normal way) replaces the byte that is waiting. A 6850 sets TDRE when
-the byte has entered the shift register. A fix is to set `status_txr_set` when the register is loaded (or to delay
-it by the same step).
-A test of the ACIA alone (`acia_tdre`, `acia_tx`), where nothing is written in that window, does send the frame.
-
-Other observations on the same device :
-
-* The bit time is `2 * (divisor + 1) * 16` SYSCLK cycles, i.e. `24 MHz / (32 * (divisor + 1))` (53 571 bauds for 13),
-  twice what the header comment suggests for "divide by 16".
-* The transmit state machine runs a spurious frame (states 1 to 4) right after the hardware reset is released, and
-  the line has a short low pulse at that time (about 0.7 us).
-
-### A1b. ACIA 63F50 : the receiver never leaves `start_state` (inverted test)
-*Status : found in the source and checked in GHDL and in the emulator.*
-
-In `acia_rx_state` (line 851 of 63F50.vhd)
-
-    if RX_RST = '0' then
-        rx_current_state <= start_state;
-    else
-        if RxBdEdgeFall = '1' then rx_current_state <= rx_next_state; end if;
-
-the test is inverted : the state is forced to `start_state` as long as the receiver is **not** in reset. The
-transmitter's equivalent (`acia_tx_state`) tests `TX_RST = '1'`. Result : no character is ever received, `RDRF` stays
-0. The directed test `acia_rx` of this repository (a frame 'a' at the rate of the transmitter, then status reads) shows
-`RDRF` = 0 in GHDL as well as in the emulator, at the bit times 112, 224, 448 and 896 cycles. The `echo` program
-sends nothing back for the same reason. Fix : `RX_RST = '1'`.
 
 ### A0c. 63F52 : the master clocks a ninth rising edge after each byte
 *Status : observed on the pins, identical in GHDL and the emulator ; to confirm with a real slave.*
@@ -93,7 +51,7 @@ sequence given in the conversation (`LDMD #$31 ; PSHS U`) pushes with S uninitia
 after `LDMD`, as `crt0` does (`11 3D 11`, then `10 CE ...`).
 
 ### B3. The interrupt flags of the other peripherals are still generated on E
-*Status : PTM (63F40), BAC (63F81) and PIA (63F21) fixed by the author ; the other peripherals are being corrected.*
+*Status : PTM (63F40), BAC (63F81), PIA (63F21) and ACIA (63F50) fixed by the author ; the other peripherals are being corrected.*
 
 The E clock only runs for bus cycles : a core that loops in its instruction cache makes none, E stops, and whatever is
 clocked on `falling_edge(E)` stops with it. A timer interrupt then never wakes the core. `tests/soc/programs/b3_cache_idle.asm`
@@ -105,9 +63,11 @@ PIA (63F21, corrected : edge detection and flags on SYSCLK, acknowledge on E) : 
 PIA 0 three times (`at` command of the pins socket) while the core loops in its cache ; the handler counts 3 interrupts
 on 1 and on 2 cores.
 
-What is left is the same pattern in the other peripherals whose interrupt flag is a register written on E : ACIA
-(`falling_edge(E)` in 23 places of 63F50.vhd, including the status bits that give `IRQ_n`), SPI (63F52) and TWI (63F54).
-An end of byte that happens while E is stopped is seen only when E restarts.
+ACIA (63F50 rewritten on SYSCLK with toggles crossing to E) : the first character is no longer lost and the receiver
+works (`hello`, `echo abc`) ; the interrupt in a cached loop has not been tested yet.
+
+What is left is the same pattern in SPI (63F52) and TWI (63F54) : an end of byte that happens while E is stopped is
+seen only when E restarts.
 
 ## C. Files and tools
 

@@ -21,7 +21,7 @@ static void usage(FILE *f)
         "  --acia N[,baud=B][,in=FILE|-|none][,out=FILE|-|none]\n"
         "                       the serial line of ACIA N (0 or 1) goes to the console : \"-\" is stdin for in\n"
         "                       and stdout for out ; default baud 115200. B is the rate of the host side : the\n"
-        "                       program must set the same one in the ACIA (divider /16 : 24e6 / (32 * (div + 1)))\n"
+        "                       program must set the same one in the ACIA (divider /16 : 24e6 / (16 * (div + 1)))\n"
         "                       socket=PATH replaces in/out by a Unix domain socket the emulator listens on\n"
         "                       (one peer at a time, raw bytes) ; wait blocks until a peer connects\n"
         "  --spi-slave          a SPI slave (mode 0) on SS0 that answers each byte with the previous one\n"

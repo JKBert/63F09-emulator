@@ -23,15 +23,21 @@ static void acia_63f50_p1(void *inst)
 static void acia_63f50_p2(void *inst)
 {
     acia_63f50 *self = inst;
-    if ((((*self->p_rst_n).cur == 0) | (self->s_clockrst.cur == 1)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
-        vs_drive(&self->s_clockcnt, UINT64_C(0x0));
-        vs_drive(&self->s_rxc, (~self->s_rxc.cur & UINT64_C(0x1)));
-        vs_drive(&self->s_txc, (~self->s_txc.cur & UINT64_C(0x1)));
-    }
-    else if (vs_falling(&(*self->p_sysclk)))
-    {
-        if ((self->s_clockcnt.cur == self->s_clockdiv.cur))
+        if (((*self->p_rst_n).cur == 0))
+        {
+            vs_drive(&self->s_clockcnt, UINT64_C(0x0));
+            vs_drive(&self->s_rxc, 0);
+            vs_drive(&self->s_txc, 0);
+        }
+        else if ((self->s_clockrst.cur == 1))
+        {
+            vs_drive(&self->s_clockcnt, UINT64_C(0x0));
+            vs_drive(&self->s_rxc, (~self->s_rxc.cur & UINT64_C(0x1)));
+            vs_drive(&self->s_txc, (~self->s_txc.cur & UINT64_C(0x1)));
+        }
+        else if ((self->s_clockcnt.cur == self->s_clockdiv.cur))
         {
             vs_drive(&self->s_clockcnt, UINT64_C(0x0));
             vs_drive(&self->s_rxc, (~self->s_rxc.cur & UINT64_C(0x1)));
@@ -47,112 +53,83 @@ static void acia_63f50_p2(void *inst)
 static void acia_63f50_p3(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
-        vs_drive(&self->s_ac_rst, ((((self->s_control_reg.cur >> 1) & 1) & ((self->s_control_reg.cur >> 0) & 1)) | (~(*self->p_rst_n).cur & UINT64_C(0x1))));
+        vs_drive(&self->s_ac_rst, ((((self->s_cr_s.cur >> 1) & 1) & ((self->s_cr_s.cur >> 0) & 1)) | (~(*self->p_rst_n).cur & UINT64_C(0x1))));
     }
-    vs_drive(&self->s_rx_rst, (self->s_ac_rst.cur | (*self->p_dcd_n).cur));
-    vs_drive(&self->s_tx_rst, self->s_ac_rst.cur);
 }
 
 static void acia_63f50_p4(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
-    {
-        vs_drive(&self->s_status_read, 0);
-        vs_drive(&self->s_tx_data_write, 0);
-        vs_drive(&self->s_rx_data_read, 0);
-        vs_drive(&self->s_clockrst, 0);
-        if (((*self->p_rst_n).cur == 0))
-        {
-            vs_drive_bits(&self->s_control_reg, 0, UINT64_C(0x3), UINT64_C(0x3));
-            vs_drive_bits(&self->s_control_reg, 2, UINT64_C(0x3F), UINT64_C(0x0));
-            vs_drive(&self->s_tx_data_reg, UINT64_C(0x0));
-        }
-        else
-        {
-            if (((*self->p_cs).cur == 1))
-            {
-                switch ((*self->p_addr).cur)
-                {
-                    case UINT64_C(0x0):
-                    {
-                        if (((*self->p_rw_n).cur == 0))
-                        {
-                            vs_drive(&self->s_control_reg, (*self->p_d_in).cur);
-                        }
-                        else
-                        {
-                            vs_drive(&self->s_status_read, 1);
-                        }
-                        break;
-                    }
-                    case UINT64_C(0x1):
-                    {
-                        if (((*self->p_rw_n).cur == 0))
-                        {
-                            vs_drive(&self->s_tx_data_reg, (*self->p_d_in).cur);
-                            vs_drive(&self->s_tx_data_write, 1);
-                        }
-                        else
-                        {
-                            vs_drive(&self->s_rx_data_read, 1);
-                        }
-                        break;
-                    }
-                    case UINT64_C(0x2):
-                    {
-                        vs_drive_bits(&self->s_clockdiv, 8, UINT64_C(0xFF), (*self->p_d_in).cur);
-                        vs_drive(&self->s_clockrst, 1);
-                        break;
-                    }
-                    default:
-                    {
-                        vs_drive_bits(&self->s_clockdiv, 0, UINT64_C(0xFF), (*self->p_d_in).cur);
-                        vs_drive(&self->s_clockrst, 1);
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    vs_drive(&self->s_rx_rst, (self->s_ac_rst.cur | self->s_dcd_i.cur));
 }
 
 static void acia_63f50_p5(void *inst)
 {
     acia_63f50 *self = inst;
-    vs_drive(&self->s_txie, ((~((self->s_control_reg.cur >> 6) & 1) & UINT64_C(0x1)) & ((self->s_control_reg.cur >> 5) & 1)));
-    vs_drive(&self->s_rxie, ((self->s_control_reg.cur >> 7) & 1));
-    vs_drive_bits(&self->s_status_reg, 0, UINT64_C(0x1), self->s_rxrdy.cur);
-    vs_drive_bits(&self->s_status_reg, 1, UINT64_C(0x1), (self->s_txrdy.cur & (~(*self->p_cts_n).cur & UINT64_C(0x1))));
-    vs_drive_bits(&self->s_status_reg, 2, UINT64_C(0x1), self->s_dcdint.cur);
-    vs_drive_bits(&self->s_status_reg, 3, UINT64_C(0x1), (*self->p_cts_n).cur);
-    vs_drive_bits(&self->s_status_reg, 4, UINT64_C(0x1), self->s_ferr.cur);
-    vs_drive_bits(&self->s_status_reg, 5, UINT64_C(0x1), self->s_oerr.cur);
-    vs_drive_bits(&self->s_status_reg, 6, UINT64_C(0x1), self->s_perr.cur);
-    vs_drive_bits(&self->s_status_reg, 7, UINT64_C(0x1), (((self->s_rxie.cur & self->s_rxrdy.cur) | (self->s_rxie.cur & self->s_dcdint.cur)) | (self->s_txie.cur & self->s_txrdy.cur)));
-    vs_drive(&self->s_irq, ((self->s_status_reg.cur >> 7) & 1));
+    vs_drive(&self->s_tx_rst, self->s_ac_rst.cur);
 }
 
 static void acia_63f50_p6(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (((*self->p_rst_n).cur == 0))
     {
-        if ((self->s_rx_rst.cur == 1))
+        vs_drive_bits(&self->s_control_reg, 0, UINT64_C(0x3), UINT64_C(0x3));
+        vs_drive_bits(&self->s_control_reg, 2, UINT64_C(0x3F), UINT64_C(0x0));
+        vs_drive(&self->s_tx_data_reg, UINT64_C(0x0));
+        vs_drive(&self->s_txw_tog, 0);
+        vs_drive(&self->s_rdev_tog, 0);
+        vs_drive(&self->s_srd_tog, 0);
+        vs_drive(&self->s_clkm_tog, 0);
+        vs_drive(&self->s_clkl_tog, 0);
+        vs_drive(&self->s_rxr_ack, 0);
+    }
+    else if (vs_falling(&(*self->p_e)))
+    {
+        if (((*self->p_cs).cur == 1))
         {
-            vs_drive(&self->s_rxrdy, 0);
-        }
-        else
-        {
-            if (((self->s_rxbdedgefall.cur == 1) & (self->s_status_rxr_set.cur == 1)))
+            switch ((*self->p_addr).cur)
             {
-                vs_drive(&self->s_rxrdy, 1);
-            }
-            else if ((self->s_rx_data_read.cur == 1))
-            {
-                vs_drive(&self->s_rxrdy, 0);
+                case UINT64_C(0x0):
+                {
+                    if (((*self->p_rw_n).cur == 0))
+                    {
+                        vs_drive(&self->s_control_reg, (*self->p_d_in).cur);
+                    }
+                    else
+                    {
+                        vs_drive(&self->s_srd_tog, (~self->s_srd_tog.cur & UINT64_C(0x1)));
+                    }
+                    break;
+                }
+                case UINT64_C(0x1):
+                {
+                    if (((*self->p_rw_n).cur == 0))
+                    {
+                        vs_drive(&self->s_tx_data_reg, (*self->p_d_in).cur);
+                        vs_drive(&self->s_txw_tog, (~self->s_txw_tog.cur & UINT64_C(0x1)));
+                    }
+                    else
+                    {
+                        vs_drive(&self->s_rdev_tog, (~self->s_rdev_tog.cur & UINT64_C(0x1)));
+                        vs_drive(&self->s_rxr_ack, self->s_rxs_e2.cur);
+                    }
+                    break;
+                }
+                case UINT64_C(0x2):
+                {
+                    vs_drive_bits(&self->s_clockdiv, 8, UINT64_C(0xFF), (*self->p_d_in).cur);
+                    vs_drive(&self->s_clkm_tog, (~self->s_clkm_tog.cur & UINT64_C(0x1)));
+                    break;
+                }
+                default:
+                {
+                    vs_drive_bits(&self->s_clockdiv, 0, UINT64_C(0xFF), (*self->p_d_in).cur);
+                    vs_drive(&self->s_clkl_tog, (~self->s_clkl_tog.cur & UINT64_C(0x1)));
+                    break;
+                }
             }
         }
     }
@@ -163,28 +140,154 @@ static void acia_63f50_p7(void *inst)
     acia_63f50 *self = inst;
     if (vs_falling(&(*self->p_e)))
     {
-        if ((self->s_tx_rst.cur == 1))
-        {
-            vs_drive(&self->s_txrdy, 1);
-        }
-        else
-        {
-            if (((self->s_txbdedgerise.cur == 1) & (self->s_status_txr_set.cur == 1)))
-            {
-                vs_drive(&self->s_txrdy, 1);
-            }
-            else if ((self->s_tx_data_write.cur == 1))
-            {
-                vs_drive(&self->s_txrdy, 0);
-            }
-        }
+        vs_drive(&self->s_rxs_e1, self->s_rxs_tog.cur);
+        vs_drive(&self->s_rxs_e2, self->s_rxs_e1.cur);
+        vs_drive(&self->s_ld_e1, self->s_ld_tog.cur);
+        vs_drive(&self->s_ld_e2, self->s_ld_e1.cur);
     }
 }
 
 static void acia_63f50_p8(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
+    {
+        vs_drive(&self->s_txw_s1, self->s_txw_tog.cur);
+        vs_drive(&self->s_txw_s2, self->s_txw_s1.cur);
+        vs_drive(&self->s_rdev_s1, self->s_rdev_tog.cur);
+        vs_drive(&self->s_rdev_s2, self->s_rdev_s1.cur);
+        vs_drive(&self->s_rdev_s3, self->s_rdev_s2.cur);
+        vs_drive(&self->s_srd_s1, self->s_srd_tog.cur);
+        vs_drive(&self->s_srd_s2, self->s_srd_s1.cur);
+        vs_drive(&self->s_srd_s3, self->s_srd_s2.cur);
+        vs_drive(&self->s_clkm_s1, self->s_clkm_tog.cur);
+        vs_drive(&self->s_clkm_s2, self->s_clkm_s1.cur);
+        vs_drive(&self->s_clkm_s3, self->s_clkm_s2.cur);
+        vs_drive(&self->s_clkl_s1, self->s_clkl_tog.cur);
+        vs_drive(&self->s_clkl_s2, self->s_clkl_s1.cur);
+        vs_drive(&self->s_clkl_s3, self->s_clkl_s2.cur);
+        vs_drive(&self->s_rack_s1, self->s_rxr_ack.cur);
+        vs_drive(&self->s_rack_s2, self->s_rack_s1.cur);
+        vs_drive(&self->s_cr_s1, self->s_control_reg.cur);
+        vs_drive(&self->s_cr_s, self->s_cr_s1.cur);
+        vs_drive(&self->s_rxd_s1, (*self->p_rxd).cur);
+        vs_drive(&self->s_rxd_i, self->s_rxd_s1.cur);
+        vs_drive(&self->s_dcd_s1, (*self->p_dcd_n).cur);
+        vs_drive(&self->s_dcd_i, self->s_dcd_s1.cur);
+        vs_drive(&self->s_cts_s1, (*self->p_cts_n).cur);
+        vs_drive(&self->s_cts_i, self->s_cts_s1.cur);
+    }
+}
+
+static void acia_63f50_p9(void *inst)
+{
+    acia_63f50 *self = inst;
+    vs_drive(&self->s_rx_data_read_s, (self->s_rdev_s2.cur ^ self->s_rdev_s3.cur));
+}
+
+static void acia_63f50_p10(void *inst)
+{
+    acia_63f50 *self = inst;
+    vs_drive(&self->s_status_read_s, (self->s_srd_s2.cur ^ self->s_srd_s3.cur));
+}
+
+static void acia_63f50_p11(void *inst)
+{
+    acia_63f50 *self = inst;
+    vs_drive(&self->s_clockrst, ((self->s_clkm_s2.cur ^ self->s_clkm_s3.cur) | (self->s_clkl_s2.cur ^ self->s_clkl_s3.cur)));
+}
+
+static void acia_63f50_p12(void *inst)
+{
+    acia_63f50 *self = inst;
+    vs_drive(&self->s_rxrdy, (self->s_rxs_tog.cur ^ self->s_rxr_ack.cur));
+}
+
+static void acia_63f50_p13(void *inst)
+{
+    acia_63f50 *self = inst;
+    vs_drive(&self->s_txrdy, (~(self->s_txw_tog.cur ^ self->s_ld_tog.cur) & UINT64_C(0x1)));
+}
+
+static void acia_63f50_p14(void *inst)
+{
+    acia_63f50 *self = inst;
+    vs_drive(&self->s_rxrdy_s, (self->s_rxs_tog.cur ^ self->s_rack_s2.cur));
+}
+
+static void acia_63f50_p15(void *inst)
+{
+    acia_63f50 *self = inst;
+    vs_drive(&self->s_txrdy_s, (~(self->s_txw_s2.cur ^ self->s_ld_tog.cur) & UINT64_C(0x1)));
+}
+
+static void acia_63f50_p16(void *inst)
+{
+    acia_63f50 *self = inst;
+    vs_drive(&self->s_rxrdy_e, (self->s_rxs_e2.cur ^ self->s_rxr_ack.cur));
+}
+
+static void acia_63f50_p17(void *inst)
+{
+    acia_63f50 *self = inst;
+    vs_drive(&self->s_txrdy_e, (~(self->s_txw_tog.cur ^ self->s_ld_e2.cur) & UINT64_C(0x1)));
+}
+
+static void acia_63f50_p18(void *inst)
+{
+    acia_63f50 *self = inst;
+    vs_drive(&self->s_txie, ((~((self->s_cr_s.cur >> 6) & 1) & UINT64_C(0x1)) & ((self->s_cr_s.cur >> 5) & 1)));
+    vs_drive(&self->s_rxie, ((self->s_cr_s.cur >> 7) & 1));
+    vs_drive_bits(&self->s_status_reg, 0, UINT64_C(0x1), self->s_rxrdy_e.cur);
+    vs_drive_bits(&self->s_status_reg, 1, UINT64_C(0x1), (self->s_txrdy_e.cur & (~self->s_cts_i.cur & UINT64_C(0x1))));
+    vs_drive_bits(&self->s_status_reg, 2, UINT64_C(0x1), self->s_dcdint.cur);
+    vs_drive_bits(&self->s_status_reg, 3, UINT64_C(0x1), self->s_cts_i.cur);
+    vs_drive_bits(&self->s_status_reg, 4, UINT64_C(0x1), self->s_ferr.cur);
+    vs_drive_bits(&self->s_status_reg, 5, UINT64_C(0x1), self->s_oerr.cur);
+    vs_drive_bits(&self->s_status_reg, 6, UINT64_C(0x1), self->s_perr.cur);
+    vs_drive_bits(&self->s_status_reg, 7, UINT64_C(0x1), (((self->s_rxie.cur & self->s_rxrdy.cur) | (self->s_rxie.cur & self->s_dcdint.cur)) | (self->s_txie.cur & self->s_txrdy.cur)));
+    vs_drive(&self->s_irq, (((self->s_rxie.cur & self->s_rxrdy.cur) | (self->s_rxie.cur & self->s_dcdint.cur)) | (self->s_txie.cur & self->s_txrdy.cur)));
+}
+
+static void acia_63f50_p19(void *inst)
+{
+    acia_63f50 *self = inst;
+    if (vs_falling(&(*self->p_sysclk)))
+    {
+        if ((self->s_rx_rst.cur == 1))
+        {
+            vs_drive(&self->s_rxs_tog, self->s_rack_s2.cur);
+        }
+        else if (((self->s_rxbdedgefall.cur == 1) & (self->s_status_rxr_set.cur == 1)))
+        {
+            if ((self->s_rxrdy_s.cur == 0))
+            {
+                vs_drive(&self->s_rxs_tog, (~self->s_rxs_tog.cur & UINT64_C(0x1)));
+            }
+        }
+    }
+}
+
+static void acia_63f50_p20(void *inst)
+{
+    acia_63f50 *self = inst;
+    if (vs_falling(&(*self->p_sysclk)))
+    {
+        if ((self->s_tx_rst.cur == 1))
+        {
+            vs_drive(&self->s_ld_tog, self->s_txw_s2.cur);
+        }
+        else if (((self->s_txbdedgefall.cur == 1) & ((uint32_t) self->s_tx_shift_ctrl.cur == 1)))
+        {
+            vs_drive(&self->s_ld_tog, self->s_txw_s2.cur);
+        }
+    }
+}
+
+static void acia_63f50_p21(void *inst)
+{
+    acia_63f50 *self = inst;
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -204,10 +307,10 @@ static void acia_63f50_p8(void *inst)
     }
 }
 
-static void acia_63f50_p9(void *inst)
+static void acia_63f50_p22(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -219,7 +322,7 @@ static void acia_63f50_p9(void *inst)
             {
                 vs_drive(&self->s_oerr, 1);
             }
-            if (((self->s_status_oer_clr.cur == 1) | (self->s_rx_data_read.cur == 1)))
+            if (((self->s_status_oer_clr.cur == 1) | (self->s_rx_data_read_s.cur == 1)))
             {
                 vs_drive(&self->s_oerr, 0);
             }
@@ -227,10 +330,10 @@ static void acia_63f50_p9(void *inst)
     }
 }
 
-static void acia_63f50_p10(void *inst)
+static void acia_63f50_p23(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -244,14 +347,14 @@ static void acia_63f50_p10(void *inst)
         {
             vs_drive(&self->s_perr, 0);
         }
-        else if ((self->s_rx_data_read.cur == 1))
+        else if ((self->s_rx_data_read_s.cur == 1))
         {
             vs_drive(&self->s_perr, 0);
         }
     }
 }
 
-static void acia_63f50_p11(void *inst)
+static void acia_63f50_p24(void *inst)
 {
     acia_63f50 *self = inst;
     switch ((*self->p_addr).cur)
@@ -279,10 +382,10 @@ static void acia_63f50_p11(void *inst)
     }
 }
 
-static void acia_63f50_p12(void *inst)
+static void acia_63f50_p25(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_ac_rst.cur == 1))
         {
@@ -291,16 +394,16 @@ static void acia_63f50_p12(void *inst)
         }
         else
         {
-            vs_drive(&self->s_dcddel, (*self->p_dcd_n).cur);
-            vs_drive(&self->s_dcdedge, ((*self->p_dcd_n).cur & (~self->s_dcddel.cur & UINT64_C(0x1))));
+            vs_drive(&self->s_dcddel, self->s_dcd_i.cur);
+            vs_drive(&self->s_dcdedge, (self->s_dcd_i.cur & (~self->s_dcddel.cur & UINT64_C(0x1))));
         }
     }
 }
 
-static void acia_63f50_p13(void *inst)
+static void acia_63f50_p26(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_ac_rst.cur == 1))
         {
@@ -322,7 +425,7 @@ static void acia_63f50_p13(void *inst)
                 }
                 case 1:
                 {
-                    if ((self->s_status_read.cur == 1))
+                    if ((self->s_status_read_s.cur == 1))
                     {
                         vs_drive(&self->s_dcdstate, 2);
                     }
@@ -330,7 +433,7 @@ static void acia_63f50_p13(void *inst)
                 }
                 case 2:
                 {
-                    if ((self->s_rx_data_read.cur == 1))
+                    if ((self->s_rx_data_read_s.cur == 1))
                     {
                         vs_drive(&self->s_dcdint, 0);
                         vs_drive(&self->s_dcdstate, 0);
@@ -347,10 +450,10 @@ static void acia_63f50_p13(void *inst)
     }
 }
 
-static void acia_63f50_p14(void *inst)
+static void acia_63f50_p27(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -361,33 +464,33 @@ static void acia_63f50_p14(void *inst)
         {
             vs_drive_bits(&self->s_rxcdel, 0, UINT64_C(0x1), self->s_rxc.cur);
             vs_drive_bits(&self->s_rxcdel, 1, UINT64_C(0x1), ((self->s_rxcdel.cur >> 0) & 1));
-            vs_drive(&self->s_rxcedge, ((~((self->s_rxcdel.cur >> 1) & 1) & UINT64_C(0x1)) & ((self->s_rxcdel.cur >> 0) & 1)));
+            vs_drive(&self->s_rxcedge, (((self->s_rxcdel.cur >> 1) & 1) ^ ((self->s_rxcdel.cur >> 0) & 1)));
         }
     }
 }
 
-static void acia_63f50_p15(void *inst)
+static void acia_63f50_p28(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
-            vs_drive(&self->s_rxddel, (*self->p_rxd).cur);
+            vs_drive(&self->s_rxddel, self->s_rxd_i.cur);
             vs_drive(&self->s_rxdedge, 0);
         }
         else
         {
-            vs_drive(&self->s_rxddel, (*self->p_rxd).cur);
-            vs_drive(&self->s_rxdedge, ((~(*self->p_rxd).cur & UINT64_C(0x1)) & self->s_rxddel.cur));
+            vs_drive(&self->s_rxddel, self->s_rxd_i.cur);
+            vs_drive(&self->s_rxdedge, ((~self->s_rxd_i.cur & UINT64_C(0x1)) & self->s_rxddel.cur));
         }
     }
 }
 
-static void acia_63f50_p16(void *inst)
+static void acia_63f50_p29(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if (((self->s_rx_rst.cur == 1) | (self->s_rxdedge.cur == 1)))
         {
@@ -400,16 +503,16 @@ static void acia_63f50_p16(void *inst)
     }
 }
 
-static void acia_63f50_p17(void *inst)
+static void acia_63f50_p30(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
-        switch ((self->s_control_reg.cur & UINT64_C(0x3)))
+        switch ((self->s_cr_s.cur & UINT64_C(0x3)))
         {
             case UINT64_C(0x0):
             {
-                vs_drive(&self->s_rxbdclk, self->s_rxc.cur);
+                vs_drive(&self->s_rxbdclk, self->s_rxcedge.cur);
                 break;
             }
             case UINT64_C(0x1):
@@ -431,10 +534,10 @@ static void acia_63f50_p17(void *inst)
     }
 }
 
-static void acia_63f50_p18(void *inst)
+static void acia_63f50_p31(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -451,7 +554,7 @@ static void acia_63f50_p18(void *inst)
     }
 }
 
-static void acia_63f50_p19(void *inst)
+static void acia_63f50_p32(void *inst)
 {
     acia_63f50 *self = inst;
     vs_drive(&self->s_rx_data_ctrl, 2);
@@ -480,7 +583,7 @@ static void acia_63f50_p19(void *inst)
             vs_drive(&self->s_rx_shift_ctrl, 2);
             if ((self->s_rx_bit_count.cur == UINT64_C(0x0)))
             {
-                if (((((self->s_control_reg.cur >> 4) & 1) == 1) & (((self->s_control_reg.cur >> 3) & 1) == 0)))
+                if (((((self->s_cr_s.cur >> 4) & 1) == 1) & (((self->s_cr_s.cur >> 3) & 1) == 0)))
                 {
                     vs_drive(&self->s_rx_next_state, 3);
                 }
@@ -497,11 +600,11 @@ static void acia_63f50_p19(void *inst)
         }
         case 2:
         {
-            if ((((self->s_control_reg.cur >> 4) & 1) == 0))
+            if ((((self->s_cr_s.cur >> 4) & 1) == 0))
             {
                 vs_drive(&self->s_rx_shift_ctrl, 2);
             }
-            if ((self->s_rx_parity.cur == (self->s_rxdat.cur ^ ((self->s_control_reg.cur >> 2) & 1))))
+            if ((self->s_rx_parity.cur == (self->s_rxdat.cur ^ ((self->s_cr_s.cur >> 2) & 1))))
             {
                 vs_drive(&self->s_status_per_set, 1);
             }
@@ -516,11 +619,11 @@ static void acia_63f50_p19(void *inst)
         {
             vs_drive(&self->s_rx_data_ctrl, 1);
             vs_drive(&self->s_status_rxr_set, 1);
-            if (((((self->s_control_reg.cur >> 4) & 1) == 1) & (((self->s_control_reg.cur >> 3) & 1) == 0)))
+            if (((((self->s_cr_s.cur >> 4) & 1) == 1) & (((self->s_cr_s.cur >> 3) & 1) == 0)))
             {
                 vs_drive(&self->s_status_per_clr, 1);
             }
-            if ((self->s_rxrdy.cur == 1))
+            if ((self->s_rxrdy_s.cur == 1))
             {
                 vs_drive(&self->s_status_oer_set, 1);
             }
@@ -553,12 +656,12 @@ static void acia_63f50_p19(void *inst)
     }
 }
 
-static void acia_63f50_p20(void *inst)
+static void acia_63f50_p33(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
-        if ((self->s_rx_rst.cur == 0))
+        if ((self->s_rx_rst.cur == 1))
         {
             vs_drive(&self->s_rx_current_state, 0);
         }
@@ -572,10 +675,10 @@ static void acia_63f50_p20(void *inst)
     }
 }
 
-static void acia_63f50_p21(void *inst)
+static void acia_63f50_p34(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -586,12 +689,12 @@ static void acia_63f50_p21(void *inst)
         }
         else if ((self->s_rxbdedgerise.cur == 1))
         {
-            vs_drive(&self->s_rxdat, (*self->p_rxd).cur);
+            vs_drive(&self->s_rxdat, self->s_rxd_i.cur);
             switch ((uint32_t) self->s_rx_shift_ctrl.cur)
             {
                 case 0:
                 {
-                    if ((((self->s_control_reg.cur >> 4) & 1) == 0))
+                    if ((((self->s_cr_s.cur >> 4) & 1) == 0))
                     {
                         vs_drive(&self->s_rx_bit_count, UINT64_C(0x7));
                     }
@@ -606,8 +709,8 @@ static void acia_63f50_p21(void *inst)
                 case 2:
                 {
                     vs_drive(&self->s_rx_bit_count, ((self->s_rx_bit_count.cur - UINT64_C(0x1)) & UINT64_C(0xF)));
-                    vs_drive(&self->s_rx_shift_reg, (((uint64_t)((*self->p_rxd).cur) << 7) | ((self->s_rx_shift_reg.cur >> (1)) & UINT64_C(0x7F))));
-                    vs_drive(&self->s_rx_parity, (self->s_rx_parity.cur ^ (*self->p_rxd).cur));
+                    vs_drive(&self->s_rx_shift_reg, (((uint64_t)(self->s_rxd_i.cur) << 7) | ((self->s_rx_shift_reg.cur >> (1)) & UINT64_C(0x7F))));
+                    vs_drive(&self->s_rx_parity, (self->s_rx_parity.cur ^ self->s_rxd_i.cur));
                     break;
                 }
                 default:
@@ -620,10 +723,10 @@ static void acia_63f50_p21(void *inst)
     }
 }
 
-static void acia_63f50_p22(void *inst)
+static void acia_63f50_p35(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_rx_rst.cur == 1))
         {
@@ -653,10 +756,10 @@ static void acia_63f50_p22(void *inst)
     }
 }
 
-static void acia_63f50_p23(void *inst)
+static void acia_63f50_p36(void *inst)
 {
     acia_63f50 *self = inst;
-    switch (((self->s_control_reg.cur >> (5)) & UINT64_C(0x3)))
+    switch (((self->s_cr_s.cur >> (5)) & UINT64_C(0x3)))
     {
         case UINT64_C(0x0):
         {
@@ -690,10 +793,10 @@ static void acia_63f50_p23(void *inst)
     }
 }
 
-static void acia_63f50_p24(void *inst)
+static void acia_63f50_p37(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -703,15 +806,15 @@ static void acia_63f50_p24(void *inst)
         else
         {
             vs_drive(&self->s_txcdel, self->s_txc.cur);
-            vs_drive(&self->s_txcedge, ((~self->s_txcdel.cur & UINT64_C(0x1)) & self->s_txc.cur));
+            vs_drive(&self->s_txcedge, (self->s_txcdel.cur ^ self->s_txc.cur));
         }
     }
 }
 
-static void acia_63f50_p25(void *inst)
+static void acia_63f50_p38(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -724,16 +827,16 @@ static void acia_63f50_p25(void *inst)
     }
 }
 
-static void acia_63f50_p26(void *inst)
+static void acia_63f50_p39(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
-        switch ((self->s_control_reg.cur & UINT64_C(0x3)))
+        switch ((self->s_cr_s.cur & UINT64_C(0x3)))
         {
             case UINT64_C(0x0):
             {
-                vs_drive(&self->s_txbdclk, self->s_txc.cur);
+                vs_drive(&self->s_txbdclk, self->s_txcedge.cur);
                 break;
             }
             case UINT64_C(0x1):
@@ -755,10 +858,10 @@ static void acia_63f50_p26(void *inst)
     }
 }
 
-static void acia_63f50_p27(void *inst)
+static void acia_63f50_p40(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -775,7 +878,7 @@ static void acia_63f50_p27(void *inst)
     }
 }
 
-static void acia_63f50_p28(void *inst)
+static void acia_63f50_p41(void *inst)
 {
     acia_63f50 *self = inst;
     vs_drive(&self->s_status_txr_set, 0);
@@ -794,9 +897,9 @@ static void acia_63f50_p28(void *inst)
             vs_drive(&self->s_tx_shift_ctrl, 2);
             if ((self->s_tx_bit_count.cur == UINT64_C(0x0)))
             {
-                if (((((self->s_control_reg.cur >> 4) & 1) == 1) & (((self->s_control_reg.cur >> 3) & 1) == 0)))
+                if (((((self->s_cr_s.cur >> 4) & 1) == 1) & (((self->s_cr_s.cur >> 3) & 1) == 0)))
                 {
-                    if ((((self->s_control_reg.cur >> 2) & 1) == 0))
+                    if ((((self->s_cr_s.cur >> 2) & 1) == 0))
                     {
                         vs_drive(&self->s_tx_next_state, 3);
                     }
@@ -818,7 +921,7 @@ static void acia_63f50_p28(void *inst)
         }
         case 2:
         {
-            if ((((self->s_control_reg.cur >> 2) & 1) == 0))
+            if ((((self->s_cr_s.cur >> 2) & 1) == 0))
             {
                 vs_drive(&self->s_txout, (~self->s_tx_parity.cur & UINT64_C(0x1)));
             }
@@ -827,7 +930,7 @@ static void acia_63f50_p28(void *inst)
                 vs_drive(&self->s_txout, self->s_tx_parity.cur);
             }
             vs_drive(&self->s_tx_shift_ctrl, 3);
-            if ((((self->s_control_reg.cur >> 3) & 1) == 0))
+            if ((((self->s_cr_s.cur >> 3) & 1) == 0))
             {
                 vs_drive(&self->s_tx_next_state, 3);
             }
@@ -850,7 +953,7 @@ static void acia_63f50_p28(void *inst)
             vs_drive(&self->s_txout, 1);
             vs_drive(&self->s_status_txr_set, 1);
             vs_drive(&self->s_tx_shift_ctrl, 3);
-            if ((self->s_txrdy.cur == 0))
+            if ((self->s_txrdy_s.cur == 0))
             {
                 vs_drive(&self->s_tx_next_state, 0);
             }
@@ -863,10 +966,10 @@ static void acia_63f50_p28(void *inst)
     }
 }
 
-static void acia_63f50_p29(void *inst)
+static void acia_63f50_p42(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -882,10 +985,10 @@ static void acia_63f50_p29(void *inst)
     }
 }
 
-static void acia_63f50_p30(void *inst)
+static void acia_63f50_p43(void *inst)
 {
     acia_63f50 *self = inst;
-    if (vs_falling(&(*self->p_e)))
+    if (vs_falling(&(*self->p_sysclk)))
     {
         if ((self->s_tx_rst.cur == 1))
         {
@@ -901,7 +1004,7 @@ static void acia_63f50_p30(void *inst)
             {
                 case 1:
                 {
-                    if ((((self->s_control_reg.cur >> 4) & 1) == 0))
+                    if ((((self->s_cr_s.cur >> 4) & 1) == 0))
                     {
                         vs_drive(&self->s_tx_bit_count, UINT64_C(0x7));
                     }
@@ -962,12 +1065,90 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
     vs_name(k, &self->s_rx_data_reg, path, "rx_data_reg", 8);
     vs_register_signal(k, &self->s_tx_data_reg, (uint64_t) (UINT64_C(0x0)));
     vs_name(k, &self->s_tx_data_reg, path, "tx_data_reg", 8);
-    vs_register_signal(k, &self->s_status_read, (uint64_t) (0));
-    vs_name(k, &self->s_status_read, path, "status_read", 1);
-    vs_register_signal(k, &self->s_rx_data_read, (uint64_t) (0));
-    vs_name(k, &self->s_rx_data_read, path, "rx_data_read", 1);
-    vs_register_signal(k, &self->s_tx_data_write, (uint64_t) (0));
-    vs_name(k, &self->s_tx_data_write, path, "tx_data_write", 1);
+    vs_register_signal(k, &self->s_txw_tog, (uint64_t) (0));
+    vs_name(k, &self->s_txw_tog, path, "txw_tog", 1);
+    vs_register_signal(k, &self->s_rdev_tog, (uint64_t) (0));
+    vs_name(k, &self->s_rdev_tog, path, "rdev_tog", 1);
+    vs_register_signal(k, &self->s_srd_tog, (uint64_t) (0));
+    vs_name(k, &self->s_srd_tog, path, "srd_tog", 1);
+    vs_register_signal(k, &self->s_clkm_tog, (uint64_t) (0));
+    vs_name(k, &self->s_clkm_tog, path, "clkm_tog", 1);
+    vs_register_signal(k, &self->s_clkl_tog, (uint64_t) (0));
+    vs_name(k, &self->s_clkl_tog, path, "clkl_tog", 1);
+    vs_register_signal(k, &self->s_rxr_ack, (uint64_t) (0));
+    vs_name(k, &self->s_rxr_ack, path, "rxr_ack", 1);
+    vs_register_signal(k, &self->s_ld_tog, (uint64_t) (0));
+    vs_name(k, &self->s_ld_tog, path, "ld_tog", 1);
+    vs_register_signal(k, &self->s_rxs_tog, (uint64_t) (0));
+    vs_name(k, &self->s_rxs_tog, path, "rxs_tog", 1);
+    vs_register_signal(k, &self->s_rxs_e1, (uint64_t) (0));
+    vs_name(k, &self->s_rxs_e1, path, "rxs_e1", 1);
+    vs_register_signal(k, &self->s_rxs_e2, (uint64_t) (0));
+    vs_name(k, &self->s_rxs_e2, path, "rxs_e2", 1);
+    vs_register_signal(k, &self->s_ld_e1, (uint64_t) (0));
+    vs_name(k, &self->s_ld_e1, path, "ld_e1", 1);
+    vs_register_signal(k, &self->s_ld_e2, (uint64_t) (0));
+    vs_name(k, &self->s_ld_e2, path, "ld_e2", 1);
+    vs_register_signal(k, &self->s_txw_s1, (uint64_t) (0));
+    vs_name(k, &self->s_txw_s1, path, "txw_s1", 1);
+    vs_register_signal(k, &self->s_txw_s2, (uint64_t) (0));
+    vs_name(k, &self->s_txw_s2, path, "txw_s2", 1);
+    vs_register_signal(k, &self->s_rdev_s1, (uint64_t) (0));
+    vs_name(k, &self->s_rdev_s1, path, "rdev_s1", 1);
+    vs_register_signal(k, &self->s_rdev_s2, (uint64_t) (0));
+    vs_name(k, &self->s_rdev_s2, path, "rdev_s2", 1);
+    vs_register_signal(k, &self->s_rdev_s3, (uint64_t) (0));
+    vs_name(k, &self->s_rdev_s3, path, "rdev_s3", 1);
+    vs_register_signal(k, &self->s_srd_s1, (uint64_t) (0));
+    vs_name(k, &self->s_srd_s1, path, "srd_s1", 1);
+    vs_register_signal(k, &self->s_srd_s2, (uint64_t) (0));
+    vs_name(k, &self->s_srd_s2, path, "srd_s2", 1);
+    vs_register_signal(k, &self->s_srd_s3, (uint64_t) (0));
+    vs_name(k, &self->s_srd_s3, path, "srd_s3", 1);
+    vs_register_signal(k, &self->s_clkm_s1, (uint64_t) (0));
+    vs_name(k, &self->s_clkm_s1, path, "clkm_s1", 1);
+    vs_register_signal(k, &self->s_clkm_s2, (uint64_t) (0));
+    vs_name(k, &self->s_clkm_s2, path, "clkm_s2", 1);
+    vs_register_signal(k, &self->s_clkm_s3, (uint64_t) (0));
+    vs_name(k, &self->s_clkm_s3, path, "clkm_s3", 1);
+    vs_register_signal(k, &self->s_clkl_s1, (uint64_t) (0));
+    vs_name(k, &self->s_clkl_s1, path, "clkl_s1", 1);
+    vs_register_signal(k, &self->s_clkl_s2, (uint64_t) (0));
+    vs_name(k, &self->s_clkl_s2, path, "clkl_s2", 1);
+    vs_register_signal(k, &self->s_clkl_s3, (uint64_t) (0));
+    vs_name(k, &self->s_clkl_s3, path, "clkl_s3", 1);
+    vs_register_signal(k, &self->s_rack_s1, (uint64_t) (0));
+    vs_name(k, &self->s_rack_s1, path, "rack_s1", 1);
+    vs_register_signal(k, &self->s_rack_s2, (uint64_t) (0));
+    vs_name(k, &self->s_rack_s2, path, "rack_s2", 1);
+    vs_register_signal(k, &self->s_cr_s1, (uint64_t) (UINT64_C(0x3)));
+    vs_name(k, &self->s_cr_s1, path, "cr_s1", 8);
+    vs_register_signal(k, &self->s_cr_s, (uint64_t) (UINT64_C(0x3)));
+    vs_name(k, &self->s_cr_s, path, "cr_s", 8);
+    vs_register_signal(k, &self->s_rxd_s1, (uint64_t) (1));
+    vs_name(k, &self->s_rxd_s1, path, "rxd_s1", 1);
+    vs_register_signal(k, &self->s_rxd_i, (uint64_t) (1));
+    vs_name(k, &self->s_rxd_i, path, "rxd_i", 1);
+    vs_register_signal(k, &self->s_dcd_s1, (uint64_t) (1));
+    vs_name(k, &self->s_dcd_s1, path, "dcd_s1", 1);
+    vs_register_signal(k, &self->s_dcd_i, (uint64_t) (1));
+    vs_name(k, &self->s_dcd_i, path, "dcd_i", 1);
+    vs_register_signal(k, &self->s_cts_s1, (uint64_t) (1));
+    vs_name(k, &self->s_cts_s1, path, "cts_s1", 1);
+    vs_register_signal(k, &self->s_cts_i, (uint64_t) (1));
+    vs_name(k, &self->s_cts_i, path, "cts_i", 1);
+    vs_register_signal(k, &self->s_status_read_s, (uint64_t) (0));
+    vs_name(k, &self->s_status_read_s, path, "status_read_s", 1);
+    vs_register_signal(k, &self->s_rx_data_read_s, (uint64_t) (0));
+    vs_name(k, &self->s_rx_data_read_s, path, "rx_data_read_s", 1);
+    vs_register_signal(k, &self->s_rxrdy_s, (uint64_t) (0));
+    vs_name(k, &self->s_rxrdy_s, path, "rxrdy_s", 1);
+    vs_register_signal(k, &self->s_txrdy_s, (uint64_t) (0));
+    vs_name(k, &self->s_txrdy_s, path, "txrdy_s", 1);
+    vs_register_signal(k, &self->s_rxrdy_e, (uint64_t) (0));
+    vs_name(k, &self->s_rxrdy_e, path, "rxrdy_e", 1);
+    vs_register_signal(k, &self->s_txrdy_e, (uint64_t) (0));
+    vs_name(k, &self->s_txrdy_e, path, "txrdy_e", 1);
     vs_register_signal(k, &self->s_rxrdy, (uint64_t) (0));
     vs_name(k, &self->s_rxrdy, path, "rxrdy", 1);
     vs_register_signal(k, &self->s_txrdy, (uint64_t) (1));
@@ -1096,22 +1277,32 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
     vs_register_process(k, acia_63f50_p1, self, NULL, 0);
 
     {
-        vs_sig *sens[3];
+        vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &(*self->p_sysclk);
-        sens[n++] = &(*self->p_rst_n);
-        sens[n++] = &self->s_clockrst;
         vs_register_process(k, acia_63f50_p2, self, sens, n);
     }
 
     {
-        vs_sig *sens[4];
+        vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &(*self->p_rst_n);
-        sens[n++] = &self->s_ac_rst;
-        sens[n++] = &(*self->p_dcd_n);
+        sens[n++] = &(*self->p_sysclk);
         vs_register_process(k, acia_63f50_p3, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &self->s_ac_rst;
+        sens[n++] = &self->s_dcd_i;
+        vs_register_process(k, acia_63f50_p4, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_ac_rst;
+        vs_register_process(k, acia_63f50_p5, self, sens, n);
     }
 
     {
@@ -1119,65 +1310,149 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
         size_t n = 0;
         sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_rst_n);
-        vs_register_process(k, acia_63f50_p4, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[11];
-        size_t n = 0;
-        sens[n++] = &self->s_rxrdy;
-        sens[n++] = &self->s_txrdy;
-        sens[n++] = &self->s_dcdint;
-        sens[n++] = &(*self->p_cts_n);
-        sens[n++] = &self->s_ferr;
-        sens[n++] = &self->s_oerr;
-        sens[n++] = &self->s_perr;
-        sens[n++] = &self->s_rxie;
-        sens[n++] = &self->s_txie;
-        sens[n++] = &self->s_status_reg;
-        sens[n++] = &self->s_control_reg;
-        vs_register_process(k, acia_63f50_p5, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[4];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_rx_rst;
-        sens[n++] = &self->s_rxbdedgefall;
-        sens[n++] = &self->s_status_rxr_set;
         vs_register_process(k, acia_63f50_p6, self, sens, n);
     }
 
     {
-        vs_sig *sens[4];
+        vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_tx_rst;
-        sens[n++] = &self->s_txbdedgerise;
-        sens[n++] = &self->s_status_txr_set;
         vs_register_process(k, acia_63f50_p7, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
+        sens[n++] = &(*self->p_sysclk);
         vs_register_process(k, acia_63f50_p8, self, sens, n);
     }
 
     {
-        vs_sig *sens[1];
+        vs_sig *sens[2];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
+        sens[n++] = &self->s_rdev_s2;
+        sens[n++] = &self->s_rdev_s3;
         vs_register_process(k, acia_63f50_p9, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &self->s_srd_s2;
+        sens[n++] = &self->s_srd_s3;
+        vs_register_process(k, acia_63f50_p10, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[4];
+        size_t n = 0;
+        sens[n++] = &self->s_clkm_s2;
+        sens[n++] = &self->s_clkm_s3;
+        sens[n++] = &self->s_clkl_s2;
+        sens[n++] = &self->s_clkl_s3;
+        vs_register_process(k, acia_63f50_p11, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &self->s_rxs_tog;
+        sens[n++] = &self->s_rxr_ack;
+        vs_register_process(k, acia_63f50_p12, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &self->s_txw_tog;
+        sens[n++] = &self->s_ld_tog;
+        vs_register_process(k, acia_63f50_p13, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &self->s_rxs_tog;
+        sens[n++] = &self->s_rack_s2;
+        vs_register_process(k, acia_63f50_p14, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &self->s_txw_s2;
+        sens[n++] = &self->s_ld_tog;
+        vs_register_process(k, acia_63f50_p15, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &self->s_rxs_e2;
+        sens[n++] = &self->s_rxr_ack;
+        vs_register_process(k, acia_63f50_p16, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &self->s_txw_tog;
+        sens[n++] = &self->s_ld_e2;
+        vs_register_process(k, acia_63f50_p17, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[13];
+        size_t n = 0;
+        sens[n++] = &self->s_rxrdy;
+        sens[n++] = &self->s_txrdy;
+        sens[n++] = &self->s_rxrdy_e;
+        sens[n++] = &self->s_txrdy_e;
+        sens[n++] = &self->s_dcdint;
+        sens[n++] = &self->s_cts_i;
+        sens[n++] = &self->s_ferr;
+        sens[n++] = &self->s_oerr;
+        sens[n++] = &self->s_perr;
+        sens[n++] = &self->s_rxie;
+        sens[n++] = &self->s_txie;
+        sens[n++] = &self->s_status_reg;
+        sens[n++] = &self->s_cr_s;
+        vs_register_process(k, acia_63f50_p18, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        vs_register_process(k, acia_63f50_p10, self, sens, n);
+        sens[n++] = &(*self->p_sysclk);
+        vs_register_process(k, acia_63f50_p19, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        vs_register_process(k, acia_63f50_p20, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        vs_register_process(k, acia_63f50_p21, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        vs_register_process(k, acia_63f50_p22, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        vs_register_process(k, acia_63f50_p23, self, sens, n);
     }
 
     {
@@ -1186,189 +1461,189 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
         sens[n++] = &(*self->p_addr);
         sens[n++] = &self->s_rx_data_reg;
         sens[n++] = &self->s_status_reg;
-        vs_register_process(k, acia_63f50_p11, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_ac_rst;
-        vs_register_process(k, acia_63f50_p12, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_ac_rst;
-        vs_register_process(k, acia_63f50_p13, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_rx_rst;
-        vs_register_process(k, acia_63f50_p14, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[4];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_rx_rst;
-        sens[n++] = &(*self->p_rxd);
-        sens[n++] = &self->s_rxddel;
-        vs_register_process(k, acia_63f50_p15, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[4];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_rx_rst;
-        sens[n++] = &self->s_rxdedge;
-        sens[n++] = &self->s_rxcedge;
-        vs_register_process(k, acia_63f50_p16, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[4];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_control_reg;
-        sens[n++] = &self->s_rxc;
-        sens[n++] = &self->s_rxclkcnt;
-        vs_register_process(k, acia_63f50_p17, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[4];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_rx_rst;
-        sens[n++] = &self->s_rxbdclk;
-        sens[n++] = &self->s_rxbddel;
-        vs_register_process(k, acia_63f50_p18, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[7];
-        size_t n = 0;
-        sens[n++] = &self->s_rx_current_state;
-        sens[n++] = &self->s_control_reg;
-        sens[n++] = &self->s_rx_bit_count;
-        sens[n++] = &(*self->p_rxd);
-        sens[n++] = &self->s_rxdat;
-        sens[n++] = &self->s_rx_parity;
-        sens[n++] = &self->s_rxrdy;
-        vs_register_process(k, acia_63f50_p19, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[1];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        vs_register_process(k, acia_63f50_p20, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[6];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_rx_rst;
-        sens[n++] = &self->s_rxbdedgerise;
-        sens[n++] = &self->s_rx_shift_reg;
-        sens[n++] = &(*self->p_rxd);
-        sens[n++] = &self->s_rx_parity;
-        vs_register_process(k, acia_63f50_p21, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[3];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_rx_rst;
-        sens[n++] = &self->s_rx_shift_reg;
-        vs_register_process(k, acia_63f50_p22, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[4];
-        size_t n = 0;
-        sens[n++] = &self->s_control_reg;
-        sens[n++] = &self->s_txdat;
-        sens[n++] = &self->s_txc;
-        sens[n++] = &self->s_txclkcnt;
-        vs_register_process(k, acia_63f50_p23, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_tx_rst;
         vs_register_process(k, acia_63f50_p24, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_tx_rst;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_ac_rst;
         vs_register_process(k, acia_63f50_p25, self, sens, n);
     }
 
     {
-        vs_sig *sens[5];
+        vs_sig *sens[2];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_control_reg;
-        sens[n++] = &self->s_txdat;
-        sens[n++] = &self->s_txc;
-        sens[n++] = &self->s_txclkcnt;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_ac_rst;
         vs_register_process(k, acia_63f50_p26, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &self->s_tx_rst;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_rx_rst;
         vs_register_process(k, acia_63f50_p27, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[4];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &self->s_rxd_i;
+        sens[n++] = &self->s_rxddel;
+        vs_register_process(k, acia_63f50_p28, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[4];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &self->s_rxdedge;
+        sens[n++] = &self->s_rxcedge;
+        vs_register_process(k, acia_63f50_p29, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[4];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_cr_s;
+        sens[n++] = &self->s_rxc;
+        sens[n++] = &self->s_rxclkcnt;
+        vs_register_process(k, acia_63f50_p30, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[4];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &self->s_rxbdclk;
+        sens[n++] = &self->s_rxbddel;
+        vs_register_process(k, acia_63f50_p31, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[7];
+        size_t n = 0;
+        sens[n++] = &self->s_rx_current_state;
+        sens[n++] = &self->s_cr_s;
+        sens[n++] = &self->s_rx_bit_count;
+        sens[n++] = &self->s_rxd_i;
+        sens[n++] = &self->s_rxdat;
+        sens[n++] = &self->s_rx_parity;
+        sens[n++] = &self->s_rxrdy_s;
+        vs_register_process(k, acia_63f50_p32, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        vs_register_process(k, acia_63f50_p33, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[6];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &self->s_rxbdedgerise;
+        sens[n++] = &self->s_rx_shift_reg;
+        sens[n++] = &self->s_rxd_i;
+        sens[n++] = &self->s_rx_parity;
+        vs_register_process(k, acia_63f50_p34, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[3];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_rx_rst;
+        sens[n++] = &self->s_rx_shift_reg;
+        vs_register_process(k, acia_63f50_p35, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[4];
+        size_t n = 0;
+        sens[n++] = &self->s_cr_s;
+        sens[n++] = &self->s_txdat;
+        sens[n++] = &self->s_txc;
+        sens[n++] = &self->s_txclkcnt;
+        vs_register_process(k, acia_63f50_p36, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_tx_rst;
+        vs_register_process(k, acia_63f50_p37, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_tx_rst;
+        vs_register_process(k, acia_63f50_p38, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[5];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_cr_s;
+        sens[n++] = &self->s_txdat;
+        sens[n++] = &self->s_txc;
+        sens[n++] = &self->s_txclkcnt;
+        vs_register_process(k, acia_63f50_p39, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &self->s_tx_rst;
+        vs_register_process(k, acia_63f50_p40, self, sens, n);
     }
 
     {
         vs_sig *sens[6];
         size_t n = 0;
         sens[n++] = &self->s_tx_current_state;
-        sens[n++] = &self->s_txrdy;
+        sens[n++] = &self->s_txrdy_s;
         sens[n++] = &self->s_tx_bit_count;
         sens[n++] = &self->s_tx_shift_reg;
-        sens[n++] = &self->s_control_reg;
+        sens[n++] = &self->s_cr_s;
         sens[n++] = &self->s_tx_parity;
-        vs_register_process(k, acia_63f50_p28, self, sens, n);
+        vs_register_process(k, acia_63f50_p41, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
+        sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_tx_rst;
-        vs_register_process(k, acia_63f50_p29, self, sens, n);
+        vs_register_process(k, acia_63f50_p42, self, sens, n);
     }
 
     {
         vs_sig *sens[6];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
+        sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_txbdedgefall;
         sens[n++] = &self->s_tx_shift_ctrl;
         sens[n++] = &self->s_tx_data_reg;
         sens[n++] = &self->s_tx_shift_reg;
         sens[n++] = &self->s_tx_parity;
-        vs_register_process(k, acia_63f50_p30, self, sens, n);
+        vs_register_process(k, acia_63f50_p43, self, sens, n);
     }
 }
 

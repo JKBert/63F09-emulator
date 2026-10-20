@@ -1,4 +1,4 @@
-/* Writes a line on ACIA 0 and stops. Run with :  soc63f09 --elf hello.elf --acia 0,baud=53571 --ticks 3000000000 */
+/* Writes a line on ACIA 0 and stops. Run with :  soc63f09 --elf hello.elf --acia 0,baud=107142 --ticks 3000000000 */
 
 #include "acia.h"
 
