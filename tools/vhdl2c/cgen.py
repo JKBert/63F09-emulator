@@ -1,5 +1,7 @@
 """C generation : expressions and statements of the VHDL subset used by the 63F09 design."""
 
+import re
+
 import frontend
 import tdefs
 from cout import Out
@@ -20,6 +22,9 @@ void volatile while main errno stdin stdout stderr abs""".split())
 def cid(name):
     name = name.lower()
     return name + "_" if name in C_KEYWORDS else name
+
+
+LITERAL = re.compile(r"^\(*-?(U?INT64_C\(-?(0x[0-9A-Fa-f]+|[0-9]+)\)|[0-9]+)\)*$")
 
 
 class Binding:
@@ -806,22 +811,32 @@ class Translator(Subprograms, Ops):
             return E(code, t)
         if t.kind == "arr":
             code = None
+            literal = True          # every element is a literal : the aggregate is a constant
             for kind, val, expr in items:
                 if kind == "others":
-                    code = "%s_fill(%s)" % (t.cname, self.expr_as(expr, t.elem).code)
+                    e = self.expr_as(expr, t.elem).code
+                    literal = literal and bool(LITERAL.match(e))
+                    code = "%s_fill(%s)" % (t.cname, e)
             if code is None:
                 code = "%s_zero()" % t.cname
             pos = 0
             for kind, val, expr in items:
                 if kind == "pos":
-                    code = "%s_put(%s, %d, %s)" % (t.cname, code, pos, self.expr_as(expr, t.elem).code)
+                    e = self.expr_as(expr, t.elem).code
+                    code = "%s_put(%s, %d, %s)" % (t.cname, code, pos, e)
                     pos += 1
                 elif kind == "index":
-                    code = "%s_put(%s, %d, %s)" % (t.cname, code, t.pos(val), self.expr_as(expr, t.elem).code)
+                    e = self.expr_as(expr, t.elem).code
+                    code = "%s_put(%s, %d, %s)" % (t.cname, code, t.pos(val), e)
                 elif kind == "range":
                     e = self.expr_as(expr, t.elem).code
                     for i in range(val[0], val[1] + 1):
                         code = "%s_put(%s, %d, %s)" % (t.cname, code, t.pos(i), e)
+                else:
+                    continue
+                literal = literal and bool(LITERAL.match(e))
+            if literal and len(items) > 8:
+                return E("(*%s())" % tdefs.hoist(t.cname, code), t)
             return E(code, t)
         if t.kind not in ("vec", "bit"):
             raise unsupported(n, "aggregate of this type")

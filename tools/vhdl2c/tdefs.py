@@ -168,6 +168,18 @@ def define(ct):
     return o.text()
 
 
+CONST_AGGS = {}         # name -> (C type, code) : constant aggregates, built once (see hoist)
+
+
+def hoist(cname, code):
+    """Name of a function returning a pointer to the constant `code` of type `cname`, built the first time it is called.
+    A lookup table written as an aggregate would otherwise be rebuilt, element by element, at every evaluation."""
+    import hashlib
+    name = "agg_" + hashlib.sha1((cname + code).encode()).hexdigest()[:12]
+    CONST_AGGS[name] = (cname, code)
+    return name
+
+
 def header():
     o = Out()
     o.line("/*")
@@ -184,4 +196,7 @@ def header():
     text = o.text()
     for ct in COMPOSITES:
         text += define(ct)
+    for name, (cname, code) in sorted(CONST_AGGS.items()):
+        text += ("static inline const %s *%s(void)\n{\n    static %s v;\n    static int built;\n\n    if (!built)\n    {\n"
+                 "        v = %s;\n        built = 1;\n    }\n    return &v;\n}\n\n") % (cname, name, cname, code)
     return text + "#endif\n"

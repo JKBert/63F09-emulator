@@ -621,17 +621,17 @@ static void bac_63f81_n7_g5_create(vs_kernel *k, bac_63f81_n7_g5 *self, const ch
 
 static int64_t f_interrupted_cpu_5(bac_63f81_n7_g1 *self, uint64_t a_reg_configuration, int64_t a_signal_last_interrupted_cpu)
 {
-    int64_t v_cpu_id_50832 = INT64_C(0);
+    int64_t v_cpu_id_51664 = INT64_C(0);
     for (int64_t i_3 = INT64_C(1); i_3 <= self->up->g_ncpus; i_3++)
     {
-        v_cpu_id_50832 = vs_mod((a_signal_last_interrupted_cpu + i_3), self->up->g_ncpus);
-        if ((((a_reg_configuration >> ((v_cpu_id_50832) - 0)) & 1) == 1))
+        v_cpu_id_51664 = vs_mod((a_signal_last_interrupted_cpu + i_3), self->up->g_ncpus);
+        if ((((a_reg_configuration >> ((v_cpu_id_51664) - 0)) & 1) == 1))
         {
             goto loop_exit_4;
         }
     }
     loop_exit_4:;
-    return v_cpu_id_50832;
+    return v_cpu_id_51664;
 }
 
 static void bac_63f81_n7_g1_p0(void *inst)
