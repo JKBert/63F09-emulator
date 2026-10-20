@@ -8,7 +8,6 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 
 | Entry | Subject | Status |
 |---|---|---|
-| A0b | SoC09 SPI chip-select decode | open |
 | A0c | 63F52 ninth SCLK edge | open, to confirm |
 | A1 | 63F50 TDRE / first character lost | open |
 | A1b | 63F50 receiver never leaves `start_state` | open |
@@ -59,18 +58,6 @@ transmitter's equivalent (`acia_tx_state`) tests `TX_RST = '1'`. Result : no cha
 0. The directed test `acia_rx` of this repository (a frame 'a' at the rate of the transmitter, then status reads) shows
 `RDRF` = 0 in GHDL as well as in the emulator, at the bit times 112, 224, 448 and 896 cycles. The `echo` program
 sends nothing back for the same reason. Fix : `RX_RST = '1'`.
-
-### A0b. SoC09 : the SPI chip-select register still cannot be reached
-*Status : read in `SoC.vhd` (version of 2026-10-20), confirmed by running a program.*
-
-`SPI0` is connected with `ADDR => A(1 downto 0)` (four registers : data, control, chip-select MSB and LSB). The decoder
-now selects it for `x"000" | x"001" | x"010" | x"011"`, but bit 4 of the address is not connected to the SPI : `+0x10`
-and `+0x11` are aliases of the data and control registers (ADDR = "00" and "01"), and `+2`, `+3` (ADDR = "10" and
-"11") are not selected. The CPU can therefore still not write `CS_REG` and the select lines `SPI_SS` stay at their
-reset value (all ones) : no slave is ever selected. Either the decode should be `x"000" to x"003"` (ADDR is two
-bits wide), or the SPI needs a third address bit. `VHDL2C_FIX_SPI_DECODE=1 make gen` applies the first form on the
-temporary copy ; a program that sets the divisor, selects SS0 and sends `5A` then `3C` to the slave of `--spi-slave`
-then gets `A5` and `B4` (see A0c).
 
 ### A0c. 63F52 : the master clocks a ninth rising edge after each byte
 *Status : observed on the pins, identical in GHDL and the emulator ; to confirm with a real slave.*

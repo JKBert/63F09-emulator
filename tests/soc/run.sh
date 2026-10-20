@@ -46,3 +46,9 @@ echo "PTM interrupt test: ok"
 
 # The pins on a Unix socket : a peer pulls PA0-PA3 of PIA 0 low, the program reads them back, the peer sees PA.
 python3 "$here/pins_pia.py" "$emu" "$work/pins"
+
+# The SPI master against the slave of the emulator : sends 5A then 3C, gets A5 then B4 (the ninth SCLK edge, FINDINGS A0c).
+python3 "$here/spi_slave.py" "$work/spi.elf"
+"$emu" --ncpus 2 --elf "$work/spi.elf" --spi-slave --peek 0xF00001000:2 --ticks 30000000 > "$work/spi.log"
+grep -q '^F00001000: A5 B4' "$work/spi.log"
+echo "SPI test: ok"

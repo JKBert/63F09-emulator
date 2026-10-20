@@ -391,8 +391,8 @@ static void soc09_n3_p23(void *inst)
                 {
                     case UINT64_C(0x0):
                     case UINT64_C(0x1):
-                    case UINT64_C(0x10):
-                    case UINT64_C(0x11):
+                    case UINT64_C(0x2):
+                    case UINT64_C(0x3):
                     {
                         vs_drive_bits(&self->s_cs, 6, UINT64_C(0x1), 1);
                         break;
