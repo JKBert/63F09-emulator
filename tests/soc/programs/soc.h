@@ -23,8 +23,8 @@
 
 /* ACIA 63F50 : +0 status (read) / control (write), +1 data, +2 and +3 divisor of SYSCLK (16 bits).
  * Status : bit 0 receive data ready, bit 1 transmit buffer empty. Control 0x03 resets, 0x15 is 8N1 with /16.
- * The rate is 24 MHz / ((divisor + 1) * N), N = 1, 16 or 64 (control register) : a divisor of 13 with /16 gives
- * 107142 bauds (--acia 0,baud=107142). */
+ * The rate is 24 MHz / ((divisor + 1) * N), N = 1, 16 or 64 (control register) : a divisor of 12 with /16 gives
+ * 115384 bauds, 0.16 % from 115200, the default of --acia (13 gives 107142). */
 #define ACIA_STATUS(b)  REG8((b) + 0)
 #define ACIA_CONTROL(b) REG8((b) + 0)
 #define ACIA_DATA(b)    REG8((b) + 1)

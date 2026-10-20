@@ -3,12 +3,12 @@
 C programs for the 63F09 toolchain. Compile them with your gcc, link with a script like `soc.ld` (code in the ROM at
 `0xFFFF0000`, vectors at `0xFFFFFFC0`, reset vector at `0xFFFFFFFE`), and run :
 
-    soc63f09 --elf hello.elf --acia 0,baud=107142 --ticks 3000000000
+    soc63f09 --elf hello.elf --acia 0 --ticks 3000000000
 
 | Program | What it checks |
 | --- | --- |
 | `hello.c` | the ACIA transmit path, the console |
-| `echo.c` | the ACIA receive path (`echo abc \| soc63f09 --elf echo.elf --acia 0,baud=107142,in=- ...`) |
+| `echo.c` | the ACIA receive path (`echo abc \| soc63f09 --elf echo.elf --acia 0,in=- ...`) |
 | `memtest.c` | external memory (EXT0 path) and internal RAM |
 | `bacregs.c` | the bus arbiter registers through the bus |
 | `ptm.c` | a PTM timer |

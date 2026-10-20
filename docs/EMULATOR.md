@@ -51,7 +51,7 @@ until the design is stable. RESET_n is released after ten EXTAL periods.
 * `--acia N,baud=B` connects the serial line of ACIA N (0 or 1) to the console : bytes read from stdin (`in=-`)
   are sent to RxD as 8N1 frames, frames sent on TxD are written to stdout (`out=-`). A file name can replace `-`,
   `none` disables a direction. `B` is the rate of the host side, it must be the one the program sets in the ACIA
-  (divider /16 : `24e6 / (16 * (divisor + 1))`, 107142 bauds for a divisor of 13).
+  (divider /16 : `24e6 / (16 * (divisor + 1))`, 115384 bauds for a divisor of 12, 0.16 % from the 115200 default of the host side ; 107142 for 13).
 * `--trace-bus` prints every cycle seen on the external pins. The address and byte mask are output for the internal
   ROM and RAM too, so it is a trace of the whole bus.
 * `--dump FILE` writes every change of every named signal of the design, with its hierarchical name.
