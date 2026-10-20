@@ -24,6 +24,7 @@ static void usage(FILE *f)
         "                       program must set the same one in the ACIA (divider /16 : 24e6 / (16 * (div + 1)))\n"
         "  --ticks N            stop after N ticks (a tick is 1/144 ns ; default 100000000)\n"
         "  --dump FILE          write every change of every named signal\n"
+        "  --peek ADDR:LEN      print LEN bytes of memory at the physical address ADDR when the run ends\n"
         "  --trace-bus          print the cycles of the external bus\n"
         "  --help\n");
 }
@@ -113,6 +114,7 @@ int main(int argc, char **argv)
         { "acia", required_argument, NULL, 'a' },
         { "ticks", required_argument, NULL, 't' },
         { "dump", required_argument, NULL, 'd' },
+        { "peek", required_argument, NULL, 'k' },
         { "trace-bus", no_argument, NULL, 'T' },
         { "help", no_argument, NULL, 'h' },
         { NULL, 0, NULL, 0 }
@@ -120,6 +122,7 @@ int main(int argc, char **argv)
     soc_cfg     cfg;
     soc         *s;
     const char  *elf = NULL;
+    uint64_t    peek_addr = 0, peek_len = 0;
     int         opt;
 
     soc_cfg_default(&cfg);
@@ -177,6 +180,13 @@ int main(int argc, char **argv)
                     return 2;
                 }
                 break;
+            case 'k':
+                peek_addr = strtoull(optarg, NULL, 0);
+                if (strchr(optarg, ':') != NULL)
+                {
+                    peek_len = strtoull(strchr(optarg, ':') + 1, NULL, 0);
+                }
+                break;
             case 'T':
                 cfg.trace_bus = 1;
                 break;
@@ -202,6 +212,29 @@ int main(int argc, char **argv)
     printf("time %llu ticks, %llu external reads, %llu external writes, %llu unmapped\n",
            (unsigned long long) s->k.now, (unsigned long long) s->reads, (unsigned long long) s->writes,
            (unsigned long long) s->unmapped);
+    if (peek_len > 0)
+    {
+        uint64_t i;
+
+        for (i = 0; i < peek_len; i++)
+        {
+            uint8_t *b = soc_byte(s, peek_addr + i);
+
+            if (i % 16 == 0)
+            {
+                printf("%s%09llX:", i ? "\n" : "", (unsigned long long) (peek_addr + i));
+            }
+            if (b != NULL)
+            {
+                printf(" %02X", *b);
+            }
+            else
+            {
+                printf(" --");
+            }
+        }
+        printf("\n");
+    }
     soc_destroy(s);
     free(s);
     return 0;

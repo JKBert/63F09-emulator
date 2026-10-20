@@ -47,6 +47,11 @@ static uint8_t *byte_at(soc *s, uint64_t addr)
     return NULL;
 }
 
+uint8_t *soc_byte(soc *s, uint64_t addr)
+{
+    return byte_at(s, addr);
+}
+
 int soc_load_elf(soc *s, const char *path)
 {
     FILE        *f = fopen(path, "rb");
@@ -130,6 +135,13 @@ int soc_load_elf(soc *s, const char *path)
         for (k = 0; k < memsz; k++)
         {
             uint8_t *p = byte_at(s, paddr + k);
+
+            /* a segment that starts at offset 0 maps the ELF header and the program headers just before the code :
+             * they are not part of the program */
+            if (off + k < phoff + phnum * phentsize && off == 0)
+            {
+                continue;
+            }
 
             if (p == NULL)
             {

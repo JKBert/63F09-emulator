@@ -82,6 +82,9 @@ void    soc_destroy(soc *s);
 /* Runs until the time limit, `vs_finished`, or no timer is left. */
 void    soc_run(soc *s);
 
+/* The byte of the ROM, internal RAM or external memory at a physical address, or NULL. */
+uint8_t *soc_byte(soc *s, uint64_t addr);
+
 /* Loads the PT_LOAD segments of an ELF file (32 or 64 bits, any byte order) into the ROM, the internal RAM and the
  * memories of the external bus. Returns 0 on success and prints the reason to stderr otherwise. */
 int     soc_load_elf(soc *s, const char *path);

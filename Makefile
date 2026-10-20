@@ -94,6 +94,13 @@ test: tools need-vhdl
 test-soc: emu
 	sh tests/soc/run.sh $(BUILD)/soc63f09 $(BUILD)/soctest
 
+# Co-simulation of the whole SoC09 : GHDL and the emulator run the same program and the external bus is compared.
+# make cosim VHDL_DIR=... ELF=tests/soc/programs/elf/hello.elf [US=20]
+ELF ?= tests/soc/programs/elf/hello.elf
+US ?= 20
+cosim: emu need-vhdl
+	$(PYTHON) tests/ghdl/cosim.py $(VHDL_DIR) $(GHDL) $(ELF) $(US)
+
 test-rt:
 	mkdir -p $(BUILD)/obj
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $(BUILD)/obj/test_vwide tests/rt/test_vwide.c src/rt/vsim.c

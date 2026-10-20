@@ -77,6 +77,10 @@ static void companion_run(void *inst)
         }
         vs_drive(&s->data, v);
     }
+    else if (s->rw_n.cur == 1)
+    {
+        vs_drive(&s->data, UINT64_MAX);         /* nothing is read : the pins are pulled up */
+    }
     if (vs_falling(&s->e) && s->vma.cur == 1 && s->ba.cur == 0)
     {
         uint64_t mask = s->byte_mask.cur;
