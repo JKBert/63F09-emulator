@@ -73,6 +73,13 @@ write cycle time and no clock stretching. `tests/soc/twi_eeprom.py` assembles by
 (write a byte, restart, read it back) ; `make test-soc` runs it and `make cosim ELF=... ` compares it with GHDL :
 249 identical bus cycles and 178 identical changes of the I2C lines.
 
+## Running without a limit
+
+`--ticks N` stops the run after N ticks of simulated time (1 tick = 1/144 ns; the default, 100 000 000, is about 0.7 ms).
+`--ticks 0` removes the limit. The run then ends when the program of the model calls `finish`, or when the process
+receives SIGINT (Ctrl-C) or SIGTERM: the loop stops, the sockets are closed and removed, the snapshot of `--save` is
+written, the counters are printed and the exit status is 0. A second signal kills the process as usual.
+
 ## Snapshots
 
 `--save FILE` writes the whole state of the machine when the run ends, `--save-at N` writes it at N ticks (the run goes

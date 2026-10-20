@@ -77,3 +77,16 @@ cmp "$work/thr_a.log" "$work/thr_b.log"
 "$emu" --ncpus 2 --threads 1 --elf "$elf" --acia 0,baud=107142,out="$work/thr_c.txt" --ticks 200000000 --trace-bus > "$work/thr_c.log" 2>&1
 cmp "$work/thr_a.log" "$work/thr_c.log"
 echo "threads test: ok"
+
+# --ticks 0 : the run has no end ; SIGINT stops it cleanly (exit status 0, the snapshot of --save is written).
+rm -f "$work/intr.bin"
+"$emu" --ncpus 1 --elf "$here/programs/elf/hello3.elf" --ticks 0 --save "$work/intr.bin" > "$work/intr.log" 2>&1 &
+pid=$!
+sleep 2
+kill -INT "$pid"
+wait "$pid"
+test -s "$work/intr.bin"
+grep -q '^interrupted at' "$work/intr.log"
+"$emu" --restore "$work/intr.bin" --ticks 200000000 > /dev/null
+rm -f "$work/intr.bin"
+echo "interrupt test: ok"

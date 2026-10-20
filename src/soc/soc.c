@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -337,9 +338,27 @@ int soc_create(soc *s, const soc_cfg *c)
     return 0;
 }
 
+static volatile sig_atomic_t stop_requested;
+
+static void on_signal(int sig)
+{
+    (void) sig;
+    stop_requested = 1;
+}
+
 void soc_run(soc *s)
 {
     int saved = 0;
+    struct sigaction sa;
+
+    /* SIGINT (Ctrl-C) and SIGTERM end the run cleanly: the sockets are closed, the snapshot is written (--save). A second
+     * signal kills the process as usual (SA_RESETHAND). */
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = on_signal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESETHAND;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
 
     vs_settle(&s->k);
     if (s->cfg.threads > 1 && s->k.nparts > 1 && vs_threads_start(&s->k, (unsigned) s->cfg.threads) != 0)
@@ -351,7 +370,7 @@ void soc_run(soc *s)
     {
         vs_dump(&s->k, s->cfg.dump, 0);
     }
-    while (!vs_finished && (s->cfg.max_ticks == 0 || s->k.now < s->cfg.max_ticks) && vs_advance(&s->k))
+    while (!vs_finished && !stop_requested && (s->cfg.max_ticks == 0 || s->k.now < s->cfg.max_ticks) && vs_advance(&s->k))
     {
         if (s->cfg.dump != NULL)
         {
@@ -367,6 +386,10 @@ void soc_run(soc *s)
         }
     }
     vs_threads_stop(&s->k);
+    if (stop_requested)
+    {
+        fprintf(stderr, "interrupted at %llu ticks\n", (unsigned long long) s->k.now);
+    }
     if (!saved && s->cfg.save_path[0] != '\0' && snapshot_save(s, s->cfg.save_path) == 0)
     {
         fprintf(stderr, "snapshot written at %llu ticks : %s\n", (unsigned long long) s->k.now, s->cfg.save_path);
