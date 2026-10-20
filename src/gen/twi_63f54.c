@@ -846,10 +846,7 @@ void twi_63f54_create(vs_kernel *k, twi_63f54 *self, const char *path, vs_sig *e
 
     {
         vs_sig *sens[11];
-        uint8_t edges[11];
-        memset(edges, 0, sizeof(edges));
         size_t n = 0;
-        edges[n] = 2;
         sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_rst_n);
         sens[n++] = &(*self->p_cs);
@@ -861,7 +858,7 @@ void twi_63f54_create(vs_kernel *k, twi_63f54 *self, const char *path, vs_sig *e
         sens[n++] = &self->s_signal_tx_empty;
         sens[n++] = &self->s_signal_data_ready;
         sens[n++] = &self->s_state;
-        vs_register_process_edges(k, twi_63f54_p2, self, sens, NULL, edges, n);
+        vs_register_process(k, twi_63f54_p2, self, sens, n);
     }
 
     {
@@ -879,12 +876,8 @@ void twi_63f54_create(vs_kernel *k, twi_63f54 *self, const char *path, vs_sig *e
         vs_sig *sens[6];
         uint64_t masks[6];
         { size_t j; for (j = 0; j < 6; j++) { masks[j] = UINT64_MAX; } }
-        uint8_t edges[6];
-        memset(edges, 0, sizeof(edges));
         size_t n = 0;
-        edges[n] = 2;
         sens[n++] = &self->s_sda_clk;
-        edges[n] = 2;
         sens[n++] = &self->s_sda_clk_n;
         sens[n++] = &(*self->p_rst_n);
         masks[n] = UINT64_C(0x40);
@@ -892,7 +885,7 @@ void twi_63f54_create(vs_kernel *k, twi_63f54 *self, const char *path, vs_sig *e
         masks[n] = UINT64_C(0x80);
         sens[n++] = &self->s_cc_reg;
         sens[n++] = &self->s_state;
-        vs_register_process_edges(k, twi_63f54_p4, self, sens, masks, edges, n);
+        vs_register_process_masked(k, twi_63f54_p4, self, sens, masks, n);
     }
 
     {

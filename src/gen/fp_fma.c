@@ -506,12 +506,9 @@ void fp_fma_create(vs_kernel *k, fp_fma *self, const char *path, vs_sig *reset, 
 
     {
         vs_sig *sens[1];
-        uint8_t edges[1];
-        memset(edges, 0, sizeof(edges));
         size_t n = 0;
-        edges[n] = 1;
         sens[n++] = &(*self->p_clock);
-        vs_register_process_edges(k, fp_fma_p8, self, sens, NULL, edges, n);
+        vs_register_process(k, fp_fma_p8, self, sens, n);
     }
 }
 

@@ -771,7 +771,8 @@ class EntityGen(Translator):
             if sens:
                 total = sum(leaf_count(ct) for ptr, ct, mask in sens)
                 masked = any(mask for ptr, ct, mask in sens)
-                edges = [edge_of(body, ptr, ct, mask) for ptr, ct, mask in sens]
+                sens_ptrs = {ptr for ptr, ct, mask in sens}
+                edges = [edge_of(body, ptr, ct, mask, sens_ptrs) for ptr, ct, mask in sens]
                 edged = any(edges)
                 o.open("")
                 o.line("vs_sig *sens[%d];" % total)
@@ -824,9 +825,60 @@ class EntityGen(Translator):
         return o.text()
 
 
-def edge_of(body, ptr, ct, mask):
-    """1 (2) when the process only looks at the rising (falling) edges of the scalar signal `ptr` : every use of it in the
-    body is a vs_rising(ptr) (vs_falling(ptr)), so the other edge would wake the process for nothing. 0 otherwise."""
+def _balanced(text, i, open_c, close_c):
+    """Index just after the group that starts at text[i] == open_c."""
+    depth = 0
+    while i < len(text):
+        if text[i] == open_c:
+            depth += 1
+        elif text[i] == close_c:
+            depth -= 1
+            if depth == 0:
+                return i + 1
+        i += 1
+    return -1
+
+
+def _clocked_chain(body):
+    """The conditions of the process body when it is nothing but one `if (c1) {..} else if (c2) {..} ... else if (cn) {..}`
+    chain without a final else (after the `self` declaration), else None."""
+    start = body.index("{")
+    inner = body[start + 1:body.rindex("}")].strip()
+    m = re.match(r"[A-Za-z0-9_]+ \*self = inst;\s*", inner)
+    if m:
+        inner = inner[m.end():]
+    conds = []
+    pos = 0
+    while True:
+        m = re.compile(r"(?:else\s+)?if\s*\(").match(inner, pos)
+        if not m or (conds and not inner[pos:].startswith("else")):
+            return None
+        c0 = m.end() - 1
+        c1 = _balanced(inner, c0, "(", ")")
+        if c1 < 0:
+            return None
+        conds.append(inner[c0 + 1:c1 - 1].strip())
+        b0 = inner.index("{", c1)
+        if inner[c1:b0].strip():
+            return None
+        b1 = _balanced(inner, b0, "{", "}")
+        if b1 < 0:
+            return None
+        pos = b1
+        rest = inner[pos:].lstrip()
+        if not rest:
+            return conds
+        if not re.match(r"else\s+if\s*\(", rest):
+            return None             # a final else, or another statement
+        pos = len(inner) - len(rest)
+
+
+def edge_of(body, ptr, ct, mask, sens_ptrs):
+    """1 (2) when the process only looks at the rising (falling) edges of the scalar signal `ptr` and does nothing else
+    when the edge is the other one : its whole body is a chain `if (reset) {..} else if (rising_edge(ptr)) {..}` (or just
+    the edge test) with no final else, and `ptr` is used nowhere else. The other edge would wake it for nothing. A process
+    with statements outside such a test must be woken by every event : in VHDL a process whose sensitivity list is
+    incomplete relies on the clock events to refresh its combinational part. 0 otherwise."""
     if mask or not isinstance(ct, Bit) or not ptr.startswith("&"):
         return 0
     base = re.escape(ptr[1:])
@@ -835,6 +887,19 @@ def edge_of(body, ptr, ct, mask):
     falling = body.count("vs_falling(%s)" % ptr)
     if total == 0 or (rising and falling) or total != rising + falling:
         return 0
+    conds = _clocked_chain(body)
+    if not conds:
+        return 0
+    kind = "vs_rising" if rising else "vs_falling"
+    if conds[-1] != "%s(%s)" % (kind, ptr):
+        return 0
+    # the other conditions (the reset) are evaluated at every wake : each signal they read must itself wake the process,
+    # else the reset would only be seen at the next event of the clock, of either edge (a process(CLK) with a reset test)
+    for c in conds[:-1]:
+        for ref in re.findall(r"\(\*self(?:->up)*->p_[A-Za-z0-9_]+\)|self(?:->up)*->s_[A-Za-z0-9_]+(?:\.[a-z_0-9]+)?", c):
+            ref = re.sub(r"\.(cur|nxt)$", "", ref)
+            if "&" + ref not in sens_ptrs:
+                return 0
     return 1 if rising else 2
 
 

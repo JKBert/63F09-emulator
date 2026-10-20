@@ -220,13 +220,10 @@ static void bac_63f81_n1_g0_create(vs_kernel *k, bac_63f81_n1_g0 *self, const ch
 
     {
         vs_sig *sens[2];
-        uint8_t edges[2];
-        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
-        edges[n] = 1;
         sens[n++] = &(*self->up->p_cpuclk);
-        vs_register_process_edges(k, bac_63f81_n1_g0_p1, self, sens, NULL, edges, n);
+        vs_register_process(k, bac_63f81_n1_g0_p1, self, sens, n);
     }
 }
 

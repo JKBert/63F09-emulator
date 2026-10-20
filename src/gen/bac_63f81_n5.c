@@ -298,13 +298,10 @@ static void bac_63f81_n5_g0_create(vs_kernel *k, bac_63f81_n5_g0 *self, const ch
 
     {
         vs_sig *sens[2];
-        uint8_t edges[2];
-        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
-        edges[n] = 1;
         sens[n++] = &(*self->up->p_cpuclk);
-        vs_register_process_edges(k, bac_63f81_n5_g0_p1, self, sens, NULL, edges, n);
+        vs_register_process(k, bac_63f81_n5_g0_p1, self, sens, n);
     }
 }
 
@@ -627,17 +624,17 @@ static void bac_63f81_n5_g5_create(vs_kernel *k, bac_63f81_n5_g5 *self, const ch
 
 static int64_t f_interrupted_cpu_3(bac_63f81_n5_g1 *self, uint64_t a_reg_configuration, int64_t a_signal_last_interrupted_cpu)
 {
-    int64_t v_cpu_id_20112 = INT64_C(0);
+    int64_t v_cpu_id_52784 = INT64_C(0);
     for (int64_t i_3 = INT64_C(1); i_3 <= self->up->g_ncpus; i_3++)
     {
-        v_cpu_id_20112 = vs_mod((a_signal_last_interrupted_cpu + i_3), self->up->g_ncpus);
-        if ((((a_reg_configuration >> ((v_cpu_id_20112) - 0)) & 1) == 1))
+        v_cpu_id_52784 = vs_mod((a_signal_last_interrupted_cpu + i_3), self->up->g_ncpus);
+        if ((((a_reg_configuration >> ((v_cpu_id_52784) - 0)) & 1) == 1))
         {
             goto loop_exit_4;
         }
     }
     loop_exit_4:;
-    return v_cpu_id_20112;
+    return v_cpu_id_52784;
 }
 
 static void bac_63f81_n5_g1_p0(void *inst)

@@ -1215,14 +1215,14 @@ static void mmu_63f29_g24_create(vs_kernel *k, mmu_63f29_g24 *self, const char *
 
 static int64_t f_log2i_0(mmu_63f29_g0 *self, int64_t a_n)
 {
-    int64_t v_r_57232 = INT64_C(0);
-    int64_t v_v_57552 = INT64_C(1);
-    while ((v_v_57552 < a_n))
+    int64_t v_r_79280 = INT64_C(0);
+    int64_t v_v_79600 = INT64_C(1);
+    while ((v_v_79600 < a_n))
     {
-        v_v_57552 = (v_v_57552 * INT64_C(2));
-        v_r_57232 = (v_r_57232 + INT64_C(1));
+        v_v_79600 = (v_v_79600 * INT64_C(2));
+        v_r_79280 = (v_r_79280 + INT64_C(1));
     }
-    return v_r_57232;
+    return v_r_79280;
 }
 
 static void mmu_63f29_g0_p0(void *inst)
@@ -2791,12 +2791,8 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
 
     {
         vs_sig *sens[276];
-        uint8_t edges[276];
-        memset(edges, 0, sizeof(edges));
         size_t n = 0;
-        edges[n] = 2;
         sens[n++] = &(*self->up->p_e);
-        edges[n] = 2;
         sens[n++] = &(*self->up->p_e_n);
         sens[n++] = &(*self->up->p_reset_n);
         sens[n++] = &self->up->s_cpu_a;
@@ -2817,7 +2813,7 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
         sens[n++] = &self->s_multi;
         sens[n++] = &self->s_victim;
         sens[n++] = &self->s_victim_valid;
-        vs_register_process_edges(k, mmu_63f29_g0_p35, self, sens, NULL, edges, n);
+        vs_register_process(k, mmu_63f29_g0_p35, self, sens, n);
     }
 }
 
