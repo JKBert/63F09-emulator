@@ -86,6 +86,11 @@ and the divide-by-8 prescaler in bits 2..0 (lines 565 to 618 : `COUNTER(18 downt
 five low bits of the high counter with the three high bits of the low counter, and the five low bits of the low counter
 with the prescaler : neither counter can be read. The emulator reproduces the VHDL.
 
+All three timers are affected : the read registers of timer 1 (lines 1166, 1168), timer 2 (1174, 1176) and timer 3
+(1182, 1184) are written the same way, and the `TIMER` procedure is shared. For timer 3 with its prescaler enabled
+(`CONTROL_REGISTER(3)(0) = '1'`, `IS_TIMER_3`) the counter is loaded with `LATCH_REGISTER & "111"` and decremented by 1
+instead of 8, so bits 2..0 are the prescaler : the count is still in bits 18..3 and the read is wrong in the same way.
+
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*
 
