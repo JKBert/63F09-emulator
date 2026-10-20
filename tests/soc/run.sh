@@ -26,3 +26,10 @@ python3 "$here/twi_eeprom.py" "$work/twi.elf" 0x3C 1
 grep -q '^F00001000: 3C' "$work/twi.log"            # the byte that was read back
 sed -n '/^eeprom/,$p' "$work/twi.log" | sed -n 3p | grep -q '^3C '    # and is in the EEPROM, at 0x10
 echo "TWI / I2C EEPROM test: ok"
+
+# The PIA (6821-like) : select DDRA, all outputs, select ORA, write 0xA5, read ORA and CRA back into the external memory.
+python3 "$here/mkelf.py" "$work/pia.elf" "0xFFFFF000=11 3D 31 7E 00 00 F1 00" "0xFFFFFFFE=F0 00" \
+    "0xF100=86 00 B7 FF FE F0 01 86 FF B7 FF FE F0 00 86 04 B7 FF FE F0 01 86 A5 B7 FF FE F0 00 B6 FF FE F0 00 B7 00 00 10 00 B6 FF FE F0 01 B7 00 00 10 01 20 FE"
+"$emu" --ncpus 2 --elf "$work/pia.elf" --peek 0xF00001000:2 --ticks 3000000 > "$work/pia.log"
+grep -q '^F00001000: A5 04' "$work/pia.log"
+echo "PIA test: ok"
