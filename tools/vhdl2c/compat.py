@@ -93,10 +93,18 @@ def fix_spi_decode(text):
                   'when x"000" | x"001" | x"002" | x"003" => CS(MUX_SPI0) <= \'1\';', text)
 
 
+def fix_pia_read(text):
+    """Opt-in (VHDL2C_FIX_PIA_READ=1) : PIA_READ returns the output register for an input bit (DDR = 0) and the pad for
+    an output bit ; a 6821 does the opposite."""
+    return text.replace("if PORT_DDR(i) = '0' then\n                        -- Input : read only data in PORT register",
+                        "if PORT_DDR(i) = '1' then\n                        -- Input : read only data in PORT register", 1)
+
+
 PATCHES = {
     "61F64x1": [fix_conditional_actuals],
     "63F52": [fix_conditional_actuals],
     "SoC": [fix_spi_decode] if os.environ.get("VHDL2C_FIX_SPI_DECODE") else [],
+    "63F21": [fix_pia_read] if os.environ.get("VHDL2C_FIX_PIA_READ") else [],
     "63F09": [fix_incv] if os.environ.get("VHDL2C_FIX_INCV") else [],
     "63F29": [_static_prefix_sensitivity([
         ("BANK_ARRAY(CURRENT_RING)(i)", "BANK_ARRAY"),
