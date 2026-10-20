@@ -85,9 +85,12 @@ static void spi_63f52_g1_create(vs_kernel *k, spi_63f52_g1 *self, const char *pa
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x2);
         sens[n++] = &self->up->s_cc_reg;
-        vs_register_process(k, spi_63f52_g1_p0, self, sens, n);
+        vs_register_process_masked(k, spi_63f52_g1_p0, self, sens, masks, n);
     }
 
     {
@@ -135,9 +138,12 @@ static void spi_63f52_g2_create(vs_kernel *k, spi_63f52_g2 *self, const char *pa
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x2);
         sens[n++] = &self->up->s_cc_reg;
-        vs_register_process(k, spi_63f52_g2_p0, self, sens, n);
+        vs_register_process_masked(k, spi_63f52_g2_p0, self, sens, masks, n);
     }
 
     {
@@ -671,31 +677,49 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x2);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process(k, spi_63f52_p0, self, sens, n);
+        vs_register_process_masked(k, spi_63f52_p0, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x2);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process(k, spi_63f52_p1, self, sens, n);
+        vs_register_process_masked(k, spi_63f52_p1, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x2);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process(k, spi_63f52_p2, self, sens, n);
+        vs_register_process_masked(k, spi_63f52_p2, self, sens, masks, n);
     }
     vs_register_process(k, spi_63f52_p3, self, NULL, 0);
 
     {
-        vs_sig *sens[1];
+        vs_sig *sens[4];
+        uint64_t masks[4];
+        { size_t j; for (j = 0; j < 4; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x20);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process(k, spi_63f52_p4, self, sens, n);
+        masks[n] = UINT64_C(0x80);
+        sens[n++] = &self->s_cc_reg;
+        masks[n] = UINT64_C(0x10);
+        sens[n++] = &self->s_cc_reg;
+        masks[n] = UINT64_C(0x40);
+        sens[n++] = &self->s_cc_reg;
+        vs_register_process_masked(k, spi_63f52_p4, self, sens, masks, n);
     }
 
     {
@@ -713,14 +737,21 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
     }
 
     {
-        vs_sig *sens[1];
+        vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x8);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process(k, spi_63f52_p7, self, sens, n);
+        masks[n] = UINT64_C(0x4);
+        sens[n++] = &self->s_cc_reg;
+        vs_register_process_masked(k, spi_63f52_p7, self, sens, masks, n);
     }
 
     {
-        vs_sig *sens[10];
+        vs_sig *sens[11];
+        uint64_t masks[11];
+        { size_t j; for (j = 0; j < 11; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_rst_n);
@@ -731,17 +762,25 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
         sens[n++] = &self->s_signal_data_ready_s;
         sens[n++] = &self->s_signal_tx_empty_m;
         sens[n++] = &self->s_signal_data_ready_m;
+        masks[n] = UINT64_C(0x40);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process(k, spi_63f52_p8, self, sens, n);
+        masks[n] = UINT64_C(0x80);
+        sens[n++] = &self->s_cc_reg;
+        vs_register_process_masked(k, spi_63f52_p8, self, sens, masks, n);
     }
 
     {
-        vs_sig *sens[3];
+        vs_sig *sens[4];
+        uint64_t masks[4];
+        { size_t j; for (j = 0; j < 4; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &(*self->p_rst_n);
+        masks[n] = UINT64_C(0x40);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process(k, spi_63f52_p9, self, sens, n);
+        masks[n] = UINT64_C(0x80);
+        sens[n++] = &self->s_cc_reg;
+        vs_register_process_masked(k, spi_63f52_p9, self, sens, masks, n);
     }
 
     {
@@ -754,13 +793,18 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
     }
 
     {
-        vs_sig *sens[4];
+        vs_sig *sens[5];
+        uint64_t masks[5];
+        { size_t j; for (j = 0; j < 5; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_slave_clock;
         sens[n++] = &self->s_slave_clock_n;
         sens[n++] = &(*self->p_rst_n);
+        masks[n] = UINT64_C(0x40);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process(k, spi_63f52_p11, self, sens, n);
+        masks[n] = UINT64_C(0x80);
+        sens[n++] = &self->s_cc_reg;
+        vs_register_process_masked(k, spi_63f52_p11, self, sens, masks, n);
     }
 }
 

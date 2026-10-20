@@ -828,10 +828,19 @@ void twi_63f54_create(vs_kernel *k, twi_63f54 *self, const char *path, vs_sig *e
     iobuf_create(k, &self->c_scl_iobuf_2, vs_join(k, path, "scl_iobuf"), &self->x3_imp_i, self->p_scl, &self->s_scl_in, &self->s_scl_ctrl);
 
     {
-        vs_sig *sens[1];
+        vs_sig *sens[4];
+        uint64_t masks[4];
+        { size_t j; for (j = 0; j < 4; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x20);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process(k, twi_63f54_p0, self, sens, n);
+        masks[n] = UINT64_C(0x80);
+        sens[n++] = &self->s_cc_reg;
+        masks[n] = UINT64_C(0x10);
+        sens[n++] = &self->s_cc_reg;
+        masks[n] = UINT64_C(0x40);
+        sens[n++] = &self->s_cc_reg;
+        vs_register_process_masked(k, twi_63f54_p0, self, sens, masks, n);
     }
     vs_register_process(k, twi_63f54_p1, self, NULL, 0);
 
@@ -861,14 +870,19 @@ void twi_63f54_create(vs_kernel *k, twi_63f54 *self, const char *path, vs_sig *e
     }
 
     {
-        vs_sig *sens[5];
+        vs_sig *sens[6];
+        uint64_t masks[6];
+        { size_t j; for (j = 0; j < 6; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_sda_clk;
         sens[n++] = &self->s_sda_clk_n;
         sens[n++] = &(*self->p_rst_n);
+        masks[n] = UINT64_C(0x40);
+        sens[n++] = &self->s_cc_reg;
+        masks[n] = UINT64_C(0x80);
         sens[n++] = &self->s_cc_reg;
         sens[n++] = &self->s_state;
-        vs_register_process(k, twi_63f54_p4, self, sens, n);
+        vs_register_process_masked(k, twi_63f54_p4, self, sens, masks, n);
     }
 
     {

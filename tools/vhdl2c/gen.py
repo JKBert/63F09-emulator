@@ -296,9 +296,9 @@ class EntityGen(Translator):
             sys.stderr.flush()
         items = self.sensitivity_items(p)
         for item in items:
-            ptr, ct = self.sens_ptr(item)
-            if all(ptr != x[0] for x in sens):
-                sens.append((ptr, ct))
+            ptr, ct, mask = self.sens_ptr(item)
+            if all((ptr, mask) != (x[0], x[2]) for x in sens):
+                sens.append((ptr, ct, mask))
         s.procs.append((fname, o.text(), sens))
         self.out = saved
 
@@ -362,7 +362,11 @@ class EntityGen(Translator):
         while True:
             try:
                 ptr, shift, width, ct = self.sigptr(n)
-                return ptr, self.storage_ct(n, ct)
+                mask = None
+                if isinstance(shift, int) and width is not None and not is_wide(ct) and ct.kind in ("bit", "vec") \
+                        and nodes.Get_Kind(n) in (K.Indexed_Name, K.Slice_Name):
+                    mask = "UINT64_C(0x%X)" % (((1 << width) - 1) << shift) if width < 64 else None
+                return ptr, self.storage_ct(n, ct), mask
             except Unsupported:
                 if nodes.Get_Kind(n) in (K.Indexed_Name, K.Slice_Name, K.Selected_Element):
                     n = nodes.Get_Prefix(n)
@@ -568,7 +572,7 @@ class EntityGen(Translator):
                 if b is not None and b.kind in ("sig", "sigptr"):
                     p = self.bc(b) if b.kind == "sigptr" else "&" + self.bc(b)
                     if all(p != x[0] for x in sens):
-                        sens.append((p, b.ct if (b.ct.kind in ("rec", "arr") or is_wide(b.ct)) else Bit()))
+                        sens.append((p, b.ct if (b.ct.kind in ("rec", "arr") or is_wide(b.ct)) else Bit(), None))
         s.procs.append((fname, body.text(), sens))
 
     # ------------------------------------------------------------------ generate and block
@@ -764,18 +768,29 @@ class EntityGen(Translator):
         o.lines.extend("    " + l if l else l for l in sc.init.lines)
         for fname, body, sens in sc.procs:
             if sens:
-                total = sum(leaf_count(ct) for ptr, ct in sens)
+                total = sum(leaf_count(ct) for ptr, ct, mask in sens)
+                masked = any(mask for ptr, ct, mask in sens)
                 o.open("")
                 o.line("vs_sig *sens[%d];" % total)
+                if masked:
+                    o.line("uint64_t masks[%d];" % total)
+                    o.line("{ size_t j; for (j = 0; j < %d; j++) { masks[j] = UINT64_MAX; } }" % total)
                 o.line("size_t n = 0;")
-                for ptr, ct in sens:
+                for ptr, ct, mask in sens:
                     if is_wide(ct):
                         o.line("{ size_t j; for (j = 0; j < %d; j++) { sens[n++] = &(%s)->w[j]; } }" % (nwords(ct), ptr))
                     elif ct.kind in ("rec", "arr"):
                         o.line("n += %s_leaves(%s, sens + n);" % (ct.cname, ptr))
                     else:
+                        if mask:
+                            o.line("masks[n] = %s;" % mask)
                         o.line("sens[n++] = %s;" % ptr)
-                o.line("vs_register_process(k, %s, self, sens, n);" % fname)
+                if masked:
+                    # (a signal that is not a single word has no mask : it is only listed with the others when it is
+                    # not one of the entries above, whose masks are set one by one)
+                    o.line("vs_register_process_masked(k, %s, self, sens, masks, n);" % fname)
+                else:
+                    o.line("vs_register_process(k, %s, self, sens, n);" % fname)
                 o.close()
             else:
                 o.line("vs_register_process(k, %s, self, NULL, 0);" % fname)

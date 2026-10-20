@@ -201,9 +201,12 @@ static void amc_63f42_g1_create(vs_kernel *k, amc_63f42_g1 *self, const char *pa
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0xFFFFFFFF8);
         sens[n++] = &(*self->up->p_a_int);
-        vs_register_process(k, amc_63f42_g1_p4, self, sens, n);
+        vs_register_process_masked(k, amc_63f42_g1_p4, self, sens, masks, n);
     }
 
     {
@@ -222,17 +225,38 @@ static void amc_63f42_g1_create(vs_kernel *k, amc_63f42_g1 *self, const char *pa
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x7);
         sens[n++] = &(*self->up->p_a_int);
-        vs_register_process(k, amc_63f42_g1_p7, self, sens, n);
+        vs_register_process_masked(k, amc_63f42_g1_p7, self, sens, masks, n);
     }
 
     {
-        vs_sig *sens[2];
+        vs_sig *sens[9];
+        uint64_t masks[9];
+        { size_t j; for (j = 0; j < 9; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x7);
         sens[n++] = &(*self->up->p_a_int);
+        masks[n] = UINT64_C(0xFF);
         sens[n++] = &(*self->up->p_d_in_ext);
-        vs_register_process(k, amc_63f42_g1_p8, self, sens, n);
+        masks[n] = UINT64_C(0xFF00);
+        sens[n++] = &(*self->up->p_d_in_ext);
+        masks[n] = UINT64_C(0xFF0000);
+        sens[n++] = &(*self->up->p_d_in_ext);
+        masks[n] = UINT64_C(0xFF000000);
+        sens[n++] = &(*self->up->p_d_in_ext);
+        masks[n] = UINT64_C(0xFF00000000);
+        sens[n++] = &(*self->up->p_d_in_ext);
+        masks[n] = UINT64_C(0xFF0000000000);
+        sens[n++] = &(*self->up->p_d_in_ext);
+        masks[n] = UINT64_C(0xFF000000000000);
+        sens[n++] = &(*self->up->p_d_in_ext);
+        masks[n] = UINT64_C(0xFF00000000000000);
+        sens[n++] = &(*self->up->p_d_in_ext);
+        vs_register_process_masked(k, amc_63f42_g1_p8, self, sens, masks, n);
     }
 
     {

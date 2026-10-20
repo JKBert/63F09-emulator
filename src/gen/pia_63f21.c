@@ -371,9 +371,12 @@ void pia_63f21_create(vs_kernel *k, pia_63f21 *self, const char *path, vs_sig *e
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x20);
         sens[n++] = &self->s_port_ctrl;
-        vs_register_process(k, pia_63f21_p4, self, sens, n);
+        vs_register_process_masked(k, pia_63f21_p4, self, sens, masks, n);
     }
 
     {

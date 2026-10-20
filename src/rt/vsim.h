@@ -34,9 +34,11 @@ typedef struct vs_sig
     uint64_t        cur;
     uint64_t        nxt;
     uint64_t        prev;       /* value before the event of this delta */
+    uint64_t        pulled;     /* bits that the outside world pulls low (open-drain pads) : cur = nxt & ~pulled */
+    uint8_t         wand;       /* a pad whose drivers are wired-AND : a released IOBUF drives ones */
     uint8_t         pend;
     uint8_t         evt;
-    struct vs_proc  **fan;      /* processes woken by an event on this signal */
+    struct vs_fan   *fan;       /* processes woken by an event on this signal */
     uint32_t        nfan;
     const char      *name;      /* for the traces, NULL when unnamed */
     uint32_t        width;
@@ -46,11 +48,19 @@ typedef struct vs_sig
     uint32_t        nties;
 } vs_sig;
 
+/* A process woken by a signal, and the bits whose events it is sensitive to (a bit of a vector in a sensitivity list). */
+typedef struct vs_fan
+{
+    struct vs_proc  *p;
+    uint64_t        mask;
+} vs_fan;
+
 typedef struct vs_proc
 {
     void            (*run)(void *inst);
     void            *inst;
     vs_sig          **sens;
+    uint64_t        *masks;     /* per entry of sens, NULL : all the bits */
     size_t          nsens;
     uint8_t         queued;
 } vs_proc;
@@ -120,12 +130,16 @@ void    vs_dump(vs_kernel *k, FILE *f, long phase);
 
 /* Registration, done while the design is built. */
 void    vs_register_signal(vs_kernel *k, vs_sig *s, uint64_t init);
+void    vs_register_process_masked(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, const uint64_t *masks, size_t nsens);
 void    vs_register_process(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, size_t nsens);
 
 /* Timed callbacks. vs_advance moves the time to the earliest timer, runs the timers due then and settles the
  * design ; it returns 0 when no timer is left. */
 void    vs_timer_add(vs_kernel *k, uint64_t when, void (*fn)(vs_kernel *, void *), void *arg);
 int     vs_advance(vs_kernel *k);
+
+/* The outside world pulls the bits of `mask` of a pad low (`low` = 1) or lets them go (`low` = 0). */
+void    vs_pull(vs_sig *s, uint64_t mask, int low);
 
 /* Memories. vs_region_find returns the first region whose path ends with `suffix`, or NULL. */
 void    vs_region_add(vs_kernel *k, const char *path, uint8_t *data, size_t size);

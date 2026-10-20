@@ -1996,16 +1996,22 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0xFFFFF0000);
         sens[n++] = &self->s_buffered_a;
-        vs_register_process(k, dmc_63f41_n1_g0_p10, self, sens, n);
+        vs_register_process_masked(k, dmc_63f41_n1_g0_p10, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0xFFFF);
         sens[n++] = &self->s_buffered_a;
-        vs_register_process(k, dmc_63f41_n1_g0_p11, self, sens, n);
+        vs_register_process_masked(k, dmc_63f41_n1_g0_p11, self, sens, masks, n);
     }
 
     {

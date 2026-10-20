@@ -390,11 +390,14 @@ static void mmu_63f29_g1_create(vs_kernel *k, mmu_63f29_g1 *self, const char *pa
 
     {
         vs_sig *sens[258];
+        uint64_t masks[258];
+        { size_t j; for (j = 0; j < 258; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         n += indirection_bank_array_type_leaves(&self->up->s_bank_array, sens + n);
         sens[n++] = &self->up->s_ring_stg;
+        masks[n] = UINT64_C(0xFFFFF000);
         sens[n++] = &self->up->s_tag_staging;
-        vs_register_process(k, mmu_63f29_g1_p0, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g1_p0, self, sens, masks, n);
     }
 
     {
@@ -440,11 +443,19 @@ static void mmu_63f29_g3_create(vs_kernel *k, mmu_63f29_g3 *self, const char *pa
 {
 
     {
-        vs_sig *sens[2];
+        vs_sig *sens[4];
+        uint64_t masks[4];
+        { size_t j; for (j = 0; j < 4; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0xFFFF);
         sens[n++] = &self->up->up->s_node.a[((self->up->gp_l - INT64_C(1))) - 0].a[((INT64_C(2) * self->gp_j)) - 0];
+        masks[n] = UINT64_C(0xFF80);
+        sens[n++] = &self->up->up->s_node.a[((self->up->gp_l - INT64_C(1))) - 0].a[((INT64_C(2) * self->gp_j)) - 0];
+        masks[n] = UINT64_C(0xFF80);
         sens[n++] = &self->up->up->s_node.a[((self->up->gp_l - INT64_C(1))) - 0].a[(((INT64_C(2) * self->gp_j) + INT64_C(1))) - 0];
-        vs_register_process(k, mmu_63f29_g3_p0, self, sens, n);
+        masks[n] = UINT64_C(0xFFFF);
+        sens[n++] = &self->up->up->s_node.a[((self->up->gp_l - INT64_C(1))) - 0].a[(((INT64_C(2) * self->gp_j) + INT64_C(1))) - 0];
+        vs_register_process_masked(k, mmu_63f29_g3_p0, self, sens, masks, n);
     }
 }
 
@@ -517,9 +528,12 @@ static void mmu_63f29_g5_create(vs_kernel *k, mmu_63f29_g5 *self, const char *pa
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0xFFFF);
         sens[n++] = &self->up->s_nodeg.a[(self->gp_j) - 0];
-        vs_register_process(k, mmu_63f29_g5_p1, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g5_p1, self, sens, masks, n);
     }
 }
 
@@ -540,11 +554,19 @@ static void mmu_63f29_g7_create(vs_kernel *k, mmu_63f29_g7 *self, const char *pa
 {
 
     {
-        vs_sig *sens[2];
+        vs_sig *sens[4];
+        uint64_t masks[4];
+        { size_t j; for (j = 0; j < 4; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0xFFFF);
         sens[n++] = &self->up->up->s_node2.a[((self->up->gp_l - INT64_C(1))) - 0].a[((INT64_C(2) * self->gp_j)) - 0];
+        masks[n] = UINT64_C(0xFF80);
+        sens[n++] = &self->up->up->s_node2.a[((self->up->gp_l - INT64_C(1))) - 0].a[((INT64_C(2) * self->gp_j)) - 0];
+        masks[n] = UINT64_C(0xFF80);
         sens[n++] = &self->up->up->s_node2.a[((self->up->gp_l - INT64_C(1))) - 0].a[(((INT64_C(2) * self->gp_j) + INT64_C(1))) - 0];
-        vs_register_process(k, mmu_63f29_g7_p0, self, sens, n);
+        masks[n] = UINT64_C(0xFFFF);
+        sens[n++] = &self->up->up->s_node2.a[((self->up->gp_l - INT64_C(1))) - 0].a[(((INT64_C(2) * self->gp_j) + INT64_C(1))) - 0];
+        vs_register_process_masked(k, mmu_63f29_g7_p0, self, sens, masks, n);
     }
 }
 
@@ -763,10 +785,14 @@ static void mmu_63f29_g16_create(vs_kernel *k, mmu_63f29_g16 *self, const char *
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0xFFFFF000);
         sens[n++] = &self->up->up->s_cpu_a;
+        masks[n] = UINT64_C(0xFFFFF);
         sens[n++] = &self->up->s_bank_array.a[0].a[(self->gp_i) - 0];
-        vs_register_process(k, mmu_63f29_g16_p0, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g16_p0, self, sens, masks, n);
     }
 }
 
@@ -882,10 +908,13 @@ static void mmu_63f29_g19_create(vs_kernel *k, mmu_63f29_g19 *self, const char *
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->up->s_vmatch;
+        masks[n] = UINT64_C(0x1000000);
         sens[n++] = &self->up->s_payload_array.a[0].a[(self->gp_i) - 0];
-        vs_register_process(k, mmu_63f29_g19_p1, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g19_p1, self, sens, masks, n);
     }
 }
 
@@ -1174,14 +1203,14 @@ static void mmu_63f29_g24_create(vs_kernel *k, mmu_63f29_g24 *self, const char *
 
 static int64_t f_log2i_0(mmu_63f29_g0 *self, int64_t a_n)
 {
-    int64_t v_r_82000 = INT64_C(0);
-    int64_t v_v_82320 = INT64_C(1);
-    while ((v_v_82320 < a_n))
+    int64_t v_r_72176 = INT64_C(0);
+    int64_t v_v_72496 = INT64_C(1);
+    while ((v_v_72496 < a_n))
     {
-        v_v_82320 = (v_v_82320 * INT64_C(2));
-        v_r_82000 = (v_r_82000 + INT64_C(1));
+        v_v_72496 = (v_v_72496 * INT64_C(2));
+        v_r_72176 = (v_r_72176 + INT64_C(1));
     }
-    return v_r_82000;
+    return v_r_72176;
 }
 
 static void mmu_63f29_g0_p0(void *inst)
@@ -2392,9 +2421,12 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x80);
         sens[n++] = &self->s_ring;
-        vs_register_process(k, mmu_63f29_g0_p0, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g0_p0, self, sens, masks, n);
     }
 
     {
@@ -2442,16 +2474,22 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x8000);
         sens[n++] = &self->s_node2.a[6].a[0];
-        vs_register_process(k, mmu_63f29_g0_p7, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g0_p7, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x7F);
         sens[n++] = &self->s_node2.a[6].a[0];
-        vs_register_process(k, mmu_63f29_g0_p8, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g0_p8, self, sens, masks, n);
     }
 
     {
@@ -2572,15 +2610,21 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        vs_sig *sens[6];
+        vs_sig *sens[7];
+        uint64_t masks[7];
+        { size_t j; for (j = 0; j < 7; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->up->s_cpu_a;
         sens[n++] = &self->s_raw_sel;
+        masks[n] = UINT64_C(0xFFFFFF);
         sens[n++] = &self->s_vpayload;
+        masks[n] = UINT64_C(0xFFF);
+        sens[n++] = &self->up->s_cpu_a;
         sens[n++] = &self->s_vec_ok;
+        masks[n] = UINT64_C(0xFFFFFF);
         sens[n++] = &self->s_hit_payload;
         sens[n++] = &self->s_tr_ok;
-        vs_register_process(k, mmu_63f29_g0_p23, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g0_p23, self, sens, masks, n);
     }
 
     {
@@ -2620,68 +2664,100 @@ static void mmu_63f29_g0_create(vs_kernel *k, mmu_63f29_g0 *self, const char *pa
     }
 
     {
-        vs_sig *sens[6];
+        vs_sig *sens[8];
+        uint64_t masks[8];
+        { size_t j; for (j = 0; j < 8; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_w_reg;
+        masks[n] = UINT64_C(0x800);
+        sens[n++] = &self->up->s_cpu_a;
+        masks[n] = UINT64_C(0x3);
         sens[n++] = &self->up->s_cpu_a;
         sens[n++] = &self->s_current_ring;
+        masks[n] = UINT64_C(0x3);
         sens[n++] = &self->s_maxring;
         sens[n++] = &self->s_victim_valid;
         sens[n++] = &self->s_ring_stg;
-        vs_register_process(k, mmu_63f29_g0_p27, self, sens, n);
+        masks[n] = UINT64_C(0x600);
+        sens[n++] = &self->up->s_cpu_a;
+        vs_register_process_masked(k, mmu_63f29_g0_p27, self, sens, masks, n);
     }
 
     {
-        vs_sig *sens[4];
+        vs_sig *sens[5];
+        uint64_t masks[5];
+        { size_t j; for (j = 0; j < 5; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_w_reg;
+        masks[n] = UINT64_C(0xE00);
+        sens[n++] = &self->up->s_cpu_a;
+        masks[n] = UINT64_C(0x7F);
         sens[n++] = &self->up->s_cpu_a;
         sens[n++] = &self->s_current_ring;
+        masks[n] = UINT64_C(0x3);
         sens[n++] = &self->s_maxring;
-        vs_register_process(k, mmu_63f29_g0_p28, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g0_p28, self, sens, masks, n);
     }
 
     {
-        vs_sig *sens[4];
+        vs_sig *sens[5];
+        uint64_t masks[5];
+        { size_t j; for (j = 0; j < 5; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_w_reg;
+        masks[n] = UINT64_C(0x800);
+        sens[n++] = &self->up->s_cpu_a;
+        masks[n] = UINT64_C(0x7FF);
         sens[n++] = &self->up->s_cpu_a;
         sens[n++] = &self->s_current_ring;
+        masks[n] = UINT64_C(0x3);
         sens[n++] = &self->s_maxring;
-        vs_register_process(k, mmu_63f29_g0_p29, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g0_p29, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x7FF);
         sens[n++] = &self->up->s_cpu_a;
         sens[n++] = &self->s_w_bankw;
-        vs_register_process(k, mmu_63f29_g0_p30, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g0_p30, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x7FF);
         sens[n++] = &self->up->s_cpu_a;
         sens[n++] = &self->s_w_bankw;
-        vs_register_process(k, mmu_63f29_g0_p31, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g0_p31, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x7FF);
         sens[n++] = &self->up->s_cpu_a;
         sens[n++] = &self->s_w_bankw;
-        vs_register_process(k, mmu_63f29_g0_p32, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g0_p32, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[3];
+        uint64_t masks[3];
+        { size_t j; for (j = 0; j < 3; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_tr_ok;
         sens[n++] = &self->s_multi;
+        masks[n] = UINT64_C(0x8000000);
         sens[n++] = &self->s_hit_payload;
-        vs_register_process(k, mmu_63f29_g0_p33, self, sens, n);
+        vs_register_process_masked(k, mmu_63f29_g0_p33, self, sens, masks, n);
     }
 
     {

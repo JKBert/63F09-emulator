@@ -171,82 +171,112 @@ void lzc_64_create(vs_kernel *k, lzc_64 *self, const char *path, vs_sig *a, vs_s
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_v1;
+        masks[n] = UINT64_C(0x1);
         sens[n++] = &self->s_z0;
-        vs_register_process(k, lzc_64_p1, self, sens, n);
+        vs_register_process_masked(k, lzc_64_p1, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x1);
         sens[n++] = &self->s_z1;
         sens[n++] = &self->s_s1;
-        vs_register_process(k, lzc_64_p2, self, sens, n);
+        vs_register_process_masked(k, lzc_64_p2, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_v1;
+        masks[n] = UINT64_C(0x2);
         sens[n++] = &self->s_z0;
-        vs_register_process(k, lzc_64_p3, self, sens, n);
+        vs_register_process_masked(k, lzc_64_p3, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x2);
         sens[n++] = &self->s_z1;
         sens[n++] = &self->s_s3;
-        vs_register_process(k, lzc_64_p4, self, sens, n);
+        vs_register_process_masked(k, lzc_64_p4, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_v1;
+        masks[n] = UINT64_C(0x4);
         sens[n++] = &self->s_z0;
-        vs_register_process(k, lzc_64_p5, self, sens, n);
+        vs_register_process_masked(k, lzc_64_p5, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x4);
         sens[n++] = &self->s_z1;
         sens[n++] = &self->s_s5;
-        vs_register_process(k, lzc_64_p6, self, sens, n);
+        vs_register_process_masked(k, lzc_64_p6, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_v1;
+        masks[n] = UINT64_C(0x8);
         sens[n++] = &self->s_z0;
-        vs_register_process(k, lzc_64_p7, self, sens, n);
+        vs_register_process_masked(k, lzc_64_p7, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x8);
         sens[n++] = &self->s_z1;
         sens[n++] = &self->s_s7;
-        vs_register_process(k, lzc_64_p8, self, sens, n);
+        vs_register_process_masked(k, lzc_64_p8, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_v1;
+        masks[n] = UINT64_C(0x10);
         sens[n++] = &self->s_z0;
-        vs_register_process(k, lzc_64_p9, self, sens, n);
+        vs_register_process_masked(k, lzc_64_p9, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x10);
         sens[n++] = &self->s_z1;
         sens[n++] = &self->s_s9;
-        vs_register_process(k, lzc_64_p10, self, sens, n);
+        vs_register_process_masked(k, lzc_64_p10, self, sens, masks, n);
     }
 
     {

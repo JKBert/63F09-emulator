@@ -92,6 +92,18 @@ BLOCKS = {
                            [(at + 1, {"cs": 0}) for at in range(500, 8800, 300)]),
     "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
     "ptm_63f40": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=6000, change=0.1),
+    # I2C master, no slave : the line SDA is pulled up, the master addresses 0x50 and gets no acknowledge
+    "twi_63f54": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=6000, change=0,
+                      initial={"rw_n": 1},
+                      script=[(10, {"cs": 1, "addr": 4, "rw_n": 0, "d_in": 0}), (12, {"cs": 0, "rw_n": 1}),
+                              (14, {"cs": 1, "addr": 5, "rw_n": 0, "d_in": 6}), (16, {"cs": 0, "rw_n": 1}),
+                              (18, {"cs": 1, "addr": 7, "rw_n": 0, "d_in": 0x50}), (20, {"cs": 0, "rw_n": 1}),
+                              (22, {"cs": 1, "addr": 0, "rw_n": 0, "d_in": 0xA5}), (24, {"cs": 0, "rw_n": 1}),
+                              (26, {"cs": 1, "addr": 1, "rw_n": 0, "d_in": 0x09}), (28, {"cs": 0, "rw_n": 1})] +
+                             [(at, {"cs": 1, "addr": 2, "rw_n": 1}) for at in range(100, 5900, 200)] +
+                             [(at + 1, {"cs": 0}) for at in range(100, 5900, 200)]),
+    "spi_63f52": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=6000, change=0.1),
+    "pia_63f21": dict(clocks=["e"], resets={"reset_n": 0}, warm=3, cycles=6000, change=0.3),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
 }
 
@@ -227,6 +239,10 @@ def vhdl_bench(name, ports, cfg, lib="work", port_types=None, generics=()):
             init = " := '0'" if ct.kind == "bit" else (" := (others => '0')" if ct.kind == "vec" else "")
         o.append("    signal %s : %s%s;" % (n, t, init))
     o.append("begin")
+    for n, ct, m in ports:
+        if m == nodes.Iir_Mode.Inout_Mode and ct.kind in ("bit", "vec"):
+            # an open-drain pad has its pull-up : the emulator wires the drivers with an AND
+            o.append("    %s <= %s;" % (n, "'H'" if ct.kind == "bit" else "(others => 'H')"))
     gmap = ""
     if generics:
         gmap = "generic map (%s) " % ", ".join("%s => %s" % (n, ("true" if v else "false") if b else v) for n, v, b in generics)
@@ -241,17 +257,17 @@ def vhdl_bench(name, ports, cfg, lib="work", port_types=None, generics=()):
         elif lf.ct.kind == "int":
             o.append("        variable v_%s : integer;" % lf.name)
     o.append("        procedure dump is")
-    o.append("            variable o : line;")
+    o.append("            variable ol : line;")
     o.append("        begin")
     for lf in outs:
         if lf.ct.kind in ("bit", "vec"):
             ex = "std_logic_vector(%s)" % lf.vpath if getattr(lf.ct, "vtype", None) else lf.vpath
-            o.append("            write(o, to_string(to_x01(%s)) & \" \");" % ex)
+            o.append("            write(ol, to_string(to_x01(%s)) & \" \");" % ex)
         elif lf.ct.kind == "int":
-            o.append("            write(o, integer'image(%s) & \" \");" % lf.vpath)
+            o.append("            write(ol, integer'image(%s) & \" \");" % lf.vpath)
         else:
-            o.append("            write(o, %s'subtype'image(%s) & \" \");" % (lf.vpath, lf.vpath))
-    o.append("            writeline(result, o);")
+            o.append("            write(ol, %s'subtype'image(%s) & \" \");" % (lf.vpath, lf.vpath))
+    o.append("            writeline(result, ol);")
     o.append("        end procedure;")
     o.append("    begin")
     o.append("        wait for 1 ns;")
@@ -313,7 +329,9 @@ def c_bench(name, ports, cfg, generics=()):
         elif is_wide(ct):
             o.append("    vs_w_register(&k, p_%s.w, %d, vs_w_zero());" % (n, nwords(ct)))
         else:
-            o.append("    vs_register_signal(&k, &p_%s, 0);" % n)
+            o.append("    vs_register_signal(&k, &p_%s, %s);" % (n, "1" if m == nodes.Iir_Mode.Inout_Mode and ct.kind == "bit" else ("UINT64_MAX >> %d" % (64 - ct.width) if m == nodes.Iir_Mode.Inout_Mode and ct.kind == "vec" and ct.width else "0")))
+            if m == nodes.Iir_Mode.Inout_Mode:
+                o.append("    p_%s.wand = 1;" % n)
             o.append('    vs_name(&k, &p_%s, NULL, "%s", %d);' % (n, n, ct.width))
     o.append('    %s_create(&k, &dut, "dut", %s);' % (name, ", ".join(["%dLL" % g[1] for g in generics] + ["&p_%s" % n for n, ct, m in ports])))
     o.append("    vs_settle(&k);")
@@ -444,6 +462,12 @@ def trace_diff(ghdl, shared, work, tb, wd, pp, skip):
     if r.returncode != 0:
         return TraceUnavailable((r.stdout + r.stderr).strip()[-200:])
     run(["./tb_c", "stim.txt", "c.trace"], work, quiet=True)
+    if os.environ.get("BLOCKTEST_KEEP_WORK"):
+        keep = os.environ["BLOCKTEST_KEEP"]
+        keep = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "build", "blocktest-keep") if keep in ("1", "yes", "true") else keep
+        os.makedirs(keep, exist_ok=True)
+        for f in ("dump.vcd", "c.trace"):
+            shutil.copy(os.path.join(work, f), os.path.join(keep, tb + "." + f))
     r = vcdcmp.compare(vcd, os.path.join(work, "c.trace"), skip_phases=skip)
     if r is None:
         return None
@@ -480,6 +504,8 @@ def run_block(name, cfg, ports, ghdl, shared, root, lib="work", generics=(), por
             open(os.path.join(keep, name + ".c.out"), "w").write(out)
             for f in ("ghdl.out", "stim.txt", "tb.c"):
                 shutil.copy(os.path.join(work, f), os.path.join(keep, name + "." + f))
+            if os.environ.get("BLOCKTEST_KEEP_WORK"):
+                shutil.copytree(work, os.path.join(keep, name + ".work"), dirs_exist_ok=True)
         skip = 2 * cfg["warm"]
         a = [x.strip().lower() for x in open(os.path.join(work, "ghdl.out")).read().split("\n")][skip:]
         b = [x.strip().lower() for x in out.split("\n")][skip:]

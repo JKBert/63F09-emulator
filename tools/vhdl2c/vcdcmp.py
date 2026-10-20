@@ -91,7 +91,7 @@ def compare(vcd_path, c_path, widths_c=None, skip_phases=0, limit=40):
         for name, cval in cstate.items():
             if name not in vstate:
                 continue
-            bits = vstate[name]
+            bits = vstate[name].replace("h", "1")        # a pulled-up line (H) is a 1
             if re.search("[xuzwl-]", bits):
                 continue
             w = widths[name]

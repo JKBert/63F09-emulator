@@ -8,6 +8,10 @@ static void iobuf_drive(void *inst)
     {
         vs_drive(self->io, self->i->cur);
     }
+    else if (self->io->wand)
+    {
+        vs_drive(self->io, 1);     /* released : the pull-up of the line, the outside world can pull it low */
+    }
 }
 
 static void iobuf_read(void *inst)

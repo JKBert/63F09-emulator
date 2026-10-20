@@ -205,10 +205,13 @@ void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->s_counter;
+        masks[n] = UINT64_C(0x1);
         sens[n++] = &self->s_status_register;
-        vs_register_process(k, wdg_63f46_p0, self, sens, n);
+        vs_register_process_masked(k, wdg_63f46_p0, self, sens, masks, n);
     }
     vs_register_process(k, wdg_63f46_p1, self, NULL, 0);
 

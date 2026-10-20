@@ -675,12 +675,15 @@ static void dmc_63f41_n4_g6_create(vs_kernel *k, dmc_63f41_n4_g6 *self, const ch
 
     {
         vs_sig *sens[4];
+        uint64_t masks[4];
+        { size_t j; for (j = 0; j < 4; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &self->up->s_fill_req;
         sens[n++] = &self->up->s_fill_block;
         sens[n++] = &self->up->s_current_block;
+        masks[n] = UINT64_C(0xFFFF);
         sens[n++] = &self->up->s_buffered_a;
-        vs_register_process(k, dmc_63f41_n4_g6_p4, self, sens, n);
+        vs_register_process_masked(k, dmc_63f41_n4_g6_p4, self, sens, masks, n);
     }
 
     {
@@ -1256,9 +1259,12 @@ static void dmc_63f41_n4_g9_create(vs_kernel *k, dmc_63f41_n4_g9 *self, const ch
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0x1FFFFFFFFFFFFF);
         sens[n++] = &self->s_rb_dout;
-        vs_register_process(k, dmc_63f41_n4_g9_p2, self, sens, n);
+        vs_register_process_masked(k, dmc_63f41_n4_g9_p2, self, sens, masks, n);
     }
 
     {
@@ -4281,16 +4287,22 @@ static void dmc_63f41_n4_g0_create(vs_kernel *k, dmc_63f41_n4_g0 *self, const ch
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0xFFFFF0000);
         sens[n++] = &self->s_buffered_a;
-        vs_register_process(k, dmc_63f41_n4_g0_p10, self, sens, n);
+        vs_register_process_masked(k, dmc_63f41_n4_g0_p10, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0xFFFF);
         sens[n++] = &self->s_buffered_a;
-        vs_register_process(k, dmc_63f41_n4_g0_p11, self, sens, n);
+        vs_register_process_masked(k, dmc_63f41_n4_g0_p11, self, sens, masks, n);
     }
 
     {

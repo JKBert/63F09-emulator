@@ -95,6 +95,10 @@ void vs_tie_fields(vs_sig *src, unsigned src_shift, vs_sig *dst, unsigned dst_sh
     uint64_t    v = (src->cur >> src_shift) & mask;
 
     src->ties = xrealloc(src->ties, (src->nties + 1) * sizeof(*src->ties));
+    if (src->wand || dst->wand)
+    {
+        src->wand = dst->wand = 1;        /* the nets that are tied are one pad */
+    }
     src->ties[src->nties].dst = dst;
     src->ties[src->nties].dst_shift = dst_shift;
     src->ties[src->nties].src_shift = src_shift;
@@ -171,6 +175,12 @@ void vs_clock_source(vs_kernel *k, vs_sig *s, uint64_t first, uint64_t half)
     vs_timer_add(k, first, clock_tick, c);
 }
 
+void vs_pull(vs_sig *s, uint64_t mask, int low)
+{
+    s->pulled = low ? (s->pulled | mask) : (s->pulled & ~mask);
+    vs_drive(s, s->nxt);                /* the effective value is recomputed at the next commit */
+}
+
 void vs_region_add(vs_kernel *k, const char *path, uint8_t *data, size_t size)
 {
     if (k->nregions == k->cregions)
@@ -223,6 +233,7 @@ void vs_kernel_free(vs_kernel *k)
     for (i = 0; i < k->nprocs; i++)
     {
         free(k->procs[i]->sens);
+        free(k->procs[i]->masks);
         free(k->procs[i]);
     }
     for (i = 0; i < k->nnames; i++)
@@ -259,6 +270,8 @@ void vs_register_signal(vs_kernel *k, vs_sig *s, uint64_t init)
     s->dumped = 0;
     s->ties = NULL;
     s->nties = 0;
+    s->pulled = 0;
+    s->wand = 0;
     if (k->nsigs == k->csigs)
     {
         k->csigs = k->csigs ? k->csigs * 2 : 256;
@@ -267,7 +280,8 @@ void vs_register_signal(vs_kernel *k, vs_sig *s, uint64_t init)
     k->sigs[k->nsigs++] = s;
 }
 
-void vs_register_process(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, size_t nsens)
+void vs_register_process_masked(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, const uint64_t *masks,
+                                size_t nsens)
 {
     vs_proc *p = xrealloc(NULL, sizeof(*p));
 
@@ -277,12 +291,23 @@ void vs_register_process(vs_kernel *k, void (*run)(void *), void *inst, vs_sig *
     p->queued = 0;
     p->sens = xrealloc(NULL, nsens * sizeof(*p->sens));
     memcpy(p->sens, sens, nsens * sizeof(*p->sens));
+    p->masks = NULL;
+    if (masks != NULL)
+    {
+        p->masks = xrealloc(NULL, nsens * sizeof(*p->masks));
+        memcpy(p->masks, masks, nsens * sizeof(*p->masks));
+    }
     if (k->nprocs == k->cprocs)
     {
         k->cprocs = k->cprocs ? k->cprocs * 2 : 256;
         k->procs = xrealloc(k->procs, k->cprocs * sizeof(*k->procs));
     }
     k->procs[k->nprocs++] = p;
+}
+
+void vs_register_process(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, size_t nsens)
+{
+    vs_register_process_masked(k, run, inst, sens, NULL, nsens);
 }
 
 /* Builds the per-signal lists of the processes to wake, and the work areas. */
@@ -296,14 +321,16 @@ static void finalise(vs_kernel *k)
 
         for (j = 0; j < p->nsens; j++)
         {
-            vs_sig  *s = p->sens[j];
-            size_t  m;
-            int     dup = 0;
+            vs_sig      *s = p->sens[j];
+            uint64_t    mask = p->masks != NULL ? p->masks[j] : UINT64_MAX;
+            size_t      m;
+            int         dup = 0;
 
             for (m = 0; m < s->nfan; m++)
             {
-                if (s->fan[m] == p)
+                if (s->fan[m].p == p)
                 {
+                    s->fan[m].mask |= mask;     /* the same process, several bits */
                     dup = 1;
                     break;
                 }
@@ -311,7 +338,9 @@ static void finalise(vs_kernel *k)
             if (!dup)
             {
                 s->fan = xrealloc(s->fan, (s->nfan + 1) * sizeof(*s->fan));
-                s->fan[s->nfan++] = p;
+                s->fan[s->nfan].p = p;
+                s->fan[s->nfan].mask = mask;
+                s->nfan++;
             }
         }
     }
@@ -333,8 +362,12 @@ static void changed(vs_kernel *k, vs_sig *s)
     }
     for (m = 0; m < s->nfan; m++)
     {
-        vs_proc *p = s->fan[m];
+        vs_proc *p = s->fan[m].p;
 
+        if (s->fan[m].mask != UINT64_MAX && ((s->prev ^ s->cur) & s->fan[m].mask) == 0)
+        {
+            continue;           /* a bit of the signal changed, but not the one in the sensitivity list */
+        }
         if (!p->queued)
         {
             p->queued = 1;
@@ -370,14 +403,16 @@ static void commit(vs_kernel *k)
     {
         vs_sig  *s = vs_pendlist[i];
 
+        uint64_t    eff = s->nxt & ~s->pulled;
+
         s->pend = 0;
-        if (s->nxt != s->cur)
+        if (eff != s->cur)
         {
             if (!s->evt)
             {
                 s->prev = s->cur;
             }
-            s->cur = s->nxt;
+            s->cur = eff;
             changed(k, s);
         }
     }

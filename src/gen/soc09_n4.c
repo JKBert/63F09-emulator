@@ -1153,10 +1153,13 @@ void soc09_n4_create(vs_kernel *k, soc09_n4 *self, const char *path, int64_t g_n
 
     {
         vs_sig *sens[2];
+        uint64_t masks[2];
+        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
         sens[n++] = &(*self->p_rw_n);
+        masks[n] = UINT64_C(0x1);
         sens[n++] = &self->s_cs;
-        vs_register_process(k, soc09_n4_p17, self, sens, n);
+        vs_register_process_masked(k, soc09_n4_p17, self, sens, masks, n);
     }
 
     {
@@ -1177,9 +1180,12 @@ void soc09_n4_create(vs_kernel *k, soc09_n4 *self, const char *path, int64_t g_n
 
     {
         vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
+        masks[n] = UINT64_C(0xFF);
         sens[n++] = &self->s_d_mux_out.a[0];
-        vs_register_process(k, soc09_n4_p22, self, sens, n);
+        vs_register_process_masked(k, soc09_n4_p22, self, sens, masks, n);
     }
 
     {
