@@ -89,7 +89,7 @@ def fix_incv(text):
 def fix_spi_decode(text):
     """Opt-in (VHDL2C_FIX_SPI_DECODE=1) : the 63F52 has four registers (ADDR is 2 bits wide, the chip-select register is
     at +2 and +3) but SoC.vhd selects it for x"000" and x"001" only."""
-    return re.sub(r'(when x"000" \| x"001" => CS\(MUX_SPI0\) <= \'1\';)',
+    return re.sub(r'when x"000" \| x"001"(?: \| x"010" \| x"011")? => CS\(MUX_SPI0\) <= \'1\';',
                   'when x"000" | x"001" | x"002" | x"003" => CS(MUX_SPI0) <= \'1\';', text)
 
 

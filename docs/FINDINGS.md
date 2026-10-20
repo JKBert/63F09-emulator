@@ -60,14 +60,17 @@ transmitter's equivalent (`acia_tx_state`) tests `TX_RST = '1'`. Result : no cha
 `RDRF` = 0 in GHDL as well as in the emulator, at the bit times 112, 224, 448 and 896 cycles. The `echo` program
 sends nothing back for the same reason. Fix : `RX_RST = '1'`.
 
-### A0b. SoC09 : the SPI chip-select register cannot be reached
-*Status : read in `SoC.vhd`, confirmed by running a program.*
+### A0b. SoC09 : the SPI chip-select register still cannot be reached
+*Status : read in `SoC.vhd` (version of 2026-10-20), confirmed by running a program.*
 
-`SPI0` is connected with `ADDR => A(1 downto 0)` (four registers : data, control, chip-select MSB and LSB) but the
-decoder selects it for `x"000" | x"001"` only. The CPU can therefore not write `CS_REG` and the select lines `SPI_SS`
-stay at their reset value (all ones) : no slave is ever selected. With `x"002" | x"003"` added to that choice
-(`VHDL2C_FIX_SPI_DECODE=1 make gen` applies it on the temporary copy), a program that sets the divisor, selects SS0
-and sends `5A` then `3C` to the slave of `--spi-slave` gets `A5` then `B4` (see A0c).
+`SPI0` is connected with `ADDR => A(1 downto 0)` (four registers : data, control, chip-select MSB and LSB). The decoder
+now selects it for `x"000" | x"001" | x"010" | x"011"`, but bit 4 of the address is not connected to the SPI : `+0x10`
+and `+0x11` are aliases of the data and control registers (ADDR = "00" and "01"), and `+2`, `+3` (ADDR = "10" and
+"11") are not selected. The CPU can therefore still not write `CS_REG` and the select lines `SPI_SS` stay at their
+reset value (all ones) : no slave is ever selected. Either the decode should be `x"000" to x"003"` (ADDR is two
+bits wide), or the SPI needs a third address bit. `VHDL2C_FIX_SPI_DECODE=1 make gen` applies the first form on the
+temporary copy ; a program that sets the divisor, selects SS0 and sends `5A` then `3C` to the slave of `--spi-slave`
+then gets `A5` and `B4` (see A0c).
 
 ### A0c. 63F52 : the master clocks a ninth rising edge after each byte
 *Status : observed on the pins, identical in GHDL and the emulator ; to confirm with a real slave.*
