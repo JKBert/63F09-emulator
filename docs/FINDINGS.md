@@ -25,6 +25,26 @@ Program (assembled by hand, `build/acia32.elf` in the work tree) : master reset 
 To reproduce : `make cosim VHDL_DIR=... ELF=<elf with the sequence above> US=60` prints the changes of TxD of both
 simulators ; `soc63f09 --acia 0,baud=53571 --dump file` gives the internal signals (`soc.acia0.tx_*`).
 
+### A0. 63F09 : `INCV` (opcode 107C) increments Q instead of V
+*Status : found with the recompiled `hello`, identical in GHDL and the emulator ; a typo in the VHDL.*
+
+In 63F09.vhd (line 8905 of the file received), the decoder of 107C is
+
+    -- 107C : INCV immediate
+    LEFT_CTRL <= REG_Q_LEFT;          <-- should be REG_V_LEFT, as in 107A DECV
+    RIGHT_CTRL <= ONE_RIGHT;
+    ALU_CTRL <= ALU_INC;
+    ALU_WIDTH <= ALU_WIDTH_32;
+    V_CTRL <= LOAD_V;
+
+so `V := Q + 1`. The compiled `acia_puts` keeps its string pointer in V (`LDV #$FFFF0081`, then `INCV` for every
+character) : after the first character V is `0x15480081` (Q with the low part of V ... ) instead of `0xFFFF0082`,
+the second character is read at `0xF15480000`, and the ACIA receives `0xFF` for the rest of the string.
+Seen in the emulator with `--dump` (`...cpu.reg_v`: `FFFF0081` then `15480081`) and in the co-simulation. A scan of
+the decoders for `INC/DEC/TST/NEG/COM/CLR/shift` whose operand register differs from the one in the mnemonic finds no
+other case (only the comment of opcode 57, which is ASRB). Fix : `REG_Q_LEFT` to `REG_V_LEFT` in the INCV branch ;
+nothing to change in the compiler.
+
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*
 
