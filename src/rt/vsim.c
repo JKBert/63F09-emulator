@@ -177,8 +177,25 @@ void vs_clock_source(vs_kernel *k, vs_sig *s, uint64_t first, uint64_t half)
 
 void vs_pull(vs_sig *s, uint64_t mask, int low)
 {
-    s->pulled = low ? (s->pulled | mask) : (s->pulled & ~mask);
+    uint64_t    pulled = low ? (s->pulled | mask) : (s->pulled & ~mask);
+    uint32_t    m;
+
+    if (pulled == s->pulled)
+    {
+        return;
+    }
+    s->pulled = pulled;
     vs_drive(s, s->nxt);                /* the effective value is recomputed at the next commit */
+    for (m = 0; m < s->nties; m++)      /* the nets tied to the pad are the same wire : they are pulled too */
+    {
+        vs_tie      *t = &s->ties[m];
+        uint64_t    bits = (mask >> t->src_shift) & t->mask;
+
+        if (bits != 0)
+        {
+            vs_pull(t->dst, bits << t->dst_shift, low);
+        }
+    }
 }
 
 void vs_region_add(vs_kernel *k, const char *path, uint8_t *data, size_t size)

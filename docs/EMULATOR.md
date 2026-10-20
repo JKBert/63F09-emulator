@@ -73,6 +73,24 @@ write cycle time and no clock stretching. `tests/soc/twi_eeprom.py` assembles by
 (write a byte, restart, read it back) ; `make test-soc` runs it and `make cosim ELF=... ` compares it with GHDL :
 249 identical bus cycles and 178 identical changes of the I2C lines.
 
+## Pins on a Unix socket
+
+`--pins PATH[,wait]` serves the pins of the PIAs, PTMs, SPI, TWI and the interrupt inputs on a Unix domain socket
+(one peer at a time ; `wait` blocks until it connects). The protocol is made of text lines :
+
+| Direction | Line | Meaning |
+|---|---|---|
+| emulator to peer | `<ns> <pin> <0 or 1>` | the pin changed ; at connection the current level of every pin is sent |
+| peer to emulator | `<pin> <0, 1 or z>` | drives an input ; on an open-drain pad `0` pulls the line low, `1` or `z` lets it go |
+| peer to emulator | `watch <prefix>`, `unwatch <prefix>` | restricts the pins reported (default : all) |
+
+The names are `pia<0-4>.pa<0-7>` and `pia<n>.c2` (open drain), `pia<n>.c1` (input), `ptm<0-1>.o<1-3>` (output),
+`ptm<n>.c<1-3>` and `ptm<n>.g<1-3>` (inputs, active low like `C_n` and `G_n`), `spi.sclk`, `spi.mosi`, `spi.miso`,
+`spi.ss<0-15>`, `twi.sda`, `twi.scl` (open drain), `irq`, `firq`, `nmi` and `eirq<0-7>` (inputs, active low). The time
+is the simulated one. The peer is polled every microsecond of simulated time ; when it leaves, its pulls are released.
+The peer's pulls are seen by every net tied to the pad, so the wired-AND with the chip's own drive is exact.
+`tests/soc/pins_pia.py` is a worked example. The serial lines keep their own sockets (`--acia N,socket=PATH`).
+
 ## Pads
 
 An `inout` port is a signal shared by the chip and the host. The IOBUF model drives it when T is 0 ; when T is 1 it

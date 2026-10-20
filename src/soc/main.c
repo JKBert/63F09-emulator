@@ -25,6 +25,8 @@ static void usage(FILE *f)
         "                       socket=PATH replaces in/out by a Unix domain socket the emulator listens on\n"
         "                       (one peer at a time, raw bytes) ; wait blocks until a peer connects\n"
         "  --spi-slave          a SPI slave (mode 0) on SS0 that answers each byte with the previous one\n"
+        "  --pins PATH[,wait]   the pins of the PIA, PTM, SPI, TWI and the interrupt inputs on a Unix socket (text lines,\n"
+        "                       see src/soc/pins.h and docs/EMULATOR.md) ; wait blocks until a peer connects\n"
         "  --twi-eeprom ADDR    an I2C EEPROM (24C02 like, 256 bytes) with the 7-bit address ADDR on the TWI pins\n"
         "  --peek-eeprom        print the content of the EEPROM when the run ends\n"
         "  --reset-us N         RESET_n stays low N microseconds (default 5 ; the peripherals need E to run during the reset)\n"
@@ -129,6 +131,7 @@ int main(int argc, char **argv)
         { "acia", required_argument, NULL, 'a' },
         { "spi-slave", no_argument, NULL, 'S' },
         { "twi-eeprom", required_argument, NULL, 'E' },
+        { "pins", required_argument, NULL, 'I' },
         { "peek-eeprom", no_argument, NULL, 'P' },
         { "reset-us", required_argument, NULL, 'R' },
         { "ticks", required_argument, NULL, 't' },
@@ -192,6 +195,18 @@ int main(int argc, char **argv)
             case 'S':
                 cfg.spi_slave = 1;
                 break;
+            case 'I':
+            {
+                char *comma = strchr(optarg, ',');
+
+                if (comma != NULL)
+                {
+                    cfg.pins_wait = strcmp(comma + 1, "wait") == 0;
+                    *comma = '\0';
+                }
+                snprintf(cfg.pins_socket, sizeof(cfg.pins_socket), "%s", optarg);
+                break;
+            }
             case 'E':
                 cfg.twi_eeprom = 1;
                 cfg.twi_eeprom_addr = (unsigned) strtoul(optarg, NULL, 0) & 0x7F;

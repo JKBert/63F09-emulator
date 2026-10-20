@@ -11,6 +11,7 @@
 #include "soc09.h"
 #include "soc/console.h"
 #include "soc/i2c_eeprom.h"
+#include "soc/pins.h"
 #include "soc/spi_slave.h"
 #include "vsim.h"
 
@@ -51,6 +52,8 @@ typedef struct soc_cfg
     soc_serial  serial[SOC_NACIA];
     int         twi_eeprom;         /* an I2C EEPROM on the TWI pins, 0 : none */
     unsigned    twi_eeprom_addr;
+    char        pins_socket[108];   /* Unix socket for the pins of the peripherals (empty : none), see pins.h */
+    int         pins_wait;
     int         spi_slave;          /* a SPI slave on SS0 */    /* its 7-bit address */
     uint64_t    elf_offset;         /* added to the addresses of the ELF segments below 4 GiB */
     uint64_t    reset_ticks;        /* RESET_n stays low this long */
@@ -76,6 +79,7 @@ typedef struct soc
     vs_sig      spi_miso, spi_mosi, spi_ss, spi_sclk, twi_sda, twi_scl;
     i2c_eeprom  eeprom;
     spi_slave   spi;
+    pins        pins;
     console     con[SOC_NACIA];
     vs_sig      con_rx[SOC_NACIA], con_tx[SOC_NACIA];
     uint64_t    reads, writes, unmapped;

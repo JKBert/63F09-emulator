@@ -93,6 +93,13 @@ return `COUNTER(15 downto 8)` and `COUNTER(7 downto 0)`, i.e. the count multipli
 0x0040 reads back as 0x0200 truncated to 0x02 / 0x00). The 6840 returns the count itself. The emulator reproduces the
 VHDL, so a program sees the same values as on the board.
 
+### A5. 63F21 : the read multiplexer of the data port is inverted
+
+In `PIA_READ`, a bit whose `PORT_DDR` is 0 (input) returns `PORT_DATA` (the output register) and a bit whose
+`PORT_DDR` is 1 (output) returns the pad (`PORT_D_IN`). A 6821 does the opposite : an input reads the pad, an output
+reads back the output register. As written, a port configured as input can never be read, whatever the outside world
+drives. The emulator reproduces the VHDL (`tests/soc/pins_pia.py` reads the pad through an output bit).
+
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*
 

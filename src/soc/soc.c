@@ -153,6 +153,64 @@ static void release_reset(vs_kernel *k, void *arg)
     vs_drive(&((soc *) arg)->reset_n, 1);
 }
 
+/* The pins of the peripherals on a Unix socket (see pins.h). The vectors declared ascending ("0 to 4", "1 to 3")
+ * have their first element in the most significant bit. */
+static int pins_setup(soc *s)
+{
+    char    name[16];
+    int     i, k;
+
+    pins_init(&s->pins);
+    for (i = 0; i < 5; i++)
+    {
+        for (k = 0; k < 8; k++)
+        {
+            snprintf(name, sizeof(name), "pia%d.pa%d", i, k);
+            pins_add(&s->pins, name, &s->pia_port_data.a[i], (unsigned) k, PIN_OD);
+        }
+        snprintf(name, sizeof(name), "pia%d.c1", i);
+        pins_add(&s->pins, name, &s->pia_c1, (unsigned) (4 - i), PIN_IN);
+        snprintf(name, sizeof(name), "pia%d.c2", i);
+        pins_add(&s->pins, name, &s->pia_c2, (unsigned) (4 - i), PIN_OD);
+    }
+    for (i = 0; i < 2; i++)
+    {
+        for (k = 1; k <= 3; k++)
+        {
+            snprintf(name, sizeof(name), "ptm%d.o%d", i, k);
+            pins_add(&s->pins, name, &s->ptm_o.a[i], (unsigned) (3 - k), PIN_OUT);
+            snprintf(name, sizeof(name), "ptm%d.c%d", i, k);
+            pins_add(&s->pins, name, &s->ptm_c_n.a[i], (unsigned) (3 - k), PIN_IN);
+            snprintf(name, sizeof(name), "ptm%d.g%d", i, k);
+            pins_add(&s->pins, name, &s->ptm_g_n.a[i], (unsigned) (3 - k), PIN_IN);
+        }
+    }
+    pins_add(&s->pins, "spi.sclk", &s->spi_sclk, 0, PIN_OD);
+    pins_add(&s->pins, "spi.mosi", &s->spi_mosi, 0, PIN_OD);
+    pins_add(&s->pins, "spi.miso", &s->spi_miso, 0, PIN_OD);
+    for (k = 0; k < 16; k++)
+    {
+        snprintf(name, sizeof(name), "spi.ss%d", k);
+        pins_add(&s->pins, name, &s->spi_ss, (unsigned) k, PIN_OD);
+    }
+    pins_add(&s->pins, "twi.sda", &s->twi_sda, 0, PIN_OD);
+    pins_add(&s->pins, "twi.scl", &s->twi_scl, 0, PIN_OD);
+    pins_add(&s->pins, "irq", &s->irq_n, 0, PIN_IN);
+    pins_add(&s->pins, "firq", &s->firq_n, 0, PIN_IN);
+    pins_add(&s->pins, "nmi", &s->nmi_n, 0, PIN_IN);
+    for (k = 0; k < 8; k++)
+    {
+        snprintf(name, sizeof(name), "eirq%d", k);
+        pins_add(&s->pins, name, &s->ext_eirq_n, (unsigned) k, PIN_IN);
+    }
+    if (pins_listen(&s->pins, s->cfg.pins_socket, s->cfg.pins_wait) != 0)
+    {
+        return -1;
+    }
+    pins_create(&s->k, &s->pins);
+    return 0;
+}
+
 int soc_create(soc *s, const soc_cfg *c)
 {
     vs_sig  *sens[4];
@@ -212,7 +270,12 @@ int soc_create(soc *s, const soc_cfg *c)
     for (i = 0; i < 5; i++)
     {
         s->pia_port_data.a[i].wand = 1;
+        s->pia_port_data.a[i].cur = s->pia_port_data.a[i].nxt = 0xFF;      /* pulled up */
     }
+    s->pia_c2.cur = s->pia_c2.nxt = 0x1F;
+    s->spi_miso.cur = s->spi_miso.nxt = 1;
+    s->spi_mosi.cur = s->spi_mosi.nxt = 1;
+    s->spi_ss.cur = s->spi_ss.nxt = 0xFFFF;
     for (i = 0; i < 2; i++)
     {
         s->ptm_c_n.a[i].cur = s->ptm_c_n.a[i].nxt = 7;      /* external clocks idle, gates enabled (G_n = 0) */
@@ -233,6 +296,10 @@ int soc_create(soc *s, const soc_cfg *c)
     if (c->spi_slave)
     {
         spi_slave_create(&s->k, &s->spi, &s->spi_ss, &s->spi_sclk, &s->spi_mosi, &s->spi_miso);
+    }
+    if (c->pins_socket[0] != '\0' && pins_setup(s) != 0)
+    {
+        return -1;
     }
     sens[0] = &s->addr;
     sens[1] = &s->e;
@@ -291,6 +358,10 @@ void soc_destroy(soc *s)
     for (i = 0; i < s->cfg.nzones; i++)
     {
         free(s->cfg.zones[i].data);
+    }
+    if (s->cfg.pins_socket[0] != '\0')
+    {
+        pins_close(&s->pins);
     }
     for (i = 0; i < SOC_NACIA; i++)
     {

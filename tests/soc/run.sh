@@ -43,3 +43,6 @@ python3 "$here/mkelf.py" "$work/ptmirq.elf" \
 "$emu" --ncpus 1 --elf "$work/ptmirq.elf" --peek 0xF00001000:1 --ticks 12000000 > "$work/ptmirq.log"
 ! grep -q '^F00001000: 00' "$work/ptmirq.log"       # the handler ran at least once
 echo "PTM interrupt test: ok"
+
+# The pins on a Unix socket : a peer pulls PA0-PA3 of PIA 0 low, the program reads them back, the peer sees PA.
+python3 "$here/pins_pia.py" "$emu" "$work/pins"
