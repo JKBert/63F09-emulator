@@ -13,7 +13,6 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 | A1b | 63F50 receiver never leaves `start_state` | open |
 | A2 | SoC09 `CACHEABLE_EXT` undriven | to confirm |
 | A3 | reset values | by design |
-| A4 | 63F40 16-bit counter read | open |
 | B2 | `LDMD` and the first load of S | for information |
 | B3 | stall on a cache line fill after a PTM write | to investigate |
 
@@ -67,29 +66,6 @@ about two bit times later (the counter `CLK_TOGGLES` goes to `D_IN'length * 2 + 
 rising edges, shifts once too many and answers `B4` instead of `5A` to the next byte (the answer to the first byte,
 `A5`, is right). Either the extra edge belongs to the design (the last bit is sampled on it) and the slaves must
 ignore it, or the master should stop at 16 toggles.
-
-### A4. 63F40 : the 16-bit counter is read without the divide-by-8 shift
-
-The latch is never read back : the read registers (63F40.vhd, lines 1166 to 1184) return the **counter** :
-
-    1166   D_OUT <= COUNTER(1)(15 downto 8);        -- address "010", timers 2 and 3 likewise (1174, 1182)
-    1168   D_OUT <= COUNTER(1)(7 downto 0);         -- address "011"                          (1176, 1184)
-
-In 16-bit mode `COUNTER` (19 bits) holds the count in bits 18..3 : it is loaded with `LATCH_REGISTER & "000"` (lines 133,
-171, 191...) and decremented by 8 per clock. The registers return bits 15..0 of it, i.e. the count multiplied by 8 and
-truncated to 16 bits. After a latch of 0x0040 is loaded the counter reads 0x02 / 0x00 (0x0200), not 0x00 / 0x40, and a
-latch above 0x1FFF gives a wrong value. The 6840 returns the count itself : bits 18..11 and 10..3 are needed.
-
-The 8-bit (dual) mode is affected too. There `COUNTER` is the high counter in bits 18..11, the low counter in bits 10..3
-and the divide-by-8 prescaler in bits 2..0 (lines 565 to 618 : `COUNTER(18 downto 11) <= COUNTER(18 downto 11) - 1`,
-`COUNTER(10 downto 0) <= LATCH_REGISTER(7 downto 0) & "000"`). The registers return bits 15..8 and 7..0, which mix the
-five low bits of the high counter with the three high bits of the low counter, and the five low bits of the low counter
-with the prescaler : neither counter can be read. The emulator reproduces the VHDL.
-
-All three timers are affected : the read registers of timer 1 (lines 1166, 1168), timer 2 (1174, 1176) and timer 3
-(1182, 1184) are written the same way, and the `TIMER` procedure is shared. For timer 3 with its prescaler enabled
-(`CONTROL_REGISTER(3)(0) = '1'`, `IS_TIMER_3`) the counter is loaded with `LATCH_REGISTER & "111"` and decremented by 1
-instead of 8, so bits 2..0 are the prescaler : the count is still in bits 18..3 and the read is wrong in the same way.
 
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*
