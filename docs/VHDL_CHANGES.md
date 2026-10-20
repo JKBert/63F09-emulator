@@ -38,6 +38,12 @@ conditional assignment in a signal declared before the instance.
 static prefix of the name : `BANK_ARRAY` (resp. `PAYLOAD_ARRAY`). The copy lists these prefixes. Your own comment
 in 63F29.vhd already says that `CURRENT_RING` must also be listed, which it is.
 
+### c. Empty statement — `63F40`
+
+    end if;;
+
+GHDL rejects the second `;` ("extra ';' ignored" is an error), Vivado accepts it. The copy has a single `;`.
+
 ## 2. Test-only rewrite (`tools/vhdl2c/zeroinit.py`)
 
 Only for the comparison with GHDL (`make test`), never for the generator. VHDL gives `'U'` to a `std_logic` with no
