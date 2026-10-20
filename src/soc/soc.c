@@ -11,7 +11,9 @@ void soc_cfg_default(soc_cfg *c)
     /* A is 36 bits wide. Without MMU the physical address is 0xF followed by the 32 bits of the core, so a program
      * linked at 0x00000000 runs at 0xF00000000 (the external bus), the reset vector is at 0xFFFFFFFFE (the ROM). */
     c->elf_offset = UINT64_C(0xF00000000);
-    c->reset_ticks = 10 * 2 * SOC_EXTAL_HALF;       /* ten EXTAL periods */
+    /* A board holds RESET_n for far longer than the start of the PLL : the peripherals (the ACIA, the PTM...) are
+     * reset synchronously on E, which runs only once the PLL has locked. Five microseconds are enough. */
+    c->reset_ticks = 5 * 144000;
 }
 
 int soc_add_zone(soc_cfg *c, uint64_t base, uint64_t size)

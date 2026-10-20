@@ -49,6 +49,8 @@ typedef struct cpu_63f09
     vs_sig *p_reset_request_n;
     fp_unit_in_type_s s_fpu_in;
     fp_unit_out_type_s s_fpu_out;
+    vs_sig s_fpu_ready_l;
+    vs_sig s_fpu_ready_sel;
     vs_sig s_reg_ccfpu;
     vs_sig s_state;
     vs_sig s_next_state;

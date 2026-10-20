@@ -6,27 +6,45 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 
 ## A. Behaviour of the chip
 
-### A1. ACIA 63F50 : the first character written after the set-up is not transmitted
-*Status : observed, identical in GHDL and the emulator ; to examine in the VHDL.*
+### A1. ACIA 63F50 : TDRE rises before the byte is in the shift register, the next write overwrites it
+*Status : mechanism found in the signals ; identical in GHDL and the emulator ; to correct in the VHDL.*
 
-Program (assembled by hand, `build/acia32.elf` in the work tree) : master reset (`03`), divisor 13, control `15`
-(8N1, /16), then three times "wait for TDRE, write a character" with `O`, `K`, `LF`.
+With the recompiled `hello`, the line comes out as `ello from the 63F09` : the first character is lost, and so would be
+the first character after any idle period. The signals of the ACIA (`soc63f09 --dump`, names `soc.acia0.*`) show why :
 
-* The ACIA takes `O` in the transmit register (`tx_data_reg = 4F`, TDRE falls) ; some 9 us later TDRE rises again
-  (the byte went to the shift register) and the program writes `K`.
-* TxD does **not** carry a frame for `O` : only the frame of `K` appears, 8.7 us later. The third character was not
-  seen either within the 200 us simulated.
-* A test of the ACIA alone (`acia_tdre`, one write, status read at several instants) does send the frame. So the loss
-  depends on the clock relation between E (about 36 MHz, from the CPU) and SYSCLK (24 MHz) : the transmit state
-  machine, driven on the falling edge of E, does not start the frame when the data is handed over at that instant.
+    1203840  tx_data_reg = 'H'     (write by the CPU, TDRE falls)
+    2333160  txrdy = 1             TDRE rises : the transmitter is in start_state, tx_shift_ctrl = load
+    2365920  tx_data_reg = 'e'     the program saw TDRE = 1 and writes the next character
+    3682440  txdat falls           the frame that goes out is that of 'e'
+
+The transfer of `tx_data_reg` into the shift register happens one baud-clock step *after* TDRE has been set, so a
+program that writes as soon as TDRE is set (the normal way) replaces the byte that is waiting. A 6850 sets TDRE when
+the byte has entered the shift register. A fix is to set `status_txr_set` when the register is loaded (or to delay
+it by the same step).
+A test of the ACIA alone (`acia_tdre`, `acia_tx`), where nothing is written in that window, does send the frame.
+
+Other observations on the same device :
+
 * The bit time is `2 * (divisor + 1) * 16` SYSCLK cycles, i.e. `24 MHz / (32 * (divisor + 1))` (53 571 bauds for 13),
-  twice the value that the header comment suggests for "divide by 16".
+  twice what the header comment suggests for "divide by 16".
+* The transmit state machine runs a spurious frame (states 1 to 4) right after the hardware reset is released, and
+  the line has a short low pulse at that time (about 0.7 us).
 
-With the recompiled `hello` (and the INCV correction) the same loss shows : the line comes out as `ello from the
-63F09`, the first character `H` is missing.
+### A1b. ACIA 63F50 : the receiver never leaves `start_state` (inverted test)
+*Status : found in the source and checked in GHDL and in the emulator.*
 
-To reproduce : `make cosim VHDL_DIR=... ELF=<elf with the sequence above> US=60` prints the changes of TxD of both
-simulators ; `soc63f09 --acia 0,baud=53571 --dump file` gives the internal signals (`soc.acia0.tx_*`).
+In `acia_rx_state` (line 851 of 63F50.vhd)
+
+    if RX_RST = '0' then
+        rx_current_state <= start_state;
+    else
+        if RxBdEdgeFall = '1' then rx_current_state <= rx_next_state; end if;
+
+the test is inverted : the state is forced to `start_state` as long as the receiver is **not** in reset. The
+transmitter's equivalent (`acia_tx_state`) tests `TX_RST = '1'`. Result : no character is ever received, `RDRF` stays
+0. The directed test `acia_rx` of this repository (a frame 'a' at the rate of the transmitter, then status reads) shows
+`RDRF` = 0 in GHDL as well as in the emulator, at the bit times 112, 224, 448 and 896 cycles. The `echo` program
+sends nothing back for the same reason. Fix : `RX_RST = '1'`.
 
 ### A0. 63F09 : `INCV` (opcode 107C) increments Q instead of V
 *Status : found with the recompiled `hello`, identical in GHDL and the emulator ; a typo in the VHDL.*

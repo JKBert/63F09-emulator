@@ -134,9 +134,10 @@ def find_files(directory, names):
     result = {}
     for name in names:
         hits = glob.glob(os.path.join(directory, "*-%s.vhd" % name)) + glob.glob(os.path.join(directory, "%s.vhd" % name))
-        if len(hits) != 1:
-            raise AnalysisError("expected one file for %s in %s, found %d" % (name, directory, len(hits)))
-        result[name] = hits[0]
+        if not hits:
+            raise AnalysisError("no file for %s in %s" % (name, directory))
+        # a newer upload of the same source replaces the older one
+        result[name] = max(hits, key=os.path.getmtime)
     return result
 
 

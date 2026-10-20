@@ -24,6 +24,7 @@ static void usage(FILE *f)
         "                       program must set the same one in the ACIA (divider /16 : 24e6 / (32 * (div + 1)))\n"
         "                       socket=PATH replaces in/out by a Unix domain socket the emulator listens on\n"
         "                       (one peer at a time, raw bytes) ; wait blocks until a peer connects\n"
+        "  --reset-us N         RESET_n stays low N microseconds (default 5 ; the peripherals need E to run during the reset)\n"
         "  --ticks N            stop after N ticks (a tick is 1/144 ns ; default 100000000)\n"
         "  --dump FILE          write every change of every named signal\n"
         "  --peek ADDR:LEN      print LEN bytes of memory at the physical address ADDR when the run ends\n"
@@ -123,6 +124,7 @@ int main(int argc, char **argv)
         { "elf", required_argument, NULL, 'e' },
         { "elf-offset", required_argument, NULL, 'O' },
         { "acia", required_argument, NULL, 'a' },
+        { "reset-us", required_argument, NULL, 'R' },
         { "ticks", required_argument, NULL, 't' },
         { "dump", required_argument, NULL, 'd' },
         { "peek", required_argument, NULL, 'k' },
@@ -179,6 +181,9 @@ int main(int argc, char **argv)
                 break;
             case 'O':
                 cfg.elf_offset = strtoull(optarg, NULL, 0);
+                break;
+            case 'R':
+                cfg.reset_ticks = (uint64_t) (strtod(optarg, NULL) * 144000.0 + 0.5);
                 break;
             case 't':
                 cfg.max_ticks = strtoull(optarg, NULL, 0);

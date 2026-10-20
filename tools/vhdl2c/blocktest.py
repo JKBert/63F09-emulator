@@ -29,6 +29,8 @@ LEGAL_6809 = [op for op in range(256) if op not in ILLEGAL_6809 and op not in (0
 # Per block : clocks (toggled every cycle), resets (asserted at the start and now and then, the
 # value is the active level), warm-up cycles ignored in the comparison, number of cycles, and the
 # probability that an input changes from one cycle to the next.
+RX_BIT = int(os.environ.get("ACIA_RX_BIT", "448"))
+
 BLOCKS = {
     "clk_63f75": dict(clocks=["tick"], resets={"reset_n": 0}, warm=2, cycles=600, change=0.3),
     "lzc_4": dict(clocks=[], resets={}, warm=0, cycles=300, change=0.5),
@@ -77,6 +79,17 @@ BLOCKS = {
                               (30, {"cs": 1, "addr": 1, "rw_n": 0, "d_in": 0x4F}), (31, {"cs": 0, "rw_n": 1})] +
                              [(at, {"cs": 1, "addr": 0, "rw_n": 1}) for at in (33, 40, 50, 60, 80, 100, 200, 400, 800, 1000)] +
                              [(at + 1, {"cs": 0}) for at in (33, 40, 50, 60, 80, 100, 200, 400, 800, 1000)]),
+    # reception of 'a' (0x61), one bit lasts ACIA_RX_BIT SYSCLK cycles (448 = divisor 13 : the rate of the transmitter),
+    # then reads of the status register
+    "acia_rx": dict(entity="acia_63f50", clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=9000, change=0,
+                    initial={"rxd": 1, "rw_n": 1},
+                    script=[(10, {"cs": 1, "addr": 0, "rw_n": 0, "d_in": 3}), (12, {"cs": 0, "rw_n": 1}),
+                            (14, {"cs": 1, "addr": 2, "rw_n": 0, "d_in": 0}), (16, {"cs": 0, "rw_n": 1}),
+                            (18, {"cs": 1, "addr": 3, "rw_n": 0, "d_in": 13}), (20, {"cs": 0, "rw_n": 1}),
+                            (22, {"cs": 1, "addr": 0, "rw_n": 0, "d_in": 0x15}), (24, {"cs": 0, "rw_n": 1})] +
+                           [(200 + i * RX_BIT, {"rxd": lv}) for i, lv in enumerate([0] + [(0x61 >> k) & 1 for k in range(8)] + [1])] +
+                           [(at, {"cs": 1, "addr": 0, "rw_n": 1}) for at in range(500, 8800, 300)] +
+                           [(at + 1, {"cs": 0}) for at in range(500, 8800, 300)]),
     "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
     "ptm_63f40": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=6000, change=0.1),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),

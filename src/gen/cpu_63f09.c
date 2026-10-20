@@ -40,11 +40,24 @@ static void p_register_out_1(cpu_63f09 *self, vs_ref a_mask, vs_sig *a_reg_md, v
 static void p_register_right_0(cpu_63f09 *self, vs_ref a_mask, vs_sig *a_reg_md, vs_sig *a_right_ctrl, int64_t *a_size);
 static void p_bit_manipulation_postbyte_0(cpu_63f09 *self, vs_ref a_reg, vs_sig *a_mask_ctrl);
 
+static void cpu_63f09_g0_p0(void *inst)
+{
+    cpu_63f09_g0 *self = inst;
+    vs_drive(&self->up->s_fpu_ready_sel, self->up->s_fpu_out.f_fp_exe_o.f_ready.cur);
+}
+
 static void cpu_63f09_g0_create(vs_kernel *k, cpu_63f09_g0 *self, const char *path)
 {
     vs_register_signal(k, &self->x1_open_ce, (uint64_t) (0));
     vs_name(k, &self->x1_open_ce, path, "open_ce", 1);
     fp_unit_create(k, &self->c_fpu_63f39_0, vs_join(k, path, "fpu_63f39"), self->up->p_reset_n, &self->up->s_clk, &self->x1_open_ce, &self->up->s_fpu_in, &self->up->s_fpu_out);
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->up->s_fpu_out.f_fp_exe_o.f_ready;
+        vs_register_process(k, cpu_63f09_g0_p0, self, sens, n);
+    }
 }
 
 static void cpu_63f09_g1_p0(void *inst)
@@ -57,6 +70,21 @@ static void cpu_63f09_g1_p1(void *inst)
 {
     cpu_63f09_g1 *self = inst;
     fp_unit_out_type_drive(&self->up->s_fpu_out, fp_unit_out_type_get(&(*self->up->p_fpu_63f39_out)));
+}
+
+static void cpu_63f09_g1_p2(void *inst)
+{
+    cpu_63f09_g1 *self = inst;
+    if (vs_falling(&self->up->s_clk))
+    {
+        vs_drive(&self->up->s_fpu_ready_l, (*self->up->p_fpu_63f39_out).f_fp_exe_o.f_ready.cur);
+    }
+}
+
+static void cpu_63f09_g1_p3(void *inst)
+{
+    cpu_63f09_g1 *self = inst;
+    vs_drive(&self->up->s_fpu_ready_sel, self->up->s_fpu_ready_l.cur);
 }
 
 static void cpu_63f09_g1_create(vs_kernel *k, cpu_63f09_g1 *self, const char *path)
@@ -74,6 +102,20 @@ static void cpu_63f09_g1_create(vs_kernel *k, cpu_63f09_g1 *self, const char *pa
         size_t n = 0;
         n += fp_unit_out_type_leaves(&(*self->up->p_fpu_63f39_out), sens + n);
         vs_register_process(k, cpu_63f09_g1_p1, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->up->s_clk;
+        vs_register_process(k, cpu_63f09_g1_p2, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->up->s_fpu_ready_l;
+        vs_register_process(k, cpu_63f09_g1_p3, self, sens, n);
     }
 }
 
@@ -647,13 +689,13 @@ static uint64_t f_index_register_0(cpu_63f09 *self, vs_ref a_rr)
 
 static void p_execute_mem_op_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md, uint64_t a_alu_op, uint64_t a_write_result, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_cc_ctrl, vs_sig *a_a_ctrl, vs_sig *a_b_ctrl, vs_sig *a_e_ctrl, vs_sig *a_f_ctrl, vs_sig *a_v_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl, vs_sig *a_pc_ctrl, vs_sig *a_dp_ctrl, vs_sig *a_ds_ctrl)
 {
-    int64_t v_width_53904 = INT64_C(-2147483648);
+    int64_t v_width_60784 = INT64_C(-2147483648);
     vs_drive(&(*a_left_ctrl), f_register_left_0(self, &(*a_mask), &(*a_reg_md)));
     vs_drive(&(*a_right_ctrl), (UINT64_C(0x200000)));
     vs_drive(&(*a_cc_ctrl), (UINT64_C(0x2)));
-    v_width_53904 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
+    v_width_60784 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
     vs_drive(&(*a_alu_ctrl), a_alu_op);
-    switch (v_width_53904)
+    switch (v_width_60784)
     {
         case INT64_C(8):
         {
@@ -10059,7 +10101,7 @@ static void cpu_63f09_p61(void *inst)
                                     }
                                     case UINT64_C(0xC):
                                     {
-                                        vs_drive(&self->s_left_ctrl, (UINT64_C(0x8000)));
+                                        vs_drive(&self->s_left_ctrl, (UINT64_C(0x4000)));
                                         vs_drive(&self->s_right_ctrl, (UINT64_C(0x2)));
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x102)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x2)));
@@ -25082,7 +25124,7 @@ static void cpu_63f09_p61(void *inst)
         }
         case UINT64_C(0xC00000):
         {
-            if ((self->s_fpu_out.f_fp_exe_o.f_ready.cur != 1))
+            if ((self->s_fpu_ready_sel.cur != 1))
             {
                 vs_drive(&self->s_next_state, (UINT64_C(0xC00000)));
             }
@@ -25366,6 +25408,10 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
     self->p_reset_request_n = reset_request_n;
     fp_unit_in_type_register(k, &self->s_fpu_in, fp_unit_in_type_zero());
     fp_unit_out_type_register(k, &self->s_fpu_out, fp_unit_out_type_zero());
+    vs_register_signal(k, &self->s_fpu_ready_l, (uint64_t) (0));
+    vs_name(k, &self->s_fpu_ready_l, path, "fpu_ready_l", 1);
+    vs_register_signal(k, &self->s_fpu_ready_sel, (uint64_t) (0));
+    vs_name(k, &self->s_fpu_ready_sel, path, "fpu_ready_sel", 1);
     vs_register_signal(k, &self->s_reg_ccfpu, (uint64_t) (UINT64_C(0x0)));
     vs_name(k, &self->s_reg_ccfpu, path, "reg_ccfpu", 8);
     vs_register_signal(k, &self->s_state, (uint64_t) ((UINT64_C(0x101))));
@@ -26242,7 +26288,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
     }
 
     {
-        vs_sig *sens[81];
+        vs_sig *sens[82];
         size_t n = 0;
         sens[n++] = &self->s_state;
         sens[n++] = &self->s_reg_md;
@@ -26317,6 +26363,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_sync_line;
         sens[n++] = &(*self->p_halt_n);
         sens[n++] = &(*self->p_dma_breq_n);
+        sens[n++] = &self->s_fpu_ready_sel;
         n += fp_unit_out_type_leaves(&self->s_fpu_out, sens + n);
         sens[n++] = &self->s_fp_done;
         sens[n++] = &self->s_reg_fp_byte;
