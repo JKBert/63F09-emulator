@@ -115,6 +115,18 @@ PTM 0 is started with a latch of 4 and its interrupt enabled, then the core loop
 If the PTM is meant to be a real-time timer, E (or at least the clock of the timers and of the status process) must
 not depend on the bus activity ; if it is by design, software must not idle in a cached loop while waiting for a timer.
 
+**First attempt (`TIMER` on `falling_edge(SYSCLK)`) :** with that file neither loop works any more (marker 0 for A
+and for B). In `TIMER` the SYSCLK clock source is detected with `(SYSCLK /= C_n_OLD) and (SYSCLK = '1')` ; at a falling
+edge of SYSCLK, `SYSCLK = '1'` is never true, so the counter never counts. Every call of the process is now one SYSCLK
+period : the test has to go (`DECR := true` / `if true`). `VHDL2C_FIX_PTM_SYSCLK=1 make gen` applies it on the temporary
+copy. The `STATUS` process (which sets and clears the flags and builds `STATUS_REGISTER(7)` and so `IRQ_n`) also still
+runs on `falling_edge(E)` ; the same variable moves it to SYSCLK. With both changes, one core (`--ncpus 1`) : loop A
+and loop B both take the interrupt (marker 0x46 after 12 000 000 ticks), the blocks test of the PTM stays identical to
+GHDL. With two cores (the default) loop A still gets no interrupt : `EIRQ_n(21)` falls at 996000 ticks but the BAC does
+not forward it to a core (`cpu_eirq_n` never changes) while E is stopped ; loop B works. The router of the BAC
+(`process(RESET_n, EIRQ_n(i))`, which uses `SIGNAL_LAST_INTERRUPTED_CPU` and the halted state of the cores) is the next
+thing to look at. Not analysed further.
+
 ## C. Files and tools
 
 ### C1. Constructs that Vivado accepts and GHDL does not

@@ -100,10 +100,21 @@ def fix_pia_read(text):
                         "if PORT_DDR(i) = '1' then\n                        -- Input : read only data in PORT register", 1)
 
 
+def fix_ptm_sysclk(text):
+    """Opt-in (VHDL2C_FIX_PTM_SYSCLK=1) : TIMER runs on falling_edge(SYSCLK), where `SYSCLK = '1'` is never true : with
+    SYSCLK as the clock source the counter never counts. Every clock of the process is one SYSCLK period."""
+    text = text.replace("(SYSCLK /= C_n_OLD) and (SYSCLK = '1')", "true")
+    # the STATUS process also has to run without E
+    return text.replace("STATUS : process(E, RST_n) is", "STATUS : process(SYSCLK, RST_n) is").replace(
+        "            if falling_edge(E) then\n                for i in 1 to 3 loop",
+        "            if falling_edge(SYSCLK) then\n                for i in 1 to 3 loop")
+
+
 PATCHES = {
     "61F64x1": [fix_conditional_actuals],
     "63F52": [fix_conditional_actuals],
     "SoC": [fix_spi_decode] if os.environ.get("VHDL2C_FIX_SPI_DECODE") else [],
+    "63F40": [fix_ptm_sysclk] if os.environ.get("VHDL2C_FIX_PTM_SYSCLK") else [],
     "63F21": [fix_pia_read] if os.environ.get("VHDL2C_FIX_PIA_READ") else [],
     "63F09": [fix_incv] if os.environ.get("VHDL2C_FIX_INCV") else [],
     "63F29": [_static_prefix_sensitivity([
