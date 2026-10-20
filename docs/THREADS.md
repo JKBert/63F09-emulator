@@ -31,6 +31,40 @@ checks against GHDL (`COSIM_EMU` with a wrapper that adds `--threads 3`).
 
 `--threads 1` runs the partitions one after the other in the calling thread: it checks the cut without the threads.
 
+## `--ncpus` and `--threads`
+
+`--ncpus N` is the machine: the number of cores that are emulated (1 to 8). `--threads T` is how the host runs it: the
+number of threads of the process. They do not depend on each other: 8 cores can be run by 1 thread, 2 cores by 3.
+
+| `--threads` | What happens |
+|---|---|
+| 0 (default) | One kernel, one partition, one thread. The ports of a DMC are the signals of the BAC. The reference of the tests and of the measures. |
+| 1 | The cores are partitions of their own (ports tied to the signals of the BAC) but **no thread is created**: the calling thread runs the partitions one after the other. The bus trace is the same as with 0, the speed too. It checks the cut, and a snapshot made so can be restored with `--threads` > 1. |
+| T ≥ 2 | T threads in all. The calling thread runs partition 0 (the SoC), the T - 1 others share the partitions of the cores. |
+
+The partition of core c is the partition c + 1. The partitions of the cores are given to the T - 1 threads in turn: the
+partition p goes to thread 1 + (p - 1) mod (T - 1). With more threads than partitions, T becomes NCPUS + 1 (a thread has
+nothing to do otherwise). `VS_STATS=1` prints who runs what.
+
+| Command | Thread 0 | Thread 1 | Thread 2 | Others |
+|---|---|---|---|---|
+| `--ncpus 5 --threads 2` | SoC | cores 0 to 4 | | |
+| `--ncpus 7 --threads 3` | SoC | cores 0, 2, 4, 6 | cores 1, 3, 5 | |
+| `--ncpus 8 --threads 9` | SoC | core 0 | core 1 | one thread for each of the cores 2 to 7 |
+| `--ncpus 8 --threads 20` | as 9: 9 threads | | | |
+
+**`--threads 3 --ncpus 7`** : two threads for 7 cores cannot share them equally. Thread 1 runs 4 cores and thread 2 runs 3.
+A delta cycle ends when the slowest thread has finished, so thread 1 sets the pace and thread 2 waits at the barrier about
+a quarter of the time: the gain is that of 4 cores in a thread, not of 3.5. With 7 cores the useful values of `--threads` are
+2 (all the cores in one thread, parallel with the SoC), 8 (one thread per core), or 3 to 7 knowing that some threads have
+one core more than others (a divisor of the number of cores, plus 1, balances: 4 threads for 6 cores, 5 for 8 cores,
+or 3 for 4 cores).
+The result of the simulation is the same for every value (bus trace identical, checked for `--ncpus 7 --threads=3`
+among others): only the speed changes.
+
+Whatever the value, one thread needs one processor: with more threads than processors the run is much slower (the
+threads wait in the barrier, see Limits).
+
 ## What is used
 
 POSIX only for the default build: `pthread_create`/`pthread_join`, `pthread_spin_*` for the barrier (a mutex and a

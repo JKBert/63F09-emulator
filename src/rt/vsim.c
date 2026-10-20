@@ -1047,6 +1047,20 @@ int vs_threads_start(vs_kernel *k, unsigned n)
         t = 1 + (p - 1) % (n - 1);
         thr.parts[t][thr.nparts[t]++] = p;
     }
+    if (getenv("VS_STATS") != NULL)
+    {
+        for (t = 0; t < n; t++)
+        {
+            unsigned j;
+
+            fprintf(stderr, "thread %u runs the partitions", t);
+            for (j = 0; j < thr.nparts[t]; j++)
+            {
+                fprintf(stderr, " %u", thr.parts[t][j]);
+            }
+            fprintf(stderr, "\n");
+        }
+    }
     barrier_init(&thr.start, n);
     barrier_init(&thr.commit_done, n);
     for (t = 1; t < n; t++)
