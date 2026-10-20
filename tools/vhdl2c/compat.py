@@ -100,6 +100,35 @@ def fix_pia_read(text):
                         "if PORT_DDR(i) = '1' then\n                        -- Input : read only data in PORT register", 1)
 
 
+def fix_empty_statement(text):
+    """`end if;;` : GHDL rejects the empty statement (error "extra ';' ignored"), other tools accept it."""
+    return re.sub(r";;", ";", text)
+
+
+def fix_bac_eirq(text):
+    """Opt-in (VHDL2C_FIX_BAC_EIRQ=1) : the 63F81 forwards EIRQ_n to a core on falling_edge(E), and E stops when the cores
+    run from their caches : an interrupt is never delivered. Combinational routing instead."""
+    old_head = "process(RESET_n, E) is\n        begin\n            if RESET_n = '0' then\n                for i in 0 to 23 loop"
+    i = text.find(old_head)
+    if i < 0:
+        return text
+    j = text.index("end process;", i) + len("end process;")
+    new = """process(RESET_n, EIRQ_n, SIGNAL_LAST_INTERRUPTED_CPU) is
+        begin
+            for i in 0 to 23 loop
+                for j in 0 to NCPUS - 1 loop
+                    CPU_EIRQ_n(j)(i) <= '1';
+                end loop;
+            end loop;
+            if RESET_n /= '0' then
+                for i in 0 to 23 loop
+                    CPU_EIRQ_n(SIGNAL_LAST_INTERRUPTED_CPU(i + 3))(i) <= EIRQ_n(i);
+                end loop;
+            end if;
+        end process;"""
+    return text[:i] + new + text[j:]
+
+
 def fix_ptm_sysclk(text):
     """Opt-in (VHDL2C_FIX_PTM_SYSCLK=1) : TIMER runs on falling_edge(SYSCLK), where `SYSCLK = '1'` is never true : with
     SYSCLK as the clock source the counter never counts. Every clock of the process is one SYSCLK period."""
@@ -114,7 +143,8 @@ PATCHES = {
     "61F64x1": [fix_conditional_actuals],
     "63F52": [fix_conditional_actuals],
     "SoC": [fix_spi_decode] if os.environ.get("VHDL2C_FIX_SPI_DECODE") else [],
-    "63F40": [fix_ptm_sysclk] if os.environ.get("VHDL2C_FIX_PTM_SYSCLK") else [],
+    "63F40": [fix_empty_statement] + ([fix_ptm_sysclk] if os.environ.get("VHDL2C_FIX_PTM_SYSCLK") else []),
+    "63F81": [fix_bac_eirq] if os.environ.get("VHDL2C_FIX_BAC_EIRQ") else [],
     "63F21": [fix_pia_read] if os.environ.get("VHDL2C_FIX_PIA_READ") else [],
     "63F09": [fix_incv] if os.environ.get("VHDL2C_FIX_INCV") else [],
     "63F29": [_static_prefix_sensitivity([

@@ -11,7 +11,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
 
 static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n, vs_sig *a_addr, vs_sig *a_sysclk, vs_sig *a_rst_n, vs_sig *a_counter, vs_sig *a_latch_register, vs_sig *a_control_register, vs_ref a_interrupt_request, vs_ref a_c_n, vs_ref a_c_n_old, vs_ref a_g_n, vs_ref a_g_n_old, vs_ref a_o_out, vs_ref a_counter_init, vs_ref a_set_irq, vs_sig *a_stage, vs_ref a_start, vs_ref a_start_old, uint64_t a_is_timer_3, uint64_t a_soft_reset)
 {
-    uint64_t v_decr_54800 = 0;
+    uint64_t v_decr_54704 = 0;
     if ((((*a_rst_n).cur == 0) | a_soft_reset))
     {
         if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
@@ -81,31 +81,28 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             }
                             else
                             {
-                                if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
+                                if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (((*a_counter).cur == UINT64_C(0x0)))
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                     {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                        }
-                                        vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
-                                        vs_ref_drive(a_set_irq, (uint64_t)((~vs_ref_get(a_set_irq) & UINT64_C(0x1))));
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
                                     }
                                     else
                                     {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
-                                        }
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                    }
+                                    vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
+                                    vs_ref_drive(a_set_irq, (uint64_t)((~vs_ref_get(a_set_irq) & UINT64_C(0x1))));
+                                }
+                                else
+                                {
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                    {
+                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
+                                    }
+                                    else
+                                    {
+                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
                                     }
                                 }
                                 vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
@@ -176,7 +173,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                 }
                                 else
                                 {
-                                    if (((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
+                                    if (((int64_t) (*a_stage).cur == INT64_C(1)))
                                     {
                                         if (((*a_counter).cur == UINT64_C(0x0)))
                                         {
@@ -256,30 +253,27 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             }
                             else
                             {
-                                if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
+                                if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (((*a_counter).cur == UINT64_C(0x0)))
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                     {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                        }
-                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
                                     }
                                     else
                                     {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
-                                        }
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                    }
+                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                }
+                                else
+                                {
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                    {
+                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
+                                    }
+                                    else
+                                    {
+                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
                                     }
                                 }
                                 vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
@@ -334,27 +328,24 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                         }
                         if (((int64_t) (*a_stage).cur >= INT64_C(1)))
                         {
-                            v_decr_54800 = 0;
+                            v_decr_54704 = 0;
                             if ((vs_ref_get(a_interrupt_request) == 0))
                             {
                                 if (((((*a_control_register).cur >> 1) & 1) == 0))
                                 {
                                     if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
                                     {
-                                        v_decr_54800 = 1;
+                                        v_decr_54704 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                                 }
                                 else if (((((*a_control_register).cur >> 1) & 1) == 1))
                                 {
-                                    if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
-                                    {
-                                        v_decr_54800 = 1;
-                                    }
+                                    v_decr_54704 = 1;
                                     vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
                                 }
                             }
-                            if (v_decr_54800)
+                            if (v_decr_54704)
                             {
                                 if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                 {
@@ -369,7 +360,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (v_decr_54800)
+                                    if (v_decr_54704)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -388,7 +379,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
                                 {
-                                    if (v_decr_54800)
+                                    if (v_decr_54704)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -429,27 +420,24 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                         }
                         if (((int64_t) (*a_stage).cur >= INT64_C(1)))
                         {
-                            v_decr_54800 = 0;
+                            v_decr_54704 = 0;
                             if ((vs_ref_get(a_interrupt_request) == 0))
                             {
                                 if (((((*a_control_register).cur >> 1) & 1) == 0))
                                 {
                                     if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
                                     {
-                                        v_decr_54800 = 1;
+                                        v_decr_54704 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                                 }
                                 else if (((((*a_control_register).cur >> 1) & 1) == 1))
                                 {
-                                    if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
-                                    {
-                                        v_decr_54800 = 1;
-                                    }
+                                    v_decr_54704 = 1;
                                     vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
                                 }
                             }
-                            if (v_decr_54800)
+                            if (v_decr_54704)
                             {
                                 if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                 {
@@ -464,7 +452,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (v_decr_54800)
+                                    if (v_decr_54704)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -483,7 +471,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
                                 {
-                                    if (v_decr_54800)
+                                    if (v_decr_54704)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -564,49 +552,46 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             }
                             else
                             {
-                                if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
+                                if ((((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)) & ((*a_counter).cur == (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)))))
                                 {
-                                    if ((((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)) & ((*a_counter).cur == (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)))))
+                                    vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
+                                }
+                                if (((*a_counter).cur == UINT64_C(0x0)))
+                                {
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                     {
-                                        vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
-                                    }
-                                    if (((*a_counter).cur == UINT64_C(0x0)))
-                                    {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                        }
-                                        vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
-                                        vs_ref_drive(a_set_irq, (uint64_t)((~vs_ref_get(a_set_irq) & UINT64_C(0x1))));
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
                                     }
                                     else
                                     {
-                                        if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                    }
+                                    vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
+                                    vs_ref_drive(a_set_irq, (uint64_t)((~vs_ref_get(a_set_irq) & UINT64_C(0x1))));
+                                }
+                                else
+                                {
+                                    if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                    {
+                                        vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                         {
-                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
-                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                            {
-                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
-                                            }
-                                            else
-                                            {
-                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
-                                            }
+                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
                                         }
                                         else
                                         {
-                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                            {
-                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
-                                            }
-                                            else
-                                            {
-                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
-                                            }
+                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        {
+                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
+                                        }
+                                        else
+                                        {
+                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
                                         }
                                     }
                                 }
@@ -696,7 +681,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                 }
                                 else
                                 {
-                                    if (((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
+                                    if (((int64_t) (*a_stage).cur == INT64_C(1)))
                                     {
                                         if (((*a_counter).cur == UINT64_C(0x0)))
                                         {
@@ -809,44 +794,41 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             }
                             else
                             {
-                                if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
+                                if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (((*a_counter).cur == UINT64_C(0x0)))
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                     {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                        }
-                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
                                     }
                                     else
                                     {
-                                        if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                    }
+                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                }
+                                else
+                                {
+                                    if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                    {
+                                        vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                         {
-                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
-                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                            {
-                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
-                                            }
-                                            else
-                                            {
-                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
-                                            }
+                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
                                         }
                                         else
                                         {
-                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                            {
-                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
-                                            }
-                                            else
-                                            {
-                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
-                                            }
+                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        {
+                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
+                                        }
+                                        else
+                                        {
+                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
                                         }
                                     }
                                 }
@@ -902,27 +884,24 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                         }
                         if (((int64_t) (*a_stage).cur >= INT64_C(1)))
                         {
-                            v_decr_54800 = 0;
+                            v_decr_54704 = 0;
                             if ((vs_ref_get(a_interrupt_request) == 0))
                             {
                                 if (((((*a_control_register).cur >> 1) & 1) == 0))
                                 {
                                     if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
                                     {
-                                        v_decr_54800 = 1;
+                                        v_decr_54704 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                                 }
                                 else if (((((*a_control_register).cur >> 1) & 1) == 1))
                                 {
-                                    if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
-                                    {
-                                        v_decr_54800 = 1;
-                                    }
+                                    v_decr_54704 = 1;
                                     vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
                                 }
                             }
-                            if (v_decr_54800)
+                            if (v_decr_54704)
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
@@ -967,7 +946,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (v_decr_54800)
+                                    if (v_decr_54704)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -986,7 +965,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
                                 {
-                                    if (v_decr_54800)
+                                    if (v_decr_54704)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -1027,27 +1006,24 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                         }
                         if (((int64_t) (*a_stage).cur >= INT64_C(1)))
                         {
-                            v_decr_54800 = 0;
+                            v_decr_54704 = 0;
                             if ((vs_ref_get(a_interrupt_request) == 0))
                             {
                                 if (((((*a_control_register).cur >> 1) & 1) == 0))
                                 {
                                     if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
                                     {
-                                        v_decr_54800 = 1;
+                                        v_decr_54704 = 1;
                                     }
                                     vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                                 }
                                 else if (((((*a_control_register).cur >> 1) & 1) == 1))
                                 {
-                                    if ((((*a_sysclk).cur != vs_ref_get(a_c_n_old)) & ((*a_sysclk).cur == 1)))
-                                    {
-                                        v_decr_54800 = 1;
-                                    }
+                                    v_decr_54704 = 1;
                                     vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
                                 }
                             }
-                            if (v_decr_54800)
+                            if (v_decr_54704)
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
@@ -1092,7 +1068,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if (((*a_counter).cur == UINT64_C(0x0)))
                                 {
-                                    if (v_decr_54800)
+                                    if (v_decr_54704)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -1111,7 +1087,7 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                             {
                                 if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
                                 {
-                                    if (v_decr_54800)
+                                    if (v_decr_54704)
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)((~vs_ref_get(a_o_out) & UINT64_C(0x1))));
                                     }
@@ -1200,7 +1176,7 @@ static void ptm_63f40_p5(void *inst)
     }
     else
     {
-        if (vs_falling(&(*self->p_e)))
+        if (vs_falling(&(*self->p_sysclk)))
         {
             for (int64_t i_1 = INT64_C(1); i_1 <= INT64_C(3); i_1++)
             {
@@ -1518,7 +1494,7 @@ void ptm_63f40_create(vs_kernel *k, ptm_63f40 *self, const char *path, vs_sig *e
     {
         vs_sig *sens[2];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
+        sens[n++] = &(*self->p_sysclk);
         sens[n++] = &(*self->p_rst_n);
         vs_register_process(k, ptm_63f40_p5, self, sens, n);
     }

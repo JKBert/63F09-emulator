@@ -14,7 +14,7 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 | A2 | SoC09 `CACHEABLE_EXT` undriven | to confirm |
 | A3 | reset values | by design |
 | B2 | `LDMD` and the first load of S | for information |
-| B3 | E stops in a cached loop, the PTM stops | to confirm |
+| B3 | E stops in a cached loop : PTM fixed, EIRQ routing of the BAC (2+ cores) open | open |
 
 ## A. Behaviour of the chip
 
@@ -115,22 +115,23 @@ PTM 0 is started with a latch of 4 and its interrupt enabled, then the core loop
 If the PTM is meant to be a real-time timer, E (or at least the clock of the timers and of the status process) must
 not depend on the bus activity ; if it is by design, software must not idle in a cached loop while waiting for a timer.
 
-**First attempt (`TIMER` on `falling_edge(SYSCLK)`) :** with that file neither loop works any more (marker 0 for A
-and for B). In `TIMER` the SYSCLK clock source is detected with `(SYSCLK /= C_n_OLD) and (SYSCLK = '1')` ; at a falling
-edge of SYSCLK, `SYSCLK = '1'` is never true, so the counter never counts. Every call of the process is now one SYSCLK
-period : the test has to go (`DECR := true` / `if true`). `VHDL2C_FIX_PTM_SYSCLK=1 make gen` applies it on the temporary
-copy. The `STATUS` process (which sets and clears the flags and builds `STATUS_REGISTER(7)` and so `IRQ_n`) also still
-runs on `falling_edge(E)` ; the same variable moves it to SYSCLK. With both changes, one core (`--ncpus 1`) : loop A
-and loop B both take the interrupt (marker 0x46 after 12 000 000 ticks), the blocks test of the PTM stays identical to
-GHDL. With two cores (the default) loop A still gets no interrupt : `EIRQ_n(21)` falls at 996000 ticks but the BAC does
-not forward it to a core (`cpu_eirq_n` never changes) while E is stopped ; loop B works. The router of the BAC
-(`process(RESET_n, EIRQ_n(i))`, which uses `SIGNAL_LAST_INTERRUPTED_CPU` and the halted state of the cores) is the next
-thing to look at. Not analysed further.
+**Status of the correction (63F40.vhd of 2026-10-20, `TIMER` and `STATUS` on `falling_edge(SYSCLK)`, the SYSCLK edge
+test removed) :** the PTM now counts without E. With one core (`--ncpus 1`) loop A and loop B both take the interrupt
+(marker 0x46 after 12 000 000 ticks) ; the block test of the PTM is identical to GHDL.
+
+*Still open : with two cores (the default) and more, loop A gets no interrupt* (marker 0, loop B works) : `EIRQ_n(21)`
+falls but the 63F81 forwards `EIRQ_n` to a core in a process clocked on `falling_edge(E)` (the one that fills
+`CPU_EIRQ_n(j)(i)` from `SIGNAL_LAST_INTERRUPTED_CPU(i + 3)`, after the `EIRQ_SWITCH_MATRIX`), and E is stopped. Routing
+it combinationally (`process(RESET_n, EIRQ_n, SIGNAL_LAST_INTERRUPTED_CPU)` : all `CPU_EIRQ_n` to '1', then the chosen
+core gets `EIRQ_n(i)`) gives marker 0x46 on 1, 2 and 4 cores for both loops, and the co-simulation stays identical to
+GHDL (`VHDL2C_FIX_BAC_EIRQ=1 make gen` applies it on the temporary copy). The processes of IRQ and FIRQ (lines 777 to 827
+of 63F81.vhd) are clocked on the edge of `IRQ_n` / `FIRQ_n` themselves and were not looked at.
 
 ## C. Files and tools
 
 ### C1. Constructs that Vivado accepts and GHDL does not
-Conditional expression as a port actual (61F64x1, 63F52) and non-static name in a sensitivity list (63F29) :
+Conditional expression as a port actual (61F64x1, 63F52), non-static name in a sensitivity list (63F29) and an empty
+statement `end if;;` (63F40, line 199 of the 2026-10-20 version : GHDL reports "extra ';' ignored" as an error) :
 rewritten on temporary copies, see `docs/VHDL_CHANGES.md`.
 
 ### C2. `DMA_63F44` is an empty shell
