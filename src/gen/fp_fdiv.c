@@ -611,9 +611,12 @@ static void fp_fdiv_g0_create(vs_kernel *k, fp_fdiv_g0 *self, const char *path)
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 1;
         sens[n++] = &(*self->up->p_clock);
-        vs_register_process(k, fp_fdiv_g0_p2, self, sens, n);
+        vs_register_process_edges(k, fp_fdiv_g0_p2, self, sens, NULL, edges, n);
     }
 }
 
@@ -881,9 +884,12 @@ static void fp_fdiv_g1_create(vs_kernel *k, fp_fdiv_g1 *self, const char *path)
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 1;
         sens[n++] = &(*self->up->p_clock);
-        vs_register_process(k, fp_fdiv_g1_p5, self, sens, n);
+        vs_register_process_edges(k, fp_fdiv_g1_p5, self, sens, NULL, edges, n);
     }
 }
 

@@ -53,6 +53,7 @@ typedef struct vs_fan
 {
     struct vs_proc  *p;
     uint64_t        mask;
+    uint8_t         edge;       /* 0 : every event, 1 : only when the signal becomes 1, 2 : only when it becomes 0 */
 } vs_fan;
 
 typedef struct vs_proc
@@ -61,6 +62,7 @@ typedef struct vs_proc
     void            *inst;
     vs_sig          **sens;
     uint64_t        *masks;     /* per entry of sens, NULL : all the bits */
+    uint8_t         *edges;     /* per entry of sens, NULL : every event (see vs_fan) */
     size_t          nsens;
     uint8_t         queued;
 } vs_proc;
@@ -138,6 +140,9 @@ void    vs_dump(vs_kernel *k, FILE *f, long phase);
 /* Registration, done while the design is built. */
 void    vs_register_signal(vs_kernel *k, vs_sig *s, uint64_t init);
 void    vs_register_process_masked(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, const uint64_t *masks, size_t nsens);
+/* The process only looks at the rising (edges[j] = 1) or falling (2) edges of sens[j], never at its level : it is not woken
+ * for the other edge. `masks` may be NULL. */
+void    vs_register_process_edges(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, const uint64_t *masks, const uint8_t *edges, size_t nsens);
 void    vs_register_process(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, size_t nsens);
 
 /* Timed callbacks. vs_advance moves the time to the earliest timer, runs the timers due then and settles the

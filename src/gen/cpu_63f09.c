@@ -106,9 +106,12 @@ static void cpu_63f09_g1_create(vs_kernel *k, cpu_63f09_g1 *self, const char *pa
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->up->s_clk;
-        vs_register_process(k, cpu_63f09_g1_p2, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_g1_p2, self, sens, NULL, edges, n);
     }
 
     {
@@ -689,13 +692,13 @@ static uint64_t f_index_register_0(cpu_63f09 *self, vs_ref a_rr)
 
 static void p_execute_mem_op_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md, uint64_t a_alu_op, uint64_t a_write_result, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_cc_ctrl, vs_sig *a_a_ctrl, vs_sig *a_b_ctrl, vs_sig *a_e_ctrl, vs_sig *a_f_ctrl, vs_sig *a_v_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl, vs_sig *a_pc_ctrl, vs_sig *a_dp_ctrl, vs_sig *a_ds_ctrl)
 {
-    int64_t v_width_60688 = INT64_C(-2147483648);
+    int64_t v_width_8432 = INT64_C(-2147483648);
     vs_drive(&(*a_left_ctrl), f_register_left_0(self, &(*a_mask), &(*a_reg_md)));
     vs_drive(&(*a_right_ctrl), (UINT64_C(0x200000)));
     vs_drive(&(*a_cc_ctrl), (UINT64_C(0x2)));
-    v_width_60688 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
+    v_width_8432 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
     vs_drive(&(*a_alu_ctrl), a_alu_op);
-    switch (v_width_60688)
+    switch (v_width_8432)
     {
         case INT64_C(8):
         {
@@ -25767,9 +25770,12 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p0, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p0, self, sens, NULL, edges, n);
     }
 
     {
@@ -25781,9 +25787,12 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p2, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p2, self, sens, NULL, edges, n);
     }
 
     {
@@ -25805,107 +25814,152 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p5, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p5, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p6, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p6, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p7, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p7, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p8, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p8, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p9, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p9, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p10, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p10, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p11, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p11, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p12, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p12, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p13, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p13, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p14, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p14, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p15, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p15, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p16, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p16, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p17, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p17, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p18, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p18, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p19, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p19, self, sens, NULL, edges, n);
     }
 
     {
@@ -25919,9 +25973,12 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p21, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p21, self, sens, NULL, edges, n);
     }
 
     {
@@ -25940,152 +25997,215 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p23, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p23, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p24, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p24, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p25, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p25, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p26, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p26, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p27, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p27, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p28, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p28, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->p_reset_n);
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p29, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p29, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p30, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p30, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p31, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p31, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p32, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p32, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p33, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p33, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p34, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p34, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p35, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p35, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p36, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p36, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p37, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p37, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[4];
+        uint8_t edges[4];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
         n += internal_stack_type_leaves(&self->s_state_stack, sens + n);
-        vs_register_process(k, cpu_63f09_p38, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p38, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p39, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p39, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->p_reset_n);
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p40, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p40, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p41, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p41, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p42, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p42, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p43, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p43, self, sens, NULL, edges, n);
     }
 
     {
@@ -26102,9 +26222,12 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p45, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p45, self, sens, NULL, edges, n);
     }
 
     {
@@ -26135,9 +26258,12 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p47, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p47, self, sens, NULL, edges, n);
     }
 
     {
@@ -26216,9 +26342,12 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p52, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p52, self, sens, NULL, edges, n);
     }
 
     {
@@ -26247,9 +26376,12 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p55, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p55, self, sens, NULL, edges, n);
     }
 
     {
@@ -26265,16 +26397,22 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p57, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p57, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p58, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p58, self, sens, NULL, edges, n);
     }
 
     {
@@ -26287,9 +26425,12 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process(k, cpu_63f09_p60, self, sens, n);
+        vs_register_process_edges(k, cpu_63f09_p60, self, sens, NULL, edges, n);
     }
 
     {

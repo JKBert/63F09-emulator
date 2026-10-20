@@ -752,7 +752,10 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
         vs_sig *sens[11];
         uint64_t masks[11];
         { size_t j; for (j = 0; j < 11; j++) { masks[j] = UINT64_MAX; } }
+        uint8_t edges[11];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_rst_n);
         sens[n++] = &(*self->p_cs);
@@ -766,45 +769,55 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
         sens[n++] = &self->s_cc_reg;
         masks[n] = UINT64_C(0x80);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_p8, self, sens, masks, n);
+        vs_register_process_edges(k, spi_63f52_p8, self, sens, masks, edges, n);
     }
 
     {
         vs_sig *sens[4];
         uint64_t masks[4];
         { size_t j; for (j = 0; j < 4; j++) { masks[j] = UINT64_MAX; } }
+        uint8_t edges[4];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &(*self->p_rst_n);
         masks[n] = UINT64_C(0x40);
         sens[n++] = &self->s_cc_reg;
         masks[n] = UINT64_C(0x80);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_p9, self, sens, masks, n);
+        vs_register_process_edges(k, spi_63f52_p9, self, sens, masks, edges, n);
     }
 
     {
         vs_sig *sens[3];
+        uint8_t edges[3];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &self->s_ss_n;
         sens[n++] = &(*self->p_rst_n);
+        edges[n] = 2;
         sens[n++] = &self->s_slave_clock_n;
-        vs_register_process(k, spi_63f52_p10, self, sens, n);
+        vs_register_process_edges(k, spi_63f52_p10, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[5];
         uint64_t masks[5];
         { size_t j; for (j = 0; j < 5; j++) { masks[j] = UINT64_MAX; } }
+        uint8_t edges[5];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &self->s_slave_clock;
+        edges[n] = 2;
         sens[n++] = &self->s_slave_clock_n;
         sens[n++] = &(*self->p_rst_n);
         masks[n] = UINT64_C(0x40);
         sens[n++] = &self->s_cc_reg;
         masks[n] = UINT64_C(0x80);
         sens[n++] = &self->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_p11, self, sens, masks, n);
+        vs_register_process_edges(k, spi_63f52_p11, self, sens, masks, edges, n);
     }
 }
 

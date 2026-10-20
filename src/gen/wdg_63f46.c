@@ -217,29 +217,38 @@ void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->p_rst_n);
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, wdg_63f46_p2, self, sens, n);
+        vs_register_process_edges(k, wdg_63f46_p2, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->p_rst_n);
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, wdg_63f46_p3, self, sens, n);
+        vs_register_process_edges(k, wdg_63f46_p3, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[5];
+        uint8_t edges[5];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_rst_n);
         sens[n++] = &(*self->p_cs);
         sens[n++] = &(*self->p_addr);
         sens[n++] = &(*self->p_rw_n);
-        vs_register_process(k, wdg_63f46_p4, self, sens, n);
+        vs_register_process_edges(k, wdg_63f46_p4, self, sens, NULL, edges, n);
     }
 }
 

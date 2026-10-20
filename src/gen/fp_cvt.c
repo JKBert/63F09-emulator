@@ -467,9 +467,12 @@ void fp_cvt_create(vs_kernel *k, fp_cvt *self, const char *path, vs_sig *clock, 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 1;
         sens[n++] = &(*self->p_clock);
-        vs_register_process(k, fp_cvt_p3, self, sens, n);
+        vs_register_process_edges(k, fp_cvt_p3, self, sens, NULL, edges, n);
     }
 
     {

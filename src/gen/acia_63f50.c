@@ -1278,16 +1278,22 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, acia_63f50_p2, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p2, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, acia_63f50_p3, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p3, self, sens, NULL, edges, n);
     }
 
     {
@@ -1307,24 +1313,33 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_rst_n);
-        vs_register_process(k, acia_63f50_p6, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p6, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_e);
-        vs_register_process(k, acia_63f50_p7, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p7, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, acia_63f50_p8, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p8, self, sens, NULL, edges, n);
     }
 
     {
@@ -1422,37 +1437,52 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, acia_63f50_p19, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p19, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, acia_63f50_p20, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p20, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, acia_63f50_p21, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p21, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, acia_63f50_p22, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p22, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, acia_63f50_p23, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p23, self, sens, NULL, edges, n);
     }
 
     {
@@ -1466,66 +1496,87 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_ac_rst;
-        vs_register_process(k, acia_63f50_p25, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p25, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_ac_rst;
-        vs_register_process(k, acia_63f50_p26, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p26, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_rx_rst;
-        vs_register_process(k, acia_63f50_p27, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p27, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[4];
+        uint8_t edges[4];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_rx_rst;
         sens[n++] = &self->s_rxd_i;
         sens[n++] = &self->s_rxddel;
-        vs_register_process(k, acia_63f50_p28, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p28, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[4];
+        uint8_t edges[4];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_rx_rst;
         sens[n++] = &self->s_rxdedge;
         sens[n++] = &self->s_rxcedge;
-        vs_register_process(k, acia_63f50_p29, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p29, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[4];
+        uint8_t edges[4];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_cr_s;
         sens[n++] = &self->s_rxc;
         sens[n++] = &self->s_rxclkcnt;
-        vs_register_process(k, acia_63f50_p30, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p30, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[4];
+        uint8_t edges[4];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_rx_rst;
         sens[n++] = &self->s_rxbdclk;
         sens[n++] = &self->s_rxbddel;
-        vs_register_process(k, acia_63f50_p31, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p31, self, sens, NULL, edges, n);
     }
 
     {
@@ -1543,30 +1594,39 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, acia_63f50_p33, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p33, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[6];
+        uint8_t edges[6];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_rx_rst;
         sens[n++] = &self->s_rxbdedgerise;
         sens[n++] = &self->s_rx_shift_reg;
         sens[n++] = &self->s_rxd_i;
         sens[n++] = &self->s_rx_parity;
-        vs_register_process(k, acia_63f50_p34, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p34, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[3];
+        uint8_t edges[3];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_rx_rst;
         sens[n++] = &self->s_rx_shift_reg;
-        vs_register_process(k, acia_63f50_p35, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p35, self, sens, NULL, edges, n);
     }
 
     {
@@ -1581,37 +1641,49 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_tx_rst;
-        vs_register_process(k, acia_63f50_p37, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p37, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_tx_rst;
-        vs_register_process(k, acia_63f50_p38, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p38, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[5];
+        uint8_t edges[5];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_cr_s;
         sens[n++] = &self->s_txdat;
         sens[n++] = &self->s_txc;
         sens[n++] = &self->s_txclkcnt;
-        vs_register_process(k, acia_63f50_p39, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p39, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_tx_rst;
-        vs_register_process(k, acia_63f50_p40, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p40, self, sens, NULL, edges, n);
     }
 
     {
@@ -1628,22 +1700,28 @@ void acia_63f50_create(vs_kernel *k, acia_63f50 *self, const char *path, vs_sig 
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_tx_rst;
-        vs_register_process(k, acia_63f50_p42, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p42, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[6];
+        uint8_t edges[6];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
         sens[n++] = &self->s_txbdedgefall;
         sens[n++] = &self->s_tx_shift_ctrl;
         sens[n++] = &self->s_tx_data_reg;
         sens[n++] = &self->s_tx_shift_reg;
         sens[n++] = &self->s_tx_parity;
-        vs_register_process(k, acia_63f50_p43, self, sens, n);
+        vs_register_process_edges(k, acia_63f50_p43, self, sens, NULL, edges, n);
     }
 }
 

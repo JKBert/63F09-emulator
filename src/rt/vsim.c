@@ -353,8 +353,8 @@ void vs_register_signal(vs_kernel *k, vs_sig *s, uint64_t init)
     k->sigs[k->nsigs++] = s;
 }
 
-void vs_register_process_masked(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, const uint64_t *masks,
-                                size_t nsens)
+void vs_register_process_edges(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, const uint64_t *masks,
+                               const uint8_t *edges, size_t nsens)
 {
     vs_proc *p = xrealloc(NULL, sizeof(*p));
 
@@ -365,6 +365,12 @@ void vs_register_process_masked(vs_kernel *k, void (*run)(void *), void *inst, v
     p->sens = xrealloc(NULL, nsens * sizeof(*p->sens));
     memcpy(p->sens, sens, nsens * sizeof(*p->sens));
     p->masks = NULL;
+    p->edges = NULL;
+    if (edges != NULL)
+    {
+        p->edges = xrealloc(NULL, nsens * sizeof(*p->edges));
+        memcpy(p->edges, edges, nsens * sizeof(*p->edges));
+    }
     if (masks != NULL)
     {
         p->masks = xrealloc(NULL, nsens * sizeof(*p->masks));
@@ -376,6 +382,12 @@ void vs_register_process_masked(vs_kernel *k, void (*run)(void *), void *inst, v
         k->procs = xrealloc(k->procs, k->cprocs * sizeof(*k->procs));
     }
     k->procs[k->nprocs++] = p;
+}
+
+void vs_register_process_masked(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, const uint64_t *masks,
+                                size_t nsens)
+{
+    vs_register_process_edges(k, run, inst, sens, masks, NULL, nsens);
 }
 
 void vs_register_process(vs_kernel *k, void (*run)(void *), void *inst, vs_sig **sens, size_t nsens)
@@ -396,6 +408,7 @@ static void finalise(vs_kernel *k)
         {
             vs_sig      *s = p->sens[j];
             uint64_t    mask = p->masks != NULL ? p->masks[j] : UINT64_MAX;
+            uint8_t     edge = p->edges != NULL ? p->edges[j] : 0;
             size_t      m;
             int         dup = 0;
 
@@ -404,6 +417,10 @@ static void finalise(vs_kernel *k)
                 if (s->fan[m].p == p)
                 {
                     s->fan[m].mask |= mask;     /* the same process, several bits */
+                    if (s->fan[m].edge != edge)
+                    {
+                        s->fan[m].edge = 0;
+                    }
                     dup = 1;
                     break;
                 }
@@ -413,6 +430,7 @@ static void finalise(vs_kernel *k)
                 s->fan = xrealloc(s->fan, (s->nfan + 1) * sizeof(*s->fan));
                 s->fan[s->nfan].p = p;
                 s->fan[s->nfan].mask = mask;
+                s->fan[s->nfan].edge = edge;
                 s->nfan++;
             }
         }
@@ -440,6 +458,10 @@ static void changed(vs_kernel *k, vs_sig *s)
         if (s->fan[m].mask != UINT64_MAX && ((s->prev ^ s->cur) & s->fan[m].mask) == 0)
         {
             continue;           /* a bit of the signal changed, but not the one in the sensitivity list */
+        }
+        if (s->fan[m].edge != 0 && ((s->cur & 1) == 1) != (s->fan[m].edge == 1))
+        {
+            continue;           /* the process only looks at the other edge */
         }
         if (!p->queued)
         {
@@ -532,14 +554,14 @@ uint64_t vs_settle(vs_kernel *k)
         size_t  n = k->nrun;
 
         k->nrun = 0;
+        /* Processes see the events of the previous commit while they run. Nothing is queued while they run (queueing is
+         * done by commit), so the flag of a process can be cleared just before it runs. */
         for (i = 0; i < n; i++)
         {
-            k->runq[i]->queued = 0;
-        }
-        /* Processes see the events of the previous commit while they run. */
-        for (i = 0; i < n; i++)
-        {
-            k->runq[i]->run(k->runq[i]->inst);
+            vs_proc *p = k->runq[i];
+
+            p->queued = 0;
+            p->run(p->inst);
         }
         clear_events(k);
         k->deltas++;

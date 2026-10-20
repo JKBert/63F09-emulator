@@ -652,10 +652,13 @@ static void dmc_63f41_n4_g6_create(vs_kernel *k, dmc_63f41_n4_g6 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g6_p2, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g6_p2, self, sens, NULL, edges, n);
     }
 
     {
@@ -1360,10 +1363,13 @@ static void dmc_63f41_n4_g9_create(vs_kernel *k, dmc_63f41_n4_g9 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->up->up->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->up->up->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g9_p16, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g9_p16, self, sens, NULL, edges, n);
     }
 }
 
@@ -2558,10 +2564,13 @@ static void dmc_63f41_n4_g7_create(vs_kernel *k, dmc_63f41_n4_g7 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g7_p19, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g7_p19, self, sens, NULL, edges, n);
     }
 
     {
@@ -2643,19 +2652,25 @@ static void dmc_63f41_n4_g7_create(vs_kernel *k, dmc_63f41_n4_g7 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g7_p28, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g7_p28, self, sens, NULL, edges, n);
     }
     vs_register_process(k, dmc_63f41_n4_g7_p29, self, NULL, 0);
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g7_p30, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g7_p30, self, sens, NULL, edges, n);
     }
 
     {
@@ -2687,10 +2702,13 @@ static void dmc_63f41_n4_g7_create(vs_kernel *k, dmc_63f41_n4_g7 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g7_p34, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g7_p34, self, sens, NULL, edges, n);
     }
 
     {
@@ -2712,10 +2730,13 @@ static void dmc_63f41_n4_g7_create(vs_kernel *k, dmc_63f41_n4_g7 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g7_p37, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g7_p37, self, sens, NULL, edges, n);
     }
 
     {
@@ -2750,10 +2771,13 @@ static void dmc_63f41_n4_g7_create(vs_kernel *k, dmc_63f41_n4_g7 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->up->p_rw_n);
-        vs_register_process(k, dmc_63f41_n4_g7_p42, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g7_p42, self, sens, NULL, edges, n);
     }
     vs_register_process(k, dmc_63f41_n4_g7_p43, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n4_g7_p44, self, NULL, 0);
@@ -4202,10 +4226,13 @@ static void dmc_63f41_n4_g0_create(vs_kernel *k, dmc_63f41_n4_g0 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g0_p0, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g0_p0, self, sens, NULL, edges, n);
     }
 
     {
@@ -4272,10 +4299,13 @@ static void dmc_63f41_n4_g0_create(vs_kernel *k, dmc_63f41_n4_g0 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g0_p8, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g0_p8, self, sens, NULL, edges, n);
     }
 
     {
@@ -4331,10 +4361,13 @@ static void dmc_63f41_n4_g0_create(vs_kernel *k, dmc_63f41_n4_g0 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g0_p15, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g0_p15, self, sens, NULL, edges, n);
     }
 
     {
@@ -4404,26 +4437,35 @@ static void dmc_63f41_n4_g0_create(vs_kernel *k, dmc_63f41_n4_g0 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g0_p24, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g0_p24, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g0_p25, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g0_p25, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g0_p26, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g0_p26, self, sens, NULL, edges, n);
     }
 
     {
@@ -4449,10 +4491,13 @@ static void dmc_63f41_n4_g0_create(vs_kernel *k, dmc_63f41_n4_g0 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g0_p29, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g0_p29, self, sens, NULL, edges, n);
     }
 
     {
@@ -4532,10 +4577,13 @@ static void dmc_63f41_n4_g0_create(vs_kernel *k, dmc_63f41_n4_g0 *self, const ch
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process(k, dmc_63f41_n4_g0_p33, self, sens, n);
+        vs_register_process_edges(k, dmc_63f41_n4_g0_p33, self, sens, NULL, edges, n);
     }
 
     {

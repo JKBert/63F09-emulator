@@ -44,10 +44,13 @@ void clk_63f75_create(vs_kernel *k, clk_63f75 *self, const char *path, vs_sig *r
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->p_reset_n);
+        edges[n] = 1;
         sens[n++] = &(*self->p_tick);
-        vs_register_process(k, clk_63f75_p0, self, sens, n);
+        vs_register_process_edges(k, clk_63f75_p0, self, sens, NULL, edges, n);
     }
 }
 

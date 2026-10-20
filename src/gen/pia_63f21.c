@@ -446,10 +446,13 @@ void pia_63f21_create(vs_kernel *k, pia_63f21 *self, const char *path, vs_sig *e
 
     {
         vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_reset_n);
-        vs_register_process(k, pia_63f21_p2, self, sens, n);
+        vs_register_process_edges(k, pia_63f21_p2, self, sens, NULL, edges, n);
     }
 
     {
@@ -478,9 +481,12 @@ void pia_63f21_create(vs_kernel *k, pia_63f21 *self, const char *path, vs_sig *e
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, pia_63f21_p5, self, sens, n);
+        vs_register_process_edges(k, pia_63f21_p5, self, sens, NULL, edges, n);
     }
 
     {
@@ -495,9 +501,12 @@ void pia_63f21_create(vs_kernel *k, pia_63f21 *self, const char *path, vs_sig *e
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_sysclk);
-        vs_register_process(k, pia_63f21_p7, self, sens, n);
+        vs_register_process_edges(k, pia_63f21_p7, self, sens, NULL, edges, n);
     }
 
     {
@@ -526,20 +535,26 @@ void pia_63f21_create(vs_kernel *k, pia_63f21 *self, const char *path, vs_sig *e
 
     {
         vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_e);
-        vs_register_process(k, pia_63f21_p11, self, sens, n);
+        vs_register_process_edges(k, pia_63f21_p11, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[5];
+        uint8_t edges[5];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
+        edges[n] = 2;
         sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_reset_n);
         sens[n++] = &self->s_port_ctrl;
         sens[n++] = &self->s_port_read;
         sens[n++] = &self->s_c1_edge_e;
-        vs_register_process(k, pia_63f21_p12, self, sens, n);
+        vs_register_process_edges(k, pia_63f21_p12, self, sens, NULL, edges, n);
     }
 
     {

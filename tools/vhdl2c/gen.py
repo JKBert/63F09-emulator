@@ -8,6 +8,7 @@ generics are fields of the instance, so the generate statements run when the des
 """
 
 import os
+import re
 import sys
 
 import frontend
@@ -770,13 +771,18 @@ class EntityGen(Translator):
             if sens:
                 total = sum(leaf_count(ct) for ptr, ct, mask in sens)
                 masked = any(mask for ptr, ct, mask in sens)
+                edges = [edge_of(body, ptr, ct, mask) for ptr, ct, mask in sens]
+                edged = any(edges)
                 o.open("")
                 o.line("vs_sig *sens[%d];" % total)
                 if masked:
                     o.line("uint64_t masks[%d];" % total)
                     o.line("{ size_t j; for (j = 0; j < %d; j++) { masks[j] = UINT64_MAX; } }" % total)
+                if edged:
+                    o.line("uint8_t edges[%d];" % total)
+                    o.line("memset(edges, 0, sizeof(edges));")
                 o.line("size_t n = 0;")
-                for ptr, ct, mask in sens:
+                for (ptr, ct, mask), edge in zip(sens, edges):
                     if is_wide(ct):
                         o.line("{ size_t j; for (j = 0; j < %d; j++) { sens[n++] = &(%s)->w[j]; } }" % (nwords(ct), ptr))
                     elif ct.kind in ("rec", "arr"):
@@ -784,8 +790,12 @@ class EntityGen(Translator):
                     else:
                         if mask:
                             o.line("masks[n] = %s;" % mask)
+                        if edge:
+                            o.line("edges[n] = %d;" % edge)
                         o.line("sens[n++] = %s;" % ptr)
-                if masked:
+                if edged:
+                    o.line("vs_register_process_edges(k, %s, self, sens, %s, edges, n);" % (fname, "masks" if masked else "NULL"))
+                elif masked:
                     # (a signal that is not a single word has no mask : it is only listed with the others when it is
                     # not one of the entries above, whose masks are set one by one)
                     o.line("vs_register_process_masked(k, %s, self, sens, masks, n);" % fname)
@@ -812,6 +822,20 @@ class EntityGen(Translator):
         o.line()
         self.emit_scope(o, self.root, True)
         return o.text()
+
+
+def edge_of(body, ptr, ct, mask):
+    """1 (2) when the process only looks at the rising (falling) edges of the scalar signal `ptr` : every use of it in the
+    body is a vs_rising(ptr) (vs_falling(ptr)), so the other edge would wake the process for nothing. 0 otherwise."""
+    if mask or not isinstance(ct, Bit) or not ptr.startswith("&"):
+        return 0
+    base = re.escape(ptr[1:])
+    total = len(re.findall(base + r"(?![A-Za-z0-9_])", body))
+    rising = body.count("vs_rising(%s)" % ptr)
+    falling = body.count("vs_falling(%s)" % ptr)
+    if total == 0 or (rising and falling) or total != rising + falling:
+        return 0
+    return 1 if rising else 2
 
 
 def write_funcs(out_dir):
