@@ -18,8 +18,8 @@ struct bac_63f81_n5_g0
     vs_sig s_arb_ce;
     vs_sig s_arb_state;
     fp_unit c_fpu_63f39_0;
-    int64_t v3_cand;
-    uint64_t v3_found;
+    int64_t v1_cand;
+    uint64_t v1_found;
 };
 typedef struct bac_63f81_n5_g0 bac_63f81_n5_g0;
 
@@ -90,6 +90,8 @@ struct bac_63f81_n5_g1
     vs_sig s_lock_granted;
     vs_sig s_cpu_ext_e;
     vs_sig s_cpu_ext_q;
+    vs_sig s_irq_sync1;
+    vs_sig s_irq_sync2;
     vs_sig s_cpu_nmi_n;
     vs_sig s_cpu_firq_n;
     vs_sig s_cpu_irq_n;
@@ -126,7 +128,7 @@ struct bac_63f81_n5_g1
     int64_t n_g_core_0;
     struct bac_63f81_n5_g5 *g_eirq_switch_matrix_1;
     int64_t n_g_eirq_switch_matrix_1;
-    int64_t v24_current_cpu;
+    int64_t v25_current_cpu;
 };
 typedef struct bac_63f81_n5_g1 bac_63f81_n5_g1;
 
@@ -140,45 +142,40 @@ static void bac_63f81_n5_g0_p0(void *inst)
         if (((*self->up->p_reset_n).cur == 0))
         {
             vs_drive(&self->s_fpu_div, (uint64_t)(INT64_C(0)));
-        }
-        else if (((int64_t) self->s_fpu_div.cur == INT64_C(3)))
-        {
-            vs_drive(&self->s_fpu_div, (uint64_t)(INT64_C(0)));
+            vs_drive(&self->s_fpu_ce, 1);
+            vs_drive(&self->s_arb_ce, 0);
         }
         else
         {
-            vs_drive(&self->s_fpu_div, (uint64_t)(((int64_t) self->s_fpu_div.cur + INT64_C(1))));
+            if (((int64_t) self->s_fpu_div.cur == INT64_C(3)))
+            {
+                vs_drive(&self->s_fpu_div, (uint64_t)(INT64_C(0)));
+            }
+            else
+            {
+                vs_drive(&self->s_fpu_div, (uint64_t)(((int64_t) self->s_fpu_div.cur + INT64_C(1))));
+            }
+            if (((int64_t) self->s_fpu_div.cur == INT64_C(3)))
+            {
+                vs_drive(&self->s_fpu_ce, 1);
+            }
+            else
+            {
+                vs_drive(&self->s_fpu_ce, 0);
+            }
+            if (((int64_t) self->s_fpu_div.cur == INT64_C(1)))
+            {
+                vs_drive(&self->s_arb_ce, 1);
+            }
+            else
+            {
+                vs_drive(&self->s_arb_ce, 0);
+            }
         }
     }
 }
 
 static void bac_63f81_n5_g0_p1(void *inst)
-{
-    bac_63f81_n5_g0 *self = inst;
-    if (((int64_t) self->s_fpu_div.cur == INT64_C(0)))
-    {
-        vs_drive(&self->s_fpu_ce, 1);
-    }
-    else
-    {
-        vs_drive(&self->s_fpu_ce, 0);
-    }
-}
-
-static void bac_63f81_n5_g0_p2(void *inst)
-{
-    bac_63f81_n5_g0 *self = inst;
-    if (((int64_t) self->s_fpu_div.cur == INT64_C(2)))
-    {
-        vs_drive(&self->s_arb_ce, 1);
-    }
-    else
-    {
-        vs_drive(&self->s_arb_ce, 0);
-    }
-}
-
-static void bac_63f81_n5_g0_p3(void *inst)
 {
     bac_63f81_n5_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -229,20 +226,20 @@ static void bac_63f81_n5_g0_p3(void *inst)
             {
                 vs_drive(&self->up->s_fpu_done, 0);
                 vs_drive(&self->s_fpu_mux_in.f_fp_exe_i.f_enable, 0);
-                self->v3_found = 0;
-                self->v3_cand = (int64_t) self->up->s_fpu_owner.cur;
+                self->v1_found = 0;
+                self->v1_cand = (int64_t) self->up->s_fpu_owner.cur;
                 for (int64_t i_1 = INT64_C(1); i_1 <= self->up->g_ncpus; i_1++)
                 {
-                    if (((~self->v3_found & UINT64_C(0x1)) & (self->up->s_fpu_in.a[(vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus)) - 0].f_fp_exe_i.f_enable.cur == 1)))
+                    if (((~self->v1_found & UINT64_C(0x1)) & (self->up->s_fpu_in.a[(vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus)) - 0].f_fp_exe_i.f_enable.cur == 1)))
                     {
-                        self->v3_found = 1;
-                        self->v3_cand = vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus);
+                        self->v1_found = 1;
+                        self->v1_cand = vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus);
                     }
                 }
-                if (self->v3_found)
+                if (self->v1_found)
                 {
-                    vs_drive(&self->up->s_fpu_owner, (uint64_t)(self->v3_cand));
-                    fp_unit_in_type_drive(&self->s_fpu_mux_in, fp_unit_in_type_get(&self->up->s_fpu_in.a[(self->v3_cand) - 0]));
+                    vs_drive(&self->up->s_fpu_owner, (uint64_t)(self->v1_cand));
+                    fp_unit_in_type_drive(&self->s_fpu_mux_in, fp_unit_in_type_get(&self->up->s_fpu_in.a[(self->v1_cand) - 0]));
                     vs_drive(&self->s_fpu_mux_in.f_fp_exe_i.f_enable, 0);
                     vs_drive(&self->s_arb_state, 1);
                 }
@@ -279,15 +276,15 @@ static void bac_63f81_n5_g0_create(vs_kernel *k, bac_63f81_n5_g0 *self, const ch
     fp_unit_in_type_register(k, &self->s_fpu_mux_in, fp_unit_in_type_zero());
     vs_register_signal(k, &self->s_fpu_div, (uint64_t) (INT64_C(0)));
     vs_name(k, &self->s_fpu_div, path, "fpu_div", 64);
-    vs_register_signal(k, &self->s_fpu_ce, (uint64_t) (0));
+    vs_register_signal(k, &self->s_fpu_ce, (uint64_t) (1));
     vs_name(k, &self->s_fpu_ce, path, "fpu_ce", 1);
     vs_register_signal(k, &self->s_arb_ce, (uint64_t) (0));
     vs_name(k, &self->s_arb_ce, path, "arb_ce", 1);
     vs_register_signal(k, &self->s_arb_state, (uint64_t) (0));
     vs_name(k, &self->s_arb_state, path, "arb_state", 32);
     fp_unit_create(k, &self->c_fpu_63f39_0, vs_join(k, path, "fpu_63f39"), self->up->p_reset_n, self->up->p_cpuclk, &self->s_fpu_ce, &self->s_fpu_mux_in, &self->up->s_fpu_out);
-    self->v3_cand = INT64_C(0);
-    self->v3_found = 0;
+    self->v1_cand = INT64_C(0);
+    self->v1_found = 0;
 
     {
         vs_sig *sens[1];
@@ -297,25 +294,11 @@ static void bac_63f81_n5_g0_create(vs_kernel *k, bac_63f81_n5_g0 *self, const ch
     }
 
     {
-        vs_sig *sens[1];
-        size_t n = 0;
-        sens[n++] = &self->s_fpu_div;
-        vs_register_process(k, bac_63f81_n5_g0_p1, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[1];
-        size_t n = 0;
-        sens[n++] = &self->s_fpu_div;
-        vs_register_process(k, bac_63f81_n5_g0_p2, self, sens, n);
-    }
-
-    {
         vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
         sens[n++] = &(*self->up->p_cpuclk);
-        vs_register_process(k, bac_63f81_n5_g0_p3, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g0_p1, self, sens, n);
     }
 }
 
@@ -638,17 +621,17 @@ static void bac_63f81_n5_g5_create(vs_kernel *k, bac_63f81_n5_g5 *self, const ch
 
 static int64_t f_interrupted_cpu_3(bac_63f81_n5_g1 *self, uint64_t a_reg_configuration, int64_t a_signal_last_interrupted_cpu)
 {
-    int64_t v_cpu_id_65744 = INT64_C(0);
+    int64_t v_cpu_id_44048 = INT64_C(0);
     for (int64_t i_3 = INT64_C(1); i_3 <= self->up->g_ncpus; i_3++)
     {
-        v_cpu_id_65744 = vs_mod((a_signal_last_interrupted_cpu + i_3), self->up->g_ncpus);
-        if ((((a_reg_configuration >> ((v_cpu_id_65744) - 0)) & 1) == 1))
+        v_cpu_id_44048 = vs_mod((a_signal_last_interrupted_cpu + i_3), self->up->g_ncpus);
+        if ((((a_reg_configuration >> ((v_cpu_id_44048) - 0)) & 1) == 1))
         {
             goto loop_exit_4;
         }
     }
     loop_exit_4:;
-    return v_cpu_id_65744;
+    return v_cpu_id_44048;
 }
 
 static void bac_63f81_n5_g1_p0(void *inst)
@@ -985,6 +968,21 @@ static void bac_63f81_n5_g1_p2(void *inst)
     bac_63f81_n5_g1 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
     {
+        vs_drive(&self->s_irq_sync1, UINT64_C(0x7FFFFFF));
+        vs_drive(&self->s_irq_sync2, UINT64_C(0x7FFFFFF));
+    }
+    else if (vs_rising(&(*self->up->p_cpuclk)))
+    {
+        vs_drive(&self->s_irq_sync1, (((uint64_t)((((uint64_t)((((uint64_t)((*self->up->p_eirq_n).cur) << 1) | (*self->up->p_firq_n).cur)) << 1) | (*self->up->p_irq_n).cur)) << 1) | (*self->up->p_nmi_n).cur));
+        vs_drive(&self->s_irq_sync2, self->s_irq_sync1.cur);
+    }
+}
+
+static void bac_63f81_n5_g1_p3(void *inst)
+{
+    bac_63f81_n5_g1 *self = inst;
+    if (((*self->up->p_reset_n).cur == 0))
+    {
         vs_drive(&self->s_signal_last_interrupted_cpu.a[0], (uint64_t)(INT64_C(0)));
     }
     else if (vs_falling(&(*self->up->p_nmi_n)))
@@ -993,7 +991,7 @@ static void bac_63f81_n5_g1_p2(void *inst)
     }
 }
 
-static void bac_63f81_n5_g1_p3(void *inst)
+static void bac_63f81_n5_g1_p4(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1003,17 +1001,17 @@ static void bac_63f81_n5_g1_p3(void *inst)
             vs_drive_bits(&self->s_cpu_nmi_n, (4 - (i_5)), (UINT64_C(1)), 1);
         }
     }
-    else if (vs_falling(&(*self->up->p_e)))
+    else if (vs_rising(&(*self->up->p_cpuclk)))
     {
         for (int64_t i_7 = INT64_C(0); i_7 <= (self->up->g_ncpus - INT64_C(1)); i_7++)
         {
             vs_drive_bits(&self->s_cpu_nmi_n, (4 - (i_7)), (UINT64_C(1)), 1);
         }
-        vs_drive_bits(&self->s_cpu_nmi_n, (4 - ((int64_t) self->s_signal_last_interrupted_cpu.a[0].cur)), (UINT64_C(1)), (*self->up->p_nmi_n).cur);
+        vs_drive_bits(&self->s_cpu_nmi_n, (4 - ((int64_t) self->s_signal_last_interrupted_cpu.a[0].cur)), (UINT64_C(1)), ((self->s_irq_sync2.cur >> 0) & 1));
     }
 }
 
-static void bac_63f81_n5_g1_p4(void *inst)
+static void bac_63f81_n5_g1_p5(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1026,7 +1024,7 @@ static void bac_63f81_n5_g1_p4(void *inst)
     }
 }
 
-static void bac_63f81_n5_g1_p5(void *inst)
+static void bac_63f81_n5_g1_p6(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1036,17 +1034,17 @@ static void bac_63f81_n5_g1_p5(void *inst)
             vs_drive_bits(&self->s_cpu_irq_n, (4 - (i_9)), (UINT64_C(1)), 1);
         }
     }
-    else if (vs_falling(&(*self->up->p_e)))
+    else if (vs_rising(&(*self->up->p_cpuclk)))
     {
         for (int64_t i_11 = INT64_C(0); i_11 <= (self->up->g_ncpus - INT64_C(1)); i_11++)
         {
             vs_drive_bits(&self->s_cpu_irq_n, (4 - (i_11)), (UINT64_C(1)), 1);
         }
-        vs_drive_bits(&self->s_cpu_irq_n, (4 - ((int64_t) self->s_signal_last_interrupted_cpu.a[1].cur)), (UINT64_C(1)), (*self->up->p_irq_n).cur);
+        vs_drive_bits(&self->s_cpu_irq_n, (4 - ((int64_t) self->s_signal_last_interrupted_cpu.a[1].cur)), (UINT64_C(1)), ((self->s_irq_sync2.cur >> 1) & 1));
     }
 }
 
-static void bac_63f81_n5_g1_p6(void *inst)
+static void bac_63f81_n5_g1_p7(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1059,7 +1057,7 @@ static void bac_63f81_n5_g1_p6(void *inst)
     }
 }
 
-static void bac_63f81_n5_g1_p7(void *inst)
+static void bac_63f81_n5_g1_p8(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1069,23 +1067,23 @@ static void bac_63f81_n5_g1_p7(void *inst)
             vs_drive_bits(&self->s_cpu_firq_n, (4 - (i_13)), (UINT64_C(1)), 1);
         }
     }
-    else if (vs_falling(&(*self->up->p_e)))
+    else if (vs_rising(&(*self->up->p_cpuclk)))
     {
         for (int64_t i_15 = INT64_C(0); i_15 <= (self->up->g_ncpus - INT64_C(1)); i_15++)
         {
             vs_drive_bits(&self->s_cpu_firq_n, (4 - (i_15)), (UINT64_C(1)), 1);
         }
-        vs_drive_bits(&self->s_cpu_firq_n, (4 - ((int64_t) self->s_signal_last_interrupted_cpu.a[2].cur)), (UINT64_C(1)), (*self->up->p_firq_n).cur);
+        vs_drive_bits(&self->s_cpu_firq_n, (4 - ((int64_t) self->s_signal_last_interrupted_cpu.a[2].cur)), (UINT64_C(1)), ((self->s_irq_sync2.cur >> 2) & 1));
     }
 }
 
-static void bac_63f81_n5_g1_p8(void *inst)
+static void bac_63f81_n5_g1_p9(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
     vs_drive(&self->s_cpu_memclk, (~self->s_cpu_ext_e.cur & UINT64_C(0x1F)));
 }
 
-static void bac_63f81_n5_g1_p9(void *inst)
+static void bac_63f81_n5_g1_p10(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1098,7 +1096,7 @@ static void bac_63f81_n5_g1_p9(void *inst)
             }
         }
     }
-    else if (vs_falling(&(*self->up->p_e)))
+    else if (vs_rising(&(*self->up->p_cpuclk)))
     {
         for (int64_t i_21 = INT64_C(0); i_21 <= INT64_C(23); i_21++)
         {
@@ -1106,90 +1104,90 @@ static void bac_63f81_n5_g1_p9(void *inst)
             {
                 vs_drive_bits(&self->s_cpu_eirq_n.a[(i_23) - 0], ((i_21) - 0), (UINT64_C(1)), 1);
             }
-            vs_drive_bits(&self->s_cpu_eirq_n.a[((int64_t) self->s_signal_last_interrupted_cpu.a[((i_21 + INT64_C(3))) - 0].cur) - 0], ((i_21) - 0), (UINT64_C(1)), (((*self->up->p_eirq_n).cur >> ((i_21) - 0)) & 1));
+            vs_drive_bits(&self->s_cpu_eirq_n.a[((int64_t) self->s_signal_last_interrupted_cpu.a[((i_21 + INT64_C(3))) - 0].cur) - 0], ((i_21) - 0), (UINT64_C(1)), ((self->s_irq_sync2.cur >> (((i_21 + INT64_C(3))) - 0)) & 1));
         }
     }
-}
-
-static void bac_63f81_n5_g1_p10(void *inst)
-{
-    bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_e), ((self->s_cpu_ext_e.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
 }
 
 static void bac_63f81_n5_g1_p11(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_q), ((self->s_cpu_ext_q.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
+    vs_drive(&(*self->up->p_e), ((self->s_cpu_ext_e.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
 }
 
 static void bac_63f81_n5_g1_p12(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_e_n), (~(*self->up->p_e).cur & UINT64_C(0x1)));
+    vs_drive(&(*self->up->p_q), ((self->s_cpu_ext_q.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
 }
 
 static void bac_63f81_n5_g1_p13(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_rw_n), ((self->s_cpu_rw_n.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
+    vs_drive(&(*self->up->p_e_n), (~(*self->up->p_e).cur & UINT64_C(0x1)));
 }
 
 static void bac_63f81_n5_g1_p14(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_a), self->s_cpu_a.a[((int64_t) self->s_signal_last_active_cpu.cur) - 0].cur);
+    vs_drive(&(*self->up->p_rw_n), ((self->s_cpu_rw_n.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
 }
 
 static void bac_63f81_n5_g1_p15(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_d_out), self->s_cpu_d_out.a[((int64_t) self->s_signal_last_active_cpu.cur) - 0].cur);
+    vs_drive(&(*self->up->p_a), self->s_cpu_a.a[((int64_t) self->s_signal_last_active_cpu.cur) - 0].cur);
 }
 
 static void bac_63f81_n5_g1_p16(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_ba), ((self->s_cpu_ba.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
+    vs_drive(&(*self->up->p_d_out), self->s_cpu_d_out.a[((int64_t) self->s_signal_last_active_cpu.cur) - 0].cur);
 }
 
 static void bac_63f81_n5_g1_p17(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_bs), ((self->s_cpu_bs.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
+    vs_drive(&(*self->up->p_ba), ((self->s_cpu_ba.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
 }
 
 static void bac_63f81_n5_g1_p18(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_fic), ((self->s_cpu_fic.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
+    vs_drive(&(*self->up->p_bs), ((self->s_cpu_bs.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
 }
 
 static void bac_63f81_n5_g1_p19(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_vma), ((self->s_cpu_vma.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
+    vs_drive(&(*self->up->p_fic), ((self->s_cpu_fic.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
 }
 
 static void bac_63f81_n5_g1_p20(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_memclk), ((self->s_cpu_memclk.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
+    vs_drive(&(*self->up->p_vma), ((self->s_cpu_vma.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
 }
 
 static void bac_63f81_n5_g1_p21(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_bus_master), (uint64_t)((int64_t) self->s_signal_last_active_cpu.cur));
+    vs_drive(&(*self->up->p_memclk), ((self->s_cpu_memclk.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
 }
 
 static void bac_63f81_n5_g1_p22(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    vs_drive(&(*self->up->p_mmu_mrdy), ((self->s_core_mmu_mrdy.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
+    vs_drive(&(*self->up->p_bus_master), (uint64_t)((int64_t) self->s_signal_last_active_cpu.cur));
 }
 
 static void bac_63f81_n5_g1_p23(void *inst)
+{
+    bac_63f81_n5_g1 *self = inst;
+    vs_drive(&(*self->up->p_mmu_mrdy), ((self->s_core_mmu_mrdy.cur >> (4 - ((int64_t) self->s_signal_last_active_cpu.cur))) & 1));
+}
+
+static void bac_63f81_n5_g1_p24(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
     vs_drive(&self->s_bus_granted, UINT64_C(0x0));
@@ -1212,25 +1210,29 @@ static void bac_63f81_n5_g1_p23(void *inst)
     vs_drive_bits(&self->s_reg_current_cpu, (((int64_t) self->s_signal_last_active_cpu.cur) - 0), (UINT64_C(1)), 1);
 }
 
-static void bac_63f81_n5_g1_p24(void *inst)
+static void bac_63f81_n5_g1_p25(void *inst)
 {
     bac_63f81_n5_g1 *self = inst;
-    if (((*self->up->p_reset_n).cur == 0))
+    if (vs_rising(&(*self->up->p_cpuclk)))
     {
-        vs_drive(&self->s_signal_last_active_cpu, (uint64_t)(INT64_C(0)));
-    }
-    else
-    {
-        for (int64_t i_27 = INT64_C(0); i_27 <= self->up->g_ncpus; i_27++)
+        if (((*self->up->p_reset_n).cur == 0))
         {
-            self->v24_current_cpu = vs_mod(((int64_t) self->s_signal_last_active_cpu.cur + i_27), self->up->g_ncpus);
-            if ((((((self->s_bus_request.cur >> (4 - (self->v24_current_cpu))) & 1) == 1) | (((self->s_lock_request.cur >> (4 - (self->v24_current_cpu))) & 1) == 1)) & (((self->s_reg_configuration.cur >> ((self->v24_current_cpu) - 0)) & 1) == 1)))
-            {
-                goto loop_exit_28;
-            }
+            vs_drive(&self->s_signal_last_active_cpu, (uint64_t)(INT64_C(0)));
         }
-        loop_exit_28:;
-        vs_drive(&self->s_signal_last_active_cpu, (uint64_t)(self->v24_current_cpu));
+        else
+        {
+            self->v25_current_cpu = (int64_t) self->s_signal_last_active_cpu.cur;
+            for (int64_t i_27 = INT64_C(0); i_27 <= self->up->g_ncpus; i_27++)
+            {
+                self->v25_current_cpu = vs_mod(((int64_t) self->s_signal_last_active_cpu.cur + i_27), self->up->g_ncpus);
+                if ((((((self->s_bus_request.cur >> (4 - (self->v25_current_cpu))) & 1) == 1) | (((self->s_lock_request.cur >> (4 - (self->v25_current_cpu))) & 1) == 1)) & (((self->s_reg_configuration.cur >> ((self->v25_current_cpu) - 0)) & 1) == 1)))
+                {
+                    goto loop_exit_28;
+                }
+            }
+            loop_exit_28:;
+            vs_drive(&self->s_signal_last_active_cpu, (uint64_t)(self->v25_current_cpu));
+        }
     }
 }
 
@@ -1248,6 +1250,10 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
     vs_name(k, &self->s_cpu_ext_e, path, "cpu_ext_e", 5);
     vs_register_signal(k, &self->s_cpu_ext_q, (uint64_t) (0));
     vs_name(k, &self->s_cpu_ext_q, path, "cpu_ext_q", 5);
+    vs_register_signal(k, &self->s_irq_sync1, (uint64_t) (UINT64_C(0x7FFFFFF)));
+    vs_name(k, &self->s_irq_sync1, path, "irq_sync1", 27);
+    vs_register_signal(k, &self->s_irq_sync2, (uint64_t) (UINT64_C(0x7FFFFFF)));
+    vs_name(k, &self->s_irq_sync2, path, "irq_sync2", 27);
     vs_register_signal(k, &self->s_cpu_nmi_n, (uint64_t) (0));
     vs_name(k, &self->s_cpu_nmi_n, path, "cpu_nmi_n", 5);
     vs_register_signal(k, &self->s_cpu_firq_n, (uint64_t) (0));
@@ -1331,7 +1337,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
             bac_63f81_n5_g5_create(k, b, vs_join(k, path, name));
         }
     }
-    self->v24_current_cpu = INT64_C(0);
+    self->v25_current_cpu = INT64_C(0);
 
     {
         vs_sig *sens[30];
@@ -1355,7 +1361,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
-        sens[n++] = &(*self->up->p_nmi_n);
+        sens[n++] = &(*self->up->p_cpuclk);
         vs_register_process(k, bac_63f81_n5_g1_p2, self, sens, n);
     }
 
@@ -1363,7 +1369,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
-        sens[n++] = &(*self->up->p_e);
+        sens[n++] = &(*self->up->p_nmi_n);
         vs_register_process(k, bac_63f81_n5_g1_p3, self, sens, n);
     }
 
@@ -1371,7 +1377,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
-        sens[n++] = &(*self->up->p_irq_n);
+        sens[n++] = &(*self->up->p_cpuclk);
         vs_register_process(k, bac_63f81_n5_g1_p4, self, sens, n);
     }
 
@@ -1379,7 +1385,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
-        sens[n++] = &(*self->up->p_e);
+        sens[n++] = &(*self->up->p_irq_n);
         vs_register_process(k, bac_63f81_n5_g1_p5, self, sens, n);
     }
 
@@ -1387,7 +1393,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
-        sens[n++] = &(*self->up->p_firq_n);
+        sens[n++] = &(*self->up->p_cpuclk);
         vs_register_process(k, bac_63f81_n5_g1_p6, self, sens, n);
     }
 
@@ -1395,23 +1401,31 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
-        sens[n++] = &(*self->up->p_e);
+        sens[n++] = &(*self->up->p_firq_n);
         vs_register_process(k, bac_63f81_n5_g1_p7, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[1];
-        size_t n = 0;
-        sens[n++] = &self->s_cpu_ext_e;
-        vs_register_process(k, bac_63f81_n5_g1_p8, self, sens, n);
     }
 
     {
         vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
-        sens[n++] = &(*self->up->p_e);
+        sens[n++] = &(*self->up->p_cpuclk);
+        vs_register_process(k, bac_63f81_n5_g1_p8, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_cpu_ext_e;
         vs_register_process(k, bac_63f81_n5_g1_p9, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &(*self->up->p_reset_n);
+        sens[n++] = &(*self->up->p_cpuclk);
+        vs_register_process(k, bac_63f81_n5_g1_p10, self, sens, n);
     }
 
     {
@@ -1419,7 +1433,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_cpu_ext_e;
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p10, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p11, self, sens, n);
     }
 
     {
@@ -1427,14 +1441,14 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_cpu_ext_q;
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p11, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p12, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &(*self->up->p_e);
-        vs_register_process(k, bac_63f81_n5_g1_p12, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p13, self, sens, n);
     }
 
     {
@@ -1442,7 +1456,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_cpu_rw_n;
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p13, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p14, self, sens, n);
     }
 
     {
@@ -1450,7 +1464,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         n += std_logic_matrix_18_leaves(&self->s_cpu_a, sens + n);
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p14, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p15, self, sens, n);
     }
 
     {
@@ -1458,7 +1472,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         n += std_logic_matrix_42_leaves(&self->s_cpu_d_out, sens + n);
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p15, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p16, self, sens, n);
     }
 
     {
@@ -1466,7 +1480,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_cpu_ba;
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p16, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p17, self, sens, n);
     }
 
     {
@@ -1474,7 +1488,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_cpu_bs;
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p17, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p18, self, sens, n);
     }
 
     {
@@ -1482,7 +1496,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_cpu_fic;
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p18, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p19, self, sens, n);
     }
 
     {
@@ -1490,7 +1504,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_cpu_vma;
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p19, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p20, self, sens, n);
     }
 
     {
@@ -1498,14 +1512,14 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_cpu_memclk;
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p20, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p21, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p21, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p22, self, sens, n);
     }
 
     {
@@ -1513,7 +1527,7 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_core_mmu_mrdy;
         sens[n++] = &self->s_signal_last_active_cpu;
-        vs_register_process(k, bac_63f81_n5_g1_p22, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p23, self, sens, n);
     }
 
     {
@@ -1526,16 +1540,14 @@ static void bac_63f81_n5_g1_create(vs_kernel *k, bac_63f81_n5_g1 *self, const ch
         sens[n++] = &(*self->up->p_cacheable);
         sens[n++] = &(*self->up->p_halt_n);
         sens[n++] = &self->s_reg_configuration;
-        vs_register_process(k, bac_63f81_n5_g1_p23, self, sens, n);
+        vs_register_process(k, bac_63f81_n5_g1_p24, self, sens, n);
     }
 
     {
-        vs_sig *sens[3];
+        vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &(*self->up->p_reset_n);
-        sens[n++] = &self->s_bus_request;
-        sens[n++] = &self->s_lock_request;
-        vs_register_process(k, bac_63f81_n5_g1_p24, self, sens, n);
+        sens[n++] = &(*self->up->p_cpuclk);
+        vs_register_process(k, bac_63f81_n5_g1_p25, self, sens, n);
     }
 }
 

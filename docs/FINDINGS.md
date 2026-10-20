@@ -14,7 +14,7 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 | A2 | SoC09 `CACHEABLE_EXT` undriven | to confirm |
 | A3 | reset values | by design |
 | B2 | `LDMD` and the first load of S | for information |
-| B3 | E stops in a cached loop : PTM fixed, EIRQ routing of the BAC (2+ cores) open | open |
+| B3 | interrupt flags of the PIA, ACIA, SPI, TWI generated on E | being corrected |
 
 ## A. Behaviour of the chip
 
@@ -92,40 +92,20 @@ The header of 63F09.vhd says that MD can only be written after a reset and befor
 sequence given in the conversation (`LDMD #$31 ; PSHS U`) pushes with S uninitialised ; the programs must load S
 after `LDMD`, as `crt0` does (`11 3D 11`, then `10 CE ...`).
 
-### B3. E stops while the core runs from its cache : the PTM (and everything clocked on E) stops with it
-*Status : found, identical in GHDL and the emulator ; to confirm that it is wanted.*
+### B3. The interrupt flags of the other peripherals are still generated on E
+*Status : PTM (63F40) and BAC (63F81) fixed by the author ; the other peripherals are being corrected.*
 
-(An earlier version of this note described a stall of a cache-line fill and blamed `ANDCC` ; both were wrong : `ANDCC`
-takes one byte, and the bus simply goes idle when the loop is in the cache.)
+The E clock only runs for bus cycles : a core that loops in its instruction cache makes none, E stops, and whatever is
+clocked on `falling_edge(E)` stops with it. A timer interrupt then never wakes the core. `tests/soc/programs/b3_cache_idle.asm`
+(`elf/b3_loopA.elf` : `BRA *`, `elf/b3_loopB.elf` : a PTM read in the loop) shows it : the marker counts the interrupts
+taken by the handler. With the corrected 63F40 and 63F81 both loops give 0x46 after 12 000 000 ticks on 1, 2, 4 and
+8 cores, and the co-simulation is identical to GHDL.
 
-The E clock only runs for bus cycles. A core that loops in its instruction cache (`BRA *`, the `for (;;) {}` that ends
-the test programs) makes no bus cycle, E stops (`soc.e` stays constant in the `--dump`) and the peripherals that use
-`falling_edge(E)` stop with it : the timers of the PTM (`TIMER` and `STATUS` processes), and at least the register logic of the PIA, ACIA, SPI and TWI. In particular a timer interrupt can never wake a core that is
-idling in a cached loop : the timer does not count.
-
-`tests/soc/programs/b3_cache_idle.asm` shows it (machine code in `elf/b3_loopA.elf` and `elf/b3_loopB.elf`). Timer 1 of
-PTM 0 is started with a latch of 4 and its interrupt enabled, then the core loops :
-
-* loop A, `BRA *` : no bus cycle after the start, `soc.e` stops, the status flag is never set, the handler never
-  runs (marker 0), `tests/ghdl/cosim.py` shows 63 bus cycles in 80 us on both sides ;
-* loop B, a read of a PTM register in the loop : bus cycles keep E running, the timer times out, the interrupt is taken
-  through EIRQ21 and the BAC, the handler counts (marker 0x19 after 12 000 000 ticks), 680 bus cycles in 80 us on both
-  sides.
-
-If the PTM is meant to be a real-time timer, E (or at least the clock of the timers and of the status process) must
-not depend on the bus activity ; if it is by design, software must not idle in a cached loop while waiting for a timer.
-
-**Status of the correction (63F40.vhd of 2026-10-20, `TIMER` and `STATUS` on `falling_edge(SYSCLK)`, the SYSCLK edge
-test removed) :** the PTM now counts without E. With one core (`--ncpus 1`) loop A and loop B both take the interrupt
-(marker 0x46 after 12 000 000 ticks) ; the block test of the PTM is identical to GHDL.
-
-*Still open : with two cores (the default) and more, loop A gets no interrupt* (marker 0, loop B works) : `EIRQ_n(21)`
-falls but the 63F81 forwards `EIRQ_n` to a core in a process clocked on `falling_edge(E)` (the one that fills
-`CPU_EIRQ_n(j)(i)` from `SIGNAL_LAST_INTERRUPTED_CPU(i + 3)`, after the `EIRQ_SWITCH_MATRIX`), and E is stopped. Routing
-it combinationally (`process(RESET_n, EIRQ_n, SIGNAL_LAST_INTERRUPTED_CPU)` : all `CPU_EIRQ_n` to '1', then the chosen
-core gets `EIRQ_n(i)`) gives marker 0x46 on 1, 2 and 4 cores for both loops, and the co-simulation stays identical to
-GHDL (`VHDL2C_FIX_BAC_EIRQ=1 make gen` applies it on the temporary copy). The processes of IRQ and FIRQ (lines 777 to 827
-of 63F81.vhd) are clocked on the edge of `IRQ_n` / `FIRQ_n` themselves and were not looked at.
+What is left is the same pattern in the other peripherals whose interrupt flag is a register written on E : PIA
+(`C1_INPUT`, `C2_INPUT`, `C2_OUTPUT` : `IRQ1` and `IRQ2` are set on `falling_edge(E)` from the C1/C2 edges), ACIA
+(`falling_edge(E)` in 23 places of 63F50.vhd, including the status bits that give `IRQ_n`), SPI (63F52) and TWI (63F54).
+An edge on C1/C2 or the end of a byte that happens while E is stopped is seen only when E restarts, if the
+edge detection (`C1_DEL`, `C1_RISE`...) also runs on E it can miss the edge altogether.
 
 ## C. Files and tools
 

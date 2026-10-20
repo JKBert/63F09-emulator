@@ -18,8 +18,8 @@ struct bac_63f81_n1_g0
     vs_sig s_arb_ce;
     vs_sig s_arb_state;
     fp_unit c_fpu_63f39_0;
-    int64_t v3_cand;
-    uint64_t v3_found;
+    int64_t v1_cand;
+    uint64_t v1_found;
 };
 typedef struct bac_63f81_n1_g0 bac_63f81_n1_g0;
 
@@ -64,45 +64,40 @@ static void bac_63f81_n1_g0_p0(void *inst)
         if (((*self->up->p_reset_n).cur == 0))
         {
             vs_drive(&self->s_fpu_div, (uint64_t)(INT64_C(0)));
-        }
-        else if (((int64_t) self->s_fpu_div.cur == INT64_C(3)))
-        {
-            vs_drive(&self->s_fpu_div, (uint64_t)(INT64_C(0)));
+            vs_drive(&self->s_fpu_ce, 1);
+            vs_drive(&self->s_arb_ce, 0);
         }
         else
         {
-            vs_drive(&self->s_fpu_div, (uint64_t)(((int64_t) self->s_fpu_div.cur + INT64_C(1))));
+            if (((int64_t) self->s_fpu_div.cur == INT64_C(3)))
+            {
+                vs_drive(&self->s_fpu_div, (uint64_t)(INT64_C(0)));
+            }
+            else
+            {
+                vs_drive(&self->s_fpu_div, (uint64_t)(((int64_t) self->s_fpu_div.cur + INT64_C(1))));
+            }
+            if (((int64_t) self->s_fpu_div.cur == INT64_C(3)))
+            {
+                vs_drive(&self->s_fpu_ce, 1);
+            }
+            else
+            {
+                vs_drive(&self->s_fpu_ce, 0);
+            }
+            if (((int64_t) self->s_fpu_div.cur == INT64_C(1)))
+            {
+                vs_drive(&self->s_arb_ce, 1);
+            }
+            else
+            {
+                vs_drive(&self->s_arb_ce, 0);
+            }
         }
     }
 }
 
 static void bac_63f81_n1_g0_p1(void *inst)
-{
-    bac_63f81_n1_g0 *self = inst;
-    if (((int64_t) self->s_fpu_div.cur == INT64_C(0)))
-    {
-        vs_drive(&self->s_fpu_ce, 1);
-    }
-    else
-    {
-        vs_drive(&self->s_fpu_ce, 0);
-    }
-}
-
-static void bac_63f81_n1_g0_p2(void *inst)
-{
-    bac_63f81_n1_g0 *self = inst;
-    if (((int64_t) self->s_fpu_div.cur == INT64_C(2)))
-    {
-        vs_drive(&self->s_arb_ce, 1);
-    }
-    else
-    {
-        vs_drive(&self->s_arb_ce, 0);
-    }
-}
-
-static void bac_63f81_n1_g0_p3(void *inst)
 {
     bac_63f81_n1_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -153,20 +148,20 @@ static void bac_63f81_n1_g0_p3(void *inst)
             {
                 vs_drive(&self->up->s_fpu_done, 0);
                 vs_drive(&self->s_fpu_mux_in.f_fp_exe_i.f_enable, 0);
-                self->v3_found = 0;
-                self->v3_cand = (int64_t) self->up->s_fpu_owner.cur;
+                self->v1_found = 0;
+                self->v1_cand = (int64_t) self->up->s_fpu_owner.cur;
                 for (int64_t i_1 = INT64_C(1); i_1 <= self->up->g_ncpus; i_1++)
                 {
-                    if (((~self->v3_found & UINT64_C(0x1)) & (self->up->s_fpu_in.a[(vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus)) - 0].f_fp_exe_i.f_enable.cur == 1)))
+                    if (((~self->v1_found & UINT64_C(0x1)) & (self->up->s_fpu_in.a[(vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus)) - 0].f_fp_exe_i.f_enable.cur == 1)))
                     {
-                        self->v3_found = 1;
-                        self->v3_cand = vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus);
+                        self->v1_found = 1;
+                        self->v1_cand = vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus);
                     }
                 }
-                if (self->v3_found)
+                if (self->v1_found)
                 {
-                    vs_drive(&self->up->s_fpu_owner, (uint64_t)(self->v3_cand));
-                    fp_unit_in_type_drive(&self->s_fpu_mux_in, fp_unit_in_type_get(&self->up->s_fpu_in.a[(self->v3_cand) - 0]));
+                    vs_drive(&self->up->s_fpu_owner, (uint64_t)(self->v1_cand));
+                    fp_unit_in_type_drive(&self->s_fpu_mux_in, fp_unit_in_type_get(&self->up->s_fpu_in.a[(self->v1_cand) - 0]));
                     vs_drive(&self->s_fpu_mux_in.f_fp_exe_i.f_enable, 0);
                     vs_drive(&self->s_arb_state, 1);
                 }
@@ -203,15 +198,15 @@ static void bac_63f81_n1_g0_create(vs_kernel *k, bac_63f81_n1_g0 *self, const ch
     fp_unit_in_type_register(k, &self->s_fpu_mux_in, fp_unit_in_type_zero());
     vs_register_signal(k, &self->s_fpu_div, (uint64_t) (INT64_C(0)));
     vs_name(k, &self->s_fpu_div, path, "fpu_div", 64);
-    vs_register_signal(k, &self->s_fpu_ce, (uint64_t) (0));
+    vs_register_signal(k, &self->s_fpu_ce, (uint64_t) (1));
     vs_name(k, &self->s_fpu_ce, path, "fpu_ce", 1);
     vs_register_signal(k, &self->s_arb_ce, (uint64_t) (0));
     vs_name(k, &self->s_arb_ce, path, "arb_ce", 1);
     vs_register_signal(k, &self->s_arb_state, (uint64_t) (0));
     vs_name(k, &self->s_arb_state, path, "arb_state", 32);
     fp_unit_create(k, &self->c_fpu_63f39_0, vs_join(k, path, "fpu_63f39"), self->up->p_reset_n, self->up->p_cpuclk, &self->s_fpu_ce, &self->s_fpu_mux_in, &self->up->s_fpu_out);
-    self->v3_cand = INT64_C(0);
-    self->v3_found = 0;
+    self->v1_cand = INT64_C(0);
+    self->v1_found = 0;
 
     {
         vs_sig *sens[1];
@@ -221,25 +216,11 @@ static void bac_63f81_n1_g0_create(vs_kernel *k, bac_63f81_n1_g0 *self, const ch
     }
 
     {
-        vs_sig *sens[1];
-        size_t n = 0;
-        sens[n++] = &self->s_fpu_div;
-        vs_register_process(k, bac_63f81_n1_g0_p1, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[1];
-        size_t n = 0;
-        sens[n++] = &self->s_fpu_div;
-        vs_register_process(k, bac_63f81_n1_g0_p2, self, sens, n);
-    }
-
-    {
         vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
         sens[n++] = &(*self->up->p_cpuclk);
-        vs_register_process(k, bac_63f81_n1_g0_p3, self, sens, n);
+        vs_register_process(k, bac_63f81_n1_g0_p1, self, sens, n);
     }
 }
 
