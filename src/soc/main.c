@@ -24,6 +24,7 @@ static void usage(FILE *f)
         "                       program must set the same one in the ACIA (divider /16 : 24e6 / (32 * (div + 1)))\n"
         "                       socket=PATH replaces in/out by a Unix domain socket the emulator listens on\n"
         "                       (one peer at a time, raw bytes) ; wait blocks until a peer connects\n"
+        "  --spi-slave          a SPI slave (mode 0) on SS0 that answers each byte with the previous one\n"
         "  --twi-eeprom ADDR    an I2C EEPROM (24C02 like, 256 bytes) with the 7-bit address ADDR on the TWI pins\n"
         "  --peek-eeprom        print the content of the EEPROM when the run ends\n"
         "  --reset-us N         RESET_n stays low N microseconds (default 5 ; the peripherals need E to run during the reset)\n"
@@ -126,6 +127,7 @@ int main(int argc, char **argv)
         { "elf", required_argument, NULL, 'e' },
         { "elf-offset", required_argument, NULL, 'O' },
         { "acia", required_argument, NULL, 'a' },
+        { "spi-slave", no_argument, NULL, 'S' },
         { "twi-eeprom", required_argument, NULL, 'E' },
         { "peek-eeprom", no_argument, NULL, 'P' },
         { "reset-us", required_argument, NULL, 'R' },
@@ -186,6 +188,9 @@ int main(int argc, char **argv)
                 break;
             case 'O':
                 cfg.elf_offset = strtoull(optarg, NULL, 0);
+                break;
+            case 'S':
+                cfg.spi_slave = 1;
                 break;
             case 'E':
                 cfg.twi_eeprom = 1;

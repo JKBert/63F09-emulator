@@ -68,6 +68,24 @@ nothing to change in the compiler. Checked without touching the sources : `VHDL2
 one-line correction to the temporary copy of 63F09.vhd ; with it the program sends `ello from the 63F09` (see A1 for
 the missing `H`).
 
+### A0b. SoC09 : the SPI chip-select register cannot be reached
+*Status : read in `SoC.vhd`, confirmed by running a program.*
+
+`SPI0` is connected with `ADDR => A(1 downto 0)` (four registers : data, control, chip-select MSB and LSB) but the
+decoder selects it for `x"000" | x"001"` only. The CPU can therefore not write `CS_REG` and the select lines `SPI_SS`
+stay at their reset value (all ones) : no slave is ever selected. With `x"002" | x"003"` added to that choice
+(`VHDL2C_FIX_SPI_DECODE=1 make gen` applies it on the temporary copy), a program that sets the divisor, selects SS0
+and sends `5A` then `3C` to the slave of `--spi-slave` gets `A5` then `B4` (see A0c).
+
+### A0c. 63F52 : the master clocks a ninth rising edge after each byte
+*Status : observed on the pins, identical in GHDL and the emulator ; to confirm with a real slave.*
+
+In mode 0 (CPOL = CPHA = 0) SCLK has eight pulses for the byte and then one more rising edge that returns to idle
+about two bit times later (the counter `CLK_TOGGLES` goes to `D_IN'length * 2 + 1` = 17). A mode-0 slave counts nine
+rising edges, shifts once too many and answers `B4` instead of `5A` to the next byte (the answer to the first byte,
+`A5`, is right). Either the extra edge belongs to the design (the last bit is sampled on it) and the slaves must
+ignore it, or the master should stop at 16 toggles.
+
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*
 

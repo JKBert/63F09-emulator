@@ -98,6 +98,7 @@ def main(argv):
         else:
             out.append((lib, path))
     out.append(("work", os.path.join(HERE, "i2c_eeprom.vhd")))
+    out.append(("work", os.path.join(HERE, "spi_slave.vhd")))
     out.append(("work", os.path.join(HERE, "tb_soc.vhd")))
     raw = lambda p: p.startswith(HERE) or p.endswith("unisim_stub.vhd")
     dfs = []
@@ -131,8 +132,8 @@ def main(argv):
     ghdl_lines = [l.strip() for l in vhd_log.splitlines() if l.startswith("ext ")]
     ghdl_tx = [l.split() for l in vhd_log.splitlines() if l.startswith("tx ")]
     ticks = int(us * 1e6 / 6.95)
-    emu = os.path.join(ROOT, "build", "soc63f09")
-    c_log = run([emu, "--ext", "0xF00000000:0x10000", "--twi-eeprom", "0x50", "--elf", elf, "--ticks", str(ticks), "--trace-bus"], work)
+    emu = os.environ.get("COSIM_EMU", os.path.join(ROOT, "build", "soc63f09"))
+    c_log = run([emu, "--ext", "0xF00000000:0x10000", "--twi-eeprom", "0x50", "--spi-slave", "--elf", elf, "--ticks", str(ticks), "--trace-bus"], work)
     c_lines = [re.sub(r"^\s*\d+\s+", "", l).strip() for l in c_log.splitlines() if " ext " in l]
     c_tx = [l.split() for l in c_log.splitlines() if " tx " in l]
     ghdl_i2c = [l.split() for l in vhd_log.splitlines() if l.startswith("i2c ")]

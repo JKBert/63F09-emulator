@@ -86,9 +86,17 @@ def fix_incv(text):
     return re.sub(r"(-- 107C : INCV immediate\s+LEFT_CTRL <= )REG_Q_LEFT", r"\1REG_V_LEFT", text)
 
 
+def fix_spi_decode(text):
+    """Opt-in (VHDL2C_FIX_SPI_DECODE=1) : the 63F52 has four registers (ADDR is 2 bits wide, the chip-select register is
+    at +2 and +3) but SoC.vhd selects it for x"000" and x"001" only."""
+    return re.sub(r'(when x"000" \| x"001" => CS\(MUX_SPI0\) <= \'1\';)',
+                  'when x"000" | x"001" | x"002" | x"003" => CS(MUX_SPI0) <= \'1\';', text)
+
+
 PATCHES = {
     "61F64x1": [fix_conditional_actuals],
     "63F52": [fix_conditional_actuals],
+    "SoC": [fix_spi_decode] if os.environ.get("VHDL2C_FIX_SPI_DECODE") else [],
     "63F09": [fix_incv] if os.environ.get("VHDL2C_FIX_INCV") else [],
     "63F29": [_static_prefix_sensitivity([
         ("BANK_ARRAY(CURRENT_RING)(i)", "BANK_ARRAY"),

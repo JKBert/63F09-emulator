@@ -230,6 +230,10 @@ int soc_create(soc *s, const soc_cfg *c)
     {
         i2c_eeprom_create(&s->k, &s->eeprom, &s->twi_sda, &s->twi_scl, c->twi_eeprom_addr);
     }
+    if (c->spi_slave)
+    {
+        spi_slave_create(&s->k, &s->spi, &s->spi_ss, &s->spi_sclk, &s->spi_mosi, &s->spi_miso);
+    }
     sens[0] = &s->addr;
     sens[1] = &s->e;
     sens[2] = &s->rw_n;

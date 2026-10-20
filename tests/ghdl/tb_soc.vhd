@@ -50,13 +50,20 @@ architecture sim of tb_soc is
     signal PTM_C_n                              : std_logic_matrix(0 to 1)(1 to 3) := (others => "111");
     signal PTM_G_n                              : std_logic_matrix(0 to 1)(1 to 3) := (others => "000");
     signal SPI_MISO, SPI_MOSI, SPI_SCLK         : std_logic;
-    signal SPI_SS                               : std_logic_vector(15 downto 0) := (others => '1');
+    signal SPI_SS                               : std_logic_vector(15 downto 0);
     signal TWI_SDA, TWI_SCL                     : std_logic;
 begin
     -- the I2C bus: pull-ups and an EEPROM at 0x50
     TWI_SDA <= 'H';
     TWI_SCL <= 'H';
     EEPROM : entity work.I2C_EEPROM port map (SDA => TWI_SDA, SCL => TWI_SCL);
+
+    -- the SPI bus: pull-ups and a slave on SS0
+    SPI_MISO <= 'H';
+    SPI_MOSI <= 'H';
+    SPI_SCLK <= 'H';
+    SPI_SS <= (others => 'H');
+    SLAVE : entity work.SPI_SLAVE port map (SS => SPI_SS(0), SCLK => SPI_SCLK, MOSI => SPI_MOSI, MISO => SPI_MISO);
 
     EXTAL <= not EXTAL after 20850 ps;                          -- 24 MHz (41.7 ns : the PLL divides it exactly)
     RESET_n <= '1' after 5004695 ps;                            -- 720100 ticks of 6.95 ps (the emulator's default) : not on a clock edge
