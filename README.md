@@ -34,7 +34,8 @@ The generated C is in `src/gen`, so `make emu` needs neither the VHDL nor GHDL.
     build/soc63f09 --ncpus 4 --fpu shared --elf prog.elf --acia 0,baud=115200
 
 The number of cores (1 to 8) and the sharing of the FPU are chosen on the command line. The serial lines go to the
-console (stdin/stdout) or to files. See `docs/EMULATOR.md` for every option.
+console (stdin/stdout), to files or to Unix sockets (`--acia N,socket=PATH`) ; the pins of the PIA, PTM, SPI and
+TWI and the interrupt inputs are on another socket (`--pins PATH`). See `docs/EMULATOR.md` for every option.
 
 ## Documentation
 
