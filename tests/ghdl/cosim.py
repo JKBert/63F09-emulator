@@ -111,6 +111,14 @@ def main(argv):
             user.append((lib, path))
     patched = dict(zip([p for l, p in user], [p for l, p in zeroinit.patch(dfs, user, os.path.join(work, "zeroinit"))]))
     test_files = [(lib, path if raw(path) else patched[path]) for lib, path in out]
+    # GHDL binds a component to the entity of the same name in the library of the instantiating unit (`work`), the
+    # entity FP_UNIT is in `fpu` : the instances are made direct (on the copies in build/)
+    for lib, path in test_files:
+        if "zeroinit" in path:
+            text = open(path, encoding="utf-8", errors="replace").read()
+            new = re.sub(r"(\b\w+\s*:\s*)FP_UNIT\b(?!\s*;)", r"\1entity fpu.FP_UNIT", text, flags=re.I)
+            if new != text:
+                open(path, "w", encoding="utf-8").write(new)
     wd = os.path.join(work, "lib")
     os.makedirs(wd, exist_ok=True)
     for lib, path in test_files:
