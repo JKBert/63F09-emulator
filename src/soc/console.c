@@ -186,6 +186,7 @@ static void poll_input(vs_kernel *k, void *arg)
 
     if (ch == -2)
     {
+        c->poll_alive = 0;
         return;
     }
     if (ch == -1)
@@ -272,6 +273,31 @@ void console_create(vs_kernel *k, console *c, vs_sig *rxd, vs_sig *txd, unsigned
     vs_register_process(k, txd_run, c, sens, 1);
     if (in != NULL || c->listen_fd >= 0)
     {
+        c->poll_alive = 1;
         vs_timer_add(k, POLL_TICKS, poll_input, c);
     }
+}
+
+int console_rehost(console *c, FILE *in, FILE *out, const char *socket, int wait)
+{
+    c->listen_fd = c->conn_fd = -1;
+    c->sock_path[0] = '\0';
+    c->in = in;
+    c->out = out;
+    c->in_done = 0;
+    c->in_is_tty_or_pipe = in != NULL && in == stdin;
+    if (socket != NULL && socket[0] != '\0')
+    {
+        if (console_listen(c, socket, wait) != 0)
+        {
+            return -1;
+        }
+        c->in = c->out = NULL;
+    }
+    if ((c->in != NULL || c->listen_fd >= 0) && !c->poll_alive)
+    {
+        c->poll_alive = 1;
+        vs_timer_add(c->k, c->k->now + POLL_TICKS, poll_input, c);
+    }
+    return 0;
 }

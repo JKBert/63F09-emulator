@@ -35,7 +35,8 @@ The generated C is in `src/gen`, so `make emu` needs neither the VHDL nor GHDL.
 
 The number of cores (1 to 8) and the sharing of the FPU are chosen on the command line. The serial lines go to the
 console (stdin/stdout), to files or to Unix sockets (`--acia N,socket=PATH`) ; the pins of the PIA, PTM, SPI and
-TWI and the interrupt inputs are on another socket (`--pins PATH`). See `docs/EMULATOR.md` for every option.
+TWI and the interrupt inputs are on another socket (`--pins PATH`). The whole state can be saved and restored
+(`--save`, `--restore`) to skip the start-up of a program. See `docs/EMULATOR.md` for every option.
 
 ## Documentation
 

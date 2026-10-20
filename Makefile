@@ -21,7 +21,7 @@ PYTHON       ?= $(VENV)/bin/python
 GHDL         ?= $(GHDL_INSTALL)/bin/ghdl
 
 CC           ?= cc
-CFLAGS       ?= -std=c99 -O2 -Wall -Wextra
+CFLAGS       ?= -std=c99 -O2 -Wall -Wextra -fno-pie
 CPPFLAGS     += -D_POSIX_C_SOURCE=200809L -Isrc/rt
 
 export VHDL2C_GHDL_SRC    := $(GHDL_SRC)
@@ -77,8 +77,9 @@ EMU_CPPFLAGS := $(CPPFLAGS) -Isrc -Isrc/gen -Isrc/rt
 
 emu: $(BUILD)/soc63f09
 
+# Linked without PIE : a snapshot holds pointers to the code (timers, processes), see src/soc/snapshot.c.
 $(BUILD)/soc63f09: $(EMU_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -no-pie -o $@ $^
 
 $(BUILD)/obj/%.o: src/%.c
 	mkdir -p $(dir $@)

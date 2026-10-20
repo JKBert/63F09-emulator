@@ -73,6 +73,22 @@ write cycle time and no clock stretching. `tests/soc/twi_eeprom.py` assembles by
 (write a byte, restart, read it back) ; `make test-soc` runs it and `make cosim ELF=... ` compares it with GHDL :
 249 identical bus cycles and 178 identical changes of the I2C lines.
 
+## Snapshots
+
+`--save FILE` writes the whole state of the machine when the run ends, `--save-at N` writes it at N ticks (the run goes
+on), `--restore FILE` starts from it. A restored run continues exactly like the run that was not interrupted (the
+bus trace after the snapshot is identical, `tests/soc/run.sh` checks it). Loading takes 0.05 s with one core and 0.2 s
+with eight, whatever the time it took to reach that state.
+
+How it works : every allocation of a run (kernel, instances, models, memories) comes from one arena mapped at a fixed
+address (`src/rt/vsim.c`), so the snapshot is the content of the arena (zero pages are not stored) and the pointers
+inside stay valid. The executable is linked without PIE (the timers and the processes hold code addresses) and the
+snapshot carries a hash of it : **it can only be loaded by the executable that wrote it**, rebuild means making a new
+one. The machine (`--ncpus`, `--fpu`, `--ext`, the ACIAs, the EEPROM and SPI slave, the pins) comes from the snapshot ;
+the host side is the one of the command line : `--acia N[,in=..][,out=..][,socket=..]`, `--pins`, `--dump`,
+`--trace-bus`, `--ticks` (absolute time to stop at). An ACIA or the pins that did not exist when the snapshot was made
+cannot be added. Sizes : about 40 MB with one core and 300 MB with eight (the signals of the cores), 4 MB once gzipped.
+
 ## Pins on a Unix socket
 
 `--pins PATH[,wait]` serves the pins of the PIAs, PTMs, SPI, TWI and the interrupt inputs on a Unix domain socket

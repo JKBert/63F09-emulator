@@ -56,3 +56,15 @@ echo "SPI test: ok"
 # PIA 0 interrupt on C1 (EIRQ19) while the core loops in its cache : the peer raises C1 three times, the handler counts.
 python3 "$here/pia_irq.py" "$emu" "$work/piairq" 1
 python3 "$here/pia_irq.py" "$emu" "$work/piairq" 2
+
+# Snapshots : a run saved at 50 us and restored must continue exactly like the run that was not interrupted.
+elf=$here/programs/elf/hello3.elf
+"$emu" --ncpus 4 --elf "$elf" --acia 0,baud=107142,out="$work/snap_a.txt" --ticks 200000000 --trace-bus > "$work/snap_a.log" 2>&1
+"$emu" --ncpus 4 --elf "$elf" --acia 0,baud=107142,out="$work/snap_x.txt" --ticks 100000000 --save "$work/snap.bin" > /dev/null 2>&1
+"$emu" --restore "$work/snap.bin" --acia 0,out="$work/snap_b.txt" --ticks 200000000 --trace-bus > "$work/snap_b.log" 2>&1
+awk '$1 > 100000200' "$work/snap_a.log" > "$work/snap_a.tail"
+awk '$1 > 100000200' "$work/snap_b.log" > "$work/snap_b.tail"
+cmp "$work/snap_a.tail" "$work/snap_b.tail"
+test -s "$work/snap_a.tail"
+rm -f "$work/snap.bin"
+echo "snapshot test: ok"

@@ -60,6 +60,8 @@ typedef struct soc_cfg
     uint64_t    max_ticks;          /* the run stops there (0 : never) */
     FILE        *dump;              /* changes of every named signal : "<ticks> <name> <value>" */
     int         trace_bus;          /* one line per cycle of the external bus on stdout */
+    char        save_path[256];     /* snapshot written at save_at ticks (0 : when the run ends) */
+    uint64_t    save_at;
 } soc_cfg;
 
 typedef struct soc

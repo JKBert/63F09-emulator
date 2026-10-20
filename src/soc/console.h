@@ -19,6 +19,7 @@ typedef struct console
     int         listen_fd;          /* Unix socket the host side listens on (-1 : none) */
     int         conn_fd;            /* the connected peer (-1 : none) : bytes go there instead of `out` */
     int         in_is_tty_or_pipe;  /* poll before reading */
+    int         poll_alive;         /* a poll_input timer is pending */
     /* transmit side (ACIA to host) */
     int         tx_busy;
     unsigned    tx_nbits;
@@ -38,6 +39,10 @@ void console_create(vs_kernel *k, console *c, vs_sig *rxd, vs_sig *txd, unsigned
 /* The serial line goes to a Unix domain socket (stream) : the emulator listens on `path` and serves one peer at a
  * time, bytes are exchanged raw. With `wait` the call blocks until a peer connects. Returns 0 on success. */
 int  console_listen(console *c, const char *path, int wait);
+
+/* After a snapshot was loaded : the host side (files, socket) of the line is the one of the command line, the model
+ * keeps the rate and the state it had. Returns 0 on success. */
+int  console_rehost(console *c, FILE *in, FILE *out, const char *socket, int wait);
 
 /* Closes the descriptors and removes the socket file. */
 void console_close(console *c);

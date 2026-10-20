@@ -116,6 +116,13 @@ void    vs_kernel_free(vs_kernel *k);
 /* Links a field of `src` to a field of `dst` (see vs_tie). The destination takes the current value. */
 void    vs_tie_fields(vs_sig *src, unsigned src_shift, vs_sig *dst, unsigned dst_shift, unsigned width);
 
+/* All the memory of a run comes from one arena at a fixed address (see vsim.c) : a snapshot is its content. vs_arena_alloc
+ * returns zeroed memory. */
+int     vs_arena_map(void);
+void    *vs_arena_alloc(size_t n);
+void    vs_arena_region(void **base, size_t *used);
+void    vs_arena_set_used(size_t used);
+
 /* Memory that lives as long as the kernel. */
 void    *vs_alloc(vs_kernel *k, size_t size);
 

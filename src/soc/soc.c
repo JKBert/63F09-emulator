@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "soc/soc.h"
+#include "soc/snapshot.h"
 
 void soc_cfg_default(soc_cfg *c)
 {
@@ -25,7 +26,7 @@ int soc_add_zone(soc_cfg *c, uint64_t base, uint64_t size)
         return -1;
     }
     z = &c->zones[c->nzones];
-    z->data = calloc(1, (size_t) size);
+    z->data = vs_arena_alloc((size_t) size);       /* in the arena, so that a snapshot holds it */
     if (z->data == NULL)
     {
         return -1;
@@ -337,6 +338,8 @@ int soc_create(soc *s, const soc_cfg *c)
 
 void soc_run(soc *s)
 {
+    int saved = 0;
+
     vs_settle(&s->k);
     if (s->cfg.dump != NULL)
     {
@@ -348,6 +351,18 @@ void soc_run(soc *s)
         {
             vs_dump(&s->k, s->cfg.dump, (long) s->k.now);
         }
+        if (!saved && s->cfg.save_path[0] != '\0' && s->cfg.save_at != 0 && s->k.now >= s->cfg.save_at)
+        {
+            saved = 1;
+            if (snapshot_save(s, s->cfg.save_path) == 0)
+            {
+                fprintf(stderr, "snapshot written at %llu ticks : %s\n", (unsigned long long) s->k.now, s->cfg.save_path);
+            }
+        }
+    }
+    if (!saved && s->cfg.save_path[0] != '\0' && snapshot_save(s, s->cfg.save_path) == 0)
+    {
+        fprintf(stderr, "snapshot written at %llu ticks : %s\n", (unsigned long long) s->k.now, s->cfg.save_path);
     }
 }
 
@@ -355,10 +370,6 @@ void soc_destroy(soc *s)
 {
     int i;
 
-    for (i = 0; i < s->cfg.nzones; i++)
-    {
-        free(s->cfg.zones[i].data);
-    }
     if (s->cfg.pins_socket[0] != '\0')
     {
         pins_close(&s->pins);

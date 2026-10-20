@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "soc/soc.h"
+#include "soc/snapshot.h"
 
 static void usage(FILE *f)
 {
@@ -30,6 +31,11 @@ static void usage(FILE *f)
         "  --twi-eeprom ADDR    an I2C EEPROM (24C02 like, 256 bytes) with the 7-bit address ADDR on the TWI pins\n"
         "  --peek-eeprom        print the content of the EEPROM when the run ends\n"
         "  --reset-us N         RESET_n stays low N microseconds (default 5 ; the peripherals need E to run during the reset)\n"
+        "  --save FILE          write a snapshot of the whole state when the run ends (or at --save-at)\n"
+        "  --save-at N          write the snapshot at N ticks (the run goes on)\n"
+        "  --restore FILE       start from a snapshot made by this same executable (--ticks is then the absolute time\n"
+        "                       to stop at ; the serial lines, pins and files are those of this command line ;\n"
+        "                       --ncpus, --ext, --elf and the other options of the machine come from the snapshot)\n"
         "  --ticks N            stop after N ticks (a tick is 1/144 ns ; default 100000000)\n"
         "  --dump FILE          write every change of every named signal\n"
         "  --peek ADDR:LEN      print LEN bytes of memory at the physical address ADDR when the run ends\n"
@@ -135,6 +141,9 @@ int main(int argc, char **argv)
         { "peek-eeprom", no_argument, NULL, 'P' },
         { "reset-us", required_argument, NULL, 'R' },
         { "ticks", required_argument, NULL, 't' },
+        { "save", required_argument, NULL, 'V' },
+        { "save-at", required_argument, NULL, 'A' },
+        { "restore", required_argument, NULL, 'L' },
         { "dump", required_argument, NULL, 'd' },
         { "peek", required_argument, NULL, 'k' },
         { "trace-bus", no_argument, NULL, 'T' },
@@ -144,6 +153,7 @@ int main(int argc, char **argv)
     soc_cfg     cfg;
     soc         *s;
     const char  *elf = NULL;
+    const char  *restore = NULL;
     uint64_t    peek_addr = 0, peek_len = 0;
     int         peek_eeprom = 0;
     int         opt;
@@ -220,6 +230,15 @@ int main(int argc, char **argv)
             case 't':
                 cfg.max_ticks = strtoull(optarg, NULL, 0);
                 break;
+            case 'V':
+                snprintf(cfg.save_path, sizeof(cfg.save_path), "%s", optarg);
+                break;
+            case 'A':
+                cfg.save_at = strtoull(optarg, NULL, 0);
+                break;
+            case 'L':
+                restore = optarg;
+                break;
             case 'd':
                 cfg.dump = fopen(optarg, "w");
                 if (cfg.dump == NULL)
@@ -243,18 +262,34 @@ int main(int argc, char **argv)
                 return opt == 'h' ? 0 : 2;
         }
     }
-    if (cfg.nzones == 0)
+    if (restore != NULL)
     {
-        soc_add_zone(&cfg, UINT64_C(0xF00000000), 0x1000000);
+        if (elf != NULL)
+        {
+            fprintf(stderr, "--elf and --restore cannot be used together\n");
+            return 2;
+        }
+        s = snapshot_load(restore);
+        if (s == NULL || soc_rehost(s, &cfg) != 0)
+        {
+            return 1;
+        }
     }
-    s = malloc(sizeof(*s));
-    if (s == NULL || soc_create(s, &cfg) != 0)
+    else
     {
-        return 1;
-    }
-    if (elf != NULL && soc_load_elf(s, elf) != 0)
-    {
-        return 1;
+        if (cfg.nzones == 0)
+        {
+            soc_add_zone(&cfg, UINT64_C(0xF00000000), 0x1000000);
+        }
+        s = vs_arena_alloc(sizeof(*s));
+        if (soc_create(s, &cfg) != 0)
+        {
+            return 1;
+        }
+        if (elf != NULL && soc_load_elf(s, elf) != 0)
+        {
+            return 1;
+        }
     }
     soc_run(s);
     printf("time %llu ticks, %llu external reads, %llu external writes, %llu unmapped\n",
@@ -296,6 +331,5 @@ int main(int argc, char **argv)
         printf("\n");
     }
     soc_destroy(s);
-    free(s);
     return 0;
 }

@@ -1,21 +1,115 @@
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <sys/mman.h>
 
 #include "vsim.h"
 
 vs_sig  **vs_pendlist;
 size_t  vs_npend;
 int     vs_finished;
+static int mapped_ok;
 
-static void *xrealloc(void *p, size_t n)
+/* One arena at a fixed address holds everything that a run allocates : the kernel, the instances, the models, the memories.
+ * A snapshot is the content of the arena (plus the three globals above) : the pointers inside stay valid when it is
+ * loaded again at the same address, in the same executable (linked without PIE). Blocks are never freed ; the first
+ * 16 bytes of the arena are the header, each block has a 16-byte header with its size. */
+#define ARENA_BASE  ((uint8_t *) UINT64_C(0x200000000000))
+#define ARENA_CAP   (UINT64_C(4) << 30)
+
+typedef struct arena_hdr
 {
-    p = realloc(p, n ? n : 1);
-    if (p == NULL)
+    size_t      used;
+    size_t      pad;
+} arena_hdr;
+
+int vs_arena_map(void)
+{
+    void    *p;
+
+    if (mapped_ok)
+    {
+        return 0;
+    }
+#ifdef MAP_FIXED_NOREPLACE
+    p = mmap(ARENA_BASE, ARENA_CAP, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE | MAP_FIXED_NOREPLACE, -1, 0);
+#else
+    p = mmap(ARENA_BASE, ARENA_CAP, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
+#endif
+    if (p != (void *) ARENA_BASE)
+    {
+        fprintf(stderr, "cannot map the arena at %p\n", (void *) ARENA_BASE);
+        return -1;
+    }
+    ((arena_hdr *) ARENA_BASE)->used = sizeof(arena_hdr);
+    mapped_ok = 1;
+    return 0;
+}
+
+void vs_arena_region(void **base, size_t *used)
+{
+    *base = ARENA_BASE;
+    *used = ((arena_hdr *) ARENA_BASE)->used;
+}
+
+void vs_arena_set_used(size_t used)
+{
+    ((arena_hdr *) ARENA_BASE)->used = used;
+}
+
+void *vs_arena_alloc(size_t n)
+{
+    arena_hdr   *h;
+    uint8_t     *p;
+
+    if (vs_arena_map() != 0)
     {
         abort();
     }
-    return p;
+    h = (arena_hdr *) ARENA_BASE;
+    n = (n + 15) & ~(size_t) 15;
+    if (h->used + 16 + n > ARENA_CAP)
+    {
+        fprintf(stderr, "arena full\n");
+        abort();
+    }
+    p = ARENA_BASE + h->used;
+    *(size_t *) p = n;                  /* fresh pages of the mapping are zero */
+    h->used += 16 + n;
+    return p + 16;
+}
+
+static void *xrealloc(void *old, size_t n)
+{
+    uint8_t *p = old;
+    size_t  on;
+    void    *q;
+
+    if (p == NULL)
+    {
+        return vs_arena_alloc(n ? n : 1);
+    }
+    on = *(size_t *) (p - 16);
+    if (n <= on)
+    {
+        return p;
+    }
+    if (p + on == ARENA_BASE + ((arena_hdr *) ARENA_BASE)->used)       /* the last block grows in place */
+    {
+        size_t  nn = (n + 15) & ~(size_t) 15;
+
+        if (((arena_hdr *) ARENA_BASE)->used + (nn - on) <= ARENA_CAP)
+        {
+            *(size_t *) (p - 16) = nn;
+            ((arena_hdr *) ARENA_BASE)->used += nn - on;
+            return p;
+        }
+    }
+    q = vs_arena_alloc(n < 2 * on ? 2 * on : n);        /* geometric growth : the old block is not reused */
+    memcpy(q, p, on);
+    return q;
 }
 
 void vs_kernel_init(vs_kernel *k)
@@ -229,45 +323,7 @@ vs_region *vs_region_find(vs_kernel *k, const char *suffix)
 
 void vs_kernel_free(vs_kernel *k)
 {
-    size_t  i;
-
-    free(k->regions);
-    k->regions = NULL;
-
-    free(k->timers);
-    k->timers = NULL;
-
-    /* The signals may live in memory that the kernel allocated : their lists go first. */
-    for (i = 0; i < k->nsigs; i++)
-    {
-        free(k->sigs[i]->fan);
-        k->sigs[i]->fan = NULL;
-        k->sigs[i]->nfan = 0;
-        free(k->sigs[i]->ties);
-        k->sigs[i]->ties = NULL;
-        k->sigs[i]->nties = 0;
-    }
-    for (i = 0; i < k->nprocs; i++)
-    {
-        free(k->procs[i]->sens);
-        free(k->procs[i]->masks);
-        free(k->procs[i]);
-    }
-    for (i = 0; i < k->nnames; i++)
-    {
-        free(k->names[i]);
-    }
-    for (i = 0; i < k->nallocs; i++)
-    {
-        free(k->allocs[i]);
-    }
-    free(k->allocs);
-    free(k->names);
-    free(k->sigs);
-    free(k->procs);
-    free(k->runq);
-    free(k->events);
-    free(vs_pendlist);
+    /* the memory is in the arena : nothing to free, the process is ending */
     vs_pendlist = NULL;
     vs_npend = 0;
     memset(k, 0, sizeof(*k));
