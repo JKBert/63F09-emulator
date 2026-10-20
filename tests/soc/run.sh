@@ -27,6 +27,19 @@ grep -q '^F00001000: 3C' "$work/twi.log"            # the byte that was read bac
 sed -n '/^eeprom/,$p' "$work/twi.log" | sed -n 3p | grep -q '^3C '    # and is in the EEPROM, at 0x10
 echo "TWI / I2C EEPROM test: ok"
 
+# Persistence : the content goes to the file after the write, and is loaded again by the next run.
+rm -f "$work/ee.bin"
+"$emu" --ncpus 2 --elf "$work/twi.elf" --twi-eeprom 0x50,file="$work/ee.bin" --ticks 20000000 > /dev/null
+[ "$(od -An -tx1 -j16 -N1 "$work/ee.bin" | tr -d ' ')" = 3c ]
+[ "$(od -An -tx1 -j17 -N1 "$work/ee.bin" | tr -d ' ')" = ff ]
+"$emu" --ncpus 1 --elf "$work/smoke.elf" --twi-eeprom 0x50,file="$work/ee.bin" --peek-eeprom --ticks 1000 \
+    | sed -n '/^eeprom/,$p' | sed -n 3p | grep -q '^3C '
+# Write cycle of 1 ms : the program polls nothing, so the address of the read is refused and nothing comes back
+"$emu" --ncpus 2 --elf "$work/twi.elf" --twi-eeprom 0x50,wr=1000000 --peek-eeprom --peek 0xF00001000:1 --ticks 20000000 > "$work/twiwr.log"
+! grep -q '^F00001000: 3C' "$work/twiwr.log"
+sed -n '/^eeprom/,$p' "$work/twiwr.log" | sed -n 3p | grep -q '^3C '
+echo "EEPROM file and write cycle test: ok"
+
 # The PIA (6821-like) : select DDRA, all outputs, select ORA, write 0xA5, read ORA and CRA back into the external memory.
 python3 "$here/mkelf.py" "$work/pia.elf" "0xFFFFF000=11 3D 31 7E 00 00 F1 00" "0xFFFFFFFE=F0 00" \
     "0xF100=86 00 B7 FF FE F0 01 86 FF B7 FF FE F0 00 86 04 B7 FF FE F0 01 86 A5 B7 FF FE F0 00 B6 FF FE F0 00 B7 00 00 10 00 B6 FF FE F0 01 B7 00 00 10 01 20 FE"

@@ -69,9 +69,20 @@ accepted. The socket file is removed when the emulator ends.
 `--twi-eeprom ADDR` puts a 24C02-like EEPROM (256 bytes, 7-bit address ADDR, byte and sequential write, random,
 current-address and sequential read) on the SDA and SCL pins, `--peek-eeprom` prints its content at the end. The
 model (`src/soc/i2c_eeprom.c`, mirrored in VHDL by `tests/ghdl/i2c_eeprom.vhd`) acts on the edges of SCL, there is no
-write cycle time and no clock stretching. `tests/soc/twi_eeprom.py` assembles by hand a program for the TWI
+clock stretching. By default there is no write cycle time and no page. `tests/soc/twi_eeprom.py` assembles by hand a program for the TWI
 (write a byte, restart, read it back) ; `make test-soc` runs it and `make cosim ELF=... ` compares it with GHDL :
 249 identical bus cycles and 178 identical changes of the I2C lines.
+
+Options, after the address and separated by commas : `--twi-eeprom 0x50,file=ee.bin,wr=5000,page=8`.
+
+- `file=PATH` : the 256 bytes are loaded from the file at the start (a missing file leaves the memory erased, 0xFF) and
+  written back after each write cycle and at the end, so that the content survives from one run to the next.
+- `wr=US` : write cycle in microseconds of simulated time. After the STOP that ends a write, the EEPROM does not
+  acknowledge its address for that long (a 24C02 needs 5 ms at most), as the real part does ; software has to poll.
+- `page=N` : a sequential write wraps inside a page of N bytes (a power of 2 ; a 24C02 has 8). By default the whole
+  memory is one page, which is the behaviour the VHDL model of `tests/ghdl/i2c_eeprom.vhd` has.
+
+`tests/rt/test_eeprom.c` (`make test-rt`) checks the page and the write cycle on the model alone.
 
 ## Running without a limit
 

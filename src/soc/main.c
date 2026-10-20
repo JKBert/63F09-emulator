@@ -28,7 +28,11 @@ static void usage(FILE *f)
         "  --spi-slave          a SPI slave (mode 0) on SS0 that answers each byte with the previous one\n"
         "  --pins PATH[,wait]   the pins of the PIA, PTM, SPI, TWI and the interrupt inputs on a Unix socket (text lines,\n"
         "                       see src/soc/pins.h and docs/EMULATOR.md) ; wait blocks until a peer connects\n"
-        "  --twi-eeprom ADDR    an I2C EEPROM (24C02 like, 256 bytes) with the 7-bit address ADDR on the TWI pins\n"
+        "  --twi-eeprom ADDR[,file=PATH][,wr=US][,page=N]\n"
+        "                       an I2C EEPROM (24C02 like, 256 bytes) with the 7-bit address ADDR on the TWI pins ; file : its\n"
+        "                       content is read from PATH at the start and written back after each write ; wr : write cycle in\n"
+        "                       microseconds of simulated time (24C02 : 5000), the EEPROM does not answer meanwhile ; page : bytes\n"
+        "                       of a write page, a power of 2 (24C02 : 8), a sequential write wraps inside it\n"
         "  --peek-eeprom        print the content of the EEPROM when the run ends\n"
         "  --reset-us N         RESET_n stays low N microseconds (default 5 ; the peripherals need E to run during the reset)\n"
         "  --threads N          each core (with its MMU and DMC) is a partition of its own, run by N threads (0 : the whole\n"
@@ -225,6 +229,27 @@ int main(int argc, char **argv)
             case 'E':
                 cfg.twi_eeprom = 1;
                 cfg.twi_eeprom_addr = (unsigned) strtoul(optarg, NULL, 0) & 0x7F;
+                {
+                    char *opt = strchr(optarg, ',');
+
+                    while (opt != NULL)
+                    {
+                        opt++;
+                        if (strncmp(opt, "file=", 5) == 0)
+                        {
+                            snprintf(cfg.twi_eeprom_file, sizeof(cfg.twi_eeprom_file), "%.*s", (int) strcspn(opt + 5, ","), opt + 5);
+                        }
+                        else if (strncmp(opt, "wr=", 3) == 0)
+                        {
+                            cfg.twi_eeprom_write_us = (unsigned) strtoul(opt + 3, NULL, 0);
+                        }
+                        else if (strncmp(opt, "page=", 5) == 0)
+                        {
+                            cfg.twi_eeprom_page = (unsigned) strtoul(opt + 5, NULL, 0);
+                        }
+                        opt = strchr(opt, ',');
+                    }
+                }
                 break;
             case 'P':
                 peek_eeprom = 1;

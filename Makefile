@@ -109,8 +109,10 @@ cosim: emu need-vhdl
 
 test-rt:
 	mkdir -p $(BUILD)/obj
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $(BUILD)/obj/test_vwide tests/rt/test_vwide.c src/rt/vsim.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -no-pie -o $(BUILD)/obj/test_vwide tests/rt/test_vwide.c src/rt/vsim.c
 	$(BUILD)/obj/test_vwide
+	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -Isrc/rt -no-pie -o $(BUILD)/obj/test_eeprom tests/rt/test_eeprom.c src/soc/i2c_eeprom.c src/rt/vsim.c
+	$(BUILD)/obj/test_eeprom
 
 clean:
 	$(RM) -r $(BUILD)/obj $(BUILD)/soc63f09

@@ -53,6 +53,9 @@ typedef struct soc_cfg
     soc_serial  serial[SOC_NACIA];
     int         twi_eeprom;         /* an I2C EEPROM on the TWI pins, 0 : none */
     unsigned    twi_eeprom_addr;
+    unsigned    twi_eeprom_page;    /* bytes of a write page (0 : none) */
+    unsigned    twi_eeprom_write_us;/* microseconds of write cycle (0 : none) */
+    char        twi_eeprom_file[256];
     char        pins_socket[108];   /* Unix socket for the pins of the peripherals (empty : none), see pins.h */
     int         pins_wait;
     int         spi_slave;          /* a SPI slave on SS0 */    /* its 7-bit address */

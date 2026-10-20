@@ -295,6 +295,7 @@ int soc_create(soc *s, const soc_cfg *c)
     if (c->twi_eeprom)
     {
         i2c_eeprom_create(&s->k, &s->eeprom, &s->twi_sda, &s->twi_scl, c->twi_eeprom_addr);
+        i2c_eeprom_options(&s->eeprom, c->twi_eeprom_page, (uint64_t) c->twi_eeprom_write_us * 144000, c->twi_eeprom_file);
     }
     if (c->spi_slave)
     {
@@ -386,6 +387,10 @@ void soc_run(soc *s)
         }
     }
     vs_threads_stop(&s->k);
+    if (s->cfg.twi_eeprom)
+    {
+        i2c_eeprom_save(&s->eeprom);
+    }
     if (stop_requested)
     {
         fprintf(stderr, "interrupted at %llu ticks\n", (unsigned long long) s->k.now);

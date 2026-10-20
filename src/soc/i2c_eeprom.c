@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 
 #include "soc/i2c_eeprom.h"
@@ -47,6 +48,12 @@ static void eeprom_run(void *inst)
         e->phase = IDLE;
         e->stops++;
         release(e);
+        if (e->written)
+        {
+            e->written = 0;
+            e->busy_until = e->k->now + e->write_ticks;         /* the write cycle */
+            i2c_eeprom_save(e);
+        }
         return;
     }
     if (e->phase == IDLE)
@@ -75,7 +82,7 @@ static void eeprom_run(void *inst)
             switch (e->phase)
             {
                 case ADDRESS:
-                    if ((e->shift >> 1) == e->addr7)
+                    if ((e->shift >> 1) == e->addr7 && e->k->now >= e->busy_until)
                     {
                         ack = 1;
                         e->next_phase = (e->shift & 1) ? RDATA : WORD;
@@ -88,8 +95,16 @@ static void eeprom_run(void *inst)
                     break;
                 default:                /* WDATA */
                     e->mem[e->ptr] = (uint8_t) e->shift;
-                    e->ptr = (e->ptr + 1) & 0xFF;
+                    if (e->page > 0)
+                    {
+                        e->ptr = (e->ptr & ~(e->page - 1)) | ((e->ptr + 1) & (e->page - 1));      /* wraps in the page */
+                    }
+                    else
+                    {
+                        e->ptr = (e->ptr + 1) & 0xFF;
+                    }
                     e->writes++;
+                    e->written = 1;
                     ack = 1;
                     e->next_phase = WDATA;
                     break;
@@ -152,6 +167,7 @@ void i2c_eeprom_create(vs_kernel *k, i2c_eeprom *e, vs_sig *sda, vs_sig *scl, un
 
     memset(e, 0, sizeof(*e));
     memset(e->mem, 0xFF, sizeof(e->mem));
+    e->k = k;
     e->sda = sda;
     e->scl = scl;
     e->addr7 = addr7;
@@ -160,4 +176,32 @@ void i2c_eeprom_create(vs_kernel *k, i2c_eeprom *e, vs_sig *sda, vs_sig *scl, un
     sens[0] = sda;
     sens[1] = scl;
     vs_register_process(k, eeprom_run, e, sens, 2);
+}
+
+void i2c_eeprom_options(i2c_eeprom *e, unsigned page, uint64_t write_ticks, const char *path)
+{
+    FILE    *f;
+
+    e->page = page;
+    e->write_ticks = write_ticks;
+    snprintf(e->path, sizeof(e->path), "%s", path != NULL ? path : "");
+    if (e->path[0] != '\0' && (f = fopen(e->path, "rb")) != NULL)
+    {
+        size_t  n = fread(e->mem, 1, sizeof(e->mem), f);
+
+        (void) n;                   /* a shorter file leaves the rest erased */
+        fclose(f);
+    }
+}
+
+void i2c_eeprom_save(i2c_eeprom *e)
+{
+    FILE    *f;
+
+    if (e->path[0] == '\0' || (f = fopen(e->path, "wb")) == NULL)
+    {
+        return;
+    }
+    fwrite(e->mem, 1, sizeof(e->mem), f);
+    fclose(f);
 }

@@ -207,6 +207,11 @@ int soc_rehost(soc *s, const soc_cfg *host)
     s->cfg.dump = host->dump;
     s->cfg.trace_bus = host->trace_bus;
     s->cfg.max_ticks = host->max_ticks;
+    if (s->cfg.twi_eeprom)
+    {
+        memcpy(s->cfg.twi_eeprom_file, host->twi_eeprom_file, sizeof(s->cfg.twi_eeprom_file));
+        memcpy(s->eeprom.path, host->twi_eeprom_file, sizeof(s->eeprom.path));      /* (not read : the snapshot has the memory) */
+    }
     memcpy(s->cfg.save_path, host->save_path, sizeof(s->cfg.save_path));
     s->cfg.save_at = host->save_at;
     for (i = 0; i < SOC_NACIA; i++)
