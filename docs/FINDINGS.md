@@ -22,6 +22,9 @@ Program (assembled by hand, `build/acia32.elf` in the work tree) : master reset 
 * The bit time is `2 * (divisor + 1) * 16` SYSCLK cycles, i.e. `24 MHz / (32 * (divisor + 1))` (53 571 bauds for 13),
   twice the value that the header comment suggests for "divide by 16".
 
+With the recompiled `hello` (and the INCV correction) the same loss shows : the line comes out as `ello from the
+63F09`, the first character `H` is missing.
+
 To reproduce : `make cosim VHDL_DIR=... ELF=<elf with the sequence above> US=60` prints the changes of TxD of both
 simulators ; `soc63f09 --acia 0,baud=53571 --dump file` gives the internal signals (`soc.acia0.tx_*`).
 
@@ -43,7 +46,9 @@ the second character is read at `0xF15480000`, and the ACIA receives `0xFF` for 
 Seen in the emulator with `--dump` (`...cpu.reg_v`: `FFFF0081` then `15480081`) and in the co-simulation. A scan of
 the decoders for `INC/DEC/TST/NEG/COM/CLR/shift` whose operand register differs from the one in the mnemonic finds no
 other case (only the comment of opcode 57, which is ASRB). Fix : `REG_Q_LEFT` to `REG_V_LEFT` in the INCV branch ;
-nothing to change in the compiler.
+nothing to change in the compiler. Checked without touching the sources : `VHDL2C_FIX_INCV=1 make gen` applies that
+one-line correction to the temporary copy of 63F09.vhd ; with it the program sends `ello from the 63F09` (see A1 for
+the missing `H`).
 
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*

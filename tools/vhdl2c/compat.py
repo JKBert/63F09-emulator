@@ -80,9 +80,16 @@ def _static_prefix_sensitivity(names):
     return fix
 
 
+def fix_incv(text):
+    """Opt-in (VHDL2C_FIX_INCV=1), for checking a correction without touching the sources : the decoder of 107C INCV
+    takes Q as its operand where DECV (107A) takes V."""
+    return re.sub(r"(-- 107C : INCV immediate\s+LEFT_CTRL <= )REG_Q_LEFT", r"\1REG_V_LEFT", text)
+
+
 PATCHES = {
     "61F64x1": [fix_conditional_actuals],
     "63F52": [fix_conditional_actuals],
+    "63F09": [fix_incv] if os.environ.get("VHDL2C_FIX_INCV") else [],
     "63F29": [_static_prefix_sensitivity([
         ("BANK_ARRAY(CURRENT_RING)(i)", "BANK_ARRAY"),
         ("PAYLOAD_ARRAY(CURRENT_RING)(i)", "PAYLOAD_ARRAY"),
