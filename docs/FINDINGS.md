@@ -14,7 +14,7 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 | A2 | SoC09 `CACHEABLE_EXT` undriven | to confirm |
 | A3 | reset values | by design |
 | B2 | `LDMD` and the first load of S | for information |
-| B3 | stall on a cache line fill after a PTM write | to investigate |
+| B3 | E stops in a cached loop, the PTM stops | to confirm |
 
 ## A. Behaviour of the chip
 
@@ -92,14 +92,28 @@ The header of 63F09.vhd says that MD can only be written after a reset and befor
 sequence given in the conversation (`LDMD #$31 ; PSHS U`) pushes with S uninitialised ; the programs must load S
 after `LDMD`, as `crt0` does (`11 3D 11`, then `10 CE ...`).
 
-### B3. Core stalls on an instruction-cache line fill after a PTM write (to investigate)
+### B3. E stops while the core runs from its cache : the PTM (and everything clocked on E) stops with it
+*Status : found, identical in GHDL and the emulator ; to confirm that it is wanted.*
 
-(An earlier version of this note blamed a two-byte `ANDCC` ; that was wrong : in 32-bit mode `1C FF` is two bytes long
-and the next instruction runs normally.) With the program `LDMD #$31 ; LDS #$FFFCFFF0 ; ... ; STA PTM0+0 ; ANDCC #$EF ;
-BRA *` at `0xFFFFF000` (timer 1 of PTM 0 started by the last write, interrupts then enabled) the bus stops in the
-middle of the fill of the line at `0xFFFFF030` : bytes 0 to 6 are read, byte 7 never is, and E stops. GHDL does the same
-(`tests/ghdl/cosim.py`, identical over 63 cycles), so it is in the design, not in the emulator. The same code without
-the stall is obtained by reading a PTM register after the write. Not analysed further.
+(An earlier version of this note described a stall of a cache-line fill and blamed `ANDCC` ; both were wrong : `ANDCC`
+takes one byte, and the bus simply goes idle when the loop is in the cache.)
+
+The E clock only runs for bus cycles. A core that loops in its instruction cache (`BRA *`, the `for (;;) {}` that ends
+the test programs) makes no bus cycle, E stops (`soc.e` stays constant in the `--dump`) and the peripherals that use
+`falling_edge(E)` stop with it : the timers of the PTM (`TIMER` and `STATUS` processes), and at least the register logic of the PIA, ACIA, SPI and TWI. In particular a timer interrupt can never wake a core that is
+idling in a cached loop : the timer does not count.
+
+`tests/soc/programs/b3_cache_idle.asm` shows it (machine code in `elf/b3_loopA.elf` and `elf/b3_loopB.elf`). Timer 1 of
+PTM 0 is started with a latch of 4 and its interrupt enabled, then the core loops :
+
+* loop A, `BRA *` : no bus cycle after the start, `soc.e` stops, the status flag is never set, the handler never
+  runs (marker 0), `tests/ghdl/cosim.py` shows 63 bus cycles in 80 us on both sides ;
+* loop B, a read of a PTM register in the loop : bus cycles keep E running, the timer times out, the interrupt is taken
+  through EIRQ21 and the BAC, the handler counts (marker 0x19 after 12 000 000 ticks), 680 bus cycles in 80 us on both
+  sides.
+
+If the PTM is meant to be a real-time timer, E (or at least the clock of the timers and of the status process) must
+not depend on the bus activity ; if it is by design, software must not idle in a cached loop while waiting for a timer.
 
 ## C. Files and tools
 
