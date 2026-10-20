@@ -70,10 +70,17 @@ ignore it, or the master should stop at 16 toggles.
 
 ### A4. 63F40 : the 16-bit counter is read without the divide-by-8 shift
 
-In 16-bit mode `COUNTER` holds the count in bits 18..3 (`LATCH & "000"`, decremented by 8), but the read registers
-return `COUNTER(15 downto 8)` and `COUNTER(7 downto 0)`, i.e. the count multiplied by 8 and truncated (a latch of
-0x0040 reads back as 0x0200 truncated to 0x02 / 0x00). The 6840 returns the count itself. The emulator reproduces the
-VHDL, so a program sees the same values as on the board.
+The latch is never read back : the read registers (63F40.vhd, lines 1166 to 1184) return the **counter** :
+
+    1166   D_OUT <= COUNTER(1)(15 downto 8);        -- address "010", timers 2 and 3 likewise (1174, 1182)
+    1168   D_OUT <= COUNTER(1)(7 downto 0);         -- address "011"                          (1176, 1184)
+
+In 16-bit mode `COUNTER` (19 bits) holds the count in bits 18..3 : it is loaded with `LATCH_REGISTER & "000"` (lines 133,
+171, 191...) and decremented by 8 per clock. The registers return bits 15..0 of it, i.e. the count multiplied by 8 and
+truncated to 16 bits. After a latch of 0x0040 is loaded the counter reads 0x02 / 0x00 (0x0200), not 0x00 / 0x40, and a
+latch above 0x1FFF gives a wrong value. The 6840 returns the count itself (bits 18..3 would be needed). In 8-bit mode
+the layout is different (two 8-bit counters and the divide-by-8 prescaler) and I have not checked it. The emulator
+reproduces the VHDL.
 
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*
