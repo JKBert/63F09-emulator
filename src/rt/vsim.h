@@ -30,6 +30,7 @@ typedef struct vs_tie
     struct vs_sig   *dst;
     unsigned        dst_shift, src_shift;
     uint64_t        mask;           /* unshifted mask of the field */
+    uint8_t         chain;          /* the destination is the source of a tie that leaves its partition (set when the design is final) */
 } vs_tie;
 
 typedef struct vs_sig
@@ -74,20 +75,32 @@ typedef struct vs_proc
 
 #define VS_MAX_PARTS    9
 
-/* The work of one partition. `mail[t]` holds the processes of partition t that this partition's commit has woken : t
- * merges them into its run queue before the next delta (no thread writes in the lists of another). */
+/* A tie whose destination is in another partition is not followed by the commit : its new value is queued for that partition
+ * (xq), which applies it before the next delta, so no thread writes a signal that another one reads. */
+typedef struct vs_xent
+{
+    vs_tie          *t;
+    uint64_t        v;          /* the new value of the field of the source */
+} vs_xent;
+
+/* The work of one partition. `mail[p][t]` holds the processes of partition t that this partition's commit has woken, `xq[p][t]`
+ * the ties to t that it has to follow : t takes them before the next delta. The lists are double-buffered (p is the parity
+ * of the generation) so that a partition can go on with the next delta while another one still reads the lists. */
 typedef struct vs_part
 {
     struct vs_sig   **pend;
     size_t          npend;
     struct vs_proc  **runq;
     size_t          nrun;
-    struct vs_proc  **mail[VS_MAX_PARTS];
-    size_t          nmail[VS_MAX_PARTS], cmail[VS_MAX_PARTS];
+    struct vs_proc  **mail[2][VS_MAX_PARTS];
+    size_t          nmail[2][VS_MAX_PARTS], cmail[2][VS_MAX_PARTS];
+    vs_xent         *xq[2][VS_MAX_PARTS];
+    size_t          nxq[2][VS_MAX_PARTS], cxq[2][VS_MAX_PARTS];
 } vs_part;
 
 extern vs_part  *vs_parts[VS_MAX_PARTS];
 extern uint32_t vs_gen;
+extern unsigned long long vs_stat_runs[VS_MAX_PARTS], vs_stat_max, vs_stat_tot;
 
 struct vs_kernel;
 
@@ -129,6 +142,11 @@ typedef struct vs_kernel
     int             initialised;
     int             finalised;
 } vs_kernel;
+
+/* Threads (POSIX) : after the first vs_settle, the partitions 1.. are run by n - 1 threads and partition 0 by the caller. They
+ * stop at vs_threads_stop. Does nothing (returns 0) for n < 2 or when the design has one partition. */
+int     vs_threads_start(vs_kernel *k, unsigned n);
+void    vs_threads_stop(vs_kernel *k);
 
 /* Zero-delay ties between the leaves of two signals of the same type (src[i] drives dst[i]). */
 void    vs_tie_all(vs_sig **src, vs_sig **dst, size_t n);

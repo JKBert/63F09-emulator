@@ -342,6 +342,11 @@ void soc_run(soc *s)
     int saved = 0;
 
     vs_settle(&s->k);
+    if (s->cfg.threads > 1 && s->k.nparts > 1 && vs_threads_start(&s->k, (unsigned) s->cfg.threads) != 0)
+    {
+        fprintf(stderr, "cannot start the threads\n");
+        return;
+    }
     if (s->cfg.dump != NULL)
     {
         vs_dump(&s->k, s->cfg.dump, 0);
@@ -361,6 +366,7 @@ void soc_run(soc *s)
             }
         }
     }
+    vs_threads_stop(&s->k);
     if (!saved && s->cfg.save_path[0] != '\0' && snapshot_save(s, s->cfg.save_path) == 0)
     {
         fprintf(stderr, "snapshot written at %llu ticks : %s\n", (unsigned long long) s->k.now, s->cfg.save_path);

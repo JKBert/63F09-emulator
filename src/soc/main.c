@@ -301,6 +301,17 @@ int main(int argc, char **argv)
     printf("time %llu ticks, %llu external reads, %llu external writes, %llu unmapped\n",
            (unsigned long long) s->k.now, (unsigned long long) s->reads, (unsigned long long) s->writes,
            (unsigned long long) s->unmapped);
+    if (getenv("VS_STATS") != NULL)
+    {
+        unsigned pp;
+
+        fprintf(stderr, "%llu delta cycles ; processes run: %llu, sum over the deltas of the busiest partition: %llu\n",
+                (unsigned long long) s->k.deltas, vs_stat_tot, vs_stat_max);
+        for (pp = 0; pp < s->k.nparts; pp++)
+        {
+            fprintf(stderr, "partition %u : %llu processes run\n", pp, vs_stat_runs[pp]);
+        }
+    }
     if (peek_len > 0)
     {
         uint64_t i;

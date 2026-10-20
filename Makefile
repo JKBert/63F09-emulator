@@ -21,7 +21,12 @@ PYTHON       ?= $(VENV)/bin/python
 GHDL         ?= $(GHDL_INSTALL)/bin/ghdl
 
 CC           ?= cc
-CFLAGS       ?= -std=c99 -O2 -Wall -Wextra -fno-pie
+ifdef ATOMIC
+# barriers of the threads with C11 atomics (ISO C, not POSIX) : much faster than the POSIX spin locks
+CFLAGS       ?= -std=gnu11 -DVS_C11_ATOMICS -O2 -Wall -Wextra -fno-pie -pthread
+else
+CFLAGS       ?= -std=c99 -O2 -Wall -Wextra -fno-pie -pthread
+endif
 CPPFLAGS     += -D_POSIX_C_SOURCE=200809L -Isrc/rt
 
 export VHDL2C_GHDL_SRC    := $(GHDL_SRC)

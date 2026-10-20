@@ -489,7 +489,7 @@ def run_block(name, cfg, ports, ghdl, shared, root, lib="work", generics=(), por
         pp = "-P" + shared
         ok = run([ghdl, "-a"] + STD + [wd, pp, vhd], shared) and run([ghdl, "--elab-run"] + STD + [wd, pp, tb], work)
         src = os.path.join(root, "src")
-        ok = ok and run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-Wall", "-Wextra", "-I" + os.path.join(src, "rt"),
+        ok = ok and run([os.environ.get("CC", "cc"), "-std=c99", "-pthread", "-O2", "-Wall", "-Wextra", "-I" + os.path.join(src, "rt"),
                          "-I" + os.path.join(src, "gen"), "-I" + src, "-o", "tb_c", "tb.c"]
                         + sorted(glob.glob(os.path.join(src, "gen", "*.c"))) + sorted(glob.glob(os.path.join(src, "hand", "*.c")))
                         + [os.path.join(src, "rt", "vsim.c")], work)

@@ -68,3 +68,12 @@ cmp "$work/snap_a.tail" "$work/snap_b.tail"
 test -s "$work/snap_a.tail"
 rm -f "$work/snap.bin"
 echo "snapshot test: ok"
+
+# Threads : each core is a partition run by a thread of its own ; the bus trace must be that of the single kernel.
+elf=$here/programs/elf/hello3.elf
+"$emu" --ncpus 2 --elf "$elf" --acia 0,baud=107142,out="$work/thr_a.txt" --ticks 200000000 --trace-bus > "$work/thr_a.log" 2>&1
+"$emu" --ncpus 2 --threads 3 --elf "$elf" --acia 0,baud=107142,out="$work/thr_b.txt" --ticks 200000000 --trace-bus > "$work/thr_b.log" 2>&1
+cmp "$work/thr_a.log" "$work/thr_b.log"
+"$emu" --ncpus 2 --threads 1 --elf "$elf" --acia 0,baud=107142,out="$work/thr_c.txt" --ticks 200000000 --trace-bus > "$work/thr_c.log" 2>&1
+cmp "$work/thr_a.log" "$work/thr_c.log"
+echo "threads test: ok"
