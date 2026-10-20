@@ -232,6 +232,16 @@ void vs_tie_fields(vs_sig *src, unsigned src_shift, vs_sig *dst, unsigned dst_sh
     dst->nxt = (dst->nxt & ~(mask << dst_shift)) | (v << dst_shift);
 }
 
+void vs_tie_all(vs_sig **src, vs_sig **dst, size_t n)
+{
+    size_t  i;
+
+    for (i = 0; i < n; i++)
+    {
+        vs_tie_fields(src[i], 0, dst[i], 0, 64);
+    }
+}
+
 void vs_timer_add(vs_kernel *k, uint64_t when, void (*fn)(vs_kernel *, void *), void *arg)
 {
     size_t  i;

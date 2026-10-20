@@ -48,6 +48,9 @@ def zero(ct):
     return "%s_zero()" % ct.cname if ct.kind in ("rec", "arr") else "0"
 
 
+THREADED_ENTITIES = ("dmc_63f41",)      # the entities that get a partition (and a thread) of their own
+
+
 class Iface:
     """The interface of an entity : its C name, generics and ports."""
 
@@ -457,8 +460,52 @@ class EntityGen(Translator):
         pargs = []
         for n, ct, mode, d in iface.ports:
             pargs.append(self.port_actual(inst, n, ct, mode, pm.get(n)))
+        if frontend.ident(entity).lower() in THREADED_ENTITIES:
+            self.threaded_instance(cname, field, label, iface, gargs, pargs)
+            return
         s.init.line("%s_create(%s);" % (cname, ", ".join(
             ["k", "&self->" + field, 'vs_join(k, path, "%s")' % label] + gargs + pargs)))
+
+    def threaded_instance(self, cname, field, label, iface, gargs, pargs):
+        """An instance that has a partition of its own when the kernel is threaded (k->threaded) : each of its ports is a signal
+        of that partition, tied to the signal of the parent that the port is connected to ; the ties are crossed by the
+        mail of the kernel, so the two partitions are two threads. Otherwise the ports are the signals of the parent."""
+        s = self.scope
+        names = [g[0] for g in iface.generics]
+        cpu = gargs[names.index("cpu_number")]
+        s.init.line("{")
+        decls = []
+        for i, (n, ct, mode, d) in enumerate(iface.ports):
+            decls.append("%s *p%d = %s;" % (ctype_sig(ct), i, pargs[i]))
+        for l in decls:
+            s.init.line(l)
+        s.init.line("if (k->threaded)")
+        s.init.line("{")
+        s.init.line("vs_part_enter(k, 1 + (unsigned) (%s));" % cpu)
+        for i, (n, ct, mode, d) in enumerate(iface.ports):
+            own = self.private_signal(ct, "w_%s" % n, "0")           # registered in the partition of the instance
+            nleaf = leaf_count(ct)
+            s.init.line("{")
+            s.init.line("vs_sig *ma[%d], *wa[%d];" % (nleaf, nleaf))
+            s.init.line("{ vs_sig **out = ma; size_t n = 0; %s }" % tdefs.leaves_stmt("(*p%d)" % i, ct))
+            s.init.line("{ vs_sig **out = wa; size_t n = 0; %s }" % tdefs.leaves_stmt(own[1:], ct))
+            if mode in (M.Out_Mode, M.Buffer_Mode, M.Linkage_Mode):
+                s.init.line("vs_tie_all(wa, ma, %d);" % nleaf)
+            elif mode == M.Inout_Mode:
+                s.init.line("vs_tie_all(ma, wa, %d);" % nleaf)
+                s.init.line("vs_tie_all(wa, ma, %d);" % nleaf)
+            else:
+                s.init.line("vs_tie_all(ma, wa, %d);" % nleaf)
+            s.init.line("p%d = %s;" % (i, own))
+            s.init.line("}")
+        s.init.line("}")
+        s.init.line("%s_create(%s);" % (cname, ", ".join(
+            ["k", "&self->" + field, 'vs_join(k, path, "%s")' % label] + gargs + ["p%d" % i for i in range(len(pargs))])))
+        s.init.line("if (k->threaded)")
+        s.init.line("{")
+        s.init.line("vs_part_enter(k, 0);")
+        s.init.line("}")
+        s.init.line("}")
 
     def port_actual(self, inst, name, ct, mode, assoc):
         """C expression of the vs_sig a port is connected to."""

@@ -225,6 +225,7 @@ int soc_create(soc *s, const soc_cfg *c)
     s->cfg = *c;
     s->reads = s->writes = s->unmapped = 0;
     vs_kernel_init(&s->k);
+    s->k.threaded = c->threads > 0;
     reg(s, &s->extal, "extal", 1, 0);
     reg(s, &s->reset_n, "reset_n", 1, 0);
     reg(s, &s->nmi_n, "nmi_n", 1, 1);

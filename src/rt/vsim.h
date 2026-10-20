@@ -113,6 +113,7 @@ typedef struct vs_kernel
     size_t          nsigs, csigs;
     vs_proc         **procs;
     size_t          nprocs, cprocs;
+    int             threaded;   /* the entities that have a partition of their own use it (set before the design is built) */
     unsigned        nparts;
     unsigned        cur_part;   /* partition of what is registered now */
     char            **names;
@@ -128,6 +129,9 @@ typedef struct vs_kernel
     int             initialised;
     int             finalised;
 } vs_kernel;
+
+/* Zero-delay ties between the leaves of two signals of the same type (src[i] drives dst[i]). */
+void    vs_tie_all(vs_sig **src, vs_sig **dst, size_t n);
 
 /* The partition that what is registered from now on belongs to (0 at the start). */
 void    vs_part_enter(vs_kernel *k, unsigned part);

@@ -46,6 +46,7 @@ typedef struct soc_serial
 typedef struct soc_cfg
 {
     int         ncpus;              /* 1 to 8 */
+    int         threads;            /* 0 : one kernel ; n > 0 : each core has a partition of its own, run by n threads */
     int         fpu_shared;         /* FPU_BY_CORE = false */
     soc_zone    zones[SOC_MAX_ZONES];
     int         nzones;

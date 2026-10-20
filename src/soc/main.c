@@ -31,6 +31,8 @@ static void usage(FILE *f)
         "  --twi-eeprom ADDR    an I2C EEPROM (24C02 like, 256 bytes) with the 7-bit address ADDR on the TWI pins\n"
         "  --peek-eeprom        print the content of the EEPROM when the run ends\n"
         "  --reset-us N         RESET_n stays low N microseconds (default 5 ; the peripherals need E to run during the reset)\n"
+        "  --threads N          each core (with its MMU and DMC) is a partition of its own, run by N threads (0 : the whole\n"
+        "                       design in one kernel, the default)\n"
         "  --save FILE          write a snapshot of the whole state when the run ends (or at --save-at)\n"
         "  --save-at N          write the snapshot at N ticks (the run goes on)\n"
         "  --restore FILE       start from a snapshot made by this same executable (--ticks is then the absolute time\n"
@@ -141,6 +143,7 @@ int main(int argc, char **argv)
         { "peek-eeprom", no_argument, NULL, 'P' },
         { "reset-us", required_argument, NULL, 'R' },
         { "ticks", required_argument, NULL, 't' },
+        { "threads", required_argument, NULL, 'H' },
         { "save", required_argument, NULL, 'V' },
         { "save-at", required_argument, NULL, 'A' },
         { "restore", required_argument, NULL, 'L' },
@@ -229,6 +232,9 @@ int main(int argc, char **argv)
                 break;
             case 't':
                 cfg.max_ticks = strtoull(optarg, NULL, 0);
+                break;
+            case 'H':
+                cfg.threads = atoi(optarg);
                 break;
             case 'V':
                 snprintf(cfg.save_path, sizeof(cfg.save_path), "%s", optarg);
