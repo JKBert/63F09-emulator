@@ -98,9 +98,8 @@ VHDL, so a program sees the same values as on the board.
 In `PIA_READ`, a bit whose `PORT_DDR` is 0 (input) returns `PORT_DATA` (the output register) and a bit whose
 `PORT_DDR` is 1 (output) returns the pad (`PORT_D_IN`). A 6821 does the opposite : an input reads the pad, an output
 reads back the output register. As written, a port configured as input can never be read, whatever the outside world
-drives. The emulator reproduces the VHDL. Swapping the test on line 138 (`PORT_DDR(i) = '1'`) fixes it :
-`VHDL2C_FIX_PIA_READ=1 make gen` applies it on the temporary copy ; with it `tests/soc/pins_pia.py` (run with
-`PIA_READ_FIXED=1`) reads 0xF0 on an input port, and the co-simulation stays identical to GHDL.
+drives. Fixed by you (`PORT_DDR(i) = '1'` on line 138) ; `tests/soc/pins_pia.py` now reads 0xF0 on an input port and the
+co-simulation stays identical to GHDL. (`VHDL2C_FIX_PIA_READ` is obsolete.)
 
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*

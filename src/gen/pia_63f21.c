@@ -53,7 +53,7 @@ static void pia_63f21_p1(void *inst)
         {
             if ((((self->s_port_ctrl.cur >> 2) & 1) == 1))
             {
-                if ((((self->s_port_ddr.cur >> ((i_1) - 0)) & 1) == 0))
+                if ((((self->s_port_ddr.cur >> ((i_1) - 0)) & 1) == 1))
                 {
                     vs_drive_bits(&(*self->p_d_out), ((i_1) - 0), (UINT64_C(1)), ((self->s_port_data.cur >> ((i_1) - 0)) & 1));
                 }

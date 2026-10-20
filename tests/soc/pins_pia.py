@@ -48,9 +48,8 @@ for t, name, v in lines:
         level[int(name[7:])] = int(v)
 final = sum(level.get(i, 1) << i for i in range(8))
 print("PA seen by the peer at the end: %02X" % final)
-# DDRA = 0 : with the corrected 63F21 (VHDL2C_FIX_PIA_READ=1 make gen) the input bits read the pad, 1111 0000 as the peer
-# pulled PA0-3 low ; the VHDL as it is returns the output register (FINDINGS A5)
-expected = "F0" if os.environ.get("PIA_READ_FIXED") else "00"
+# DDRA = 0 : the input bits read the pad, 1111 0000 as the peer pulled PA0-3 low
+expected = "F0"
 assert "F00001000: " + expected in out, out
 assert final == 0x30, final               # then the program drives 0x3C, the peer still holds PA0-3 low
 print("pins socket test: ok")
