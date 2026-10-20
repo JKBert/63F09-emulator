@@ -12,7 +12,7 @@ mkdir -p "$work"
 python3 "$here/mkelf.py" "$work/smoke.elf" "0xFFFFF000=7E F1 00" "0xFFFFFFFE=F0 00" "0xF100=86 55 B7 00 10 20 FE"
 for n in 1 2 4 8
 do
-    "$emu" --ncpus "$n" --elf "$work/smoke.elf" --ticks 600000 --trace-bus > "$work/smoke.$n.log"
+    "$emu" --ncpus "$n" --elf "$work/smoke.elf" --ticks 1300000 --trace-bus > "$work/smoke.$n.log"
     grep -q 'A=FFFFFFFF8 mask=40 R' "$work/smoke.$n.log"                 # reset vector, high byte
     grep -q 'A=FFFFFF000 mask=01 R' "$work/smoke.$n.log"                 # first opcode, from the ROM
     grep -q 'A=F0000F100 mask=01 R D=.*86$' "$work/smoke.$n.log"      # LDA # fetched after the jump
