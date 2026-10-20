@@ -97,6 +97,7 @@ def main(argv):
                 placed = True
         else:
             out.append((lib, path))
+    out.append(("work", os.path.join(HERE, "i2c_eeprom.vhd")))
     out.append(("work", os.path.join(HERE, "tb_soc.vhd")))
     raw = lambda p: p.startswith(HERE) or p.endswith("unisim_stub.vhd")
     dfs = []
@@ -131,9 +132,11 @@ def main(argv):
     ghdl_tx = [l.split() for l in vhd_log.splitlines() if l.startswith("tx ")]
     ticks = int(us * 1e6 / 6.95)
     emu = os.path.join(ROOT, "build", "soc63f09")
-    c_log = run([emu, "--ext", "0xF00000000:0x10000", "--elf", elf, "--ticks", str(ticks), "--trace-bus"], work)
+    c_log = run([emu, "--ext", "0xF00000000:0x10000", "--twi-eeprom", "0x50", "--elf", elf, "--ticks", str(ticks), "--trace-bus"], work)
     c_lines = [re.sub(r"^\s*\d+\s+", "", l).strip() for l in c_log.splitlines() if " ext " in l]
     c_tx = [l.split() for l in c_log.splitlines() if " tx " in l]
+    ghdl_i2c = [l.split() for l in vhd_log.splitlines() if l.startswith("i2c ")]
+    c_i2c = [l.split() for l in c_log.splitlines() if " i2c " in l]
     # a pad that nobody drives is 'Z' in VHDL and keeps its pull-up (all ones) in the emulator
     ghdl_lines = [re.sub(r"D=[ZU]+$", lambda m: "D=" + "F" * len(m.group(0)[2:]), l) for l in ghdl_lines]
     n = min(len(ghdl_lines), len(c_lines))
@@ -162,7 +165,17 @@ def main(argv):
             ok = False
             break
     print("transmit lines: %d changes in GHDL, %d in the emulator%s" % (len(g), len(c), "" if ok else " : DIFFERENT"))
-    return 0 if n > 0 and ok and bus_ok else 1
+    # the I2C lines (the pull-up makes the first changes of both sides differ : the initial values)
+    gi = [(int(t[1]), t[2].strip("'"), t[3].strip("'")) for t in ghdl_i2c if int(t[1]) > 1000]
+    ci = [(int(t[0]) * 6.95, t[2].strip("'"), t[3].strip("'")) for t in c_i2c if int(t[0]) > 150]
+    i2c_ok = True
+    for i in range(min(len(gi), len(ci))):
+        if gi[i][1:] != ci[i][1:] or abs(gi[i][0] - ci[i][0]) > max(2000, 0.01 * gi[i][0]):
+            print("I2C lines differ at change %d : ghdl %s, emulator %s" % (i, gi[i], ci[i]))
+            i2c_ok = False
+            break
+    print("I2C lines: %d changes in GHDL, %d in the emulator%s" % (len(gi), len(ci), "" if i2c_ok else " : DIFFERENT"))
+    return 0 if n > 0 and ok and bus_ok and i2c_ok else 1
 
 
 if __name__ == "__main__":

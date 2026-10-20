@@ -51,10 +51,15 @@ architecture sim of tb_soc is
     signal PTM_G_n                              : std_logic_matrix(0 to 1)(1 to 3) := (others => "000");
     signal SPI_MISO, SPI_MOSI, SPI_SCLK         : std_logic;
     signal SPI_SS                               : std_logic_vector(15 downto 0) := (others => '1');
-    signal TWI_SDA, TWI_SCL                     : std_logic := '1';
+    signal TWI_SDA, TWI_SCL                     : std_logic;
 begin
+    -- the I2C bus: pull-ups and an EEPROM at 0x50
+    TWI_SDA <= 'H';
+    TWI_SCL <= 'H';
+    EEPROM : entity work.I2C_EEPROM port map (SDA => TWI_SDA, SCL => TWI_SCL);
+
     EXTAL <= not EXTAL after 20850 ps;                          -- 24 MHz (41.7 ns : the PLL divides it exactly)
-    RESET_n <= '1' after 417 ns;                                -- ten periods
+    RESET_n <= '1' after 5004695 ps;                            -- 720100 ticks of 6.95 ps (the emulator's default) : not on a clock edge
 
     DUT : SoC09
     port map
@@ -151,6 +156,36 @@ begin
     end process;
 
     -- ACIA 0 seen from outside, sampled every nanosecond (VHDL-2008 external names)
+    -- the I2C lines
+    I2CLOG : process(TWI_SDA, TWI_SCL) is
+        variable L : line;
+    begin
+        write(L, string'("i2c "));
+        write(L, now / 1 ps);
+        write(L, string'(" "));
+        write(L, std_logic'image(to_x01(TWI_SDA)));
+        write(L, string'(" "));
+        write(L, std_logic'image(to_x01(TWI_SCL)));
+        writeline(output, L);
+    end process;
+
+    TWILOG : process is
+        variable L : line;
+        variable LAST : std_logic_vector(7 downto 0) := x"AA";
+        variable CC : std_logic_vector(7 downto 0);
+    begin
+        wait for 100 ps;
+        CC := << signal .tb_soc.dut.twi0.cc_reg : std_logic_vector(7 downto 0) >>;
+        if CC /= LAST then
+            LAST := CC;
+            write(L, string'("twi "));
+            write(L, now / 1 ps);
+            write(L, string'(" cc_reg="));
+            hwrite(L, CC);
+            writeline(output, L);
+        end if;
+    end process;
+
     A0LOG : process is
         variable L    : line;
         variable LAST : string(1 to 160) := (others => ' ');

@@ -64,10 +64,21 @@ the rate `B`. Without `wait` the emulator runs at once and the peer can connect 
 before that are dropped) ; with `wait` it blocks until a peer is there. When the peer leaves, the next one is
 accepted. The socket file is removed when the emulator ends.
 
+## I2C EEPROM on the TWI
+
+`--twi-eeprom ADDR` puts a 24C02-like EEPROM (256 bytes, 7-bit address ADDR, byte and sequential write, random,
+current-address and sequential read) on the SDA and SCL pins, `--peek-eeprom` prints its content at the end. The
+model (`src/soc/i2c_eeprom.c`, mirrored in VHDL by `tests/ghdl/i2c_eeprom.vhd`) acts on the edges of SCL, there is no
+write cycle time and no clock stretching. `tests/soc/twi_eeprom.py` assembles by hand a program for the TWI
+(write a byte, restart, read it back) ; `make test-soc` runs it and `make cosim ELF=... ` compares it with GHDL :
+249 identical bus cycles and 178 identical changes of the I2C lines.
+
 ## Pads
 
-An `inout` port is a signal shared by the chip and the host : the IOBUF model drives it when T is 0, the host
-drives it otherwise (the data pins on a read). A port connected to a part of a vector is tied in both directions.
+An `inout` port is a signal shared by the chip and the host. The IOBUF model drives it when T is 0 ; when T is 1 it
+drives a one on a pad marked `wand` (the pads of the peripherals, which are pulled up) and the host pulls bits low
+with `vs_pull` : the value of the line is the wired-AND of the drivers, as with an open-drain pad and its pull-up.
+The data pins of the external bus are driven by the host on a read. A port connected to a part of a vector is tied in both directions.
 The simulation is two-valued : high impedance does not exist, a released pad keeps its last value.
 
 ## Test programs

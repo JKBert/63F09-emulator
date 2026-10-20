@@ -13,7 +13,7 @@ void soc_cfg_default(soc_cfg *c)
     c->elf_offset = UINT64_C(0xF00000000);
     /* A board holds RESET_n for far longer than the start of the PLL : the peripherals (the ACIA, the PTM...) are
      * reset synchronously on E, which runs only once the PLL has locked. Five microseconds are enough. */
-    c->reset_ticks = 5 * 144000;
+    c->reset_ticks = 720100;                        /* 5 us, and not on an edge of CPUCLK (a race between the simulators) */
 }
 
 int soc_add_zone(soc_cfg *c, uint64_t base, uint64_t size)
@@ -120,6 +120,16 @@ static void companion_run(void *inst)
 }
 
 /* with --trace-bus : the changes of the transmit lines (the VHDL test bench prints the same) */
+static void i2c_log(void *inst)
+{
+    soc *s = inst;
+
+    if (s->cfg.trace_bus)
+    {
+        printf("%12llu i2c '%d' '%d'\n", (unsigned long long) s->k.now, (int) (s->twi_sda.cur & 1), (int) (s->twi_scl.cur & 1));
+    }
+}
+
 static void tx_run(void *inst)
 {
     soc *s = inst;
@@ -195,6 +205,14 @@ int soc_create(soc *s, const soc_cfg *c)
     reg(s, &s->spi_sclk, "spi_sclk", 1, 0);
     reg(s, &s->twi_sda, "twi_sda", 1, 1);
     reg(s, &s->twi_scl, "twi_scl", 1, 1);
+    /* the open-drain pads of the peripherals : the lines are pulled up, the outside world can pull them low */
+    s->twi_sda.wand = s->twi_scl.wand = 1;
+    s->spi_miso.wand = s->spi_mosi.wand = s->spi_ss.wand = s->spi_sclk.wand = 1;
+    s->pia_c2.wand = 1;
+    for (i = 0; i < 5; i++)
+    {
+        s->pia_port_data.a[i].wand = 1;
+    }
     for (i = 0; i < 2; i++)
     {
         s->ptm_c_n.a[i].cur = s->ptm_c_n.a[i].nxt = 7;      /* external clocks idle, gates enabled (G_n = 0) */
@@ -208,6 +226,10 @@ int soc_create(soc *s, const soc_cfg *c)
     {
         return -1;
     }
+    if (c->twi_eeprom)
+    {
+        i2c_eeprom_create(&s->k, &s->eeprom, &s->twi_sda, &s->twi_scl, c->twi_eeprom_addr);
+    }
     sens[0] = &s->addr;
     sens[1] = &s->e;
     sens[2] = &s->rw_n;
@@ -215,6 +237,9 @@ int soc_create(soc *s, const soc_cfg *c)
     vs_register_process(&s->k, companion_run, s, sens, 4);
     sens[0] = &s->acia_tx;
     vs_register_process(&s->k, tx_run, s, sens, 1);
+    sens[0] = &s->twi_sda;
+    sens[1] = &s->twi_scl;
+    vs_register_process(&s->k, i2c_log, s, sens, 2);
     /* the serial lines : ACIA_RX(i) and ACIA_TX(i) are bits (1 - i) of the vectors (0 to 1) */
     for (i = 0; i < SOC_NACIA; i++)
     {

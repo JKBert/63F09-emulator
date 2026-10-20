@@ -24,6 +24,8 @@ static void usage(FILE *f)
         "                       program must set the same one in the ACIA (divider /16 : 24e6 / (32 * (div + 1)))\n"
         "                       socket=PATH replaces in/out by a Unix domain socket the emulator listens on\n"
         "                       (one peer at a time, raw bytes) ; wait blocks until a peer connects\n"
+        "  --twi-eeprom ADDR    an I2C EEPROM (24C02 like, 256 bytes) with the 7-bit address ADDR on the TWI pins\n"
+        "  --peek-eeprom        print the content of the EEPROM when the run ends\n"
         "  --reset-us N         RESET_n stays low N microseconds (default 5 ; the peripherals need E to run during the reset)\n"
         "  --ticks N            stop after N ticks (a tick is 1/144 ns ; default 100000000)\n"
         "  --dump FILE          write every change of every named signal\n"
@@ -124,6 +126,8 @@ int main(int argc, char **argv)
         { "elf", required_argument, NULL, 'e' },
         { "elf-offset", required_argument, NULL, 'O' },
         { "acia", required_argument, NULL, 'a' },
+        { "twi-eeprom", required_argument, NULL, 'E' },
+        { "peek-eeprom", no_argument, NULL, 'P' },
         { "reset-us", required_argument, NULL, 'R' },
         { "ticks", required_argument, NULL, 't' },
         { "dump", required_argument, NULL, 'd' },
@@ -136,6 +140,7 @@ int main(int argc, char **argv)
     soc         *s;
     const char  *elf = NULL;
     uint64_t    peek_addr = 0, peek_len = 0;
+    int         peek_eeprom = 0;
     int         opt;
 
     soc_cfg_default(&cfg);
@@ -181,6 +186,13 @@ int main(int argc, char **argv)
                 break;
             case 'O':
                 cfg.elf_offset = strtoull(optarg, NULL, 0);
+                break;
+            case 'E':
+                cfg.twi_eeprom = 1;
+                cfg.twi_eeprom_addr = (unsigned) strtoul(optarg, NULL, 0) & 0x7F;
+                break;
+            case 'P':
+                peek_eeprom = 1;
                 break;
             case 'R':
                 cfg.reset_ticks = (uint64_t) (strtod(optarg, NULL) * 144000.0 + 0.5);
@@ -248,6 +260,18 @@ int main(int argc, char **argv)
             {
                 printf(" --");
             }
+        }
+        printf("\n");
+    }
+    if (peek_eeprom && cfg.twi_eeprom)
+    {
+        int i;
+
+        printf("eeprom (%u starts, %u stops, %u bytes written, %u read):\n", s->eeprom.starts, s->eeprom.stops,
+               s->eeprom.writes, s->eeprom.reads);
+        for (i = 0; i < 256; i++)
+        {
+            printf("%s%02X", i % 16 ? " " : (i ? "\n" : ""), s->eeprom.mem[i]);
         }
         printf("\n");
     }

@@ -19,3 +19,10 @@ do
     grep -q 'A=F00000010 mask=01 W D=5555555555555555' "$work/smoke.$n.log"   # STA wrote 0x55
     echo "smoke test with $n core(s): ok"
 done
+
+# The TWI against an I2C EEPROM on its pins : write 0x3C at 0x10, read it back and store it in the external memory.
+python3 "$here/twi_eeprom.py" "$work/twi.elf" 0x3C 1
+"$emu" --ncpus 2 --elf "$work/twi.elf" --twi-eeprom 0x50 --peek-eeprom --peek 0xF00001000:1 --ticks 20000000 > "$work/twi.log"
+grep -q '^F00001000: 3C' "$work/twi.log"            # the byte that was read back
+sed -n '/^eeprom/,$p' "$work/twi.log" | sed -n 3p | grep -q '^3C '    # and is in the EEPROM, at 0x10
+echo "TWI / I2C EEPROM test: ok"
