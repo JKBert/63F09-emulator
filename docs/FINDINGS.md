@@ -8,22 +8,12 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 
 | Entry | Subject | Status |
 |---|---|---|
-| A0c | 63F52 ninth SCLK edge | open, to confirm |
 | A2 | SoC09 `CACHEABLE_EXT` undriven | to confirm |
 | A3 | reset values | by design |
 | B2 | `LDMD` and the first load of S | for information |
-| B3 | interrupt flags of the SPI, TWI generated on E | being corrected |
+| B3 | interrupt flags of the TWI generated on E | SPI fixed, TWI being corrected |
 
 ## A. Behaviour of the chip
-
-### A0c. 63F52 : the master clocks a ninth rising edge after each byte
-*Status : observed on the pins, identical in GHDL and the emulator ; to confirm with a real slave.*
-
-In mode 0 (CPOL = CPHA = 0) SCLK has eight pulses for the byte and then one more rising edge that returns to idle
-about two bit times later (the counter `CLK_TOGGLES` goes to `D_IN'length * 2 + 1` = 17). A mode-0 slave counts nine
-rising edges, shifts once too many and answers `B4` instead of `5A` to the next byte (the answer to the first byte,
-`A5`, is right). Either the extra edge belongs to the design (the last bit is sampled on it) and the slaves must
-ignore it, or the master should stop at 16 toggles.
 
 ### A2. SoC09 : `CACHEABLE_EXT` of the AMC is not driven
 *Status : read in `SoC.vhd`, to confirm.*
@@ -51,7 +41,7 @@ sequence given in the conversation (`LDMD #$31 ; PSHS U`) pushes with S uninitia
 after `LDMD`, as `crt0` does (`11 3D 11`, then `10 CE ...`).
 
 ### B3. The interrupt flags of the other peripherals are still generated on E
-*Status : PTM (63F40), BAC (63F81), PIA (63F21) and ACIA (63F50) fixed by the author ; the other peripherals are being corrected.*
+*Status : PTM (63F40), BAC (63F81), PIA (63F21), ACIA (63F50) and SPI (63F52) fixed by the author ; the TWI is being corrected.*
 
 The E clock only runs for bus cycles : a core that loops in its instruction cache makes none, E stops, and whatever is
 clocked on `falling_edge(E)` stops with it. A timer interrupt then never wakes the core. `tests/soc/programs/b3_cache_idle.asm`
@@ -66,8 +56,13 @@ on 1 and on 2 cores.
 ACIA (63F50 rewritten on SYSCLK with toggles crossing to E) : the first character is no longer lost and the receiver
 works (`hello`, `echo abc`) ; the interrupt in a cached loop has not been tested yet.
 
-What is left is the same pattern in SPI (63F52) and TWI (63F54) : an end of byte that happens while E is stopped is
-seen only when E restarts.
+SPI (63F52 rewritten with the engine on CPUCLK, the flags crossing to E by toggles) : the master sends a byte to the
+slave of the emulator while the core loops in its cache, the handler of EIRQ13 counts one interrupt
+(`SPI interrupt test` of `tests/soc/run.sh`). The ninth SCLK edge of the former version is gone : the slave answers
+`A5` then `5A`.
+
+What is left is the same pattern in the TWI (63F54) : an end of byte that happens while E is stopped is seen only when
+E restarts.
 
 ## C. Files and tools
 

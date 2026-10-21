@@ -60,11 +60,21 @@ echo "PTM interrupt test: ok"
 # The pins on a Unix socket : a peer pulls PA0-PA3 of PIA 0 low, the program reads them back, the peer sees PA.
 python3 "$here/pins_pia.py" "$emu" "$work/pins"
 
-# The SPI master against the slave of the emulator : sends 5A then 3C, gets A5 then B4 (the ninth SCLK edge, FINDINGS A0c).
+# The SPI master against the slave of the emulator : sends 5A then 3C, gets A5 then 5A.
 python3 "$here/spi_slave.py" "$work/spi.elf"
 "$emu" --ncpus 2 --elf "$work/spi.elf" --spi-slave --peek 0xF00001000:2 --ticks 30000000 > "$work/spi.log"
-grep -q '^F00001000: A5 B4' "$work/spi.log"
+grep -q '^F00001000: A5 5A' "$work/spi.log"
+
 echo "SPI test: ok"
+
+# The SPI interrupt (EIRQ13, vector 0xFFDA) while the core loops in its cache, so that E is stopped (FINDINGS B3) : the master
+# sends one byte to the slave of the emulator, the handler reads the answer (it acknowledges) and counts at 0xF00001000.
+python3 "$here/mkelf.py" "$work/spiirq.elf" \
+    "0xFFFFF000=11 3D 31 10 CE FF FC FF F0 86 00 B7 00 00 10 00 86 01 B7 FF FE C0 01 86 00 B7 FF FE C0 00 86 02 B7 FF FE C0 01 86 20 B7 FF FE C0 01 86 FF B7 FF FE C0 02 86 FE B7 FF FE C0 03 86 5A B7 FF FE C0 00 1C EF 20 FE $PAD" \
+    "0xFFFFF200=B6 FF FE C0 00 B6 00 00 10 00 8B 01 B7 00 00 10 00 3B" "0xFFFFFFDA=F2 00" "0xFFFFFFFE=F0 00"
+"$emu" --ncpus 1 --elf "$work/spiirq.elf" --spi-slave --peek 0xF00001000:1 --ticks 12000000 > "$work/spiirq.log"
+grep -q '^F00001000: 01' "$work/spiirq.log"
+echo "SPI interrupt test: ok"
 
 # PIA 0 interrupt on C1 (EIRQ19) while the core loops in its cache : the peer raises C1 three times, the handler counts.
 python3 "$here/pia_irq.py" "$emu" "$work/piairq" 1

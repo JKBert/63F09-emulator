@@ -15,7 +15,7 @@ Physical addresses of 36 bits ; what the decoding does not name is the external 
 | `FFFFEE000` | 4 | ACIA0 |
 | `FFFFED008` | 8 | PTM1 |
 | `FFFFED000` | 8 | PTM0 |
-| `FFFFEC000` | 2 | SPI0 |
+| `FFFFEC000` | 4 | SPI0 |
 | `FFFFEB000` | 8 | TWI0 |
 | `FFFFEA000` | 2 | BAC0 |
 | `FFFFE9000` | 5 | WDG0 |

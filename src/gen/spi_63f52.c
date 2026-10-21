@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include "spi_63f52.h"
 #include "gen_funcs.h"
-#include "hand/bufhce.h"
 #include "hand/obuf.h"
 
 struct spi_63f52_g0
@@ -18,24 +17,6 @@ struct spi_63f52_g0
     vs_sig x2_tie_o;
 };
 typedef struct spi_63f52_g0 spi_63f52_g0;
-
-struct spi_63f52_g1
-{
-    struct spi_63f52 *up;
-    vs_sig s_cond_actual_3;
-    vs_sig s_cond_actual_4;
-    bufhce_t c_slave_clock_buf_0;
-};
-typedef struct spi_63f52_g1 spi_63f52_g1;
-
-struct spi_63f52_g2
-{
-    struct spi_63f52 *up;
-    vs_sig s_cond_actual_5;
-    vs_sig s_cond_actual_6;
-    bufhce_t c_slave_clock_buf_n_0;
-};
-typedef struct spi_63f52_g2 spi_63f52_g2;
 
 
 static void spi_63f52_g0_create(vs_kernel *k, spi_63f52_g0 *self, const char *path)
@@ -49,113 +30,13 @@ static void spi_63f52_g0_create(vs_kernel *k, spi_63f52_g0 *self, const char *pa
     obuf_create(k, &self->c_ss_iobuffer_0, vs_join(k, path, "ss_iobuffer"), &self->x1_tie_i, &self->x2_tie_o);
 }
 
-static void spi_63f52_g1_p0(void *inst)
-{
-    spi_63f52_g1 *self = inst;
-    if ((((self->up->s_cc_reg.cur >> 1) & 1) == 1))
-    {
-        vs_drive(&self->s_cond_actual_3, 1);
-    }
-    else
-    {
-        vs_drive(&self->s_cond_actual_3, 0);
-    }
-}
-
-static void spi_63f52_g1_p1(void *inst)
-{
-    spi_63f52_g1 *self = inst;
-    if ((self->up->s_mode.cur == 1))
-    {
-        vs_drive(&self->s_cond_actual_4, self->up->s_sclk_in.cur);
-    }
-    else
-    {
-        vs_drive(&self->s_cond_actual_4, (~self->up->s_sclk_in.cur & UINT64_C(0x1)));
-    }
-}
-
-static void spi_63f52_g1_create(vs_kernel *k, spi_63f52_g1 *self, const char *path)
-{
-    vs_register_signal(k, &self->s_cond_actual_3, (uint64_t) (0));
-    vs_name(k, &self->s_cond_actual_3, path, "cond_actual_3", 1);
-    vs_register_signal(k, &self->s_cond_actual_4, (uint64_t) (0));
-    vs_name(k, &self->s_cond_actual_4, path, "cond_actual_4", 1);
-    bufhce_create(k, &self->c_slave_clock_buf_0, vs_join(k, path, "slave_clock_buf"), &self->s_cond_actual_3, &self->s_cond_actual_4, &self->up->s_slave_clock);
-
-    {
-        vs_sig *sens[1];
-        uint64_t masks[1];
-        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
-        size_t n = 0;
-        masks[n] = UINT64_C(0x2);
-        sens[n++] = &self->up->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_g1_p0, self, sens, masks, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        size_t n = 0;
-        sens[n++] = &self->up->s_sclk_in;
-        sens[n++] = &self->up->s_mode;
-        vs_register_process(k, spi_63f52_g1_p1, self, sens, n);
-    }
-}
-
-static void spi_63f52_g2_p0(void *inst)
-{
-    spi_63f52_g2 *self = inst;
-    if ((((self->up->s_cc_reg.cur >> 1) & 1) == 1))
-    {
-        vs_drive(&self->s_cond_actual_5, 1);
-    }
-    else
-    {
-        vs_drive(&self->s_cond_actual_5, 0);
-    }
-}
-
-static void spi_63f52_g2_p1(void *inst)
-{
-    spi_63f52_g2 *self = inst;
-    if ((self->up->s_mode.cur == 1))
-    {
-        vs_drive(&self->s_cond_actual_6, (~self->up->s_sclk_in.cur & UINT64_C(0x1)));
-    }
-    else
-    {
-        vs_drive(&self->s_cond_actual_6, self->up->s_sclk_in.cur);
-    }
-}
-
-static void spi_63f52_g2_create(vs_kernel *k, spi_63f52_g2 *self, const char *path)
-{
-    vs_register_signal(k, &self->s_cond_actual_5, (uint64_t) (0));
-    vs_name(k, &self->s_cond_actual_5, path, "cond_actual_5", 1);
-    vs_register_signal(k, &self->s_cond_actual_6, (uint64_t) (0));
-    vs_name(k, &self->s_cond_actual_6, path, "cond_actual_6", 1);
-    bufhce_create(k, &self->c_slave_clock_buf_n_0, vs_join(k, path, "slave_clock_buf_n"), &self->s_cond_actual_5, &self->s_cond_actual_6, &self->up->s_slave_clock_n);
-
-    {
-        vs_sig *sens[1];
-        uint64_t masks[1];
-        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
-        size_t n = 0;
-        masks[n] = UINT64_C(0x2);
-        sens[n++] = &self->up->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_g2_p0, self, sens, masks, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        size_t n = 0;
-        sens[n++] = &self->up->s_sclk_in;
-        sens[n++] = &self->up->s_mode;
-        vs_register_process(k, spi_63f52_g2_p1, self, sens, n);
-    }
-}
-
 static void spi_63f52_p0(void *inst)
+{
+    spi_63f52 *self = inst;
+    vs_drive(&(*self->p_mrdy), 1);
+}
+
+static void spi_63f52_p1(void *inst)
 {
     spi_63f52 *self = inst;
     if ((((self->s_cc_reg.cur >> 1) & 1) == 0))
@@ -168,7 +49,7 @@ static void spi_63f52_p0(void *inst)
     }
 }
 
-static void spi_63f52_p1(void *inst)
+static void spi_63f52_p2(void *inst)
 {
     spi_63f52 *self = inst;
     if ((((self->s_cc_reg.cur >> 1) & 1) == 0))
@@ -181,7 +62,7 @@ static void spi_63f52_p1(void *inst)
     }
 }
 
-static void spi_63f52_p2(void *inst)
+static void spi_63f52_p3(void *inst)
 {
     spi_63f52 *self = inst;
     if ((((self->s_cc_reg.cur >> 1) & 1) == 1))
@@ -194,16 +75,10 @@ static void spi_63f52_p2(void *inst)
     }
 }
 
-static void spi_63f52_p3(void *inst)
-{
-    spi_63f52 *self = inst;
-    vs_drive(&(*self->p_mrdy), 1);
-}
-
 static void spi_63f52_p4(void *inst)
 {
     spi_63f52 *self = inst;
-    vs_drive(&(*self->p_irq_n), (~((((self->s_cc_reg.cur >> 5) & 1) & ((self->s_cc_reg.cur >> 7) & 1)) | (((self->s_cc_reg.cur >> 4) & 1) & ((self->s_cc_reg.cur >> 6) & 1))) & UINT64_C(0x1)));
+    vs_drive(&(*self->p_irq_n), (~self->s_irq_r.cur & UINT64_C(0x1)));
 }
 
 static void spi_63f52_i5(void *inst)
@@ -221,270 +96,71 @@ static void spi_63f52_i6(void *inst)
 static void spi_63f52_p7(void *inst)
 {
     spi_63f52 *self = inst;
-    vs_drive(&self->s_mode, (((self->s_cc_reg.cur >> 3) & 1) ^ ((self->s_cc_reg.cur >> 2) & 1)));
+    vs_drive(&self->s_dr_flag_e, (self->s_dr_evt_e1.cur ^ self->s_dr_ack.cur));
 }
 
 static void spi_63f52_p8(void *inst)
 {
     spi_63f52 *self = inst;
-    if (((*self->p_rst_n).cur == 0))
-    {
-        vs_drive(&self->s_tx_data_write, 0);
-        vs_drive(&self->s_tx_reg, UINT64_C(0x0));
-        vs_drive(&self->s_clock_divisor, UINT64_C(0x0));
-        vs_drive(&(*self->p_d_out), UINT64_C(0x0));
-        vs_drive(&self->s_cc_reg, UINT64_C(0x40));
-        vs_drive(&self->s_signal_divisor, 0);
-        vs_drive(&self->s_cs_reg, UINT64_C(0xFFFF));
-    }
-    else
-    {
-        if (((self->s_signal_tx_empty_m.cur == 1) | (self->s_signal_tx_empty_s.cur == 1)))
-        {
-            vs_drive_bits(&self->s_cc_reg, 6, UINT64_C(0x1), 1);
-        }
-        if (((self->s_signal_data_ready_m.cur == 1) | (self->s_signal_data_ready_s.cur == 1)))
-        {
-            vs_drive_bits(&self->s_cc_reg, 7, UINT64_C(0x1), 1);
-        }
-        if ((self->s_signal_divisor.cur == 1))
-        {
-            vs_drive_bits(&self->s_cc_reg, 0, UINT64_C(0x1), 0);
-            vs_drive(&self->s_signal_divisor, 0);
-        }
-        if (((*self->p_cs).cur == 1))
-        {
-            if (((*self->p_rw_n).cur == 0))
-            {
-                if (vs_falling(&(*self->p_e)))
-                {
-                    if ((((self->s_cc_reg.cur >> 0) & 1) == 0))
-                    {
-                        switch ((*self->p_addr).cur)
-                        {
-                            case UINT64_C(0x0):
-                            {
-                                vs_drive(&self->s_tx_reg, (*self->p_d_in).cur);
-                                vs_drive(&self->s_tx_data_write, (~self->s_tx_data_write.cur & UINT64_C(0x1)));
-                                vs_drive_bits(&self->s_cc_reg, 6, UINT64_C(0x1), 0);
-                                break;
-                            }
-                            case UINT64_C(0x1):
-                            {
-                                vs_drive_bits(&self->s_cc_reg, 0, UINT64_C(0x3F), ((*self->p_d_in).cur & UINT64_C(0x3F)));
-                                break;
-                            }
-                            case UINT64_C(0x2):
-                            {
-                                vs_drive_bits(&self->s_cs_reg, 8, UINT64_C(0xFF), (*self->p_d_in).cur);
-                                break;
-                            }
-                            default:
-                            {
-                                vs_drive_bits(&self->s_cs_reg, 0, UINT64_C(0xFF), (*self->p_d_in).cur);
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (((*self->p_addr).cur == UINT64_C(0x0)))
-                        {
-                            vs_drive_bits(&self->s_clock_divisor, 8, UINT64_C(0xFF), (*self->p_d_in).cur);
-                        }
-                        else if (((*self->p_addr).cur == UINT64_C(0x1)))
-                        {
-                            vs_drive_bits(&self->s_clock_divisor, 0, UINT64_C(0xFF), (*self->p_d_in).cur);
-                            vs_drive_bits(&self->s_cc_reg, 0, UINT64_C(0x1), 0);
-                        }
-                    }
-                }
-                vs_drive(&(*self->p_d_out), UINT64_C(0x0));
-            }
-            else
-            {
-                if ((((self->s_cc_reg.cur >> 0) & 1) == 0))
-                {
-                    switch ((*self->p_addr).cur)
-                    {
-                        case UINT64_C(0x0):
-                        {
-                            if ((((self->s_cc_reg.cur >> 1) & 1) == 0))
-                            {
-                                vs_drive(&(*self->p_d_out), self->s_rx_reg_m.cur);
-                            }
-                            else
-                            {
-                                vs_drive(&(*self->p_d_out), self->s_rx_reg_s.cur);
-                            }
-                            vs_drive_bits(&self->s_cc_reg, 7, UINT64_C(0x1), 0);
-                            break;
-                        }
-                        case UINT64_C(0x1):
-                        {
-                            vs_drive(&(*self->p_d_out), self->s_cc_reg.cur);
-                            break;
-                        }
-                        case UINT64_C(0x2):
-                        {
-                            vs_drive(&(*self->p_d_out), ((self->s_cs_reg.cur >> (8)) & UINT64_C(0xFF)));
-                            break;
-                        }
-                        default:
-                        {
-                            vs_drive(&(*self->p_d_out), (self->s_cs_reg.cur & UINT64_C(0xFF)));
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    if (((*self->p_addr).cur == UINT64_C(0x0)))
-                    {
-                        vs_drive(&(*self->p_d_out), ((self->s_clock_divisor.cur >> (8)) & UINT64_C(0xFF)));
-                    }
-                    else if (((*self->p_addr).cur == UINT64_C(0x1)))
-                    {
-                        vs_drive(&(*self->p_d_out), (self->s_clock_divisor.cur & UINT64_C(0xFF)));
-                        if (vs_falling(&(*self->p_e)))
-                        {
-                            vs_drive(&self->s_signal_divisor, 1);
-                        }
-                    }
-                    else
-                    {
-                        vs_drive(&(*self->p_d_out), UINT64_C(0x0));
-                    }
-                }
-            }
-        }
-        else
-        {
-            vs_drive(&(*self->p_d_out), UINT64_C(0x0));
-        }
-    }
+    vs_drive(&self->s_txe_flag_e, (self->s_txe_evt_e1.cur ^ self->s_txe_ack.cur));
 }
 
 static void spi_63f52_p9(void *inst)
 {
     spi_63f52 *self = inst;
-    vs_drive(&self->s_signal_tx_empty_m, 0);
-    vs_drive(&self->s_signal_data_ready_m, 0);
-    if ((((self->s_cc_reg.cur >> 1) & 1) == 0))
+    if (((*self->p_rst_n).cur == 0))
     {
-        if (((*self->p_rst_n).cur == 0))
-        {
-            vs_drive(&self->s_mosi_out, 0);
-            vs_drive(&self->s_tx_data_write_old, 0);
-            vs_drive(&self->s_state, 0);
-            vs_drive(&self->s_clock_counter, UINT64_C(0x0));
-            vs_drive(&self->s_sclk_out, 0);
-            vs_drive(&self->s_assert_data, 0);
-            vs_drive(&self->s_clk_toggles, (uint64_t)(INT64_C(0)));
-            vs_drive(&self->s_last_bit_rx, (uint64_t)(INT64_C(0)));
-            vs_drive(&self->s_tx_buffer_m, UINT64_C(0x0));
-            vs_drive(&self->s_rx_reg_m, UINT64_C(0x0));
-            vs_drive(&self->s_rx_buffer_m, UINT64_C(0x0));
-        }
-        else
-        {
-            if (vs_falling(&(*self->p_sysclk)))
-            {
-                switch ((uint32_t) self->s_state.cur)
-                {
-                    case 0:
-                    {
-                        vs_drive(&self->s_tx_data_write_old, self->s_tx_data_write.cur);
-                        vs_drive(&self->s_sclk_out, ((self->s_cc_reg.cur >> 3) & 1));
-                        if ((self->s_tx_data_write.cur != self->s_tx_data_write_old.cur))
-                        {
-                            vs_drive(&self->s_clock_counter, UINT64_C(0x0));
-                            vs_drive(&self->s_tx_buffer_m, self->s_tx_reg.cur);
-                            vs_drive(&self->s_signal_tx_empty_m, 1);
-                            vs_drive(&self->s_assert_data, (~((self->s_cc_reg.cur >> 2) & 1) & UINT64_C(0x1)));
-                            vs_drive(&self->s_clk_toggles, (uint64_t)(INT64_C(0)));
-                            vs_drive(&self->s_last_bit_rx, (uint64_t)((((INT64_C(8) * INT64_C(2)) + (int64_t)(((self->s_cc_reg.cur >> 2) & 1))) - INT64_C(1))));
-                            vs_drive(&self->s_state, 1);
-                        }
-                        else
-                        {
-                            vs_drive(&self->s_state, 0);
-                        }
-                        break;
-                    }
-                    default:
-                    {
-                        if ((self->s_clock_counter.cur == self->s_clock_divisor.cur))
-                        {
-                            vs_drive(&self->s_clock_counter, UINT64_C(0x0));
-                            vs_drive(&self->s_assert_data, (~self->s_assert_data.cur & UINT64_C(0x1)));
-                            if (((int64_t) self->s_clk_toggles.cur == ((INT64_C(8) * INT64_C(2)) + INT64_C(1))))
-                            {
-                                vs_drive(&self->s_clk_toggles, (uint64_t)(INT64_C(0)));
-                            }
-                            else
-                            {
-                                vs_drive(&self->s_clk_toggles, (uint64_t)(((int64_t) self->s_clk_toggles.cur + INT64_C(1))));
-                            }
-                            if (((int64_t) self->s_clk_toggles.cur <= (INT64_C(8) * INT64_C(2))))
-                            {
-                                vs_drive(&self->s_sclk_out, (~self->s_sclk_out.cur & UINT64_C(0x1)));
-                            }
-                            if (((self->s_assert_data.cur == 0) & ((int64_t) self->s_clk_toggles.cur < ((int64_t) self->s_last_bit_rx.cur + INT64_C(1)))))
-                            {
-                                vs_drive(&self->s_rx_buffer_m, (((uint64_t)((self->s_rx_buffer_m.cur & UINT64_C(0x7F))) << 1) | self->s_miso_in.cur));
-                            }
-                            if (((self->s_assert_data.cur == 1) & ((int64_t) self->s_clk_toggles.cur < (int64_t) self->s_last_bit_rx.cur)))
-                            {
-                                vs_drive(&self->s_mosi_out, ((self->s_tx_buffer_m.cur >> 7) & 1));
-                                vs_drive(&self->s_tx_buffer_m, (((uint64_t)((self->s_tx_buffer_m.cur & UINT64_C(0x7F))) << 1) | 0));
-                            }
-                            if (((int64_t) self->s_clk_toggles.cur == ((INT64_C(8) * INT64_C(2)) + INT64_C(1))))
-                            {
-                                vs_drive(&self->s_rx_reg_m, self->s_rx_buffer_m.cur);
-                                vs_drive(&self->s_state, 0);
-                                vs_drive(&self->s_signal_data_ready_m, 1);
-                            }
-                            else
-                            {
-                                vs_drive(&self->s_state, 1);
-                            }
-                        }
-                        else
-                        {
-                            vs_drive(&self->s_clock_counter, ((self->s_clock_counter.cur + UINT64_C(0x1)) & UINT64_C(0xFFFF)));
-                            vs_drive(&self->s_state, 1);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
+        vs_drive(&self->s_dr_evt_e1, 0);
+        vs_drive(&self->s_txe_evt_e1, 1);
+    }
+    else if (vs_rising(&(*self->p_e)))
+    {
+        vs_drive(&self->s_dr_evt_e1, self->s_dr_evt.cur);
+        vs_drive(&self->s_txe_evt_e1, self->s_txe_evt.cur);
     }
 }
 
 static void spi_63f52_p10(void *inst)
 {
     spi_63f52 *self = inst;
-    if ((((self->s_cc_reg.cur >> 1) & 1) == 1))
+    vs_drive(&(*self->p_d_out), UINT64_C(0x0));
+    if ((((*self->p_cs).cur == 1) & ((*self->p_rw_n).cur == 1)))
     {
-        if ((((*self->p_rst_n).cur == 0) | (self->s_ss_n.cur != 0)))
+        if ((((self->s_cc_reg.cur >> 0) & 1) == 1))
         {
-            vs_drive(&self->s_bit_cnt, UINT64_C(0x0));
-            if ((((self->s_cc_reg.cur >> 2) & 1) == 1))
+            if (((*self->p_addr).cur == UINT64_C(0x0)))
             {
-                vs_drive_bits(&self->s_bit_cnt, 0, UINT64_C(0x1), 1);
+                vs_drive(&(*self->p_d_out), ((self->s_clock_divisor.cur >> (8)) & UINT64_C(0xFF)));
             }
-            else
+            else if (((*self->p_addr).cur == UINT64_C(0x1)))
             {
-                vs_drive_bits(&self->s_bit_cnt, 1, UINT64_C(0x1), 1);
+                vs_drive(&(*self->p_d_out), (self->s_clock_divisor.cur & UINT64_C(0xFF)));
             }
         }
         else
         {
-            if (vs_falling(&self->s_slave_clock_n))
+            switch ((*self->p_addr).cur)
             {
-                vs_drive(&self->s_bit_cnt, (((uint64_t)((self->s_bit_cnt.cur & UINT64_C(0xFFFF))) << 1) | 0));
+                case UINT64_C(0x0):
+                {
+                    vs_drive(&(*self->p_d_out), self->s_rx_reg.cur);
+                    break;
+                }
+                case UINT64_C(0x1):
+                {
+                    vs_drive(&(*self->p_d_out), (((uint64_t)((((uint64_t)(self->s_dr_flag_e.cur) << 1) | self->s_txe_flag_e.cur)) << 6) | self->s_cc_reg.cur));
+                    break;
+                }
+                case UINT64_C(0x2):
+                {
+                    vs_drive(&(*self->p_d_out), ((self->s_cs_reg.cur >> (8)) & UINT64_C(0xFF)));
+                    break;
+                }
+                default:
+                {
+                    vs_drive(&(*self->p_d_out), (self->s_cs_reg.cur & UINT64_C(0xFF)));
+                    break;
+                }
             }
         }
     }
@@ -493,65 +169,348 @@ static void spi_63f52_p10(void *inst)
 static void spi_63f52_p11(void *inst)
 {
     spi_63f52 *self = inst;
-    vs_drive(&self->s_signal_tx_empty_s, 0);
-    vs_drive(&self->s_signal_data_ready_s, 0);
-    if ((((self->s_cc_reg.cur >> 1) & 1) == 1))
+    if (((*self->p_rst_n).cur == 0))
     {
-        if (((*self->p_rst_n).cur == 0))
+        vs_drive(&self->s_cc_reg, UINT64_C(0x0));
+        vs_drive(&self->s_clock_divisor, UINT64_C(0x0));
+        vs_drive(&self->s_cs_reg, UINT64_C(0xFFFF));
+        vs_drive(&self->s_tx_reg, UINT64_C(0x0));
+        vs_drive(&self->s_txw_tog, 0);
+        vs_drive(&self->s_dr_ack, 0);
+        vs_drive(&self->s_txe_ack, 0);
+    }
+    else if (vs_falling(&(*self->p_e)))
+    {
+        if (((*self->p_cs).cur == 1))
         {
-            vs_drive(&self->s_miso_out, 0);
-            vs_drive(&self->s_tx_buffer_s, UINT64_C(0x0));
-            vs_drive(&self->s_rx_reg_s, UINT64_C(0x0));
-            vs_drive(&self->s_rx_buffer_s, UINT64_C(0x0));
-        }
-        else if ((self->s_ss_n.cur != 0))
-        {
-            vs_drive(&self->s_rx_reg_s, self->s_rx_buffer_s.cur);
-            vs_drive(&self->s_tx_buffer_s, self->s_tx_reg.cur);
-            vs_drive(&self->s_miso_out, 0);
-            vs_drive(&self->s_signal_tx_empty_s, 1);
-        }
-        else
-        {
-            if (vs_falling(&self->s_slave_clock))
+            if (((*self->p_rw_n).cur == 0))
             {
-                if ((((self->s_cc_reg.cur >> 2) & 1) == 0))
+                if ((((self->s_cc_reg.cur >> 0) & 1) == 0))
                 {
-                    if ((self->s_bit_cnt.cur != UINT64_C(0x2)))
+                    switch ((*self->p_addr).cur)
                     {
-                        vs_drive(&self->s_rx_buffer_s, (((uint64_t)((self->s_rx_buffer_s.cur & UINT64_C(0x7F))) << 1) | self->s_mosi_in.cur));
+                        case UINT64_C(0x0):
+                        {
+                            vs_drive(&self->s_tx_reg, (*self->p_d_in).cur);
+                            vs_drive(&self->s_txw_tog, (~self->s_txw_tog.cur & UINT64_C(0x1)));
+                            vs_drive(&self->s_txe_ack, self->s_txe_evt_e1.cur);
+                            break;
+                        }
+                        case UINT64_C(0x1):
+                        {
+                            vs_drive(&self->s_cc_reg, ((*self->p_d_in).cur & UINT64_C(0x3F)));
+                            break;
+                        }
+                        case UINT64_C(0x2):
+                        {
+                            vs_drive_bits(&self->s_cs_reg, 8, UINT64_C(0xFF), (*self->p_d_in).cur);
+                            break;
+                        }
+                        default:
+                        {
+                            vs_drive_bits(&self->s_cs_reg, 0, UINT64_C(0xFF), (*self->p_d_in).cur);
+                            break;
+                        }
                     }
                 }
                 else
                 {
-                    if ((self->s_bit_cnt.cur != UINT64_C(0x1)))
+                    if (((*self->p_addr).cur == UINT64_C(0x0)))
                     {
-                        vs_drive(&self->s_rx_buffer_s, (((uint64_t)((self->s_rx_buffer_s.cur & UINT64_C(0x7F))) << 1) | self->s_mosi_in.cur));
+                        vs_drive_bits(&self->s_clock_divisor, 8, UINT64_C(0xFF), (*self->p_d_in).cur);
+                    }
+                    else if (((*self->p_addr).cur == UINT64_C(0x1)))
+                    {
+                        vs_drive_bits(&self->s_clock_divisor, 0, UINT64_C(0xFF), (*self->p_d_in).cur);
+                        vs_drive_bits(&self->s_cc_reg, 0, UINT64_C(0x1), 0);
                     }
                 }
             }
-            if (vs_falling(&self->s_slave_clock_n))
+            else
             {
-                vs_drive(&self->s_miso_out, ((self->s_tx_buffer_s.cur >> 7) & 1));
-                if ((((self->s_bit_cnt.cur >> 8) & 1) == 0))
+                if ((((self->s_cc_reg.cur >> 0) & 1) == 0))
                 {
-                    vs_drive(&self->s_tx_buffer_s, (((uint64_t)((self->s_tx_buffer_s.cur & UINT64_C(0x7F))) << 1) | ((self->s_tx_buffer_s.cur >> 7) & 1)));
+                    if (((*self->p_addr).cur == UINT64_C(0x0)))
+                    {
+                        vs_drive(&self->s_dr_ack, self->s_dr_evt_e1.cur);
+                    }
                 }
-                else
+                else if (((*self->p_addr).cur == UINT64_C(0x1)))
                 {
-                    vs_drive(&self->s_rx_reg_s, self->s_rx_buffer_s.cur);
-                    vs_drive(&self->s_signal_data_ready_s, 1);
+                    vs_drive_bits(&self->s_cc_reg, 0, UINT64_C(0x1), 0);
                 }
             }
         }
     }
 }
 
-void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e, vs_sig *sysclk, vs_sig *rst_n, vs_sig *cs, vs_sig *mrdy, vs_sig *addr, vs_sig *rw_n, vs_sig *d_in, vs_sig *d_out, vs_sig *irq_n, vs_sig *miso, vs_sig *mosi, vs_sig *ss, vs_sig *sclk)
+static void spi_63f52_p12(void *inst)
+{
+    spi_63f52 *self = inst;
+    if (((*self->p_rst_n).cur == 0))
+    {
+        vs_drive(&self->s_rx_reg, UINT64_C(0x0));
+        vs_drive(&self->s_dr_evt, 0);
+        vs_drive(&self->s_dr_ovr, 0);
+        vs_drive(&self->s_txe_evt, 1);
+        vs_drive(&self->s_cpol_s1, 0);
+        vs_drive(&self->s_cpol_f, 0);
+        vs_drive(&self->s_cpha_s1, 0);
+        vs_drive(&self->s_cpha_f, 0);
+        vs_drive(&self->s_slave_s1, 0);
+        vs_drive(&self->s_slave_f, 0);
+        vs_drive(&self->s_rxie_s1, 0);
+        vs_drive(&self->s_rxie_f, 0);
+        vs_drive(&self->s_txie_s1, 0);
+        vs_drive(&self->s_txie_f, 0);
+        vs_drive(&self->s_txw_s1, 0);
+        vs_drive(&self->s_txw_s2, 0);
+        vs_drive(&self->s_txw_last, 0);
+        vs_drive(&self->s_drack_s1, 0);
+        vs_drive(&self->s_drack_s2, 0);
+        vs_drive(&self->s_txeack_s1, 0);
+        vs_drive(&self->s_txeack_s2, 0);
+        vs_drive(&self->s_miso_s1, 0);
+        vs_drive(&self->s_miso_s2, 0);
+        vs_drive(&self->s_mosi_s1, 0);
+        vs_drive(&self->s_mosi_s2, 0);
+        vs_drive(&self->s_sclk_s1, 0);
+        vs_drive(&self->s_sclk_s2, 0);
+        vs_drive(&self->s_sclk_s3, 0);
+        vs_drive(&self->s_ss_s1, 1);
+        vs_drive(&self->s_ss_s2, 1);
+        vs_drive(&self->s_ss_s3, 1);
+        vs_drive(&self->s_irq_r, 0);
+        vs_drive(&self->s_sclk_out, 0);
+        vs_drive(&self->s_mosi_out, 0);
+        vs_drive(&self->s_miso_out, 0);
+        vs_drive(&self->s_busy, 0);
+        vs_drive(&self->s_cnt, UINT64_C(0x0));
+        vs_drive(&self->s_cnt_zero, 0);
+        vs_drive(&self->s_div_f, UINT64_C(0x0));
+        vs_drive(&self->s_phase, 0);
+        vs_drive(&self->s_pend_cap, 0);
+        vs_drive(&self->s_toggles, (uint64_t)(INT64_C(0)));
+        vs_drive(&self->s_sh_tx, UINT64_C(0x0));
+        vs_drive(&self->s_sh_rx, UINT64_C(0x0));
+        vs_drive(&self->s_cap_cnt, (uint64_t)(INT64_C(0)));
+    }
+    else if (vs_rising(&(*self->p_cpuclk)))
+    {
+        vs_drive(&self->s_cpol_s1, ((self->s_cc_reg.cur >> 3) & 1));
+        vs_drive(&self->s_cpol_f, self->s_cpol_s1.cur);
+        vs_drive(&self->s_cpha_s1, ((self->s_cc_reg.cur >> 2) & 1));
+        vs_drive(&self->s_cpha_f, self->s_cpha_s1.cur);
+        vs_drive(&self->s_slave_s1, ((self->s_cc_reg.cur >> 1) & 1));
+        vs_drive(&self->s_slave_f, self->s_slave_s1.cur);
+        vs_drive(&self->s_rxie_s1, ((self->s_cc_reg.cur >> 5) & 1));
+        vs_drive(&self->s_rxie_f, self->s_rxie_s1.cur);
+        vs_drive(&self->s_txie_s1, ((self->s_cc_reg.cur >> 4) & 1));
+        vs_drive(&self->s_txie_f, self->s_txie_s1.cur);
+        vs_drive(&self->s_txw_s1, self->s_txw_tog.cur);
+        vs_drive(&self->s_txw_s2, self->s_txw_s1.cur);
+        vs_drive(&self->s_drack_s1, self->s_dr_ack.cur);
+        vs_drive(&self->s_drack_s2, self->s_drack_s1.cur);
+        vs_drive(&self->s_txeack_s1, self->s_txe_ack.cur);
+        vs_drive(&self->s_txeack_s2, self->s_txeack_s1.cur);
+        vs_drive(&self->s_miso_s1, self->s_miso_in.cur);
+        vs_drive(&self->s_miso_s2, self->s_miso_s1.cur);
+        vs_drive(&self->s_mosi_s1, self->s_mosi_in.cur);
+        vs_drive(&self->s_mosi_s2, self->s_mosi_s1.cur);
+        vs_drive(&self->s_sclk_s1, self->s_sclk_in.cur);
+        vs_drive(&self->s_sclk_s2, self->s_sclk_s1.cur);
+        vs_drive(&self->s_sclk_s3, self->s_sclk_s2.cur);
+        vs_drive(&self->s_ss_s1, self->s_ss_n.cur);
+        vs_drive(&self->s_ss_s2, self->s_ss_s1.cur);
+        vs_drive(&self->s_ss_s3, self->s_ss_s2.cur);
+        self->v12_ev_dr = 0;
+        self->v12_ev_txe = 0;
+        self->v12_pending = (self->s_txw_s2.cur != self->s_txw_last.cur);
+        if ((self->s_slave_f.cur == 0))
+        {
+            if ((self->s_busy.cur == 0))
+            {
+                vs_drive(&self->s_sclk_out, self->s_cpol_f.cur);
+                if (self->v12_pending)
+                {
+                    vs_drive(&self->s_txw_last, self->s_txw_s2.cur);
+                    self->v12_ev_txe = 1;
+                    vs_drive(&self->s_busy, 1);
+                    vs_drive(&self->s_div_f, self->s_clock_divisor.cur);
+                    vs_drive(&self->s_cnt, self->s_clock_divisor.cur);
+                    if ((self->s_clock_divisor.cur == (uint64_t)(INT64_C(0))))
+                    {
+                        vs_drive(&self->s_cnt_zero, 1);
+                    }
+                    else
+                    {
+                        vs_drive(&self->s_cnt_zero, 0);
+                    }
+                    vs_drive(&self->s_toggles, (uint64_t)(INT64_C(0)));
+                    vs_drive(&self->s_pend_cap, 0);
+                    vs_drive(&self->s_phase, self->s_cpha_f.cur);
+                    if ((self->s_cpha_f.cur == 0))
+                    {
+                        vs_drive(&self->s_mosi_out, ((self->s_tx_reg.cur >> 7) & 1));
+                        vs_drive(&self->s_sh_tx, (((uint64_t)((self->s_tx_reg.cur & UINT64_C(0x7F))) << 1) | 0));
+                    }
+                    else
+                    {
+                        vs_drive(&self->s_sh_tx, self->s_tx_reg.cur);
+                    }
+                }
+            }
+            else
+            {
+                if ((self->s_cnt_zero.cur == 1))
+                {
+                    vs_drive(&self->s_cnt, self->s_div_f.cur);
+                    if ((self->s_div_f.cur == (uint64_t)(INT64_C(0))))
+                    {
+                        vs_drive(&self->s_cnt_zero, 1);
+                    }
+                    else
+                    {
+                        vs_drive(&self->s_cnt_zero, 0);
+                    }
+                    self->v12_rx_next = self->s_sh_rx.cur;
+                    if ((self->s_pend_cap.cur == 1))
+                    {
+                        self->v12_rx_next = (((uint64_t)((self->s_sh_rx.cur & UINT64_C(0x7F))) << 1) | self->s_miso_s2.cur);
+                        vs_drive(&self->s_sh_rx, self->v12_rx_next);
+                        vs_drive(&self->s_pend_cap, 0);
+                    }
+                    if (((int64_t) self->s_toggles.cur <= INT64_C(15)))
+                    {
+                        vs_drive(&self->s_sclk_out, (~self->s_sclk_out.cur & UINT64_C(0x1)));
+                        vs_drive(&self->s_phase, (~self->s_phase.cur & UINT64_C(0x1)));
+                        if ((self->s_phase.cur == 0))
+                        {
+                            vs_drive(&self->s_pend_cap, 1);
+                        }
+                        else if ((~((self->s_cpha_f.cur == 0) & ((int64_t) self->s_toggles.cur == INT64_C(15))) & UINT64_C(0x1)))
+                        {
+                            vs_drive(&self->s_mosi_out, ((self->s_sh_tx.cur >> 7) & 1));
+                            vs_drive(&self->s_sh_tx, (((uint64_t)((self->s_sh_tx.cur & UINT64_C(0x7F))) << 1) | 0));
+                        }
+                    }
+                    if (((((int64_t) self->s_toggles.cur == INT64_C(15)) & (self->s_phase.cur == 1)) | ((int64_t) self->s_toggles.cur == INT64_C(16))))
+                    {
+                        vs_drive(&self->s_rx_reg, self->v12_rx_next);
+                        self->v12_ev_dr = 1;
+                        vs_drive(&self->s_busy, 0);
+                    }
+                    else
+                    {
+                        vs_drive(&self->s_toggles, (uint64_t)(((int64_t) self->s_toggles.cur + INT64_C(1))));
+                    }
+                }
+                else
+                {
+                    vs_drive(&self->s_cnt, ((self->s_cnt.cur - (uint64_t)(INT64_C(1))) & UINT64_C(0xFFFF)));
+                    if ((self->s_cnt.cur == (uint64_t)(INT64_C(1))))
+                    {
+                        vs_drive(&self->s_cnt_zero, 1);
+                    }
+                    else
+                    {
+                        vs_drive(&self->s_cnt_zero, 0);
+                    }
+                }
+            }
+        }
+        else
+        {
+            vs_drive(&self->s_busy, 0);
+            self->v12_rise = ((self->s_sclk_s2.cur == 1) & (self->s_sclk_s3.cur == 0));
+            self->v12_fall = ((self->s_sclk_s2.cur == 0) & (self->s_sclk_s3.cur == 1));
+            if (((self->s_cpol_f.cur ^ self->s_cpha_f.cur) == 0))
+            {
+                self->v12_cap_edge = self->v12_rise;
+                self->v12_shf_edge = self->v12_fall;
+            }
+            else
+            {
+                self->v12_cap_edge = self->v12_fall;
+                self->v12_shf_edge = self->v12_rise;
+            }
+            if ((self->s_ss_s2.cur == 1))
+            {
+                vs_drive(&self->s_cap_cnt, (uint64_t)(INT64_C(0)));
+                if ((self->s_cpha_f.cur == 0))
+                {
+                    vs_drive(&self->s_miso_out, ((self->s_tx_reg.cur >> 7) & 1));
+                    vs_drive(&self->s_sh_tx, (((uint64_t)((self->s_tx_reg.cur & UINT64_C(0x7F))) << 1) | 0));
+                }
+                else
+                {
+                    vs_drive(&self->s_miso_out, 0);
+                    vs_drive(&self->s_sh_tx, self->s_tx_reg.cur);
+                }
+            }
+            else
+            {
+                if ((self->s_ss_s3.cur == 1))
+                {
+                    if (self->v12_pending)
+                    {
+                        vs_drive(&self->s_txw_last, self->s_txw_s2.cur);
+                        self->v12_ev_txe = 1;
+                    }
+                }
+                if (self->v12_cap_edge)
+                {
+                    self->v12_rx_next = (((uint64_t)((self->s_sh_rx.cur & UINT64_C(0x7F))) << 1) | self->s_mosi_s2.cur);
+                    vs_drive(&self->s_sh_rx, self->v12_rx_next);
+                    if (((int64_t) self->s_cap_cnt.cur == INT64_C(7)))
+                    {
+                        vs_drive(&self->s_cap_cnt, (uint64_t)(INT64_C(0)));
+                        vs_drive(&self->s_rx_reg, self->v12_rx_next);
+                        self->v12_ev_dr = 1;
+                    }
+                    else
+                    {
+                        vs_drive(&self->s_cap_cnt, (uint64_t)(((int64_t) self->s_cap_cnt.cur + INT64_C(1))));
+                    }
+                }
+                if (self->v12_shf_edge)
+                {
+                    vs_drive(&self->s_miso_out, ((self->s_sh_tx.cur >> 7) & 1));
+                    vs_drive(&self->s_sh_tx, (((uint64_t)((self->s_sh_tx.cur & UINT64_C(0x7F))) << 1) | 0));
+                }
+            }
+        }
+        self->v12_flag_dr = (self->s_dr_evt.cur ^ self->s_drack_s2.cur);
+        if (self->v12_ev_dr)
+        {
+            if ((self->v12_flag_dr == 0))
+            {
+                vs_drive(&self->s_dr_evt, (~self->s_dr_evt.cur & UINT64_C(0x1)));
+            }
+            else
+            {
+                vs_drive(&self->s_dr_ovr, 1);
+            }
+        }
+        else if (((self->s_dr_ovr.cur == 1) & (self->v12_flag_dr == 0)))
+        {
+            vs_drive(&self->s_dr_evt, (~self->s_dr_evt.cur & UINT64_C(0x1)));
+            vs_drive(&self->s_dr_ovr, 0);
+        }
+        if (self->v12_ev_txe)
+        {
+            vs_drive(&self->s_txe_evt, (~self->s_txe_evt.cur & UINT64_C(0x1)));
+        }
+        self->v12_flag_txe = (self->s_txe_evt.cur ^ self->s_txeack_s2.cur);
+        vs_drive(&self->s_irq_r, ((self->s_rxie_f.cur & self->v12_flag_dr) | (self->s_txie_f.cur & self->v12_flag_txe)));
+    }
+}
+
+void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e, vs_sig *cpuclk, vs_sig *rst_n, vs_sig *cs, vs_sig *mrdy, vs_sig *addr, vs_sig *rw_n, vs_sig *d_in, vs_sig *d_out, vs_sig *irq_n, vs_sig *miso, vs_sig *mosi, vs_sig *ss, vs_sig *sclk)
 {
     (void) path;
     self->p_e = e;
-    self->p_sysclk = sysclk;
+    self->p_cpuclk = cpuclk;
     self->p_rst_n = rst_n;
     self->p_cs = cs;
     self->p_mrdy = mrdy;
@@ -564,78 +523,132 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
     self->p_mosi = mosi;
     self->p_ss = ss;
     self->p_sclk = sclk;
-    vs_register_signal(k, &self->s_rx_reg_m, (uint64_t) (0));
-    vs_name(k, &self->s_rx_reg_m, path, "rx_reg_m", 8);
-    vs_register_signal(k, &self->s_rx_reg_s, (uint64_t) (0));
-    vs_name(k, &self->s_rx_reg_s, path, "rx_reg_s", 8);
-    vs_register_signal(k, &self->s_tx_reg, (uint64_t) (0));
-    vs_name(k, &self->s_tx_reg, path, "tx_reg", 8);
     vs_register_signal(k, &self->s_cc_reg, (uint64_t) (0));
-    vs_name(k, &self->s_cc_reg, path, "cc_reg", 8);
-    vs_register_signal(k, &self->s_cs_reg, (uint64_t) (0));
-    vs_name(k, &self->s_cs_reg, path, "cs_reg", 16);
-    vs_register_signal(k, &self->s_rx_buffer_s, (uint64_t) (0));
-    vs_name(k, &self->s_rx_buffer_s, path, "rx_buffer_s", 8);
-    vs_register_signal(k, &self->s_rx_buffer_m, (uint64_t) (0));
-    vs_name(k, &self->s_rx_buffer_m, path, "rx_buffer_m", 8);
-    vs_register_signal(k, &self->s_tx_buffer_s, (uint64_t) (0));
-    vs_name(k, &self->s_tx_buffer_s, path, "tx_buffer_s", 8);
-    vs_register_signal(k, &self->s_tx_buffer_m, (uint64_t) (0));
-    vs_name(k, &self->s_tx_buffer_m, path, "tx_buffer_m", 8);
-    vs_register_signal(k, &self->s_tx_data_write, (uint64_t) (0));
-    vs_name(k, &self->s_tx_data_write, path, "tx_data_write", 1);
-    vs_register_signal(k, &self->s_tx_data_write_old, (uint64_t) (0));
-    vs_name(k, &self->s_tx_data_write_old, path, "tx_data_write_old", 1);
+    vs_name(k, &self->s_cc_reg, path, "cc_reg", 6);
     vs_register_signal(k, &self->s_clock_divisor, (uint64_t) (0));
     vs_name(k, &self->s_clock_divisor, path, "clock_divisor", 16);
-    vs_register_signal(k, &self->s_clock_counter, (uint64_t) (0));
-    vs_name(k, &self->s_clock_counter, path, "clock_counter", 16);
-    vs_register_signal(k, &self->s_sclk_in, (uint64_t) (0));
-    vs_name(k, &self->s_sclk_in, path, "sclk_in", 1);
+    vs_register_signal(k, &self->s_cs_reg, (uint64_t) (0));
+    vs_name(k, &self->s_cs_reg, path, "cs_reg", 16);
+    vs_register_signal(k, &self->s_tx_reg, (uint64_t) (0));
+    vs_name(k, &self->s_tx_reg, path, "tx_reg", 8);
+    vs_register_signal(k, &self->s_txw_tog, (uint64_t) (0));
+    vs_name(k, &self->s_txw_tog, path, "txw_tog", 1);
+    vs_register_signal(k, &self->s_dr_ack, (uint64_t) (0));
+    vs_name(k, &self->s_dr_ack, path, "dr_ack", 1);
+    vs_register_signal(k, &self->s_txe_ack, (uint64_t) (0));
+    vs_name(k, &self->s_txe_ack, path, "txe_ack", 1);
+    vs_register_signal(k, &self->s_dr_evt_e1, (uint64_t) (0));
+    vs_name(k, &self->s_dr_evt_e1, path, "dr_evt_e1", 1);
+    vs_register_signal(k, &self->s_txe_evt_e1, (uint64_t) (0));
+    vs_name(k, &self->s_txe_evt_e1, path, "txe_evt_e1", 1);
+    vs_register_signal(k, &self->s_dr_flag_e, (uint64_t) (0));
+    vs_name(k, &self->s_dr_flag_e, path, "dr_flag_e", 1);
+    vs_register_signal(k, &self->s_txe_flag_e, (uint64_t) (0));
+    vs_name(k, &self->s_txe_flag_e, path, "txe_flag_e", 1);
+    vs_register_signal(k, &self->s_rx_reg, (uint64_t) (0));
+    vs_name(k, &self->s_rx_reg, path, "rx_reg", 8);
+    vs_register_signal(k, &self->s_dr_evt, (uint64_t) (0));
+    vs_name(k, &self->s_dr_evt, path, "dr_evt", 1);
+    vs_register_signal(k, &self->s_dr_ovr, (uint64_t) (0));
+    vs_name(k, &self->s_dr_ovr, path, "dr_ovr", 1);
+    vs_register_signal(k, &self->s_txe_evt, (uint64_t) (0));
+    vs_name(k, &self->s_txe_evt, path, "txe_evt", 1);
+    vs_register_signal(k, &self->s_cpol_s1, (uint64_t) (0));
+    vs_name(k, &self->s_cpol_s1, path, "cpol_s1", 1);
+    vs_register_signal(k, &self->s_cpol_f, (uint64_t) (0));
+    vs_name(k, &self->s_cpol_f, path, "cpol_f", 1);
+    vs_register_signal(k, &self->s_cpha_s1, (uint64_t) (0));
+    vs_name(k, &self->s_cpha_s1, path, "cpha_s1", 1);
+    vs_register_signal(k, &self->s_cpha_f, (uint64_t) (0));
+    vs_name(k, &self->s_cpha_f, path, "cpha_f", 1);
+    vs_register_signal(k, &self->s_slave_s1, (uint64_t) (0));
+    vs_name(k, &self->s_slave_s1, path, "slave_s1", 1);
+    vs_register_signal(k, &self->s_slave_f, (uint64_t) (0));
+    vs_name(k, &self->s_slave_f, path, "slave_f", 1);
+    vs_register_signal(k, &self->s_rxie_s1, (uint64_t) (0));
+    vs_name(k, &self->s_rxie_s1, path, "rxie_s1", 1);
+    vs_register_signal(k, &self->s_rxie_f, (uint64_t) (0));
+    vs_name(k, &self->s_rxie_f, path, "rxie_f", 1);
+    vs_register_signal(k, &self->s_txie_s1, (uint64_t) (0));
+    vs_name(k, &self->s_txie_s1, path, "txie_s1", 1);
+    vs_register_signal(k, &self->s_txie_f, (uint64_t) (0));
+    vs_name(k, &self->s_txie_f, path, "txie_f", 1);
+    vs_register_signal(k, &self->s_txw_s1, (uint64_t) (0));
+    vs_name(k, &self->s_txw_s1, path, "txw_s1", 1);
+    vs_register_signal(k, &self->s_txw_s2, (uint64_t) (0));
+    vs_name(k, &self->s_txw_s2, path, "txw_s2", 1);
+    vs_register_signal(k, &self->s_txw_last, (uint64_t) (0));
+    vs_name(k, &self->s_txw_last, path, "txw_last", 1);
+    vs_register_signal(k, &self->s_drack_s1, (uint64_t) (0));
+    vs_name(k, &self->s_drack_s1, path, "drack_s1", 1);
+    vs_register_signal(k, &self->s_drack_s2, (uint64_t) (0));
+    vs_name(k, &self->s_drack_s2, path, "drack_s2", 1);
+    vs_register_signal(k, &self->s_txeack_s1, (uint64_t) (0));
+    vs_name(k, &self->s_txeack_s1, path, "txeack_s1", 1);
+    vs_register_signal(k, &self->s_txeack_s2, (uint64_t) (0));
+    vs_name(k, &self->s_txeack_s2, path, "txeack_s2", 1);
+    vs_register_signal(k, &self->s_miso_s1, (uint64_t) (0));
+    vs_name(k, &self->s_miso_s1, path, "miso_s1", 1);
+    vs_register_signal(k, &self->s_miso_s2, (uint64_t) (0));
+    vs_name(k, &self->s_miso_s2, path, "miso_s2", 1);
+    vs_register_signal(k, &self->s_mosi_s1, (uint64_t) (0));
+    vs_name(k, &self->s_mosi_s1, path, "mosi_s1", 1);
+    vs_register_signal(k, &self->s_mosi_s2, (uint64_t) (0));
+    vs_name(k, &self->s_mosi_s2, path, "mosi_s2", 1);
+    vs_register_signal(k, &self->s_sclk_s1, (uint64_t) (0));
+    vs_name(k, &self->s_sclk_s1, path, "sclk_s1", 1);
+    vs_register_signal(k, &self->s_sclk_s2, (uint64_t) (0));
+    vs_name(k, &self->s_sclk_s2, path, "sclk_s2", 1);
+    vs_register_signal(k, &self->s_sclk_s3, (uint64_t) (0));
+    vs_name(k, &self->s_sclk_s3, path, "sclk_s3", 1);
+    vs_register_signal(k, &self->s_ss_s1, (uint64_t) (0));
+    vs_name(k, &self->s_ss_s1, path, "ss_s1", 1);
+    vs_register_signal(k, &self->s_ss_s2, (uint64_t) (0));
+    vs_name(k, &self->s_ss_s2, path, "ss_s2", 1);
+    vs_register_signal(k, &self->s_ss_s3, (uint64_t) (0));
+    vs_name(k, &self->s_ss_s3, path, "ss_s3", 1);
+    vs_register_signal(k, &self->s_irq_r, (uint64_t) (0));
+    vs_name(k, &self->s_irq_r, path, "irq_r", 1);
     vs_register_signal(k, &self->s_sclk_out, (uint64_t) (0));
     vs_name(k, &self->s_sclk_out, path, "sclk_out", 1);
-    vs_register_signal(k, &self->s_sclk_out_ctrl, (uint64_t) (0));
-    vs_name(k, &self->s_sclk_out_ctrl, path, "sclk_out_ctrl", 1);
-    vs_register_signal(k, &self->s_assert_data, (uint64_t) (0));
-    vs_name(k, &self->s_assert_data, path, "assert_data", 1);
-    vs_register_signal(k, &self->s_clk_toggles, (uint64_t) (INT64_C(0)));
-    vs_name(k, &self->s_clk_toggles, path, "clk_toggles", 64);
-    vs_register_signal(k, &self->s_last_bit_rx, (uint64_t) (INT64_C(0)));
-    vs_name(k, &self->s_last_bit_rx, path, "last_bit_rx", 64);
-    vs_register_signal(k, &self->s_miso_in, (uint64_t) (0));
-    vs_name(k, &self->s_miso_in, path, "miso_in", 1);
-    vs_register_signal(k, &self->s_miso_out, (uint64_t) (0));
-    vs_name(k, &self->s_miso_out, path, "miso_out", 1);
-    vs_register_signal(k, &self->s_miso_out_ctrl, (uint64_t) (0));
-    vs_name(k, &self->s_miso_out_ctrl, path, "miso_out_ctrl", 1);
-    vs_register_signal(k, &self->s_mosi_in, (uint64_t) (0));
-    vs_name(k, &self->s_mosi_in, path, "mosi_in", 1);
     vs_register_signal(k, &self->s_mosi_out, (uint64_t) (0));
     vs_name(k, &self->s_mosi_out, path, "mosi_out", 1);
-    vs_register_signal(k, &self->s_mosi_out_ctrl, (uint64_t) (0));
-    vs_name(k, &self->s_mosi_out_ctrl, path, "mosi_out_ctrl", 1);
-    vs_register_signal(k, &self->s_mode, (uint64_t) (0));
-    vs_name(k, &self->s_mode, path, "mode", 1);
-    vs_register_signal(k, &self->s_slave_clock, (uint64_t) (0));
-    vs_name(k, &self->s_slave_clock, path, "slave_clock", 1);
-    vs_register_signal(k, &self->s_slave_clock_n, (uint64_t) (0));
-    vs_name(k, &self->s_slave_clock_n, path, "slave_clock_n", 1);
+    vs_register_signal(k, &self->s_miso_out, (uint64_t) (0));
+    vs_name(k, &self->s_miso_out, path, "miso_out", 1);
+    vs_register_signal(k, &self->s_sclk_in, (uint64_t) (0));
+    vs_name(k, &self->s_sclk_in, path, "sclk_in", 1);
+    vs_register_signal(k, &self->s_mosi_in, (uint64_t) (0));
+    vs_name(k, &self->s_mosi_in, path, "mosi_in", 1);
+    vs_register_signal(k, &self->s_miso_in, (uint64_t) (0));
+    vs_name(k, &self->s_miso_in, path, "miso_in", 1);
     vs_register_signal(k, &self->s_ss_n, (uint64_t) (0));
     vs_name(k, &self->s_ss_n, path, "ss_n", 1);
-    vs_register_signal(k, &self->s_bit_cnt, (uint64_t) (0));
-    vs_name(k, &self->s_bit_cnt, path, "bit_cnt", 17);
-    vs_register_signal(k, &self->s_state, (uint64_t) (0));
-    vs_name(k, &self->s_state, path, "state", 32);
-    vs_register_signal(k, &self->s_signal_tx_empty_s, (uint64_t) (0));
-    vs_name(k, &self->s_signal_tx_empty_s, path, "signal_tx_empty_s", 1);
-    vs_register_signal(k, &self->s_signal_tx_empty_m, (uint64_t) (0));
-    vs_name(k, &self->s_signal_tx_empty_m, path, "signal_tx_empty_m", 1);
-    vs_register_signal(k, &self->s_signal_data_ready_s, (uint64_t) (0));
-    vs_name(k, &self->s_signal_data_ready_s, path, "signal_data_ready_s", 1);
-    vs_register_signal(k, &self->s_signal_data_ready_m, (uint64_t) (0));
-    vs_name(k, &self->s_signal_data_ready_m, path, "signal_data_ready_m", 1);
-    vs_register_signal(k, &self->s_signal_divisor, (uint64_t) (0));
-    vs_name(k, &self->s_signal_divisor, path, "signal_divisor", 1);
+    vs_register_signal(k, &self->s_sclk_out_ctrl, (uint64_t) (0));
+    vs_name(k, &self->s_sclk_out_ctrl, path, "sclk_out_ctrl", 1);
+    vs_register_signal(k, &self->s_mosi_out_ctrl, (uint64_t) (0));
+    vs_name(k, &self->s_mosi_out_ctrl, path, "mosi_out_ctrl", 1);
+    vs_register_signal(k, &self->s_miso_out_ctrl, (uint64_t) (0));
+    vs_name(k, &self->s_miso_out_ctrl, path, "miso_out_ctrl", 1);
+    vs_register_signal(k, &self->s_busy, (uint64_t) (0));
+    vs_name(k, &self->s_busy, path, "busy", 1);
+    vs_register_signal(k, &self->s_cnt, (uint64_t) (0));
+    vs_name(k, &self->s_cnt, path, "cnt", 16);
+    vs_register_signal(k, &self->s_cnt_zero, (uint64_t) (0));
+    vs_name(k, &self->s_cnt_zero, path, "cnt_zero", 1);
+    vs_register_signal(k, &self->s_div_f, (uint64_t) (0));
+    vs_name(k, &self->s_div_f, path, "div_f", 16);
+    vs_register_signal(k, &self->s_phase, (uint64_t) (0));
+    vs_name(k, &self->s_phase, path, "phase", 1);
+    vs_register_signal(k, &self->s_toggles, (uint64_t) (INT64_C(0)));
+    vs_name(k, &self->s_toggles, path, "toggles", 64);
+    vs_register_signal(k, &self->s_pend_cap, (uint64_t) (0));
+    vs_name(k, &self->s_pend_cap, path, "pend_cap", 1);
+    vs_register_signal(k, &self->s_sh_tx, (uint64_t) (0));
+    vs_name(k, &self->s_sh_tx, path, "sh_tx", 8);
+    vs_register_signal(k, &self->s_sh_rx, (uint64_t) (0));
+    vs_name(k, &self->s_sh_rx, path, "sh_rx", 8);
+    vs_register_signal(k, &self->s_cap_cnt, (uint64_t) (INT64_C(0)));
+    vs_name(k, &self->s_cap_cnt, path, "cap_cnt", 64);
     vs_register_signal(k, &self->x1_imp_t, (uint64_t) (0));
     vs_name(k, &self->x1_imp_t, path, "imp_t", 1);
     iobuf_create(k, &self->c_mosi_iobuf_0, vs_join(k, path, "mosi_iobuf"), &self->s_mosi_out, self->p_mosi, &self->s_mosi_in, &self->x1_imp_t);
@@ -668,22 +681,17 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
     vs_tie_fields(&self->x8_tie_io, 0, &(*self->p_ss), 0, 1);
     vs_tie_fields(&(*self->p_ss), 0, &self->x8_tie_io, 0, 1);
     iobuf_create(k, &self->c_ss0_iobuffer_6, vs_join(k, path, "ss0_iobuffer"), &self->x7_tie_i, &self->x8_tie_io, &self->s_ss_n, &self->s_sclk_out_ctrl);
-    self->g_slave_clock_buf_cond_9 = vs_alloc(k, sizeof(*self->g_slave_clock_buf_cond_9));
-    self->g_slave_clock_buf_cond_9->up = self;
-    spi_63f52_g1_create(k, self->g_slave_clock_buf_cond_9, vs_join(k, path, "slave_clock_buf_cond"));
-    self->g_slave_clock_buf_n_cond_10 = vs_alloc(k, sizeof(*self->g_slave_clock_buf_n_cond_10));
-    self->g_slave_clock_buf_n_cond_10->up = self;
-    spi_63f52_g2_create(k, self->g_slave_clock_buf_n_cond_10, vs_join(k, path, "slave_clock_buf_n_cond"));
-
-    {
-        vs_sig *sens[1];
-        uint64_t masks[1];
-        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
-        size_t n = 0;
-        masks[n] = UINT64_C(0x2);
-        sens[n++] = &self->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_p0, self, sens, masks, n);
-    }
+    self->v12_rx_next = 0;
+    self->v12_ev_dr = 0;
+    self->v12_ev_txe = 0;
+    self->v12_pending = 0;
+    self->v12_cap_edge = 0;
+    self->v12_shf_edge = 0;
+    self->v12_rise = 0;
+    self->v12_fall = 0;
+    self->v12_flag_dr = 0;
+    self->v12_flag_txe = 0;
+    vs_register_process(k, spi_63f52_p0, self, NULL, 0);
 
     {
         vs_sig *sens[1];
@@ -704,22 +712,22 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
         sens[n++] = &self->s_cc_reg;
         vs_register_process_masked(k, spi_63f52_p2, self, sens, masks, n);
     }
-    vs_register_process(k, spi_63f52_p3, self, NULL, 0);
 
     {
-        vs_sig *sens[4];
-        uint64_t masks[4];
-        { size_t j; for (j = 0; j < 4; j++) { masks[j] = UINT64_MAX; } }
+        vs_sig *sens[1];
+        uint64_t masks[1];
+        { size_t j; for (j = 0; j < 1; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
-        masks[n] = UINT64_C(0x20);
+        masks[n] = UINT64_C(0x2);
         sens[n++] = &self->s_cc_reg;
-        masks[n] = UINT64_C(0x80);
-        sens[n++] = &self->s_cc_reg;
-        masks[n] = UINT64_C(0x10);
-        sens[n++] = &self->s_cc_reg;
-        masks[n] = UINT64_C(0x40);
-        sens[n++] = &self->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_p4, self, sens, masks, n);
+        vs_register_process_masked(k, spi_63f52_p3, self, sens, masks, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_irq_r;
+        vs_register_process(k, spi_63f52_p4, self, sens, n);
     }
 
     {
@@ -738,73 +746,66 @@ void spi_63f52_create(vs_kernel *k, spi_63f52 *self, const char *path, vs_sig *e
 
     {
         vs_sig *sens[2];
-        uint64_t masks[2];
-        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
-        masks[n] = UINT64_C(0x8);
-        sens[n++] = &self->s_cc_reg;
-        masks[n] = UINT64_C(0x4);
-        sens[n++] = &self->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_p7, self, sens, masks, n);
+        sens[n++] = &self->s_dr_evt_e1;
+        sens[n++] = &self->s_dr_ack;
+        vs_register_process(k, spi_63f52_p7, self, sens, n);
     }
 
     {
-        vs_sig *sens[11];
-        uint64_t masks[11];
-        { size_t j; for (j = 0; j < 11; j++) { masks[j] = UINT64_MAX; } }
+        vs_sig *sens[2];
         size_t n = 0;
+        sens[n++] = &self->s_txe_evt_e1;
+        sens[n++] = &self->s_txe_ack;
+        vs_register_process(k, spi_63f52_p8, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        edges[n] = 1;
         sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_rst_n);
+        vs_register_process_edges(k, spi_63f52_p9, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[9];
+        size_t n = 0;
         sens[n++] = &(*self->p_cs);
-        sens[n++] = &(*self->p_addr);
         sens[n++] = &(*self->p_rw_n);
-        sens[n++] = &self->s_signal_tx_empty_s;
-        sens[n++] = &self->s_signal_data_ready_s;
-        sens[n++] = &self->s_signal_tx_empty_m;
-        sens[n++] = &self->s_signal_data_ready_m;
-        masks[n] = UINT64_C(0x40);
+        sens[n++] = &(*self->p_addr);
         sens[n++] = &self->s_cc_reg;
-        masks[n] = UINT64_C(0x80);
-        sens[n++] = &self->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_p8, self, sens, masks, n);
-    }
-
-    {
-        vs_sig *sens[4];
-        uint64_t masks[4];
-        { size_t j; for (j = 0; j < 4; j++) { masks[j] = UINT64_MAX; } }
-        size_t n = 0;
-        sens[n++] = &(*self->p_sysclk);
-        sens[n++] = &(*self->p_rst_n);
-        masks[n] = UINT64_C(0x40);
-        sens[n++] = &self->s_cc_reg;
-        masks[n] = UINT64_C(0x80);
-        sens[n++] = &self->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_p9, self, sens, masks, n);
-    }
-
-    {
-        vs_sig *sens[3];
-        size_t n = 0;
-        sens[n++] = &self->s_ss_n;
-        sens[n++] = &(*self->p_rst_n);
-        sens[n++] = &self->s_slave_clock_n;
+        sens[n++] = &self->s_clock_divisor;
+        sens[n++] = &self->s_cs_reg;
+        sens[n++] = &self->s_rx_reg;
+        sens[n++] = &self->s_dr_flag_e;
+        sens[n++] = &self->s_txe_flag_e;
         vs_register_process(k, spi_63f52_p10, self, sens, n);
     }
 
     {
-        vs_sig *sens[5];
-        uint64_t masks[5];
-        { size_t j; for (j = 0; j < 5; j++) { masks[j] = UINT64_MAX; } }
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
-        sens[n++] = &self->s_slave_clock;
-        sens[n++] = &self->s_slave_clock_n;
+        edges[n] = 2;
+        sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_rst_n);
-        masks[n] = UINT64_C(0x40);
-        sens[n++] = &self->s_cc_reg;
-        masks[n] = UINT64_C(0x80);
-        sens[n++] = &self->s_cc_reg;
-        vs_register_process_masked(k, spi_63f52_p11, self, sens, masks, n);
+        vs_register_process_edges(k, spi_63f52_p11, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        edges[n] = 1;
+        sens[n++] = &(*self->p_cpuclk);
+        sens[n++] = &(*self->p_rst_n);
+        vs_register_process_edges(k, spi_63f52_p12, self, sens, NULL, edges, n);
     }
 }
 
