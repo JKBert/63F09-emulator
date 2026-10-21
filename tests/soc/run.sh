@@ -13,10 +13,10 @@ python3 "$here/mkelf.py" "$work/smoke.elf" "0xFFFFF000=7E F1 00" "0xFFFFFFFE=F0 
 for n in 1 2 4 8
 do
     "$emu" --ncpus "$n" --elf "$work/smoke.elf" --ticks 1300000 --trace-bus > "$work/smoke.$n.log"
-    grep -q 'A=FFFFFFFF8 mask=40 R' "$work/smoke.$n.log"                 # reset vector, high byte
-    grep -q 'A=FFFFFF000 mask=01 R' "$work/smoke.$n.log"                 # first opcode, from the ROM
-    grep -q 'A=F0000F100 mask=01 R D=.*86$' "$work/smoke.$n.log"      # LDA # fetched after the jump
-    grep -q 'A=F00000010 mask=01 W D=5555555555555555' "$work/smoke.$n.log"   # STA wrote 0x55
+    grep -q 'base=FFFFFFFF8 mask=40 R' "$work/smoke.$n.log"                 # reset vector, high byte
+    grep -q 'PA=FFFFFF000 base=FFFFFF000 mask=01 R' "$work/smoke.$n.log"                 # first opcode, from the ROM
+    grep -q 'cpu=0 LA=0000F100 PA=F0000F100 base=F0000F100 mask=01 R D=86 D64=--------------86$' "$work/smoke.$n.log"      # LDA # fetched after the jump
+    grep -q 'PA=F00000010 base=F00000010 mask=01 W D=55 D64=--------------55$' "$work/smoke.$n.log"   # STA wrote 0x55
     echo "smoke test with $n core(s): ok"
 done
 

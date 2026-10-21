@@ -24,6 +24,30 @@ STD = ["--std=08", "-frelaxed", "-fsynopsys"]
 OFFSET = 0xF00000000
 
 
+
+def lanes(mask, data, internal):
+    """The 16 digits of the 64-bit bus with "--" for the lanes that are not in the byte mask (all of them for the
+    internal memories and peripherals, whose accesses leave the pins idle)."""
+    return "".join(data[2 * (7 - k):2 * (8 - k)] if (mask >> k) & 1 and not internal else "--" for k in range(7, -1, -1))
+
+
+def ghdl_cycle(line):
+    """`ext A=<9> mask=<2> R|W D=<16>` of the bench, in the form shared with the emulator."""
+    m = re.match(r"ext A=(\w+) mask=(\w+) ([RW]) D=(\w+)$", line)
+    data = re.sub(r"[ZU]", "F", m.group(4))             # a pad that nobody drives is 'Z' in VHDL, all ones in the emulator
+    return "A=%s mask=%s %s D=%s" % (m.group(1), m.group(2), m.group(3),
+                                     lanes(int(m.group(2), 16), data, int(m.group(1), 16) >= 0xFFFF00000))
+
+
+def emu_cycle(line):
+    """`ext cpu=.. LA=.. PA=.. base=.. mask=.. R|W D=.. D64=..` of the emulator, in the same form (the core, the logical
+    address, the physical byte address and the byte of the 6809 bus are not in the bench)."""
+    m = re.search(r"base=(\w+) mask=(\w+) ([RW]) D=\S+ D64=(\S+)$", line)
+    base, mask, rw, d64 = m.groups()
+    full = "".join("FF" if d64[2 * k:2 * k + 2] == "--" else d64[2 * k:2 * k + 2] for k in range(8))
+    return "A=%s mask=%s %s D=%s" % (base, mask, rw, lanes(int(mask, 16), full, int(base, 16) >= 0xFFFF00000))
+
+
 def images(elf):
     """(rom, ext) : 64 KiB bytearrays for physical FFFFF0000 and F00000000."""
     d = open(elf, "rb").read()
@@ -134,12 +158,12 @@ def main(argv):
     ticks = int(us * 1e6 / 6.95)
     emu = os.environ.get("COSIM_EMU", os.path.join(ROOT, "build", "soc63f09"))
     c_log = run([emu, "--ext", "0xF00000000:0x10000", "--twi-eeprom", "0x50", "--spi-slave", "--elf", elf, "--ticks", str(ticks), "--trace-bus"], work)
-    c_lines = [re.sub(r"^\s*\d+\s+", "", l).strip() for l in c_log.splitlines() if " ext " in l]
+    c_lines = [emu_cycle(l) for l in c_log.splitlines() if " ext " in l]
     c_tx = [l.split() for l in c_log.splitlines() if " tx " in l]
     ghdl_i2c = [l.split() for l in vhd_log.splitlines() if l.startswith("i2c ")]
     c_i2c = [l.split() for l in c_log.splitlines() if " i2c " in l]
     # a pad that nobody drives is 'Z' in VHDL and keeps its pull-up (all ones) in the emulator
-    ghdl_lines = [re.sub(r"D=[ZU]+$", lambda m: "D=" + "F" * len(m.group(0)[2:]), l) for l in ghdl_lines]
+    ghdl_lines = [ghdl_cycle(l) for l in ghdl_lines]
     n = min(len(ghdl_lines), len(c_lines))
     print("GHDL: %d bus cycles, emulator: %d bus cycles in %d us" % (len(ghdl_lines), len(c_lines), us))
     bus_ok = True

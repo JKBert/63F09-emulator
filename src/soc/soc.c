@@ -54,6 +54,106 @@ static soc_zone *find_zone(soc_cfg *c, uint64_t addr)
     return NULL;
 }
 
+#define TRACE_DELAY    360             /* ticks : one CPUCLK */
+
+/* The signal of the design with that hierarchical name, or NULL. */
+static vs_sig *find_signal(soc *s, const char *name)
+{
+    size_t i;
+
+    for (i = 0; i < s->k.nsigs; i++)
+    {
+        if (s->k.sigs[i]->name != NULL && strcmp(s->k.sigs[i]->name, name) == 0)
+        {
+            return s->k.sigs[i];
+        }
+    }
+    return NULL;
+}
+
+/* The internal signals that --trace-bus shows next to the pins of the external bus. */
+static void find_trace_signals(soc *s)
+{
+    int     i;
+    char    name[96];
+
+    s->tr_a = find_signal(s, "soc.a");
+    s->tr_d_in = find_signal(s, "soc.d_in");
+    s->tr_d_out = find_signal(s, "soc.d_out");
+    s->tr_master = find_signal(s, "soc.bus_master");
+    for (i = 0; i < s->cfg.ncpus && i < SOC_MAXCPUS; i++)
+    {
+        snprintf(name, sizeof(name), "soc.bac0.smp.core(%d).dmc.dmc.mmu_with_cache_l1.cpu_a", i);
+        s->tr_la[i] = find_signal(s, name);
+        if (s->tr_la[i] == NULL && i == 0)          /* a single core has no index */
+        {
+            s->tr_la[i] = find_signal(s, "soc.bac0.smp.dmc.dmc.mmu_with_cache_l1.cpu_a");
+        }
+    }
+}
+
+/* One line per cycle of the external bus, at the fall of E :
+ *   ext cpu=<active core> LA=<logical address of that core, 8 digits> PA=<physical byte address, 9 digits>
+ *       base=<address of the 64-bit word> mask=<2> R|W D=<byte of the 6809 bus> D64=<the 8 lanes of the 64-bit bus>
+ * The data of the cycle appear on the bus with the fall of E itself, so the line is printed a little later (one
+ * CPUCLK), once they are stable ; the addresses are those of the fall. "--" marks the lanes of the 64-bit bus that
+ * are not significant (not in the byte mask). The pins of the 64-bit bus carry data only for the external memories :
+ * for the ROM, the internal RAM and the peripherals (physical addresses from 0xFFFF00000) D64 is all dashes. */
+static void trace_print(vs_kernel *k, void *arg)
+{
+    soc         *s = arg;
+    char        d64[17];
+    int         lane;
+    vs_sig      *d8 = s->tr_rd ? s->tr_d_out : s->tr_d_in;       /* seen from the memories : d_out leaves them (read) */
+    int         internal = s->tr_pa >= UINT64_C(0xFFFF00000);
+
+    (void) k;
+    for (lane = 7; lane >= 0; lane--)
+    {
+        if (((s->tr_mask >> lane) & 1) && !internal)
+        {
+            snprintf(d64 + 2 * (7 - lane), 3, "%02X", (unsigned) ((s->data.cur >> (8 * lane)) & 0xFF));
+        }
+        else
+        {
+            memcpy(d64 + 2 * (7 - lane), "--", 2);
+        }
+    }
+    d64[16] = '\0';
+    printf("%12llu ext cpu=%u LA=", (unsigned long long) s->k.now - TRACE_DELAY, s->tr_cpu);
+    if (s->tr_la_now != UINT64_MAX)
+    {
+        printf("%08llX", (unsigned long long) s->tr_la_now);
+    }
+    else
+    {
+        printf("--------");
+    }
+    printf(" PA=%09llX base=%09llX mask=%02X %c D=", (unsigned long long) s->tr_pa,
+           (unsigned long long) (s->tr_pa & ~UINT64_C(7)), (unsigned) s->tr_mask, s->tr_rd ? 'R' : 'W');
+    if (d8 != NULL)
+    {
+        printf("%02X", (unsigned) (d8->cur & 0xFF));
+    }
+    else
+    {
+        printf("--");
+    }
+    printf(" D64=%s\n", d64);
+}
+
+static void trace_cycle(soc *s, uint64_t mask)
+{
+    unsigned    cpu = s->tr_master != NULL ? (unsigned) s->tr_master->cur : 0;
+
+    s->tr_cpu = cpu;
+    s->tr_pa = s->tr_a != NULL ? s->tr_a->cur : 0;
+    s->tr_mask = mask;
+    s->tr_rd = (int) s->rw_n.cur;
+    s->tr_la_now = cpu < SOC_MAXCPUS && s->tr_la[cpu] != NULL ? s->tr_la[cpu]->cur & 0xFFFFFFFF : UINT64_MAX;
+    vs_timer_add(&s->k, s->k.now + TRACE_DELAY, trace_print, s);
+}
+
 /* The companion on the external bus : 64-bit data, the lane of the byte is given by BYTE_MASK. A read puts the
  * 8 bytes of the line on DATA while the bus owner reads ; a write is captured when E falls. The pad is driven by
  * the SoC (IOBUF) during a write and by the host otherwise. */
@@ -91,9 +191,7 @@ static void companion_run(void *inst)
 
         if (s->cfg.trace_bus)
         {
-            printf("%12llu ext A=%09llX mask=%02X %c D=%016llX\n", (unsigned long long) s->k.now,
-                   (unsigned long long) base, (unsigned) mask, s->rw_n.cur ? 'R' : 'W',
-                   (unsigned long long) s->data.cur);
+            trace_cycle(s, mask);
         }
         if (s->rw_n.cur == 0)
         {
@@ -305,6 +403,7 @@ int soc_create(soc *s, const soc_cfg *c)
     {
         return -1;
     }
+    find_trace_signals(s);
     sens[0] = &s->addr;
     sens[1] = &s->e;
     sens[2] = &s->rw_n;

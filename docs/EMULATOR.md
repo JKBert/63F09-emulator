@@ -52,8 +52,21 @@ until the design is stable. RESET_n is released after ten EXTAL periods.
   are sent to RxD as 8N1 frames, frames sent on TxD are written to stdout (`out=-`). A file name can replace `-`,
   `none` disables a direction. `B` is the rate of the host side, it must be the one the program sets in the ACIA
   (divider /16 : `24e6 / (16 * (divisor + 1))`, 115384 bauds for a divisor of 12, 0.16 % from the 115200 default of the host side ; 107142 for 13).
-* `--trace-bus` prints every cycle seen on the external pins. The address and byte mask are output for the internal
-  ROM and RAM too, so it is a trace of the whole bus.
+* `--trace-bus` prints one line per cycle of the bus, at the fall of E (the pins of the external bus show every cycle,
+  the internal ROM, RAM and peripherals included) :
+
+  ```
+  722520 ext cpu=0 LA=FFFFFFFE PA=FFFFFFFFE base=FFFFFFFF8 mask=40 R D=00 D64=----------------
+  900000 ext cpu=1 LA=0000F100 PA=F0000F100 base=F0000F100 mask=01 R D=86 D64=--------------86
+  ```
+
+  `cpu` is the core that owns the bus, `LA` the logical address (32 bits) that this core generates, `PA` the physical
+  byte address (36 bits) once the MMU is passed, `base` the address of the 64-bit word and `mask` the byte mask. `D` is
+  the byte on the 8-bit 6809 bus (what the memory returns for a read, what the core writes for a write) and `D64` the
+  eight lanes of the 64-bit bus, most significant first : the data is always by byte, so only the lanes of `mask` are
+  shown and the others are `--`. The pins of the 64-bit bus carry data only for the external memories : for the ROM,
+  the internal RAM and the peripherals (physical addresses from 0xFFFF00000) `D64` is all dashes. The data are sampled
+  one CPUCLK after the fall of E, when they are stable ; the time printed is that of the fall.
 * `--dump FILE` writes every change of every named signal of the design, with its hierarchical name.
 
 ## Serial lines on a Unix socket
