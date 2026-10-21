@@ -70,6 +70,7 @@ ENTITIES     ?= clk_63f75 wdg_63f46 acia_63f50 amc_63f42 ptm_63f40 pia_63f21 spi
 
 gen: tools need-vhdl
 	$(PYTHON) tools/vhdl2c/gen.py $(VHDL_DIR) src/gen $(ENTITIES)
+	$(PYTHON) tools/vhdl2c/memmap.py $(VHDL_DIR) src/gen/memmap.h docs/MEMORY_MAP.md
 
 census: tools need-vhdl
 	$(PYTHON) tools/vhdl2c/census.py $(VHDL_DIR)

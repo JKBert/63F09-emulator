@@ -27,19 +27,8 @@ until the design is stable. RESET_n is released after ten EXTAL periods.
   chosen when the design is built.
 * The memory map is that of `SoC.vhd` (physical, 36 bits) :
 
-  | Range | Device |
-  | --- | --- |
-  | `FFFFF0000` - `FFFFFFFFF` | ROM 27F512 (vectors in the last 64 bytes) |
-  | `FFFFEF000` | PIA (2 bytes each, 5 PIAs) |
-  | `FFFFEE000` | ACIA (4 bytes each, 2 ACIAs) |
-  | `FFFFED000` | PTM (8 bytes each, 2 PTMs) |
-  | `FFFFEC000` | SPI |
-  | `FFFFEB000` | TWI |
-  | `FFFFEA000` | BAC registers |
-  | `FFFFE9000` | watchdog |
-  | `FFFFD0000` - `FFFFD7000` | MMU 0 to 7 (one 4 KiB page each) |
-  | `FFFFC0000` | internal RAM 61F512 (64 KiB) |
-  | anything else | EXT0 : the companion, 64-bit external bus |
+  The addresses of the blocks decoded by the SoC (ROM, peripherals, MMUs, internal RAM) are in [MEMORY_MAP.md](MEMORY_MAP.md),
+  generated from the VHDL by `make gen` ; any other address goes to EXT0, the companion on the 64-bit external bus.
 
   Without MMU the physical address is `0xF` followed by the 32 bits of the core : a program linked at 0 runs at
   `0xF00000000` (external bus) and the reset vector is read at `0xFFFFFFFFE` (ROM).

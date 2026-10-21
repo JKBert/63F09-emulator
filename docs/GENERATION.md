@@ -171,3 +171,9 @@ with the emulator (planned, see the project notes).
 * Hand-written models of the vendor primitives : IOBUF, OBUF, OBUFT, BUFG, BUFHCE, PLLE2_BASE ; of the memories :
   RAM_61F64x1, RAM_61F512, RAM_61F32x64, ROM_27F512 (their content is reachable by the loader through
   `vs_region_find`).
+
+## Memory map
+
+`tools/vhdl2c/memmap.py` (run by `make gen` after the translation) reads the address decoding of the SoC (the process
+that sets `CS(MUX_...)` from `A`) and writes `src/gen/memmap.h` (`MM_<block>_BASE`, `MM_<block>_SIZE`, used by `src/soc`)
+and `docs/MEMORY_MAP.md`. When the blocks move in the VHDL, `make gen` is all it takes.

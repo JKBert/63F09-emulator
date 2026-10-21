@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "memmap.h"
 #include "soc09.h"
 #include "soc/console.h"
 #include "soc/i2c_eeprom.h"
@@ -22,9 +23,10 @@
 /* Ticks of the simulation : EXTAL (24 MHz) has a period of 6000 ticks, CPUCLK (400 MHz) one of 180 ticks. */
 #define SOC_EXTAL_HALF  3000
 
-/* Physical addresses decoded by the SoC itself (SoC.vhd) */
-#define SOC_ROM_BASE    UINT64_C(0xFFFFF0000)       /* 64 KiB, vectors in the last 64 bytes */
-#define SOC_INTRAM_BASE UINT64_C(0xFFFFC0000)       /* 64 KiB */
+/* Physical addresses decoded by the SoC itself : read from the VHDL (SoC.vhd) by tools/vhdl2c/memmap.py, 64 KiB each,
+ * the vectors are in the last 64 bytes of the ROM */
+#define SOC_ROM_BASE    MM_ROM_BASE
+#define SOC_INTRAM_BASE MM_INTRAM_BASE
 
 /* A memory of the external bus (the companion). */
 typedef struct soc_zone
