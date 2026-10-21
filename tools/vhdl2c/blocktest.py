@@ -9,6 +9,7 @@ usage: blocktest.py <vhdl dir> <ghdl binary> [block ...]
 
 import glob
 import os
+import re
 import random
 import shutil
 import subprocess
@@ -436,7 +437,14 @@ def stimulus(ports, cfg, seed):
 def run(cmd, cwd, quiet=False):
     r = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
     if r.returncode != 0 and not quiet:
-        sys.stdout.write("   command failed: %s\n%s%s\n" % (" ".join(cmd), r.stdout[-1500:], r.stderr[-1500:]))
+        text = r.stdout + r.stderr
+        # the errors come before the warnings of the files compiled after : show them first, then the end of the output
+        errors = [l for l in text.splitlines() if re.search(r"error|undefined reference|\bld:|collect2|Killed|internal compiler", l, re.I)]
+        shown = " ".join(cmd) if len(cmd) < 12 else " ".join(cmd[:8]) + " ... (%d arguments)" % len(cmd)
+        sys.stdout.write("   command failed (code %d): %s\n" % (r.returncode, shown))
+        if errors:
+            sys.stdout.write("   errors:\n%s\n" % "\n".join("      " + l[:300] for l in errors[:15]))
+        sys.stdout.write("   end of the output:\n%s\n" % text[-1500:])
     return r.returncode == 0
 
 
