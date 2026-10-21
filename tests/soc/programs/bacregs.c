@@ -15,7 +15,7 @@ int main(void)
 {
     unsigned i;
 
-    acia_init(ACIA0_BASE, 13);
+    acia_init(ACIA0_BASE, 12);
     acia_puts(ACIA0_BASE, "BAC:");
     for (i = 0; i < 8; i++)
     {

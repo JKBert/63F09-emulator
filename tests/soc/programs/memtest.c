@@ -22,7 +22,8 @@ static int check(volatile unsigned char *p, unsigned n)
 
 int main(void)
 {
-    acia_init(ACIA0_BASE, 13);
+    acia_init(ACIA0_BASE, 12);
+    acia_puts(ACIA0_BASE, "Hello from the 63F09\r\n");
     acia_puts(ACIA0_BASE, check((volatile unsigned char *) 0x00010000UL, 4096) ? "external RAM: ok\r\n" : "external RAM: FAIL\r\n");
     acia_puts(ACIA0_BASE, check((volatile unsigned char *) INTRAM_BASE, 4096) ? "internal RAM: ok\r\n" : "internal RAM: FAIL\r\n");
     for (;;)

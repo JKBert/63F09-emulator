@@ -27,7 +27,7 @@ int main(void)
 {
     volatile unsigned long n;
 
-    acia_init(ACIA0_BASE, 13);
+    acia_init(ACIA0_BASE, 12);
     acia_puts(ACIA0_BASE, "PTM before:");
     dump();
     REG8(PTM0_BASE + 2) = 0x03;     /* latch of timer 1 : high byte then low byte (6840) */
