@@ -922,12 +922,28 @@ static struct vs_threads
     int             work, again;
     unsigned        q;                              /* parity of the lists that the threads take */
     int             active;
+    int             stats;                          /* VS_STATS : the counters below, one cache line each (no sharing between threads) */
+    struct { unsigned long long n; char pad[56]; } delta[VS_MAX_PARTS], runs[VS_MAX_PARTS];
 } thr;
 
 static void act_next(void *arg)
 {
     vs_kernel   *k = arg;
 
+    if (thr.stats)
+    {
+        unsigned long long  mx = 0, tot = 0;
+        unsigned            t;
+
+        for (t = 0; t < thr.n; t++)
+        {
+            tot += thr.delta[t].n;
+            mx = thr.delta[t].n > mx ? thr.delta[t].n : mx;
+            thr.delta[t].n = 0;
+        }
+        vs_stat_tot += tot;
+        vs_stat_max += mx;
+    }
     k->deltas++;
     next_generation(k);
     thr.q = vs_gen & 1;
@@ -986,12 +1002,19 @@ static void thread_settle(unsigned me)
     take_incoming(me);
     while (thr.work)
     {
+        unsigned long long  ran = 0;
+
         for (j = 0; j < thr.nparts[me]; j++)
         {
             vs_part *pt = vs_parts[thr.parts[me][j]];
             size_t  n = pt->nrun;
 
             pt->nrun = 0;
+            if (thr.stats)
+            {
+                thr.runs[thr.parts[me][j]].n += n;
+                ran += n;
+            }
             for (i = 0; i < n; i++)
             {
                 vs_proc *p = pt->runq[i];
@@ -1000,6 +1023,7 @@ static void thread_settle(unsigned me)
                 p->run(p->inst);
             }
         }
+        thr.delta[me].n = ran;
         for (j = 0; j < thr.nparts[me]; j++)
         {
             commit(k, thr.parts[me][j]);
@@ -1047,7 +1071,8 @@ int vs_threads_start(vs_kernel *k, unsigned n)
         t = 1 + (p - 1) % (n - 1);
         thr.parts[t][thr.nparts[t]++] = p;
     }
-    if (getenv("VS_STATS") != NULL)
+    thr.stats = getenv("VS_STATS") != NULL;
+    if (thr.stats)
     {
         for (t = 0; t < n; t++)
         {
@@ -1078,7 +1103,6 @@ void vs_threads_stop(vs_kernel *k)
 {
     unsigned    t;
 
-    (void) k;
     if (!thr.active)
     {
         return;
@@ -1088,6 +1112,15 @@ void vs_threads_stop(vs_kernel *k)
     for (t = 1; t < thr.n; t++)
     {
         pthread_join(thr.tid[t], NULL);
+    }
+    if (thr.stats)
+    {
+        unsigned p;
+
+        for (p = 0; p < k->nparts; p++)
+        {
+            vs_stat_runs[p] += thr.runs[p].n;
+        }
     }
     thr.active = 0;
 }

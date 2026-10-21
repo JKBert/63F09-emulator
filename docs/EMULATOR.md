@@ -94,6 +94,22 @@ raise their interrupt from CPUCLK or SYSCLK, with the flags crossing to E by tog
 PTM, the PIA (`pia_irq.py`), the SPI, the TWI and the ACIA : the core loops in its cache and the handler counts the
 interrupts. `tests/soc/programs/b3_cache_idle.asm` is the minimal program (loops A and B).
 
+## Environment variables
+
+`VS_STATS=1` prints on stderr, at the end of the run, what the kernel did :
+
+    74933 delta cycles ; processes run: 1532201, sum over the deltas of the busiest partition: 981011
+    partition 0 : 394480 processes run
+    partition 1 : 763029 processes run
+    ...
+
+and, when `--threads` starts the threads, which partitions each thread runs. Partition 0 is the SoC, partition c + 1 the
+core c (`docs/THREADS.md`) ; without `--threads` the whole design is one partition. The total divided by the sum of the
+busiest partition is the best speed-up that threads can give for that program. The counters work in the sequential
+mode, in the partitioned sequential mode (`--threads 1`) and with threads, with the same totals. The number of delta
+cycles differs between the sequential and the threaded modes : the threads count a delta for each round of a chain of
+ties between partitions, which is not a delta of the simulation. There is no other environment variable.
+
 ## Running without a limit
 
 `--ticks N` stops the run after N ticks of simulated time (1 tick = 1/144 ns; the default, 100 000 000, is about 0.7 ms).

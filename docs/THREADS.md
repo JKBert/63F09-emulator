@@ -44,7 +44,7 @@ number of threads of the process. They do not depend on each other: 8 cores can 
 
 The partition of core c is the partition c + 1. The partitions of the cores are given to the T - 1 threads in turn: the
 partition p goes to thread 1 + (p - 1) mod (T - 1). With more threads than partitions, T becomes NCPUS + 1 (a thread has
-nothing to do otherwise). `VS_STATS=1` prints who runs what.
+nothing to do otherwise). `VS_STATS=1` prints who runs what (see `docs/EMULATOR.md`, environment variables).
 
 | Command | Thread 0 | Thread 1 | Thread 2 | Others |
 |---|---|---|---|---|
@@ -89,7 +89,7 @@ Barrier alone (micro benchmark, 2/3/4 threads): POSIX spin locks 0.7/2.0/4.1 µs
 line goes from a core to another and back in 112 ns on this machine.
 
 **No gain here.** The reason is in the work: a delta cycle runs about 45 processes (1 core) to 130 (8 cores), and the
-partitions are not busy at the same time. In the sequential mode, `VS_STATS=1` prints for the whole run the processes run and
+partitions are not busy at the same time. `VS_STATS=1` prints for the whole run (sequential or with threads) the processes run and
 the sum, over the delta cycles, of the processes of the busiest partition (the best that threads can do):
 
 | Cores | Processes run | Sum of the busiest partition | Best speed-up |
