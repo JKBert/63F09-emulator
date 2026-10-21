@@ -87,6 +87,13 @@ Options, after the address and separated by commas : `--twi-eeprom 0x50,file=ee.
 
 `tests/rt/test_eeprom.c` (`make test-rt`) checks the page and the write cycle on the model alone.
 
+## Interrupts while E is stopped
+
+The E clock only runs for bus cycles : a core that loops in its instruction cache makes none. The peripherals therefore
+raise their interrupt from CPUCLK or SYSCLK, with the flags crossing to E by toggles. `tests/soc/run.sh` checks it for the
+PTM, the PIA (`pia_irq.py`), the SPI, the TWI and the ACIA : the core loops in its cache and the handler counts the
+interrupts. `tests/soc/programs/b3_cache_idle.asm` is the minimal program (loops A and B).
+
 ## Running without a limit
 
 `--ticks N` stops the run after N ticks of simulated time (1 tick = 1/144 ns; the default, 100 000 000, is about 0.7 ms).

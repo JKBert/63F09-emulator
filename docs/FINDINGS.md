@@ -11,7 +11,7 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 | A2 | SoC09 `CACHEABLE_EXT` undriven | to confirm |
 | A3 | reset values | by design |
 | B2 | `LDMD` and the first load of S | for information |
-| B3 | interrupt flags of the TWI generated on E | SPI fixed, TWI being corrected |
+| A4 | TWI : first phase 65536 CPUCLK after a reset | to confirm |
 
 ## A. Behaviour of the chip
 
@@ -31,6 +31,15 @@ emulator, like the FPGA, starts them at 0. A simulator with four values (GHDL wi
 The outputs of the vendor primitives matter too : in the first co-simulation, a PLL output that started at `'U'`
 instead of `'0'` made the ACIA divider toggle once more at time 0.
 
+### A4. TWI : the first START comes about 164 us after a reset
+*Status : read in `63F54.vhd`, to confirm.*
+
+`TWI_ENGINE` resets `cnt` and `cnt_zero` to 0 (and not to the divisor). `cnt_zero = '0'` makes the phase generator count down
+`cnt` from 0, which wraps : the first phase ends after 65536 CPUCLK (164 us at 400 MHz) whatever the divisor, and only
+then `cnt` is loaded with `CLOCK_DIVISOR`. A command written just after the reset starts about 164 us late. Harmless,
+but a test or a driver that expects the transfer to start within a few phases has to wait for it (the block test of the
+TWI runs 75000 cycles for that reason). Resetting `cnt_zero` to `'1'` would load the divisor at once.
+
 ## B. Software and tool chain
 
 ### B2. `LDMD` and the first load of S
@@ -39,30 +48,6 @@ instead of `'0'` made the ACIA divider toggle once more at time 0.
 The header of 63F09.vhd says that MD can only be written after a reset and before the first load of S. The test
 sequence given in the conversation (`LDMD #$31 ; PSHS U`) pushes with S uninitialised ; the programs must load S
 after `LDMD`, as `crt0` does (`11 3D 11`, then `10 CE ...`).
-
-### B3. The interrupt flags of the other peripherals are still generated on E
-*Status : PTM (63F40), BAC (63F81), PIA (63F21), ACIA (63F50) and SPI (63F52) fixed by the author ; the TWI is being corrected.*
-
-The E clock only runs for bus cycles : a core that loops in its instruction cache makes none, E stops, and whatever is
-clocked on `falling_edge(E)` stops with it. A timer interrupt then never wakes the core. `tests/soc/programs/b3_cache_idle.asm`
-(`elf/b3_loopA.elf` : `BRA *`, `elf/b3_loopB.elf` : a PTM read in the loop) shows it : the marker counts the interrupts
-taken by the handler. With the corrected 63F40 and 63F81 both loops give 0x46 after 12 000 000 ticks on 1, 2, 4 and
-8 cores, and the co-simulation is identical to GHDL.
-
-PIA (63F21, corrected : edge detection and flags on SYSCLK, acknowledge on E) : `tests/soc/pia_irq.py` raises C1 of
-PIA 0 three times (`at` command of the pins socket) while the core loops in its cache ; the handler counts 3 interrupts
-on 1 and on 2 cores.
-
-ACIA (63F50 rewritten on SYSCLK with toggles crossing to E) : the first character is no longer lost and the receiver
-works (`hello`, `echo abc`) ; the interrupt in a cached loop has not been tested yet.
-
-SPI (63F52 rewritten with the engine on CPUCLK, the flags crossing to E by toggles) : the master sends a byte to the
-slave of the emulator while the core loops in its cache, the handler of EIRQ13 counts one interrupt
-(`SPI interrupt test` of `tests/soc/run.sh`). The ninth SCLK edge of the former version is gone : the slave answers
-`A5` then `5A`.
-
-What is left is the same pattern in the TWI (63F54) : an end of byte that happens while E is stopped is seen only when
-E restarts.
 
 ## C. Files and tools
 

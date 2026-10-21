@@ -950,7 +950,7 @@ void soc09_n4_create(vs_kernel *k, soc09_n4 *self, const char *path, int64_t g_n
     vs_register_signal(k, &self->x88_tie_irq_n, (uint64_t) (0));
     vs_name(k, &self->x88_tie_irq_n, path, "tie_irq_n", 1);
     vs_tie_fields(&self->x88_tie_irq_n, 0, &self->s_eirq_n, 12, 1);
-    twi_63f54_create(k, &self->c_twi0_83, vs_join(k, path, "twi0"), self->p_e, self->p_sysclk, &self->x84_imp_rst_n, &self->x85_tie_cs, &self->x86_tie_mrdy, &self->x87_tie_addr, self->p_rw_n, &self->s_d_mux_out.a[11], &self->s_d_mux_in.a[11], &self->x88_tie_irq_n, self->p_twi_sda, self->p_twi_scl);
+    twi_63f54_create(k, &self->c_twi0_83, vs_join(k, path, "twi0"), self->p_e, self->p_cpuclk, &self->x84_imp_rst_n, &self->x85_tie_cs, &self->x86_tie_mrdy, &self->x87_tie_addr, self->p_rw_n, &self->s_d_mux_out.a[11], &self->s_d_mux_in.a[11], &self->x88_tie_irq_n, self->p_twi_sda, self->p_twi_scl);
     vs_register_signal(k, &self->x90_imp_rst_n, (uint64_t) (0));
     vs_name(k, &self->x90_imp_rst_n, path, "imp_rst_n", 1);
     vs_register_signal(k, &self->x91_tie_cs, (uint64_t) (0));

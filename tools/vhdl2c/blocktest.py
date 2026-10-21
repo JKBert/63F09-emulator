@@ -92,16 +92,17 @@ BLOCKS = {
                            [(at + 1, {"cs": 0}) for at in range(500, 8800, 300)]),
     "acia_63f50": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=4000, change=0.15),
     "ptm_63f40": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=6000, change=0.1),
-    # I2C master, no slave : the line SDA is pulled up, the master addresses 0x50 and gets no acknowledge
-    "twi_63f54": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=6000, change=0,
+    # I2C master, no slave : the line SDA is pulled up, the master addresses 0x50 and gets no acknowledge (the phase
+    # counter of the engine counts down from 65535 after a reset, so the first START comes after 65536 CPUCLK)
+    "twi_63f54": dict(clocks=["e", "cpuclk"], resets={"rst_n": 0}, warm=3, cycles=75000, change=0,
                       initial={"rw_n": 1},
                       script=[(10, {"cs": 1, "addr": 4, "rw_n": 0, "d_in": 0}), (12, {"cs": 0, "rw_n": 1}),
                               (14, {"cs": 1, "addr": 5, "rw_n": 0, "d_in": 6}), (16, {"cs": 0, "rw_n": 1}),
                               (18, {"cs": 1, "addr": 7, "rw_n": 0, "d_in": 0x50}), (20, {"cs": 0, "rw_n": 1}),
                               (22, {"cs": 1, "addr": 0, "rw_n": 0, "d_in": 0xA5}), (24, {"cs": 0, "rw_n": 1}),
                               (26, {"cs": 1, "addr": 1, "rw_n": 0, "d_in": 0x09}), (28, {"cs": 0, "rw_n": 1})] +
-                             [(at, {"cs": 1, "addr": 2, "rw_n": 1}) for at in range(100, 5900, 200)] +
-                             [(at + 1, {"cs": 0}) for at in range(100, 5900, 200)]),
+                             [(at, {"cs": 1, "addr": 2, "rw_n": 1}) for at in range(100, 74900, 200)] +
+                             [(at + 1, {"cs": 0}) for at in range(100, 74900, 200)]),
     "spi_63f52": dict(clocks=["e", "cpuclk"], resets={"rst_n": 0}, warm=3, cycles=6000, change=0.1),
     "pia_63f21": dict(clocks=["e"], resets={"reset_n": 0}, warm=3, cycles=6000, change=0.3),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
