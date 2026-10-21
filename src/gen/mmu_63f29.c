@@ -369,7 +369,7 @@ static void mmu_63f29_g1_p1(void *inst)
 static void mmu_63f29_g1_p2(void *inst)
 {
     mmu_63f29_g1 *self = inst;
-    vs_drive_bits(&self->up->s_evict_s, (63 - (self->gp_i)), (UINT64_C(1)), (~((self->up->s_payload_array.a[((int64_t) self->up->s_ring_stg.cur) - 0].a[(self->gp_i) - 0].cur >> 27) & 1) & UINT64_C(0x1)));
+    vs_drive_bits(&self->up->s_evict_s, (63 - (self->gp_i)), (UINT64_C(1)), ((((self->up->s_payload_array.a[((int64_t) self->up->s_ring_stg.cur) - 0].a[(self->gp_i) - 0].cur >> 27) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
 }
 
 static void mmu_63f29_g1_p3(void *inst)
@@ -628,7 +628,7 @@ static void mmu_63f29_g10_create(vs_kernel *k, mmu_63f29_g10 *self, const char *
 static void mmu_63f29_g12_p0(void *inst)
 {
     mmu_63f29_g12 *self = inst;
-    vs_drive_bits(&self->up->up->up->s_free_c, (63 - ((self->up->up->gp_g * INT64_C(8)))), (UINT64_C(1)), (((self->up->up->up->s_free_1.cur >> (63 - ((self->up->up->gp_g * INT64_C(8))))) & 1) & (~((self->up->up->up->s_fgbef.cur >> (63 - (self->up->up->gp_g))) & 1) & UINT64_C(0x1))));
+    vs_drive_bits(&self->up->up->up->s_free_c, (63 - ((self->up->up->gp_g * INT64_C(8)))), (UINT64_C(1)), (((self->up->up->up->s_free_1.cur >> (63 - ((self->up->up->gp_g * INT64_C(8))))) & 1) & ((((self->up->up->up->s_fgbef.cur >> (63 - (self->up->up->gp_g))) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void mmu_63f29_g12_create(vs_kernel *k, mmu_63f29_g12 *self, const char *path)
@@ -646,7 +646,7 @@ static void mmu_63f29_g12_create(vs_kernel *k, mmu_63f29_g12 *self, const char *
 static void mmu_63f29_g13_p0(void *inst)
 {
     mmu_63f29_g13 *self = inst;
-    vs_drive_bits(&self->up->up->up->s_free_c, (63 - (((self->up->up->gp_g * INT64_C(8)) + self->up->gp_j))), (UINT64_C(1)), ((((self->up->up->up->s_free_1.cur >> (63 - (((self->up->up->gp_g * INT64_C(8)) + self->up->gp_j)))) & 1) & (~((self->up->up->up->s_fgbef.cur >> (63 - (self->up->up->gp_g))) & 1) & UINT64_C(0x1))) & (~(uint64_t)(((self->up->up->up->s_free_1.cur >> (63 - ((((self->up->up->gp_g * INT64_C(8)) + self->up->gp_j) - INT64_C(1))))) & ((UINT64_C(1) << (((((self->up->up->gp_g * INT64_C(8)) + self->up->gp_j) - INT64_C(1))) - ((self->up->up->gp_g * INT64_C(8))) + 1)) - 1)) != 0) & UINT64_C(0x1))));
+    vs_drive_bits(&self->up->up->up->s_free_c, (63 - (((self->up->up->gp_g * INT64_C(8)) + self->up->gp_j))), (UINT64_C(1)), ((((self->up->up->up->s_free_1.cur >> (63 - (((self->up->up->gp_g * INT64_C(8)) + self->up->gp_j)))) & 1) & ((((self->up->up->up->s_fgbef.cur >> (63 - (self->up->up->gp_g))) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1))) & (((uint64_t)(((self->up->up->up->s_free_1.cur >> (63 - ((((self->up->up->gp_g * INT64_C(8)) + self->up->gp_j) - INT64_C(1))))) & ((UINT64_C(1) << (((((self->up->up->gp_g * INT64_C(8)) + self->up->gp_j) - INT64_C(1))) - ((self->up->up->gp_g * INT64_C(8))) + 1)) - 1)) != 0) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void mmu_63f29_g13_create(vs_kernel *k, mmu_63f29_g13 *self, const char *path)
@@ -758,7 +758,7 @@ static void mmu_63f29_g14_create(vs_kernel *k, mmu_63f29_g14 *self, const char *
 static void mmu_63f29_g15_p0(void *inst)
 {
     mmu_63f29_g15 *self = inst;
-    vs_drive_bits(&self->up->s_victim, (63 - (self->gp_i)), (UINT64_C(1)), ((((self->up->s_dup_2.cur >> (63 - (self->gp_i))) & 1) | ((~self->up->s_anydup_2.cur & UINT64_C(0x1)) & ((self->up->s_ffree_2.cur >> (63 - (self->gp_i))) & 1))) | (((~self->up->s_anydup_2.cur & UINT64_C(0x1)) & (~self->up->s_anyfree_2.cur & UINT64_C(0x1))) & ((self->up->s_old_2.cur >> (63 - (self->gp_i))) & 1))));
+    vs_drive_bits(&self->up->s_victim, (63 - (self->gp_i)), (UINT64_C(1)), ((((self->up->s_dup_2.cur >> (63 - (self->gp_i))) & 1) | (((self->up->s_anydup_2.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->up->s_ffree_2.cur >> (63 - (self->gp_i))) & 1))) | ((((self->up->s_anydup_2.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->up->s_anyfree_2.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & ((self->up->s_old_2.cur >> (63 - (self->gp_i))) & 1))));
 }
 
 static void mmu_63f29_g15_create(vs_kernel *k, mmu_63f29_g15 *self, const char *path)
@@ -892,7 +892,7 @@ static void mmu_63f29_g17_create(vs_kernel *k, mmu_63f29_g17 *self, const char *
 static void mmu_63f29_g19_p0(void *inst)
 {
     mmu_63f29_g19 *self = inst;
-    vs_drive_bits(&self->up->s_pt, (63 - (self->gp_i)), (UINT64_C(1)), (((self->up->s_match.cur >> (63 - (self->gp_i))) & 1) & ((((((*self->up->up->p_rw_n).cur & (*self->up->up->p_fic).cur) & ((self->up->s_payload_array.a[((int64_t) self->up->s_current_ring.cur) - 0].a[(self->gp_i) - 0].cur >> 26) & 1)) & ((self->up->s_payload_array.a[((int64_t) self->up->s_current_ring.cur) - 0].a[(self->gp_i) - 0].cur >> 24) & 1)) | (((*self->up->up->p_rw_n).cur & (~(*self->up->up->p_fic).cur & UINT64_C(0x1))) & ((self->up->s_payload_array.a[((int64_t) self->up->s_current_ring.cur) - 0].a[(self->gp_i) - 0].cur >> 24) & 1))) | ((~(*self->up->up->p_rw_n).cur & UINT64_C(0x1)) & ((self->up->s_payload_array.a[((int64_t) self->up->s_current_ring.cur) - 0].a[(self->gp_i) - 0].cur >> 25) & 1)))));
+    vs_drive_bits(&self->up->s_pt, (63 - (self->gp_i)), (UINT64_C(1)), (((self->up->s_match.cur >> (63 - (self->gp_i))) & 1) & ((((((*self->up->up->p_rw_n).cur & (*self->up->up->p_fic).cur) & ((self->up->s_payload_array.a[((int64_t) self->up->s_current_ring.cur) - 0].a[(self->gp_i) - 0].cur >> 26) & 1)) & ((self->up->s_payload_array.a[((int64_t) self->up->s_current_ring.cur) - 0].a[(self->gp_i) - 0].cur >> 24) & 1)) | (((*self->up->up->p_rw_n).cur & (((*self->up->up->p_fic).cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & ((self->up->s_payload_array.a[((int64_t) self->up->s_current_ring.cur) - 0].a[(self->gp_i) - 0].cur >> 24) & 1))) | ((((*self->up->up->p_rw_n).cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->up->s_payload_array.a[((int64_t) self->up->s_current_ring.cur) - 0].a[(self->gp_i) - 0].cur >> 25) & 1)))));
 }
 
 static void mmu_63f29_g19_p1(void *inst)
@@ -1215,14 +1215,14 @@ static void mmu_63f29_g24_create(vs_kernel *k, mmu_63f29_g24 *self, const char *
 
 static int64_t f_log2i_0(mmu_63f29_g0 *self, int64_t a_n)
 {
-    int64_t v_r_76240 = INT64_C(0);
-    int64_t v_v_74224 = INT64_C(1);
-    while ((v_v_74224 < a_n))
+    int64_t v_r_45840 = INT64_C(0);
+    int64_t v_v_45424 = INT64_C(1);
+    while ((v_v_45424 < a_n))
     {
-        v_v_74224 = (v_v_74224 * INT64_C(2));
-        v_r_76240 = (v_r_76240 + INT64_C(1));
+        v_v_45424 = (v_v_45424 * INT64_C(2));
+        v_r_45840 = (v_r_45840 + INT64_C(1));
     }
-    return v_r_76240;
+    return v_r_45840;
 }
 
 static void mmu_63f29_g0_p0(void *inst)
@@ -1389,19 +1389,19 @@ static void mmu_63f29_g0_p18(void *inst)
 static void mmu_63f29_g0_p19(void *inst)
 {
     mmu_63f29_g0 *self = inst;
-    vs_drive(&self->s_raw_sel, (((*self->up->p_reset_n).cur & (~(*self->up->p_ba).cur & UINT64_C(0x1))) & (((*self->up->p_bs).cur & (~self->s_enabled.cur & UINT64_C(0x1))) | ((~(*self->up->p_bs).cur & UINT64_C(0x1)) & ((*self->up->p_mmu_cs).cur | (~self->s_enabled.cur & UINT64_C(0x1)))))));
+    vs_drive(&self->s_raw_sel, (((*self->up->p_reset_n).cur & (((*self->up->p_ba).cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & (((*self->up->p_bs).cur & ((self->s_enabled.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) | ((((*self->up->p_bs).cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((*self->up->p_mmu_cs).cur | ((self->s_enabled.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)))))));
 }
 
 static void mmu_63f29_g0_p20(void *inst)
 {
     mmu_63f29_g0 *self = inst;
-    vs_drive(&self->s_vec_ok, (((((*self->up->p_reset_n).cur & (~(*self->up->p_ba).cur & UINT64_C(0x1))) & (*self->up->p_bs).cur) & self->s_enabled.cur) & self->s_vperm.cur));
+    vs_drive(&self->s_vec_ok, (((((*self->up->p_reset_n).cur & (((*self->up->p_ba).cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & (*self->up->p_bs).cur) & self->s_enabled.cur) & self->s_vperm.cur));
 }
 
 static void mmu_63f29_g0_p21(void *inst)
 {
     mmu_63f29_g0 *self = inst;
-    vs_drive(&self->s_tr_acc, ((((((*self->up->p_reset_n).cur & (~(*self->up->p_ba).cur & UINT64_C(0x1))) & (~(*self->up->p_bs).cur & UINT64_C(0x1))) & (~(*self->up->p_mmu_cs).cur & UINT64_C(0x1))) & self->s_enabled.cur) & self->up->s_cpu_vma_int.cur));
+    vs_drive(&self->s_tr_acc, ((((((*self->up->p_reset_n).cur & (((*self->up->p_ba).cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & (((*self->up->p_bs).cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & (((*self->up->p_mmu_cs).cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & self->s_enabled.cur) & self->up->s_cpu_vma_int.cur));
 }
 
 static void mmu_63f29_g0_p22(void *inst)

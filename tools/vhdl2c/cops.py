@@ -222,11 +222,11 @@ class Ops:
         m = mask(w)
         ct = a[0].ct if a[0].ct.kind in ("bit", "vec") else Bit()
         if op == "Not":
-            return E("(~%s & %s)" % (a[0].code, m), ct)
+            return E("((%s ^ %s) & %s)" % (a[0].code, m, m), ct)       # ~x & m, without the ~ that gcc warns about on a comparison
         base = {"And": "&", "Nand": "&", "Or": "|", "Nor": "|", "Xor": "^", "Xnor": "^"}[op]
         code = "(%s %s %s)" % (a[0].code, base, a[1].code)
         if op in ("Nand", "Nor", "Xnor"):
-            code = "(~%s & %s)" % (code, m)
+            code = "((%s ^ %s) & %s)" % (code, m, m)
         return E(code, ct)
 
     def reduction(self, op, e, n):

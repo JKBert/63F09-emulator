@@ -25,7 +25,7 @@ static void clk_63f75_p0(void *inst)
             vs_drive(&self->s_position, (((uint64_t)((self->s_position.cur & UINT64_C(0x7))) << 1) | ((self->s_position.cur >> 3) & 1)));
             vs_drive(&(*self->p_e), (((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)));
             vs_drive(&(*self->p_q), (((self->s_position.cur >> 3) & 1) | ((self->s_position.cur >> 0) & 1)));
-            vs_drive(&(*self->p_c), (~(((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)) & UINT64_C(0x1)));
+            vs_drive(&(*self->p_c), (((((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
         }
     }
 }

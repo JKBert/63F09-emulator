@@ -25,7 +25,7 @@ static void fp_sgnj_p0(void *inst)
         }
         else if ((self->v0_rm == UINT64_C(0x1)))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 31)) | (((~((self->v0_data2 >> 31) & 1) & UINT64_C(0x1)) << 31) & (UINT64_C(0x1) << 31));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 31)) | ((((((self->v0_data2 >> 31) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)) << 31) & (UINT64_C(0x1) << 31));
         }
         else if ((self->v0_rm == UINT64_C(0x2)))
         {
@@ -41,7 +41,7 @@ static void fp_sgnj_p0(void *inst)
         }
         else if ((self->v0_rm == UINT64_C(0x1)))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 63)) | (((~((self->v0_data2 >> 63) & 1) & UINT64_C(0x1)) << 63) & (UINT64_C(0x1) << 63));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 63)) | ((((((self->v0_data2 >> 63) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)) << 63) & (UINT64_C(0x1) << 63));
         }
         else if ((self->v0_rm == UINT64_C(0x2)))
         {

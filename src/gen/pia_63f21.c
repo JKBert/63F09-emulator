@@ -73,7 +73,7 @@ static void pia_63f21_p1(void *inst)
     else
     {
         vs_drive(&self->s_port_read, 0);
-        vs_drive(&(*self->p_d_out), (((uint64_t)((((uint64_t)((self->s_tog1_e2.cur ^ self->s_ack1.cur)) << 1) | ((self->s_tog2_e2.cur ^ self->s_ack2.cur) & (~((self->s_port_ctrl.cur >> 5) & 1) & UINT64_C(0x1))))) << 6) | self->s_port_ctrl.cur));
+        vs_drive(&(*self->p_d_out), (((uint64_t)((((uint64_t)((self->s_tog1_e2.cur ^ self->s_ack1.cur)) << 1) | ((self->s_tog2_e2.cur ^ self->s_ack2.cur) & ((((self->s_port_ctrl.cur >> 5) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1))))) << 6) | self->s_port_ctrl.cur));
     }
 }
 
@@ -97,7 +97,7 @@ static void pia_63f21_p2(void *inst)
                 if ((((self->s_port_ctrl.cur >> 2) & 1) == 0))
                 {
                     vs_drive(&self->s_port_ddr, (*self->p_d_in).cur);
-                    vs_drive(&self->s_port_d_ctrl, (~(*self->p_d_in).cur & UINT64_C(0xFF)));
+                    vs_drive(&self->s_port_d_ctrl, (((*self->p_d_in).cur ^ UINT64_C(0xFF)) & UINT64_C(0xFF)));
                 }
                 else
                 {
@@ -161,11 +161,11 @@ static void pia_63f21_p5(void *inst)
             vs_drive(&self->s_c1_s1, (*self->p_c1).cur);
             vs_drive(&self->s_c1_s2, self->s_c1_s1.cur);
             vs_drive(&self->s_c1_del, self->s_c1_s2.cur);
-            vs_drive(&self->s_c1_rise, ((~self->s_c1_del.cur & UINT64_C(0x1)) & self->s_c1_s2.cur));
-            vs_drive(&self->s_c1_fall, (self->s_c1_del.cur & (~self->s_c1_s2.cur & UINT64_C(0x1))));
+            vs_drive(&self->s_c1_rise, (((self->s_c1_del.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->s_c1_s2.cur));
+            vs_drive(&self->s_c1_fall, (self->s_c1_del.cur & ((self->s_c1_s2.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
             if ((self->s_c1_edge.cur == 1))
             {
-                vs_drive(&self->s_set1_tog, (~self->s_set1_tog.cur & UINT64_C(0x1)));
+                vs_drive(&self->s_set1_tog, ((self->s_set1_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             }
         }
     }
@@ -203,11 +203,11 @@ static void pia_63f21_p7(void *inst)
             vs_drive(&self->s_c2_s1, self->s_c2_in.cur);
             vs_drive(&self->s_c2_s2, self->s_c2_s1.cur);
             vs_drive(&self->s_c2_del, self->s_c2_s2.cur);
-            vs_drive(&self->s_c2_rise, ((~self->s_c2_del.cur & UINT64_C(0x1)) & self->s_c2_s2.cur));
-            vs_drive(&self->s_c2_fall, (self->s_c2_del.cur & (~self->s_c2_s2.cur & UINT64_C(0x1))));
+            vs_drive(&self->s_c2_rise, (((self->s_c2_del.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->s_c2_s2.cur));
+            vs_drive(&self->s_c2_fall, (self->s_c2_del.cur & ((self->s_c2_s2.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
             if (((((self->s_out2_s.cur >> 1) & 1) == 0) & (self->s_c2_edge.cur == 1)))
             {
-                vs_drive(&self->s_set2_tog, (~self->s_set2_tog.cur & UINT64_C(0x1)));
+                vs_drive(&self->s_set2_tog, ((self->s_set2_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             }
         }
     }
@@ -289,7 +289,7 @@ static void pia_63f21_p12(void *inst)
                 }
                 case UINT64_C(0x5):
                 {
-                    vs_drive(&self->s_c2_out, (~self->s_port_read.cur & UINT64_C(0x1)));
+                    vs_drive(&self->s_c2_out, ((self->s_port_read.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                     break;
                 }
                 case UINT64_C(0x6):
@@ -315,7 +315,7 @@ static void pia_63f21_p12(void *inst)
 static void pia_63f21_p13(void *inst)
 {
     pia_63f21 *self = inst;
-    vs_drive(&(*self->p_irq_n), (~((self->s_irq1.cur & ((self->s_port_ctrl.cur >> 0) & 1)) | (self->s_irq2.cur & (((self->s_port_ctrl.cur >> 3) & 1) & (~((self->s_port_ctrl.cur >> 5) & 1) & UINT64_C(0x1))))) & UINT64_C(0x1)));
+    vs_drive(&(*self->p_irq_n), ((((self->s_irq1.cur & ((self->s_port_ctrl.cur >> 0) & 1)) | (self->s_irq2.cur & (((self->s_port_ctrl.cur >> 3) & 1) & ((((self->s_port_ctrl.cur >> 5) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1))))) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
 }
 
 void pia_63f21_create(vs_kernel *k, pia_63f21 *self, const char *path, vs_sig *e, vs_sig *sysclk, vs_sig *reset_n, vs_sig *cs, vs_sig *mrdy, vs_sig *rw_n, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *port_d, vs_sig *irq_n, vs_sig *c1, vs_sig *c2)

@@ -17,7 +17,7 @@ static void lzc_64_p0(void *inst)
 static void lzc_64_p1(void *inst)
 {
     lzc_64 *self = inst;
-    vs_drive(&self->s_s1, ((~self->s_v1.cur & UINT64_C(0x1)) & ((self->s_z0.cur >> 0) & 1)));
+    vs_drive(&self->s_s1, (((self->s_v1.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_z0.cur >> 0) & 1)));
 }
 
 static void lzc_64_p2(void *inst)
@@ -29,7 +29,7 @@ static void lzc_64_p2(void *inst)
 static void lzc_64_p3(void *inst)
 {
     lzc_64 *self = inst;
-    vs_drive(&self->s_s3, ((~self->s_v1.cur & UINT64_C(0x1)) & ((self->s_z0.cur >> 1) & 1)));
+    vs_drive(&self->s_s3, (((self->s_v1.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_z0.cur >> 1) & 1)));
 }
 
 static void lzc_64_p4(void *inst)
@@ -41,7 +41,7 @@ static void lzc_64_p4(void *inst)
 static void lzc_64_p5(void *inst)
 {
     lzc_64 *self = inst;
-    vs_drive(&self->s_s5, ((~self->s_v1.cur & UINT64_C(0x1)) & ((self->s_z0.cur >> 2) & 1)));
+    vs_drive(&self->s_s5, (((self->s_v1.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_z0.cur >> 2) & 1)));
 }
 
 static void lzc_64_p6(void *inst)
@@ -53,7 +53,7 @@ static void lzc_64_p6(void *inst)
 static void lzc_64_p7(void *inst)
 {
     lzc_64 *self = inst;
-    vs_drive(&self->s_s7, ((~self->s_v1.cur & UINT64_C(0x1)) & ((self->s_z0.cur >> 3) & 1)));
+    vs_drive(&self->s_s7, (((self->s_v1.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_z0.cur >> 3) & 1)));
 }
 
 static void lzc_64_p8(void *inst)
@@ -65,7 +65,7 @@ static void lzc_64_p8(void *inst)
 static void lzc_64_p9(void *inst)
 {
     lzc_64 *self = inst;
-    vs_drive(&self->s_s9, ((~self->s_v1.cur & UINT64_C(0x1)) & ((self->s_z0.cur >> 4) & 1)));
+    vs_drive(&self->s_s9, (((self->s_v1.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_z0.cur >> 4) & 1)));
 }
 
 static void lzc_64_p10(void *inst)

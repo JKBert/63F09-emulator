@@ -51,19 +51,19 @@ static void twi_63f54_p0(void *inst)
 static void twi_63f54_p1(void *inst)
 {
     twi_63f54 *self = inst;
-    vs_drive(&(*self->p_irq_n), (~self->s_irq_r.cur & UINT64_C(0x1)));
+    vs_drive(&(*self->p_irq_n), ((self->s_irq_r.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
 }
 
 static void twi_63f54_i2(void *inst)
 {
     twi_63f54 *self = inst;
-    vs_drive(&self->x2_imp_t, (uint64_t)((~self->s_sda_low.cur & UINT64_C(0x1))));
+    vs_drive(&self->x2_imp_t, (uint64_t)(((self->s_sda_low.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void twi_63f54_i3(void *inst)
 {
     twi_63f54 *self = inst;
-    vs_drive(&self->x5_imp_t, (uint64_t)((~self->s_scl_low.cur & UINT64_C(0x1))));
+    vs_drive(&self->x5_imp_t, (uint64_t)(((self->s_scl_low.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void twi_63f54_p4(void *inst)
@@ -202,7 +202,7 @@ static void twi_63f54_p10(void *inst)
                         vs_drive(&self->s_tx_reg, (*self->p_d_in).cur);
                         if ((self->s_txe_flag_e.cur == 1))
                         {
-                            vs_drive(&self->s_txw_tog, (~self->s_txw_tog.cur & UINT64_C(0x1)));
+                            vs_drive(&self->s_txw_tog, ((self->s_txw_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                         }
                         vs_drive(&self->s_txe_ack, self->s_txe_evt_e1.cur);
                         break;
@@ -210,7 +210,7 @@ static void twi_63f54_p10(void *inst)
                     case UINT64_C(0x1):
                     {
                         vs_drive(&self->s_start_reg, ((*self->p_d_in).cur & UINT64_C(0x1F)));
-                        vs_drive(&self->s_cmd_tog, (~self->s_cmd_tog.cur & UINT64_C(0x1)));
+                        vs_drive(&self->s_cmd_tog, ((self->s_cmd_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                         break;
                     }
                     case UINT64_C(0x2):
@@ -346,7 +346,7 @@ static void twi_63f54_p11(void *inst)
         self->v11_pending = (self->s_txw_s2.cur != self->v11_txw_last);
         if (self->v11_capt_pend)
         {
-            vs_drive(&self->s_capt_tog, (~self->s_capt_tog.cur & UINT64_C(0x1)));
+            vs_drive(&self->s_capt_tog, ((self->s_capt_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             self->v11_capt_pend = 0;
         }
         if ((self->s_cmd_s2.cur != self->v11_cmd_last))
@@ -520,7 +520,7 @@ static void twi_63f54_p11(void *inst)
                 }
                 case 4:
                 {
-                    self->v11_ack = (~self->v11_ackerr & UINT64_C(0x1));
+                    self->v11_ack = ((self->v11_ackerr ^ UINT64_C(0x1)) & UINT64_C(0x1));
                     if ((self->v11_ackerr == 1))
                     {
                         self->v11_st = 2;
@@ -571,7 +571,7 @@ static void twi_63f54_p11(void *inst)
                 }
                 case 7:
                 {
-                    self->v11_ack = (~self->v11_ackerr & UINT64_C(0x1));
+                    self->v11_ack = ((self->v11_ackerr ^ UINT64_C(0x1)) & UINT64_C(0x1));
                     if ((self->v11_ackerr == 1))
                     {
                         self->v11_st = 2;
@@ -591,7 +591,7 @@ static void twi_63f54_p11(void *inst)
                 {
                     if ((self->v11_bitcnt == INT64_C(0)))
                     {
-                        self->v11_sda_int = (~((self->v11_mode >> 2) & 1) & UINT64_C(0x1));
+                        self->v11_sda_int = ((((self->v11_mode >> 2) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1));
                         self->v11_bitcnt = INT64_C(7);
                         vs_drive(&self->s_rx_reg, self->v11_rxb);
                         self->v11_ev_dr = 1;
@@ -715,7 +715,7 @@ static void twi_63f54_p11(void *inst)
             }
             default:
             {
-                vs_drive(&self->s_sda_low, (~self->v11_sda_int & UINT64_C(0x1)));
+                vs_drive(&self->s_sda_low, ((self->v11_sda_int ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                 break;
             }
         }
@@ -794,7 +794,7 @@ static void twi_63f54_p11(void *inst)
         {
             if ((self->v11_flag_dr == 0))
             {
-                vs_drive(&self->s_dr_evt, (~self->s_dr_evt.cur & UINT64_C(0x1)));
+                vs_drive(&self->s_dr_evt, ((self->s_dr_evt.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             }
             else
             {
@@ -803,12 +803,12 @@ static void twi_63f54_p11(void *inst)
         }
         else if (((self->s_dr_ovr.cur == 1) & (self->v11_flag_dr == 0)))
         {
-            vs_drive(&self->s_dr_evt, (~self->s_dr_evt.cur & UINT64_C(0x1)));
+            vs_drive(&self->s_dr_evt, ((self->s_dr_evt.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             vs_drive(&self->s_dr_ovr, 0);
         }
         if (self->v11_ev_txe)
         {
-            vs_drive(&self->s_txe_evt, (~self->s_txe_evt.cur & UINT64_C(0x1)));
+            vs_drive(&self->s_txe_evt, ((self->s_txe_evt.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
         }
         self->v11_flag_txe = (self->s_txe_evt.cur ^ self->s_txeack_s2.cur);
         vs_drive(&self->s_irq_r, ((self->s_rxie_f.cur & self->v11_flag_dr) | (self->s_txie_f.cur & self->v11_flag_txe)));

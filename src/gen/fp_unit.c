@@ -57,7 +57,7 @@ static void fp_unit_p2(void *inst)
 static void fp_unit_p3(void *inst)
 {
     fp_unit *self = inst;
-    vs_drive(&(*self->p_fp_unit_o).f_fp_exe_o.f_ready, (self->s_fo.f_ready.cur & (~self->s_fo_rdy.cur & UINT64_C(0x1))));
+    vs_drive(&(*self->p_fp_unit_o).f_fp_exe_o.f_ready, (self->s_fo.f_ready.cur & ((self->s_fo_rdy.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 void fp_unit_create(vs_kernel *k, fp_unit *self, const char *path, vs_sig *reset, vs_sig *clock, vs_sig *ce, fp_unit_in_type_s *fp_unit_i, fp_unit_out_type_s *fp_unit_o)

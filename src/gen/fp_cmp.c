@@ -62,7 +62,7 @@ static void fp_cmp_p0(void *inst)
         {
             if ((vs_w_bit(self->v0_data1, 64) == 1))
             {
-                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((~self->v0_cmp_le & UINT64_C(0x1)) << 0) & (UINT64_C(0x1) << 0));
+                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((((self->v0_cmp_le ^ UINT64_C(0x1)) & UINT64_C(0x1)) << 0) & (UINT64_C(0x1) << 0));
             }
             else
             {
@@ -88,7 +88,7 @@ static void fp_cmp_p0(void *inst)
         {
             if ((vs_w_bit(self->v0_data1, 64) == 1))
             {
-                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((~self->v0_cmp_lt & UINT64_C(0x1)) << 0) & (UINT64_C(0x1) << 0));
+                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((((self->v0_cmp_lt ^ UINT64_C(0x1)) & UINT64_C(0x1)) << 0) & (UINT64_C(0x1) << 0));
             }
             else
             {

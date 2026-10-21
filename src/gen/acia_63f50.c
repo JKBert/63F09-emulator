@@ -11,7 +11,7 @@
 static void acia_63f50_p0(void *inst)
 {
     acia_63f50 *self = inst;
-    vs_drive(&(*self->p_irq_n), (~self->s_irq.cur & UINT64_C(0x1)));
+    vs_drive(&(*self->p_irq_n), ((self->s_irq.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
 }
 
 static void acia_63f50_p1(void *inst)
@@ -34,14 +34,14 @@ static void acia_63f50_p2(void *inst)
         else if ((self->s_clockrst.cur == 1))
         {
             vs_drive(&self->s_clockcnt, UINT64_C(0x0));
-            vs_drive(&self->s_rxc, (~self->s_rxc.cur & UINT64_C(0x1)));
-            vs_drive(&self->s_txc, (~self->s_txc.cur & UINT64_C(0x1)));
+            vs_drive(&self->s_rxc, ((self->s_rxc.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+            vs_drive(&self->s_txc, ((self->s_txc.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
         }
         else if ((self->s_clockcnt.cur == self->s_clockdiv.cur))
         {
             vs_drive(&self->s_clockcnt, UINT64_C(0x0));
-            vs_drive(&self->s_rxc, (~self->s_rxc.cur & UINT64_C(0x1)));
-            vs_drive(&self->s_txc, (~self->s_txc.cur & UINT64_C(0x1)));
+            vs_drive(&self->s_rxc, ((self->s_rxc.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+            vs_drive(&self->s_txc, ((self->s_txc.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
         }
         else
         {
@@ -55,7 +55,7 @@ static void acia_63f50_p3(void *inst)
     acia_63f50 *self = inst;
     if (vs_falling(&(*self->p_sysclk)))
     {
-        vs_drive(&self->s_ac_rst, ((((self->s_cr_s.cur >> 1) & 1) & ((self->s_cr_s.cur >> 0) & 1)) | (~(*self->p_rst_n).cur & UINT64_C(0x1))));
+        vs_drive(&self->s_ac_rst, ((((self->s_cr_s.cur >> 1) & 1) & ((self->s_cr_s.cur >> 0) & 1)) | (((*self->p_rst_n).cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
     }
 }
 
@@ -100,7 +100,7 @@ static void acia_63f50_p6(void *inst)
                     }
                     else
                     {
-                        vs_drive(&self->s_srd_tog, (~self->s_srd_tog.cur & UINT64_C(0x1)));
+                        vs_drive(&self->s_srd_tog, ((self->s_srd_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                     }
                     break;
                 }
@@ -109,11 +109,11 @@ static void acia_63f50_p6(void *inst)
                     if (((*self->p_rw_n).cur == 0))
                     {
                         vs_drive(&self->s_tx_data_reg, (*self->p_d_in).cur);
-                        vs_drive(&self->s_txw_tog, (~self->s_txw_tog.cur & UINT64_C(0x1)));
+                        vs_drive(&self->s_txw_tog, ((self->s_txw_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                     }
                     else
                     {
-                        vs_drive(&self->s_rdev_tog, (~self->s_rdev_tog.cur & UINT64_C(0x1)));
+                        vs_drive(&self->s_rdev_tog, ((self->s_rdev_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                         vs_drive(&self->s_rxr_ack, self->s_rxs_e2.cur);
                     }
                     break;
@@ -121,13 +121,13 @@ static void acia_63f50_p6(void *inst)
                 case UINT64_C(0x2):
                 {
                     vs_drive_bits(&self->s_clockdiv, 8, UINT64_C(0xFF), (*self->p_d_in).cur);
-                    vs_drive(&self->s_clkm_tog, (~self->s_clkm_tog.cur & UINT64_C(0x1)));
+                    vs_drive(&self->s_clkm_tog, ((self->s_clkm_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                     break;
                 }
                 default:
                 {
                     vs_drive_bits(&self->s_clockdiv, 0, UINT64_C(0xFF), (*self->p_d_in).cur);
-                    vs_drive(&self->s_clkl_tog, (~self->s_clkl_tog.cur & UINT64_C(0x1)));
+                    vs_drive(&self->s_clkl_tog, ((self->s_clkl_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                     break;
                 }
             }
@@ -206,7 +206,7 @@ static void acia_63f50_p12(void *inst)
 static void acia_63f50_p13(void *inst)
 {
     acia_63f50 *self = inst;
-    vs_drive(&self->s_txrdy, (~(self->s_txw_tog.cur ^ self->s_ld_tog.cur) & UINT64_C(0x1)));
+    vs_drive(&self->s_txrdy, (((self->s_txw_tog.cur ^ self->s_ld_tog.cur) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
 }
 
 static void acia_63f50_p14(void *inst)
@@ -218,7 +218,7 @@ static void acia_63f50_p14(void *inst)
 static void acia_63f50_p15(void *inst)
 {
     acia_63f50 *self = inst;
-    vs_drive(&self->s_txrdy_s, (~(self->s_txw_s2.cur ^ self->s_ld_tog.cur) & UINT64_C(0x1)));
+    vs_drive(&self->s_txrdy_s, (((self->s_txw_s2.cur ^ self->s_ld_tog.cur) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
 }
 
 static void acia_63f50_p16(void *inst)
@@ -230,16 +230,16 @@ static void acia_63f50_p16(void *inst)
 static void acia_63f50_p17(void *inst)
 {
     acia_63f50 *self = inst;
-    vs_drive(&self->s_txrdy_e, (~(self->s_txw_tog.cur ^ self->s_ld_e2.cur) & UINT64_C(0x1)));
+    vs_drive(&self->s_txrdy_e, (((self->s_txw_tog.cur ^ self->s_ld_e2.cur) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
 }
 
 static void acia_63f50_p18(void *inst)
 {
     acia_63f50 *self = inst;
-    vs_drive(&self->s_txie, ((~((self->s_cr_s.cur >> 6) & 1) & UINT64_C(0x1)) & ((self->s_cr_s.cur >> 5) & 1)));
+    vs_drive(&self->s_txie, (((((self->s_cr_s.cur >> 6) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_cr_s.cur >> 5) & 1)));
     vs_drive(&self->s_rxie, ((self->s_cr_s.cur >> 7) & 1));
     vs_drive_bits(&self->s_status_reg, 0, UINT64_C(0x1), self->s_rxrdy_e.cur);
-    vs_drive_bits(&self->s_status_reg, 1, UINT64_C(0x1), (self->s_txrdy_e.cur & (~self->s_cts_i.cur & UINT64_C(0x1))));
+    vs_drive_bits(&self->s_status_reg, 1, UINT64_C(0x1), (self->s_txrdy_e.cur & ((self->s_cts_i.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
     vs_drive_bits(&self->s_status_reg, 2, UINT64_C(0x1), self->s_dcdint.cur);
     vs_drive_bits(&self->s_status_reg, 3, UINT64_C(0x1), self->s_cts_i.cur);
     vs_drive_bits(&self->s_status_reg, 4, UINT64_C(0x1), self->s_ferr.cur);
@@ -262,7 +262,7 @@ static void acia_63f50_p19(void *inst)
         {
             if ((self->s_rxrdy_s.cur == 0))
             {
-                vs_drive(&self->s_rxs_tog, (~self->s_rxs_tog.cur & UINT64_C(0x1)));
+                vs_drive(&self->s_rxs_tog, ((self->s_rxs_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             }
         }
     }
@@ -395,7 +395,7 @@ static void acia_63f50_p25(void *inst)
         else
         {
             vs_drive(&self->s_dcddel, self->s_dcd_i.cur);
-            vs_drive(&self->s_dcdedge, (self->s_dcd_i.cur & (~self->s_dcddel.cur & UINT64_C(0x1))));
+            vs_drive(&self->s_dcdedge, (self->s_dcd_i.cur & ((self->s_dcddel.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
         }
     }
 }
@@ -482,7 +482,7 @@ static void acia_63f50_p28(void *inst)
         else
         {
             vs_drive(&self->s_rxddel, self->s_rxd_i.cur);
-            vs_drive(&self->s_rxdedge, ((~self->s_rxd_i.cur & UINT64_C(0x1)) & self->s_rxddel.cur));
+            vs_drive(&self->s_rxdedge, (((self->s_rxd_i.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->s_rxddel.cur));
         }
     }
 }
@@ -548,8 +548,8 @@ static void acia_63f50_p31(void *inst)
         else
         {
             vs_drive(&self->s_rxbddel, self->s_rxbdclk.cur);
-            vs_drive(&self->s_rxbdedgerise, ((~self->s_rxbddel.cur & UINT64_C(0x1)) & self->s_rxbdclk.cur));
-            vs_drive(&self->s_rxbdedgefall, (self->s_rxbddel.cur & (~self->s_rxbdclk.cur & UINT64_C(0x1))));
+            vs_drive(&self->s_rxbdedgerise, (((self->s_rxbddel.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->s_rxbdclk.cur));
+            vs_drive(&self->s_rxbdedgefall, (self->s_rxbddel.cur & ((self->s_rxbdclk.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
         }
     }
 }
@@ -872,8 +872,8 @@ static void acia_63f50_p40(void *inst)
         else
         {
             vs_drive(&self->s_txbddel, self->s_txbdclk.cur);
-            vs_drive(&self->s_txbdedgerise, ((~self->s_txbddel.cur & UINT64_C(0x1)) & self->s_txbdclk.cur));
-            vs_drive(&self->s_txbdedgefall, (self->s_txbddel.cur & (~self->s_txbdclk.cur & UINT64_C(0x1))));
+            vs_drive(&self->s_txbdedgerise, (((self->s_txbddel.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->s_txbdclk.cur));
+            vs_drive(&self->s_txbdedgefall, (self->s_txbddel.cur & ((self->s_txbdclk.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
         }
     }
 }
@@ -923,7 +923,7 @@ static void acia_63f50_p41(void *inst)
         {
             if ((((self->s_cr_s.cur >> 2) & 1) == 0))
             {
-                vs_drive(&self->s_txout, (~self->s_tx_parity.cur & UINT64_C(0x1)));
+                vs_drive(&self->s_txout, ((self->s_tx_parity.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             }
             else
             {

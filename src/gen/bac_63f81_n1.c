@@ -199,7 +199,7 @@ static void bac_63f81_n1_g0_p1(void *inst)
                 self->v1_cand = (int64_t) self->up->s_fpu_owner.cur;
                 for (int64_t i_1 = INT64_C(1); i_1 <= self->up->g_ncpus; i_1++)
                 {
-                    if (((~self->v1_found & UINT64_C(0x1)) & (self->up->s_fpu_in.a[(vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus)) - 0].f_fp_exe_i.f_enable.cur == 1)))
+                    if ((((self->v1_found ^ UINT64_C(0x1)) & UINT64_C(0x1)) & (self->up->s_fpu_in.a[(vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus)) - 0].f_fp_exe_i.f_enable.cur == 1)))
                     {
                         self->v1_found = 1;
                         self->v1_cand = vs_mod(((int64_t) self->up->s_fpu_owner.cur + i_1), self->up->g_ncpus);
@@ -283,13 +283,13 @@ static void bac_63f81_n1_g1_i0(void *inst)
 static void bac_63f81_n1_g1_p1(void *inst)
 {
     bac_63f81_n1_g1 *self = inst;
-    vs_drive(&(*self->up->p_e_n), (~(*self->up->p_e).cur & UINT64_C(0x1)));
+    vs_drive(&(*self->up->p_e_n), (((*self->up->p_e).cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
 }
 
 static void bac_63f81_n1_g1_p2(void *inst)
 {
     bac_63f81_n1_g1 *self = inst;
-    vs_drive(&(*self->up->p_memclk), (~(*self->up->p_e).cur & UINT64_C(0x1)));
+    vs_drive(&(*self->up->p_memclk), (((*self->up->p_e).cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
 }
 
 static void bac_63f81_n1_g1_p3(void *inst)
@@ -909,7 +909,7 @@ void bac_63f81_n1_create(vs_kernel *k, bac_63f81_n1 *self, const char *path, int
     vs_name(k, &self->x2_imp_rst, path, "imp_rst", 1);
     plle2_base_create(k, &self->c_clock_generator_0, vs_join(k, path, "clock_generator"), INT64_C(50), INT64_C(3), INT64_C(50), INT64_C(1), &self->s_clkfb, self->p_extal, &self->x1_imp_pwrdwn, &self->x2_imp_rst, &self->s_clkfb, &self->s_cpuclk_pll, self->p_sysclk, &self->s_pll_locked);
     bufg_create(k, &self->c_cpuclk_buf_3, vs_join(k, path, "cpuclk_buf"), &self->s_cpuclk_pll, self->p_cpuclk);
-    if ((~self->g_fpu_by_core & UINT64_C(0x1)))
+    if (((self->g_fpu_by_core ^ UINT64_C(0x1)) & UINT64_C(0x1)))
     {
         self->g_shared_fpu_4 = vs_alloc(k, sizeof(*self->g_shared_fpu_4));
         self->g_shared_fpu_4->up = self;

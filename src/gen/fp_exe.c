@@ -55,7 +55,7 @@ static void fp_exe_p0(void *inst)
     vs_drive(&self->s_xin.f_class1, (*self->p_fp_ext1_o).f_class.cur);
     vs_drive(&self->s_xin.f_class2, (*self->p_fp_ext2_o).f_class.cur);
     vs_drive(&self->s_xin.f_class3, (*self->p_fp_ext3_o).f_class.cur);
-    vs_drive(&self->s_xin.f_valid, ((*self->p_fp_exe_i).f_enable.cur & (~self->s_enable_prev.cur & UINT64_C(0x1))));
+    vs_drive(&self->s_xin.f_valid, ((*self->p_fp_exe_i).f_enable.cur & ((self->s_enable_prev.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void fp_exe_p1(void *inst)

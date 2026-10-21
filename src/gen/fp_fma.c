@@ -118,7 +118,7 @@ static void fp_fma_p0(void *inst)
     vs_drive(&self->s_rin_1a.f_counter_dif, (uint64_t)(self->v0_counter_dif));
     vs_w_drive(self->s_rin_1a.f_mantissa_l.w, 3, self->v0_mantissa_add);
     vs_w_drive(self->s_rin_1a.f_mantissa_r.w, 3, self->v0_mantissa_mul);
-    vs_drive(&self->s_rin_1a.f_ready, (self->v0_ready & (~self->s_active.cur & UINT64_C(0x1))));
+    vs_drive(&self->s_rin_1a.f_ready, (self->v0_ready & ((self->s_active.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void fp_fma_p1(void *inst)
@@ -243,7 +243,7 @@ static void fp_fma_p4(void *inst)
     }
     self->v4_mantissa_lzc = vs_w_cat(vs_w_cat(vs_w_slice(self->v4_mantissa_mac, 0, 163), vs_w_from(UINT64_C(0x1)), 1), ((vs_w){{UINT64_C(0xFFFFFFFFFFFFFFFF), UINT64_C(0xFFFFFFF)}}), 92);
     vs_w_drive((*self->p_lzc_i).f_a.w, 4, self->v4_mantissa_lzc);
-    self->v4_counter_mac = (int64_t)((~(*self->p_lzc_o).f_c.cur & UINT64_C(0xFF)));
+    self->v4_counter_mac = (int64_t)((((*self->p_lzc_o).f_c.cur ^ UINT64_C(0xFF)) & UINT64_C(0xFF)));
     self->v4_mantissa_mac = vs_w_shl(self->v4_mantissa_mac, self->v4_counter_mac, 164);
     self->v4_exponent_rnd = ((vs_sext(self->s_r_b.f_exponent_mac.cur, 14) - self->v4_bias) - self->v4_counter_mac);
     vs_drive(&self->s_rin_c.f_fmt, self->s_r_b.f_fmt.cur);

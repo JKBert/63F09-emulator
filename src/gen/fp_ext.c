@@ -35,7 +35,7 @@ static void fp_ext_p0(void *inst)
         self->v0_mantissa_zero = f_nor_reduce_3((self->v0_data & UINT64_C(0xFFFFFFFFFFFFF)));
     }
     vs_drive(&(*self->p_lzc_i).f_a, self->v0_mantissa);
-    self->v0_counter = (int64_t)((~(*self->p_lzc_o).f_c.cur & UINT64_C(0x3F)));
+    self->v0_counter = (int64_t)((((*self->p_lzc_o).f_c.cur ^ UINT64_C(0x3F)) & UINT64_C(0x3F)));
     if ((self->v0_fmt == UINT64_C(0x0)))
     {
         self->v0_result = vs_w_set(self->v0_result, 64, 1, vs_w_from(((self->v0_data >> 31) & 1)));

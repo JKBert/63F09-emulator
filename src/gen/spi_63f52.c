@@ -78,19 +78,19 @@ static void spi_63f52_p3(void *inst)
 static void spi_63f52_p4(void *inst)
 {
     spi_63f52 *self = inst;
-    vs_drive(&(*self->p_irq_n), (~self->s_irq_r.cur & UINT64_C(0x1)));
+    vs_drive(&(*self->p_irq_n), ((self->s_irq_r.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
 }
 
 static void spi_63f52_i5(void *inst)
 {
     spi_63f52 *self = inst;
-    vs_drive(&self->x1_imp_t, (uint64_t)((~self->s_mosi_out_ctrl.cur & UINT64_C(0x1))));
+    vs_drive(&self->x1_imp_t, (uint64_t)(((self->s_mosi_out_ctrl.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void spi_63f52_i6(void *inst)
 {
     spi_63f52 *self = inst;
-    vs_drive(&self->x3_imp_t, (uint64_t)((~self->s_miso_out_ctrl.cur & UINT64_C(0x1))));
+    vs_drive(&self->x3_imp_t, (uint64_t)(((self->s_miso_out_ctrl.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void spi_63f52_p7(void *inst)
@@ -192,7 +192,7 @@ static void spi_63f52_p11(void *inst)
                         case UINT64_C(0x0):
                         {
                             vs_drive(&self->s_tx_reg, (*self->p_d_in).cur);
-                            vs_drive(&self->s_txw_tog, (~self->s_txw_tog.cur & UINT64_C(0x1)));
+                            vs_drive(&self->s_txw_tog, ((self->s_txw_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                             vs_drive(&self->s_txe_ack, self->s_txe_evt_e1.cur);
                             break;
                         }
@@ -382,13 +382,13 @@ static void spi_63f52_p12(void *inst)
                     }
                     if (((int64_t) self->s_toggles.cur <= INT64_C(15)))
                     {
-                        vs_drive(&self->s_sclk_out, (~self->s_sclk_out.cur & UINT64_C(0x1)));
-                        vs_drive(&self->s_phase, (~self->s_phase.cur & UINT64_C(0x1)));
+                        vs_drive(&self->s_sclk_out, ((self->s_sclk_out.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                        vs_drive(&self->s_phase, ((self->s_phase.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                         if ((self->s_phase.cur == 0))
                         {
                             vs_drive(&self->s_pend_cap, 1);
                         }
-                        else if ((~((self->s_cpha_f.cur == 0) & ((int64_t) self->s_toggles.cur == INT64_C(15))) & UINT64_C(0x1)))
+                        else if (((((self->s_cpha_f.cur == 0) & ((int64_t) self->s_toggles.cur == INT64_C(15))) ^ UINT64_C(0x1)) & UINT64_C(0x1)))
                         {
                             vs_drive(&self->s_mosi_out, ((self->s_sh_tx.cur >> 7) & 1));
                             vs_drive(&self->s_sh_tx, (((uint64_t)((self->s_sh_tx.cur & UINT64_C(0x7F))) << 1) | 0));
@@ -485,7 +485,7 @@ static void spi_63f52_p12(void *inst)
         {
             if ((self->v12_flag_dr == 0))
             {
-                vs_drive(&self->s_dr_evt, (~self->s_dr_evt.cur & UINT64_C(0x1)));
+                vs_drive(&self->s_dr_evt, ((self->s_dr_evt.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             }
             else
             {
@@ -494,12 +494,12 @@ static void spi_63f52_p12(void *inst)
         }
         else if (((self->s_dr_ovr.cur == 1) & (self->v12_flag_dr == 0)))
         {
-            vs_drive(&self->s_dr_evt, (~self->s_dr_evt.cur & UINT64_C(0x1)));
+            vs_drive(&self->s_dr_evt, ((self->s_dr_evt.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             vs_drive(&self->s_dr_ovr, 0);
         }
         if (self->v12_ev_txe)
         {
-            vs_drive(&self->s_txe_evt, (~self->s_txe_evt.cur & UINT64_C(0x1)));
+            vs_drive(&self->s_txe_evt, ((self->s_txe_evt.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
         }
         self->v12_flag_txe = (self->s_txe_evt.cur ^ self->s_txeack_s2.cur);
         vs_drive(&self->s_irq_r, ((self->s_rxie_f.cur & self->v12_flag_dr) | (self->s_txie_f.cur & self->v12_flag_txe)));

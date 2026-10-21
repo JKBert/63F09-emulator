@@ -51,11 +51,11 @@ static void fp_rnd_p0(void *inst)
             {
                 self->v0_rndup = INT64_C(1);
             }
-            else if (((((~self->v0_sig & UINT64_C(0x1)) & self->v0_diff) & self->v0_zero) == 1))
+            else if ((((((self->v0_sig ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->v0_diff) & self->v0_zero) == 1))
             {
-                self->v0_sig = (~self->v0_sig & UINT64_C(0x1));
+                self->v0_sig = ((self->v0_sig ^ UINT64_C(0x1)) & UINT64_C(0x1));
             }
-            else if (((~self->v0_sig & UINT64_C(0x1)) == 1))
+            else if ((((self->v0_sig ^ UINT64_C(0x1)) & UINT64_C(0x1)) == 1))
             {
                 self->v0_rnddn = INT64_C(1);
             }
@@ -63,7 +63,7 @@ static void fp_rnd_p0(void *inst)
         }
         case UINT64_C(0x3):
         {
-            if ((((~self->v0_sig & UINT64_C(0x1)) & ((self->v0_flags >> 0) & 1)) == 1))
+            if (((((self->v0_sig ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->v0_flags >> 0) & 1)) == 1))
             {
                 self->v0_rndup = INT64_C(1);
             }

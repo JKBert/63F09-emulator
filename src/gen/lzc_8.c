@@ -17,7 +17,7 @@ static void lzc_8_p0(void *inst)
 static void lzc_8_p1(void *inst)
 {
     lzc_8 *self = inst;
-    vs_drive(&self->s_s1, ((~self->s_v1.cur & UINT64_C(0x1)) & ((self->s_z0.cur >> 0) & 1)));
+    vs_drive(&self->s_s1, (((self->s_v1.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_z0.cur >> 0) & 1)));
 }
 
 static void lzc_8_p2(void *inst)
@@ -29,7 +29,7 @@ static void lzc_8_p2(void *inst)
 static void lzc_8_p3(void *inst)
 {
     lzc_8 *self = inst;
-    vs_drive(&self->s_s3, ((~self->s_v1.cur & UINT64_C(0x1)) & ((self->s_z0.cur >> 1) & 1)));
+    vs_drive(&self->s_s3, (((self->s_v1.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_z0.cur >> 1) & 1)));
 }
 
 static void lzc_8_p4(void *inst)

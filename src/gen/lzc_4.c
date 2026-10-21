@@ -53,7 +53,7 @@ static void lzc_4_p6(void *inst)
 static void lzc_4_p7(void *inst)
 {
     lzc_4 *self = inst;
-    vs_drive(&self->s_s3, ((~self->s_s0.cur & UINT64_C(0x1)) & self->s_a1.cur));
+    vs_drive(&self->s_s3, (((self->s_s0.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->s_a1.cur));
 }
 
 static void lzc_4_p8(void *inst)

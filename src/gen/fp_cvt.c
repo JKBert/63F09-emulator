@@ -137,7 +137,7 @@ static void fp_cvt_p1(void *inst)
         }
         case UINT64_C(0x3):
         {
-            if ((((~self->v1_sign_cvt & UINT64_C(0x1)) & ((self->v1_flags >> 0) & 1)) == 1))
+            if (((((self->v1_sign_cvt ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->v1_flags >> 0) & 1)) == 1))
             {
                 self->v1_rnded = INT64_C(1);
             }
@@ -319,7 +319,7 @@ static void fp_cvt_p4(void *inst)
     }
     self->v4_zero = f_nor_reduce_4(self->v4_mantissa_uint);
     vs_drive(&(*self->p_lzc_i).f_a, self->v4_mantissa_uint);
-    self->v4_counter_uint = (int64_t)((~(*self->p_lzc_o).f_c.cur & UINT64_C(0x3F)));
+    self->v4_counter_uint = (int64_t)((((*self->p_lzc_o).f_c.cur ^ UINT64_C(0x3F)) & UINT64_C(0x3F)));
     self->v4_mantissa_uint = (vs_shl(self->v4_mantissa_uint, self->v4_counter_uint) & UINT64_MAX);
     self->v4_sign_rnd = self->v4_sign_uint;
     self->v4_exponent_rnd = ((self->v4_exponent_uint + self->v4_exponent_bias) - self->v4_counter_uint);

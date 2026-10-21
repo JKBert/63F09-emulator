@@ -61,7 +61,7 @@ static void soc09_n6_g0_create(vs_kernel *k, soc09_n6_g0 *self, const char *path
 static void soc09_n6_g1_i0(void *inst)
 {
     soc09_n6_g1 *self = inst;
-    vs_drive(&self->x3_imp_t, (uint64_t)((~self->up->s_vma_64.cur & UINT64_C(0x1))));
+    vs_drive(&self->x3_imp_t, (uint64_t)(((self->up->s_vma_64.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void soc09_n6_g1_create(vs_kernel *k, soc09_n6_g1 *self, const char *path)
@@ -87,7 +87,7 @@ static void soc09_n6_g1_create(vs_kernel *k, soc09_n6_g1 *self, const char *path
 static void soc09_n6_g2_i0(void *inst)
 {
     soc09_n6_g2 *self = inst;
-    vs_drive(&self->x3_imp_t, (uint64_t)((~self->up->s_vma_64.cur & UINT64_C(0x1))));
+    vs_drive(&self->x3_imp_t, (uint64_t)(((self->up->s_vma_64.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void soc09_n6_g2_create(vs_kernel *k, soc09_n6_g2 *self, const char *path)
@@ -203,7 +203,7 @@ static void soc09_n6_i14(void *inst)
 static void soc09_n6_i15(void *inst)
 {
     soc09_n6 *self = inst;
-    vs_drive(&self->x110_imp_rw, (uint64_t)((~(*self->p_rw_n).cur & UINT64_C(0x1))));
+    vs_drive(&self->x110_imp_rw, (uint64_t)((((*self->p_rw_n).cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
 }
 
 static void soc09_n6_i16(void *inst)
