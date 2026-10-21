@@ -17,6 +17,9 @@ The header of 63F09.vhd says that MD can only be written after a reset and befor
 sequence given in the conversation (`LDMD #$31 ; PSHS U`) pushes with S uninitialised ; the programs must load S
 after `LDMD`, as `crt0` does (`11 3D 11`, then `10 CE ...`).
 
+### `DMA_63F44` is not written yet
+The file declares no behaviour : the block is not translated and not instantiated by the SoC.
+
 ## Tools
 
 ### Constructs that Vivado accepts and GHDL does not
