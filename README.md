@@ -27,7 +27,8 @@ contain (host console, ELF loader, command line, companion interface, graphics) 
     make test-soc              # smoke test of the emulator
     make test VHDL_DIR=...     # every generated block against GHDL (long)
 
-The generated C is in `src/gen`, so `make emu` needs neither the VHDL nor GHDL.
+The generated C is in `src/gen`, so `make emu` needs neither the VHDL nor GHDL. The flags, the variables (`CC`, `CFLAGS`,
+`ATOMIC=1`...) and the regeneration are in `docs/BUILD.md`.
 
 ## Use
 
