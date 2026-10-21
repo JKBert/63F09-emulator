@@ -102,7 +102,7 @@ BLOCKS = {
                               (26, {"cs": 1, "addr": 1, "rw_n": 0, "d_in": 0x09}), (28, {"cs": 0, "rw_n": 1})] +
                              [(at, {"cs": 1, "addr": 2, "rw_n": 1}) for at in range(100, 5900, 200)] +
                              [(at + 1, {"cs": 0}) for at in range(100, 5900, 200)]),
-    "spi_63f52": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=6000, change=0.1),
+    "spi_63f52": dict(clocks=["e", "cpuclk"], resets={"rst_n": 0}, warm=3, cycles=6000, change=0.1),
     "pia_63f21": dict(clocks=["e"], resets={"reset_n": 0}, warm=3, cycles=6000, change=0.3),
     "wdg_63f46": dict(clocks=["e", "sysclk"], resets={"rst_n": 0}, warm=3, cycles=3000, change=0.2),
 }
@@ -489,7 +489,7 @@ def run_block(name, cfg, ports, ghdl, shared, root, lib="work", generics=(), por
         pp = "-P" + shared
         ok = run([ghdl, "-a"] + STD + [wd, pp, vhd], shared) and run([ghdl, "--elab-run"] + STD + [wd, pp, tb], work)
         src = os.path.join(root, "src")
-        ok = ok and run([os.environ.get("CC", "cc"), "-std=c99", "-pthread", "-O2", "-Wall", "-Wextra", "-I" + os.path.join(src, "rt"),
+        ok = ok and run([os.environ.get("CC", "cc"), "-std=c99", "-pthread", "-D_POSIX_C_SOURCE=200809L", "-O2", "-Wall", "-Wextra", "-I" + os.path.join(src, "rt"),
                          "-I" + os.path.join(src, "gen"), "-I" + src, "-o", "tb_c", "tb.c"]
                         + sorted(glob.glob(os.path.join(src, "gen", "*.c"))) + sorted(glob.glob(os.path.join(src, "hand", "*.c")))
                         + [os.path.join(src, "rt", "vsim.c")], work)

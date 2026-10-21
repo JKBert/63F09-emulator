@@ -374,7 +374,7 @@ end entity IOBUF;
 architecture sim of IOBUF is
 begin
     IO <= I when T = '0' else 'Z';
-    O <= IO;
+    O <= to_x01(IO);                 -- a pad has a level : a pull-up (H) reads as 1
 end architecture sim;
 
 library ieee;
