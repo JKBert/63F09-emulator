@@ -307,7 +307,7 @@ def c_bench(name, ports, cfg, generics=()):
     clocks = [c.lower() for c in cfg["clocks"]]
     ins, outs = port_leaves(ports, clocks)
     o = []
-    o.append('#include <stdio.h>\n#include <string.h>\n\n#include "%s.h"\n' % name)
+    o.append('#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#include "%s.h"\n' % name)
     o.append("static uint64_t bits(const char *s, size_t w)\n{\n    uint64_t v = 0;\n    size_t i;\n")
     o.append("    for (i = 0; i < w; i++)\n    {\n        v = (v << 1) | (s[i] == '1' || s[i] == 'H');\n    }\n    return v;\n}\n")
     o.append("static vs_w wbits(const char *s, size_t w)\n{\n    vs_w v = vs_w_zero();\n    size_t i;\n")
