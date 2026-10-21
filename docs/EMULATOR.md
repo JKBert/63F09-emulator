@@ -64,8 +64,9 @@ until the design is stable. RESET_n is released after ten EXTAL periods.
   byte address (36 bits) once the MMU is passed, `base` the address of the 64-bit word and `mask` the byte mask. `D` is
   the byte on the 8-bit 6809 bus (what the memory returns for a read, what the core writes for a write) and `D64` the
   eight lanes of the 64-bit bus, most significant first : the data is always by byte, so only the lanes of `mask` are
-  shown and the others are `--`. The pins of the 64-bit bus carry data only for the external memories : for the ROM,
-  the internal RAM and the peripherals (physical addresses from 0xFFFF00000) `D64` is all dashes. The data are sampled
+  shown and the others are `--`. The addresses go to both buses whatever the target is (it is the chip select that
+  tells them apart, and the memory map can change), so `D64` is shown for every cycle : a target that does not drive
+  the pins leaves the pull-up, `FF`. The data are sampled
   one CPUCLK after the fall of E, when they are stable ; the time printed is that of the fall.
 * `--dump FILE` writes every change of every named signal of the design, with its hierarchical name.
 

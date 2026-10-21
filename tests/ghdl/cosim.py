@@ -25,10 +25,9 @@ OFFSET = 0xF00000000
 
 
 
-def lanes(mask, data, internal):
-    """The 16 digits of the 64-bit bus with "--" for the lanes that are not in the byte mask (all of them for the
-    internal memories and peripherals, whose accesses leave the pins idle)."""
-    return "".join(data[2 * (7 - k):2 * (8 - k)] if (mask >> k) & 1 and not internal else "--" for k in range(7, -1, -1))
+def lanes(mask, data):
+    """The 16 digits of the 64-bit bus with "--" for the lanes that are not in the byte mask."""
+    return "".join(data[2 * (7 - k):2 * (8 - k)] if (mask >> k) & 1 else "--" for k in range(7, -1, -1))
 
 
 def ghdl_cycle(line):
@@ -36,7 +35,7 @@ def ghdl_cycle(line):
     m = re.match(r"ext A=(\w+) mask=(\w+) ([RW]) D=(\w+)$", line)
     data = re.sub(r"[ZU]", "F", m.group(4))             # a pad that nobody drives is 'Z' in VHDL, all ones in the emulator
     return "A=%s mask=%s %s D=%s" % (m.group(1), m.group(2), m.group(3),
-                                     lanes(int(m.group(2), 16), data, int(m.group(1), 16) >= 0xFFFF00000))
+                                     lanes(int(m.group(2), 16), data))
 
 
 def emu_cycle(line):
@@ -45,7 +44,7 @@ def emu_cycle(line):
     m = re.search(r"base=(\w+) mask=(\w+) ([RW]) D=\S+ D64=(\S+)$", line)
     base, mask, rw, d64 = m.groups()
     full = "".join("FF" if d64[2 * k:2 * k + 2] == "--" else d64[2 * k:2 * k + 2] for k in range(8))
-    return "A=%s mask=%s %s D=%s" % (base, mask, rw, lanes(int(mask, 16), full, int(base, 16) >= 0xFFFF00000))
+    return "A=%s mask=%s %s D=%s" % (base, mask, rw, lanes(int(mask, 16), full))
 
 
 def images(elf):

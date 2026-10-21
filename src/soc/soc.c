@@ -97,20 +97,20 @@ static void find_trace_signals(soc *s)
  *       base=<address of the 64-bit word> mask=<2> R|W D=<byte of the 6809 bus> D64=<the 8 lanes of the 64-bit bus>
  * The data of the cycle appear on the bus with the fall of E itself, so the line is printed a little later (one
  * CPUCLK), once they are stable ; the addresses are those of the fall. "--" marks the lanes of the 64-bit bus that
- * are not significant (not in the byte mask). The pins of the 64-bit bus carry data only for the external memories :
- * for the ROM, the internal RAM and the peripherals (physical addresses from 0xFFFF00000) D64 is all dashes. */
+ * are not significant (not in the byte mask). The addresses go to both buses whatever the target is ; what tells the
+ * external memories from the others is the chip select, so the pins are shown for every cycle (the lanes of a target
+ * that does not drive them keep the pull-up : FF). */
 static void trace_print(vs_kernel *k, void *arg)
 {
     soc         *s = arg;
     char        d64[17];
     int         lane;
     vs_sig      *d8 = s->tr_rd ? s->tr_d_out : s->tr_d_in;       /* seen from the memories : d_out leaves them (read) */
-    int         internal = s->tr_pa >= UINT64_C(0xFFFF00000);
 
     (void) k;
     for (lane = 7; lane >= 0; lane--)
     {
-        if (((s->tr_mask >> lane) & 1) && !internal)
+        if ((s->tr_mask >> lane) & 1)
         {
             snprintf(d64 + 2 * (7 - lane), 3, "%02X", (unsigned) ((s->data.cur >> (8 * lane)) & 0xFF));
         }
