@@ -297,7 +297,7 @@ static void twi_63f54_p11(void *inst)
         self->v11_st = 0;
         self->v11_ph = INT64_C(0);
         self->v11_cnt = UINT64_C(0x0);
-        self->v11_cnt_zero = 0;
+        self->v11_cnt_zero = 1;
         self->v11_sda_int = 1;
         self->v11_scl_ena = 0;
         self->v11_busy = 0;

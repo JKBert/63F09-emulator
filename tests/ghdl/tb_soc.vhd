@@ -176,23 +176,6 @@ begin
         writeline(output, L);
     end process;
 
-    TWILOG : process is
-        variable L : line;
-        variable LAST : std_logic_vector(7 downto 0) := x"AA";
-        variable CC : std_logic_vector(7 downto 0);
-    begin
-        wait for 100 ps;
-        CC := << signal .tb_soc.dut.twi0.cc_reg : std_logic_vector(7 downto 0) >>;
-        if CC /= LAST then
-            LAST := CC;
-            write(L, string'("twi "));
-            write(L, now / 1 ps);
-            write(L, string'(" cc_reg="));
-            hwrite(L, CC);
-            writeline(output, L);
-        end if;
-    end process;
-
     A0LOG : process is
         variable L    : line;
         variable LAST : string(1 to 160) := (others => ' ');

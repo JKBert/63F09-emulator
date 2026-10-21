@@ -11,7 +11,6 @@ and the emulator agree (`make cosim`, `make test`), so the cause is in the VHDL 
 | A2 | SoC09 `CACHEABLE_EXT` undriven | to confirm |
 | A3 | reset values | by design |
 | B2 | `LDMD` and the first load of S | for information |
-| A4 | TWI : first phase 65536 CPUCLK after a reset | to confirm |
 
 ## A. Behaviour of the chip
 
@@ -30,15 +29,6 @@ emulator, like the FPGA, starts them at 0. A simulator with four values (GHDL wi
 `'U'` instead : the comparisons are made with the initial values forced to 0 (`tools/vhdl2c/zeroinit.py`).
 The outputs of the vendor primitives matter too : in the first co-simulation, a PLL output that started at `'U'`
 instead of `'0'` made the ACIA divider toggle once more at time 0.
-
-### A4. TWI : the first START comes about 164 us after a reset
-*Status : read in `63F54.vhd`, to confirm.*
-
-`TWI_ENGINE` resets `cnt` and `cnt_zero` to 0 (and not to the divisor). `cnt_zero = '0'` makes the phase generator count down
-`cnt` from 0, which wraps : the first phase ends after 65536 CPUCLK (164 us at 400 MHz) whatever the divisor, and only
-then `cnt` is loaded with `CLOCK_DIVISOR`. A command written just after the reset starts about 164 us late. Harmless,
-but a test or a driver that expects the transfer to start within a few phases has to wait for it (the block test of the
-TWI runs 75000 cycles for that reason). Resetting `cnt_zero` to `'1'` would load the divisor at once.
 
 ## B. Software and tool chain
 

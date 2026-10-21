@@ -22,20 +22,20 @@ done
 
 # The TWI against an I2C EEPROM on its pins : write 0x3C at 0x10, read it back and store it in the external memory.
 python3 "$here/twi_eeprom.py" "$work/twi.elf" 0x3C 3
-"$emu" --ncpus 2 --elf "$work/twi.elf" --twi-eeprom 0x50 --peek-eeprom --peek 0xF00001000:1 --ticks 60000000 > "$work/twi.log"
+"$emu" --ncpus 2 --elf "$work/twi.elf" --twi-eeprom 0x50 --peek-eeprom --peek 0xF00001000:1 --ticks 20000000 > "$work/twi.log"
 grep -q '^F00001000: 3C' "$work/twi.log"            # the byte that was read back
 sed -n '/^eeprom/,$p' "$work/twi.log" | sed -n 3p | grep -q '^3C '    # and is in the EEPROM, at 0x10
 echo "TWI / I2C EEPROM test: ok"
 
 # Persistence : the content goes to the file after the write, and is loaded again by the next run.
 rm -f "$work/ee.bin"
-"$emu" --ncpus 2 --elf "$work/twi.elf" --twi-eeprom 0x50,file="$work/ee.bin" --ticks 60000000 > /dev/null
+"$emu" --ncpus 2 --elf "$work/twi.elf" --twi-eeprom 0x50,file="$work/ee.bin" --ticks 20000000 > /dev/null
 [ "$(od -An -tx1 -j16 -N1 "$work/ee.bin" | tr -d ' ')" = 3c ]
 [ "$(od -An -tx1 -j17 -N1 "$work/ee.bin" | tr -d ' ')" = ff ]
 "$emu" --ncpus 1 --elf "$work/smoke.elf" --twi-eeprom 0x50,file="$work/ee.bin" --peek-eeprom --ticks 1000 \
     | sed -n '/^eeprom/,$p' | sed -n 3p | grep -q '^3C '
 # Write cycle of 1 ms : the program polls nothing, so the address of the read is refused and nothing comes back
-"$emu" --ncpus 2 --elf "$work/twi.elf" --twi-eeprom 0x50,wr=1000000 --peek-eeprom --peek 0xF00001000:1 --ticks 60000000 > "$work/twiwr.log"
+"$emu" --ncpus 2 --elf "$work/twi.elf" --twi-eeprom 0x50,wr=1000000 --peek-eeprom --peek 0xF00001000:1 --ticks 20000000 > "$work/twiwr.log"
 ! grep -q '^F00001000: 3C' "$work/twiwr.log"
 sed -n '/^eeprom/,$p' "$work/twiwr.log" | sed -n 3p | grep -q '^3C '
 echo "EEPROM file and write cycle test: ok"
@@ -81,7 +81,7 @@ echo "SPI interrupt test: ok"
 python3 "$here/mkelf.py" "$work/twiirq.elf" \
     "0xFFFFF000=11 3D 31 10 CE FF FC FF F0 86 00 B7 00 00 10 00 86 00 B7 FF FE B0 04 86 03 B7 FF FE B0 05 86 00 B7 FF FE B0 06 86 50 B7 FF FE B0 07 86 10 B7 FF FE B0 00 B7 FF FE B0 02 86 01 B7 FF FE B0 01 1C EF 20 FE $PAD" \
     "0xFFFFF200=B6 00 00 10 00 8B 01 B7 00 00 10 00 B7 FF FE B0 00 3B" "0xFFFFFFD8=F2 00" "0xFFFFFFFE=F0 00"
-"$emu" --ncpus 1 --elf "$work/twiirq.elf" --twi-eeprom 0x50 --peek 0xF00001000:1 --ticks 60000000 > "$work/twiirq.log"
+"$emu" --ncpus 1 --elf "$work/twiirq.elf" --twi-eeprom 0x50 --peek 0xF00001000:1 --ticks 20000000 > "$work/twiirq.log"
 grep -q '^F00001000: 01' "$work/twiirq.log"
 echo "TWI interrupt test: ok"
 
