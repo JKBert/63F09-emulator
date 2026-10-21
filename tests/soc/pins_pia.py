@@ -12,7 +12,7 @@ os.makedirs(work, exist_ok=True)
 here = os.path.dirname(os.path.abspath(__file__))
 sock = os.path.join(work, "pins.sock")
 elf = os.path.join(work, "pins_pia.elf")
-# DDRA = FF, ORA = FF, read the port back (the 63F21 returns the pad for an output bit, see FINDINGS A5), store it at
+# DDRA = FF, ORA = FF, read the port back (the 63F21 returns the pad for an output bit, PIA read mux), store it at
 # 0xF00001000 ; then write 0x3C
 code = ("86 00 B7 FF FE F0 01  86 00 B7 FF FE F0 00  86 04 B7 FF FE F0 01  "
         "B6 FF FE F0 00 B7 00 00 10 00  "

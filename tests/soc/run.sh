@@ -67,7 +67,7 @@ grep -q '^F00001000: A5 5A' "$work/spi.log"
 
 echo "SPI test: ok"
 
-# The SPI interrupt (EIRQ13, vector 0xFFDA) while the core loops in its cache, so that E is stopped (FINDINGS B3) : the master
+# The SPI interrupt (EIRQ13, vector 0xFFDA) while the core loops in its cache, so that E is stopped (docs/NOTES.md) : the master
 # sends one byte to the slave of the emulator, the handler reads the answer (it acknowledges) and counts at 0xF00001000.
 python3 "$here/mkelf.py" "$work/spiirq.elf" \
     "0xFFFFF000=11 3D 31 10 CE FF FC FF F0 86 00 B7 00 00 10 00 86 01 B7 FF FE C0 01 86 00 B7 FF FE C0 00 86 02 B7 FF FE C0 01 86 20 B7 FF FE C0 01 86 FF B7 FF FE C0 02 86 FE B7 FF FE C0 03 86 5A B7 FF FE C0 00 1C EF 20 FE $PAD" \
