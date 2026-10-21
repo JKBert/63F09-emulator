@@ -258,6 +258,89 @@ static inline int counter_type_eq(counter_type a, counter_type b)
     return 1;
 }
 
+typedef struct lw_type
+{
+    uint64_t a[3];
+} lw_type;
+typedef struct lw_type_s
+{
+    vs_sig a[3];
+} lw_type_s;
+
+static inline lw_type lw_type_zero(void)
+{
+    lw_type v;
+    memset(&v, 0, sizeof(v));
+    return v;
+}
+
+static inline lw_type lw_type_fill(uint64_t e)
+{
+    size_t i;
+    lw_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = e;
+    }
+    return v;
+}
+
+static inline lw_type lw_type_put(lw_type v, size_t pos, uint64_t e)
+{
+    v.a[pos] = e;
+    return v;
+}
+
+static inline lw_type lw_type_get(const lw_type_s *s)
+{
+    size_t i;
+    lw_type v;
+    for (i = 0; i < 3; i++)
+    {
+        v.a[i] = s->a[i].cur;
+    }
+    return v;
+}
+
+static inline void lw_type_drive(lw_type_s *s, lw_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_drive(&s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline void lw_type_register(vs_kernel *k, lw_type_s *s, lw_type v)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        vs_register_signal(k, &s->a[i], (uint64_t) (v.a[i]));
+    }
+}
+
+static inline size_t lw_type_leaves(lw_type_s *s, vs_sig **out)
+{
+    size_t i;
+    size_t n = 0;
+    for (i = 0; i < 3; i++)
+    {
+        out[n++] = &s->a[i];
+    }
+    return n;
+}
+
+static inline int lw_type_eq(lw_type a, lw_type b)
+{
+    size_t i;
+    for (i = 0; i < 3; i++)
+    {
+        if (!(a.a[i] == b.a[i])) { return 0; }
+    }
+    return 1;
+}
+
 typedef struct stage_type
 {
     int64_t a[3];

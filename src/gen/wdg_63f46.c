@@ -92,16 +92,17 @@ static void wdg_63f46_p4(void *inst)
     {
         vs_drive(&self->s_default_value, UINT64_C(0x0));
         vs_drive(&self->s_status_register, UINT64_C(0x0));
+        vs_drive(&(*self->p_d_out), UINT64_C(0x0));
     }
     else
     {
         if (((*self->p_cs).cur == 1))
         {
+            vs_drive(&(*self->p_d_out), UINT64_C(0x0));
             if (((*self->p_rw_n).cur == 0))
             {
                 if (vs_falling(&(*self->p_e)))
                 {
-                    vs_drive(&(*self->p_d_out), UINT64_C(0x0));
                     switch ((*self->p_addr).cur)
                     {
                         case UINT64_C(0x0):
@@ -238,13 +239,15 @@ void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e
     }
 
     {
-        vs_sig *sens[5];
+        vs_sig *sens[7];
         size_t n = 0;
         sens[n++] = &(*self->p_e);
         sens[n++] = &(*self->p_rst_n);
         sens[n++] = &(*self->p_cs);
         sens[n++] = &(*self->p_addr);
         sens[n++] = &(*self->p_rw_n);
+        sens[n++] = &self->s_counter;
+        sens[n++] = &self->s_status_register;
         vs_register_process(k, wdg_63f46_p4, self, sens, n);
     }
 }

@@ -40,11 +40,17 @@ typedef struct ptm_63f40
     vs_sig s_counter_init_old;
     vs_sig s_start;
     vs_sig s_start_old;
+    lw_type_s s_lw_tog;
+    lw_type_s s_lw_old;
+    latch_type_s s_lw_latch;
+    vs_sig s_sr_tog;
+    lw_type_s s_sr_old;
+    counter_type_s s_counter_eff;
     stage_type_s s_stage;
     int64_t v5_i;
-    uint64_t v7_soft_reset;
-    uint64_t v8_soft_reset;
-    uint64_t v9_soft_reset;
+    uint64_t v11_soft_reset;
+    uint64_t v12_soft_reset;
+    uint64_t v13_soft_reset;
 } ptm_63f40;
 
 void ptm_63f40_create(vs_kernel *k, ptm_63f40 *self, const char *path, vs_sig *e, vs_sig *sysclk, vs_sig *rst_n, vs_sig *cs, vs_sig *mrdy, vs_sig *addr, vs_sig *d_in, vs_sig *d_out, vs_sig *rw_n, vs_sig *irq_n, vs_sig *o, vs_sig *c_n, vs_sig *g_n);

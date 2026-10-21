@@ -7,21 +7,27 @@
 #include "ptm_63f40.h"
 #include "gen_funcs.h"
 
-static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n, vs_sig *a_addr, vs_sig *a_sysclk, vs_sig *a_rst_n, vs_sig *a_counter, vs_sig *a_latch_register, vs_sig *a_control_register, vs_ref a_interrupt_request, vs_ref a_c_n, vs_ref a_c_n_old, vs_ref a_g_n, vs_ref a_g_n_old, vs_ref a_o_out, vs_ref a_counter_init, vs_ref a_set_irq, vs_sig *a_stage, vs_ref a_start, vs_ref a_start_old, uint64_t a_is_timer_3, uint64_t a_soft_reset);
+static uint64_t f_gray_next_0(ptm_63f40 *self, uint64_t a_g);
+static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n, vs_sig *a_addr, vs_sig *a_sysclk, vs_sig *a_rst_n, vs_sig *a_counter, vs_sig *a_latch_register, vs_sig *a_control_register, vs_ref a_interrupt_request, vs_ref a_c_n, vs_ref a_c_n_old, vs_ref a_g_n, vs_ref a_g_n_old, vs_ref a_o_out, vs_ref a_counter_init, vs_ref a_set_irq, vs_sig *a_stage, vs_ref a_start, vs_ref a_start_old, vs_sig *a_lw_tog, vs_sig *a_lw_old, vs_sig *a_lw_latch, vs_sig *a_sr_tog, vs_sig *a_sr_old, uint64_t a_is_timer_3, uint64_t a_soft_reset);
 
-static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n, vs_sig *a_addr, vs_sig *a_sysclk, vs_sig *a_rst_n, vs_sig *a_counter, vs_sig *a_latch_register, vs_sig *a_control_register, vs_ref a_interrupt_request, vs_ref a_c_n, vs_ref a_c_n_old, vs_ref a_g_n, vs_ref a_g_n_old, vs_ref a_o_out, vs_ref a_counter_init, vs_ref a_set_irq, vs_sig *a_stage, vs_ref a_start, vs_ref a_start_old, uint64_t a_is_timer_3, uint64_t a_soft_reset)
+static uint64_t f_gray_next_0(ptm_63f40 *self, uint64_t a_g)
 {
-    uint64_t v_decr_50512 = 0;
-    if ((((*a_rst_n).cur == 0) | a_soft_reset))
+    uint64_t v_b_6640 = 0;
+    v_b_6640 = (v_b_6640 & ~(UINT64_C(0x1) << 2)) | ((((a_g >> 2) & 1) << 2) & (UINT64_C(0x1) << 2));
+    v_b_6640 = (v_b_6640 & ~(UINT64_C(0x1) << 1)) | (((((a_g >> 2) & 1) ^ ((a_g >> 1) & 1)) << 1) & (UINT64_C(0x1) << 1));
+    v_b_6640 = (v_b_6640 & ~(UINT64_C(0x1) << 0)) | ((((((a_g >> 2) & 1) ^ ((a_g >> 1) & 1)) ^ ((a_g >> 0) & 1)) << 0) & (UINT64_C(0x1) << 0));
+    v_b_6640 = ((v_b_6640 + UINT64_C(0x1)) & UINT64_C(0x7));
+    return (((uint64_t)((((uint64_t)(((v_b_6640 >> 2) & 1)) << 1) | (((v_b_6640 >> 2) & 1) ^ ((v_b_6640 >> 1) & 1)))) << 1) | (((v_b_6640 >> 1) & 1) ^ ((v_b_6640 >> 0) & 1)));
+}
+
+static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n, vs_sig *a_addr, vs_sig *a_sysclk, vs_sig *a_rst_n, vs_sig *a_counter, vs_sig *a_latch_register, vs_sig *a_control_register, vs_ref a_interrupt_request, vs_ref a_c_n, vs_ref a_c_n_old, vs_ref a_g_n, vs_ref a_g_n_old, vs_ref a_o_out, vs_ref a_counter_init, vs_ref a_set_irq, vs_sig *a_stage, vs_ref a_start, vs_ref a_start_old, vs_sig *a_lw_tog, vs_sig *a_lw_old, vs_sig *a_lw_latch, vs_sig *a_sr_tog, vs_sig *a_sr_old, uint64_t a_is_timer_3, uint64_t a_soft_reset)
+{
+    uint64_t v_decr_88752 = 0;
+    uint64_t v_reload_88688 = 0;
+    uint64_t v_sr_event_88624 = 0;
+    if (((*a_rst_n).cur == 0))
     {
-        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-        {
-            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-        }
-        else
-        {
-            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-        }
+        vs_drive(&(*a_counter), UINT64_C(0x7FFF8));
         vs_ref_drive(a_c_n_old, (uint64_t)(1));
         vs_ref_drive(a_g_n_old, (uint64_t)(1));
         vs_ref_drive(a_o_out, (uint64_t)(0));
@@ -29,482 +35,574 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
         vs_ref_drive(a_set_irq, (uint64_t)(0));
         vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
         vs_ref_drive(a_start_old, (uint64_t)(0));
+        vs_drive(&(*a_lw_old), UINT64_C(0x0));
+        vs_drive(&(*a_sr_old), UINT64_C(0x0));
     }
     else
     {
         if (vs_falling(&(*a_sysclk)))
         {
-            if (((((*a_control_register).cur >> 2) & 1) == 0))
+            v_reload_88688 = ((*a_lw_tog).cur != (*a_lw_old).cur);
+            vs_drive(&(*a_lw_old), (*a_lw_tog).cur);
+            v_sr_event_88624 = ((*a_sr_tog).cur != (*a_sr_old).cur);
+            vs_drive(&(*a_sr_old), (*a_sr_tog).cur);
+            if ((a_soft_reset | v_sr_event_88624))
             {
-                switch ((((*a_control_register).cur >> (3)) & UINT64_C(0x7)))
+                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                 {
-                    case UINT64_C(0x0):
-                    case UINT64_C(0x2):
-                    {
-                        if (((vs_ref_get(a_g_n) == 0) | (vs_ref_get(a_start) != vs_ref_get(a_start_old))))
-                        {
-                            if ((vs_ref_get(a_g_n) != vs_ref_get(a_g_n_old)))
-                            {
-                                vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                            }
-                            vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
-                            if (((((*a_control_register).cur >> 1) & 1) == 0))
-                            {
-                                if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
-                                {
-                                    if (((*a_counter).cur == UINT64_C(0x0)))
-                                    {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                        }
-                                        vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                        vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    }
-                                    else
-                                    {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
-                                        }
-                                    }
-                                }
-                                vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
-                            }
-                            else
-                            {
-                                if (((*a_counter).cur == UINT64_C(0x0)))
-                                {
-                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                    {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                    }
-                                    else
-                                    {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                    }
-                                    vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                }
-                                else
-                                {
-                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                    {
-                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
-                                    }
-                                    else
-                                    {
-                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
-                                    }
-                                }
-                                vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
-                            }
-                        }
-                        else
-                        {
-                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                            {
-                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                            }
-                            else
-                            {
-                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                            }
-                            vs_ref_drive(a_c_n_old, (uint64_t)(0));
-                            vs_ref_drive(a_o_out, (uint64_t)(0));
-                        }
-                        vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
-                        break;
-                    }
-                    case UINT64_C(0x4):
-                    case UINT64_C(0x6):
-                    {
-                        if (((int64_t) (*a_stage).cur <= INT64_C(1)))
-                        {
-                            if ((vs_ref_get(a_g_n) == 0))
-                            {
-                                if (((vs_ref_get(a_g_n) != vs_ref_get(a_g_n_old)) | (vs_ref_get(a_start) != vs_ref_get(a_start_old))))
-                                {
-                                    vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_ref_drive(a_o_out, (uint64_t)(0));
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
-                                }
-                                vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
-                                if (((((*a_control_register).cur >> 1) & 1) == 0))
-                                {
-                                    if ((((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
-                                    {
-                                        if (((*a_counter).cur == UINT64_C(0x0)))
-                                        {
-                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                            {
-                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                            }
-                                            else
-                                            {
-                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                            }
-                                            vs_ref_drive(a_o_out, (uint64_t)(0));
-                                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                            vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                        }
-                                        else
-                                        {
-                                            vs_ref_drive(a_o_out, (uint64_t)(1));
-                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                            {
-                                                vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
-                                            }
-                                            else
-                                            {
-                                                vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
-                                            }
-                                        }
-                                    }
-                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
-                                }
-                                else
-                                {
-                                    if (((int64_t) (*a_stage).cur == INT64_C(1)))
-                                    {
-                                        if (((*a_counter).cur == UINT64_C(0x0)))
-                                        {
-                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                            {
-                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                            }
-                                            else
-                                            {
-                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                            }
-                                            vs_ref_drive(a_o_out, (uint64_t)(0));
-                                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                            vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                        }
-                                        else
-                                        {
-                                            vs_ref_drive(a_o_out, (uint64_t)(1));
-                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                            {
-                                                vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
-                                            }
-                                            else
-                                            {
-                                                vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
-                                            }
-                                        }
-                                    }
-                                    vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
-                                }
-                            }
-                            else
-                            {
-                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                {
-                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                }
-                                else
-                                {
-                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                }
-                                vs_ref_drive(a_c_n_old, (uint64_t)(0));
-                                vs_ref_drive(a_o_out, (uint64_t)(0));
-                            }
-                        }
-                        else
-                        {
-                            if (((((*a_control_register).cur >> 1) & 1) == 0))
-                            {
-                                if ((((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
-                                {
-                                    if (((*a_counter).cur == UINT64_C(0x0)))
-                                    {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                        }
-                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                                    }
-                                    else
-                                    {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
-                                        }
-                                    }
-                                }
-                                vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
-                            }
-                            else
-                            {
-                                if (((*a_counter).cur == UINT64_C(0x0)))
-                                {
-                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                    {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                    }
-                                    else
-                                    {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                    }
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                                }
-                                else
-                                {
-                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                    {
-                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
-                                    }
-                                    else
-                                    {
-                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
-                                    }
-                                }
-                                vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
-                            }
-                        }
-                        vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
-                        break;
-                    }
-                    case UINT64_C(0x1):
-                    case UINT64_C(0x5):
-                    {
-                        if (((vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n)) & (vs_ref_get(a_g_n) == 0)))
-                        {
-                            if ((vs_ref_get(a_start) == vs_ref_get(a_start_old)))
-                            {
-                                if (((int64_t) (*a_stage).cur == INT64_C(0)))
-                                {
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
-                                    vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_ref_drive(a_o_out, (uint64_t)(0));
-                                }
-                            }
-                            if (((((*a_control_register).cur >> 5) & 1) == 0))
-                            {
-                                if ((((int64_t) (*a_stage).cur == INT64_C(0)) | ((*a_counter).cur == UINT64_C(0x0))))
-                                {
-                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                    {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                    }
-                                    else
-                                    {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                {
-                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                }
-                                else
-                                {
-                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                }
-                            }
-                        }
-                        else if (((vs_ref_get(a_start) != vs_ref_get(a_start_old)) | (vs_ref_get(a_interrupt_request) == 1)))
-                        {
-                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                        }
-                        if (((int64_t) (*a_stage).cur >= INT64_C(1)))
-                        {
-                            v_decr_50512 = 0;
-                            if ((vs_ref_get(a_interrupt_request) == 0))
-                            {
-                                if (((((*a_control_register).cur >> 1) & 1) == 0))
-                                {
-                                    if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
-                                    {
-                                        v_decr_50512 = 1;
-                                    }
-                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
-                                }
-                                else if (((((*a_control_register).cur >> 1) & 1) == 1))
-                                {
-                                    v_decr_50512 = 1;
-                                    vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
-                                }
-                            }
-                            if (v_decr_50512)
-                            {
-                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                {
-                                    vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
-                                }
-                                else
-                                {
-                                    vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
-                                }
-                            }
-                            if (((((*a_control_register).cur >> 5) & 1) == 0))
-                            {
-                                if (((*a_counter).cur == UINT64_C(0x0)))
-                                {
-                                    if (v_decr_50512)
-                                    {
-                                        vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    }
-                                    if (((int64_t) (*a_stage).cur == INT64_C(1)))
-                                    {
-                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                    }
-                                }
-                                else if (((((int64_t) (*a_stage).cur == INT64_C(1)) & (vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n))) & (vs_ref_get(a_g_n) == 0)))
-                                {
-                                    vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                                }
-                            }
-                            else
-                            {
-                                if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
-                                {
-                                    if (v_decr_50512)
-                                    {
-                                        vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    }
-                                    vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                }
-                            }
-                        }
-                        vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
-                        vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
-                        break;
-                    }
-                    default:
-                    {
-                        if (((vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n)) & (vs_ref_get(a_g_n) == 0)))
-                        {
-                            if ((vs_ref_get(a_start) == vs_ref_get(a_start_old)))
-                            {
-                                if (((int64_t) (*a_stage).cur == INT64_C(0)))
-                                {
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
-                                    vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_ref_drive(a_o_out, (uint64_t)(0));
-                                }
-                            }
-                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                            {
-                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                            }
-                            else
-                            {
-                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                            }
-                        }
-                        else if ((((vs_ref_get(a_start) != vs_ref_get(a_start_old)) | (vs_ref_get(a_interrupt_request) == 1)) | (vs_ref_get(a_g_n) == 1)))
-                        {
-                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                        }
-                        if (((int64_t) (*a_stage).cur >= INT64_C(1)))
-                        {
-                            v_decr_50512 = 0;
-                            if ((vs_ref_get(a_interrupt_request) == 0))
-                            {
-                                if (((((*a_control_register).cur >> 1) & 1) == 0))
-                                {
-                                    if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
-                                    {
-                                        v_decr_50512 = 1;
-                                    }
-                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
-                                }
-                                else if (((((*a_control_register).cur >> 1) & 1) == 1))
-                                {
-                                    v_decr_50512 = 1;
-                                    vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
-                                }
-                            }
-                            if (v_decr_50512)
-                            {
-                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                {
-                                    vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
-                                }
-                                else
-                                {
-                                    vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
-                                }
-                            }
-                            if (((((*a_control_register).cur >> 5) & 1) == 0))
-                            {
-                                if (((*a_counter).cur == UINT64_C(0x0)))
-                                {
-                                    if (v_decr_50512)
-                                    {
-                                        vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    }
-                                    if (((int64_t) (*a_stage).cur == INT64_C(1)))
-                                    {
-                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                    }
-                                }
-                                else if ((((int64_t) (*a_stage).cur == INT64_C(1)) & (vs_ref_get(a_g_n) == 1)))
-                                {
-                                    vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                                }
-                            }
-                            else
-                            {
-                                if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
-                                {
-                                    if (v_decr_50512)
-                                    {
-                                        vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    }
-                                    vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                }
-                            }
-                        }
-                        vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
-                        vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
-                        break;
-                    }
+                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
                 }
+                else
+                {
+                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                }
+                vs_ref_drive(a_c_n_old, (uint64_t)(1));
+                vs_ref_drive(a_g_n_old, (uint64_t)(1));
+                vs_ref_drive(a_o_out, (uint64_t)(0));
+                vs_ref_drive(a_counter_init, (uint64_t)(0));
+                vs_ref_drive(a_set_irq, (uint64_t)(0));
+                vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                vs_ref_drive(a_start_old, (uint64_t)(0));
+            }
+            else if (v_reload_88688)
+            {
+                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                {
+                    vs_drive(&(*a_counter), (((uint64_t)((*a_lw_latch).cur) << 3) | UINT64_C(0x7)));
+                }
+                else
+                {
+                    vs_drive(&(*a_counter), (((uint64_t)((*a_lw_latch).cur) << 3) | UINT64_C(0x0)));
+                }
+                vs_ref_drive(a_c_n_old, (uint64_t)(1));
+                vs_ref_drive(a_g_n_old, (uint64_t)(1));
+                vs_ref_drive(a_o_out, (uint64_t)(0));
+                vs_ref_drive(a_counter_init, (uint64_t)(0));
+                vs_ref_drive(a_set_irq, (uint64_t)(0));
+                vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                vs_ref_drive(a_start_old, (uint64_t)(0));
             }
             else
             {
-                switch ((((*a_control_register).cur >> (3)) & UINT64_C(0x7)))
+                if (((((*a_control_register).cur >> 2) & 1) == 0))
                 {
-                    case UINT64_C(0x0):
-                    case UINT64_C(0x2):
+                    switch ((((*a_control_register).cur >> (3)) & UINT64_C(0x7)))
                     {
-                        if ((vs_ref_get(a_g_n) == 0))
+                        case UINT64_C(0x0):
+                        case UINT64_C(0x2):
                         {
-                            if (((vs_ref_get(a_g_n) != vs_ref_get(a_g_n_old)) | (vs_ref_get(a_start) != vs_ref_get(a_start_old))))
+                            if (((vs_ref_get(a_g_n) == 0) | (vs_ref_get(a_start) != vs_ref_get(a_start_old))))
                             {
-                                vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                if ((vs_ref_get(a_g_n) != vs_ref_get(a_g_n_old)))
+                                {
+                                    vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                }
+                                vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
+                                if (((((*a_control_register).cur >> 1) & 1) == 0))
+                                {
+                                    if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
+                                    {
+                                        if (((*a_counter).cur == UINT64_C(0x0)))
+                                        {
+                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                            {
+                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                            }
+                                            else
+                                            {
+                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                            }
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                            vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        }
+                                        else
+                                        {
+                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                            {
+                                                vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
+                                            }
+                                            else
+                                            {
+                                                vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
+                                            }
+                                        }
+                                    }
+                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                }
+                                else
+                                {
+                                    if (((*a_counter).cur == UINT64_C(0x0)))
+                                    {
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        {
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                        }
+                                        else
+                                        {
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                        }
+                                        vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                    }
+                                    else
+                                    {
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        {
+                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
+                                        }
+                                        else
+                                        {
+                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
+                                        }
+                                    }
+                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                }
+                            }
+                            else
+                            {
+                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                {
+                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                }
+                                else
+                                {
+                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                }
+                                vs_ref_drive(a_c_n_old, (uint64_t)(0));
+                                vs_ref_drive(a_o_out, (uint64_t)(0));
+                            }
+                            vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
+                            break;
+                        }
+                        case UINT64_C(0x4):
+                        case UINT64_C(0x6):
+                        {
+                            if (((int64_t) (*a_stage).cur <= INT64_C(1)))
+                            {
+                                if ((vs_ref_get(a_g_n) == 0))
+                                {
+                                    if (((vs_ref_get(a_g_n) != vs_ref_get(a_g_n_old)) | (vs_ref_get(a_start) != vs_ref_get(a_start_old))))
+                                    {
+                                        vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_ref_drive(a_o_out, (uint64_t)(0));
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
+                                    }
+                                    vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
+                                    if (((((*a_control_register).cur >> 1) & 1) == 0))
+                                    {
+                                        if ((((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
+                                        {
+                                            if (((*a_counter).cur == UINT64_C(0x0)))
+                                            {
+                                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                {
+                                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                                }
+                                                else
+                                                {
+                                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                                }
+                                                vs_ref_drive(a_o_out, (uint64_t)(0));
+                                                vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
+                                                vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                            }
+                                            else
+                                            {
+                                                vs_ref_drive(a_o_out, (uint64_t)(1));
+                                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                {
+                                                    vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
+                                                }
+                                                else
+                                                {
+                                                    vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
+                                                }
+                                            }
+                                        }
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                    else
+                                    {
+                                        if (((int64_t) (*a_stage).cur == INT64_C(1)))
+                                        {
+                                            if (((*a_counter).cur == UINT64_C(0x0)))
+                                            {
+                                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                {
+                                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                                }
+                                                else
+                                                {
+                                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                                }
+                                                vs_ref_drive(a_o_out, (uint64_t)(0));
+                                                vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
+                                                vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                            }
+                                            else
+                                            {
+                                                vs_ref_drive(a_o_out, (uint64_t)(1));
+                                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                {
+                                                    vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
+                                                }
+                                                else
+                                                {
+                                                    vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
+                                                }
+                                            }
+                                        }
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                }
+                                else
+                                {
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                    {
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                    }
+                                    else
+                                    {
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                    }
+                                    vs_ref_drive(a_c_n_old, (uint64_t)(0));
+                                    vs_ref_drive(a_o_out, (uint64_t)(0));
+                                }
+                            }
+                            else
+                            {
+                                if (((((*a_control_register).cur >> 1) & 1) == 0))
+                                {
+                                    if ((((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
+                                    {
+                                        if (((*a_counter).cur == UINT64_C(0x0)))
+                                        {
+                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                            {
+                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                            }
+                                            else
+                                            {
+                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                            }
+                                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                        }
+                                        else
+                                        {
+                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                            {
+                                                vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
+                                            }
+                                            else
+                                            {
+                                                vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
+                                            }
+                                        }
+                                    }
+                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                }
+                                else
+                                {
+                                    if (((*a_counter).cur == UINT64_C(0x0)))
+                                    {
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        {
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                        }
+                                        else
+                                        {
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                        }
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                    }
+                                    else
+                                    {
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        {
+                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
+                                        }
+                                        else
+                                        {
+                                            vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
+                                        }
+                                    }
+                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                }
+                            }
+                            vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
+                            break;
+                        }
+                        case UINT64_C(0x1):
+                        case UINT64_C(0x5):
+                        {
+                            if (((vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n)) & (vs_ref_get(a_g_n) == 0)))
+                            {
+                                if ((vs_ref_get(a_start) == vs_ref_get(a_start_old)))
+                                {
+                                    if (((int64_t) (*a_stage).cur == INT64_C(0)))
+                                    {
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
+                                        vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_ref_drive(a_o_out, (uint64_t)(0));
+                                    }
+                                }
+                                if (((((*a_control_register).cur >> 5) & 1) == 0))
+                                {
+                                    if ((((int64_t) (*a_stage).cur == INT64_C(0)) | ((*a_counter).cur == UINT64_C(0x0))))
+                                    {
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        {
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                        }
+                                        else
+                                        {
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                    {
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                    }
+                                    else
+                                    {
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                    }
+                                }
+                            }
+                            else if (((vs_ref_get(a_start) != vs_ref_get(a_start_old)) | (vs_ref_get(a_interrupt_request) == 1)))
+                            {
+                                vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                            }
+                            if (((int64_t) (*a_stage).cur >= INT64_C(1)))
+                            {
+                                v_decr_88752 = 0;
+                                if ((vs_ref_get(a_interrupt_request) == 0))
+                                {
+                                    if (((((*a_control_register).cur >> 1) & 1) == 0))
+                                    {
+                                        if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
+                                        {
+                                            v_decr_88752 = 1;
+                                        }
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                    else if (((((*a_control_register).cur >> 1) & 1) == 1))
+                                    {
+                                        v_decr_88752 = 1;
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                }
+                                if (v_decr_88752)
+                                {
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                    {
+                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
+                                    }
+                                    else
+                                    {
+                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
+                                    }
+                                }
+                                if (((((*a_control_register).cur >> 5) & 1) == 0))
+                                {
+                                    if (((*a_counter).cur == UINT64_C(0x0)))
+                                    {
+                                        if (v_decr_88752)
+                                        {
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        }
+                                        if (((int64_t) (*a_stage).cur == INT64_C(1)))
+                                        {
+                                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
+                                        }
+                                    }
+                                    else if (((((int64_t) (*a_stage).cur == INT64_C(1)) & (vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n))) & (vs_ref_get(a_g_n) == 0)))
+                                    {
+                                        vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                    }
+                                }
+                                else
+                                {
+                                    if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
+                                    {
+                                        if (v_decr_88752)
+                                        {
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        }
+                                        vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
+                                    }
+                                }
                             }
                             vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
-                            if (((((*a_control_register).cur >> 1) & 1) == 0))
+                            vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
+                            break;
+                        }
+                        default:
+                        {
+                            if (((vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n)) & (vs_ref_get(a_g_n) == 0)))
                             {
-                                if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
+                                if ((vs_ref_get(a_start) == vs_ref_get(a_start_old)))
                                 {
-                                    if ((((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)) & (((*a_counter).cur & UINT64_C(0x7FF)) == (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)))))
+                                    if (((int64_t) (*a_stage).cur == INT64_C(0)))
+                                    {
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
+                                        vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_ref_drive(a_o_out, (uint64_t)(0));
+                                    }
+                                }
+                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                {
+                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                }
+                                else
+                                {
+                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                }
+                            }
+                            else if ((((vs_ref_get(a_start) != vs_ref_get(a_start_old)) | (vs_ref_get(a_interrupt_request) == 1)) | (vs_ref_get(a_g_n) == 1)))
+                            {
+                                vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                            }
+                            if (((int64_t) (*a_stage).cur >= INT64_C(1)))
+                            {
+                                v_decr_88752 = 0;
+                                if ((vs_ref_get(a_interrupt_request) == 0))
+                                {
+                                    if (((((*a_control_register).cur >> 1) & 1) == 0))
+                                    {
+                                        if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
+                                        {
+                                            v_decr_88752 = 1;
+                                        }
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                    else if (((((*a_control_register).cur >> 1) & 1) == 1))
+                                    {
+                                        v_decr_88752 = 1;
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                }
+                                if (v_decr_88752)
+                                {
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                    {
+                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FFFF)));
+                                    }
+                                    else
+                                    {
+                                        vs_drive(&(*a_counter), (((*a_counter).cur - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FFFF)));
+                                    }
+                                }
+                                if (((((*a_control_register).cur >> 5) & 1) == 0))
+                                {
+                                    if (((*a_counter).cur == UINT64_C(0x0)))
+                                    {
+                                        if (v_decr_88752)
+                                        {
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        }
+                                        if (((int64_t) (*a_stage).cur == INT64_C(1)))
+                                        {
+                                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
+                                        }
+                                    }
+                                    else if ((((int64_t) (*a_stage).cur == INT64_C(1)) & (vs_ref_get(a_g_n) == 1)))
+                                    {
+                                        vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                    }
+                                }
+                                else
+                                {
+                                    if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
+                                    {
+                                        if (v_decr_88752)
+                                        {
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        }
+                                        vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
+                                    }
+                                }
+                            }
+                            vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
+                            vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    switch ((((*a_control_register).cur >> (3)) & UINT64_C(0x7)))
+                    {
+                        case UINT64_C(0x0):
+                        case UINT64_C(0x2):
+                        {
+                            if ((vs_ref_get(a_g_n) == 0))
+                            {
+                                if (((vs_ref_get(a_g_n) != vs_ref_get(a_g_n_old)) | (vs_ref_get(a_start) != vs_ref_get(a_start_old))))
+                                {
+                                    vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                }
+                                vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
+                                if (((((*a_control_register).cur >> 1) & 1) == 0))
+                                {
+                                    if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
+                                    {
+                                        if ((((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)) & (((*a_counter).cur & UINT64_C(0x7FF)) == (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)))))
+                                        {
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        }
+                                        if (((*a_counter).cur == UINT64_C(0x0)))
+                                        {
+                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                            {
+                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                            }
+                                            else
+                                            {
+                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                            }
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                            vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        }
+                                        else
+                                        {
+                                            if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                            {
+                                                vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                {
+                                                    vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
+                                                }
+                                                else
+                                                {
+                                                    vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                {
+                                                    vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
+                                                }
+                                                else
+                                                {
+                                                    vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
+                                                }
+                                            }
+                                        }
+                                    }
+                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                }
+                                else
+                                {
+                                    if ((((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)) & ((*a_counter).cur == (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)))))
                                     {
                                         vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
                                     }
@@ -547,16 +645,143 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                             }
                                         }
                                     }
+                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                                 }
-                                vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                             }
                             else
                             {
-                                if ((((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)) & ((*a_counter).cur == (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)))))
+                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                 {
-                                    vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
                                 }
-                                if (((*a_counter).cur == UINT64_C(0x0)))
+                                else
+                                {
+                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                }
+                                vs_ref_drive(a_c_n_old, (uint64_t)(0));
+                                vs_ref_drive(a_o_out, (uint64_t)(0));
+                            }
+                            vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
+                            break;
+                        }
+                        case UINT64_C(0x4):
+                        case UINT64_C(0x6):
+                        {
+                            if (((int64_t) (*a_stage).cur <= INT64_C(1)))
+                            {
+                                if ((vs_ref_get(a_g_n) == 0))
+                                {
+                                    if (((vs_ref_get(a_g_n) != vs_ref_get(a_g_n_old)) | (vs_ref_get(a_start) != vs_ref_get(a_start_old))))
+                                    {
+                                        vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_ref_drive(a_o_out, (uint64_t)(0));
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
+                                    }
+                                    vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
+                                    if (((((*a_control_register).cur >> 1) & 1) == 0))
+                                    {
+                                        if ((((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
+                                        {
+                                            if (((*a_counter).cur == UINT64_C(0x0)))
+                                            {
+                                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                {
+                                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                                }
+                                                else
+                                                {
+                                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                                }
+                                                vs_ref_drive(a_o_out, (uint64_t)(0));
+                                                vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
+                                                vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                            }
+                                            else
+                                            {
+                                                if (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)))
+                                                {
+                                                    vs_ref_drive(a_o_out, (uint64_t)(1));
+                                                }
+                                                if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                                {
+                                                    vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                    {
+                                                        vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
+                                                    }
+                                                    else
+                                                    {
+                                                        vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                    {
+                                                        vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
+                                                    }
+                                                    else
+                                                    {
+                                                        vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                    else
+                                    {
+                                        if (((int64_t) (*a_stage).cur == INT64_C(1)))
+                                        {
+                                            if (((*a_counter).cur == UINT64_C(0x0)))
+                                            {
+                                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                {
+                                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                                }
+                                                else
+                                                {
+                                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                                }
+                                                vs_ref_drive(a_o_out, (uint64_t)(0));
+                                                vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
+                                                vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                            }
+                                            else
+                                            {
+                                                if (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)))
+                                                {
+                                                    vs_ref_drive(a_o_out, (uint64_t)(1));
+                                                }
+                                                if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                                {
+                                                    vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                    {
+                                                        vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
+                                                    }
+                                                    else
+                                                    {
+                                                        vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                                    {
+                                                        vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
+                                                    }
+                                                    else
+                                                    {
+                                                        vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                }
+                                else
                                 {
                                     if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                     {
@@ -566,71 +791,15 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                     {
                                         vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
                                     }
-                                    vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                    vs_ref_drive(a_c_n_old, (uint64_t)(0));
+                                    vs_ref_drive(a_o_out, (uint64_t)(0));
                                 }
-                                else
-                                {
-                                    if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
-                                    {
-                                        vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
-                                        }
-                                    }
-                                }
-                                vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
-                            }
-                        }
-                        else
-                        {
-                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                            {
-                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
                             }
                             else
                             {
-                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                            }
-                            vs_ref_drive(a_c_n_old, (uint64_t)(0));
-                            vs_ref_drive(a_o_out, (uint64_t)(0));
-                        }
-                        vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
-                        break;
-                    }
-                    case UINT64_C(0x4):
-                    case UINT64_C(0x6):
-                    {
-                        if (((int64_t) (*a_stage).cur <= INT64_C(1)))
-                        {
-                            if ((vs_ref_get(a_g_n) == 0))
-                            {
-                                if (((vs_ref_get(a_g_n) != vs_ref_get(a_g_n_old)) | (vs_ref_get(a_start) != vs_ref_get(a_start_old))))
-                                {
-                                    vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_ref_drive(a_o_out, (uint64_t)(0));
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
-                                }
-                                vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
                                 if (((((*a_control_register).cur >> 1) & 1) == 0))
                                 {
-                                    if ((((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
+                                    if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
                                     {
                                         if (((*a_counter).cur == UINT64_C(0x0)))
                                         {
@@ -642,16 +811,10 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                             {
                                                 vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
                                             }
-                                            vs_ref_drive(a_o_out, (uint64_t)(0));
-                                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                            vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
                                         }
                                         else
                                         {
-                                            if (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)))
-                                            {
-                                                vs_ref_drive(a_o_out, (uint64_t)(1));
-                                            }
                                             if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
                                             {
                                                 vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
@@ -681,75 +844,114 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                 }
                                 else
                                 {
-                                    if (((int64_t) (*a_stage).cur == INT64_C(1)))
+                                    if (((*a_counter).cur == UINT64_C(0x0)))
                                     {
-                                        if (((*a_counter).cur == UINT64_C(0x0)))
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                         {
-                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                            {
-                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                            }
-                                            else
-                                            {
-                                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                            }
-                                            vs_ref_drive(a_o_out, (uint64_t)(0));
-                                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                            vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
                                         }
                                         else
                                         {
-                                            if (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) == UINT64_C(0x0)))
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                        }
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                    }
+                                    else
+                                    {
+                                        if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                        {
+                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                             {
-                                                vs_ref_drive(a_o_out, (uint64_t)(1));
-                                            }
-                                            if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
-                                            {
-                                                vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
-                                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                                {
-                                                    vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
-                                                }
-                                                else
-                                                {
-                                                    vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
-                                                }
+                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
                                             }
                                             else
                                             {
-                                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                                {
-                                                    vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
-                                                }
-                                                else
-                                                {
-                                                    vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
-                                                }
+                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                            {
+                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
+                                            }
+                                            else
+                                            {
+                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
                                             }
                                         }
                                     }
-                                    vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
+                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
                                 }
                             }
-                            else
+                            vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
+                            break;
+                        }
+                        case UINT64_C(0x1):
+                        case UINT64_C(0x5):
+                        {
+                            if (((vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n)) & (vs_ref_get(a_g_n) == 0)))
                             {
-                                if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                if ((vs_ref_get(a_start) == vs_ref_get(a_start_old)))
                                 {
-                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                    if (((int64_t) (*a_stage).cur == INT64_C(0)))
+                                    {
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
+                                        vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_ref_drive(a_o_out, (uint64_t)(0));
+                                    }
+                                }
+                                if (((((*a_control_register).cur >> 5) & 1) == 0))
+                                {
+                                    if ((((int64_t) (*a_stage).cur == INT64_C(0)) | ((*a_counter).cur == UINT64_C(0x0))))
+                                    {
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        {
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                        }
+                                        else
+                                        {
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                    {
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                    }
+                                    else
+                                    {
+                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                    }
                                 }
-                                vs_ref_drive(a_c_n_old, (uint64_t)(0));
-                                vs_ref_drive(a_o_out, (uint64_t)(0));
                             }
-                        }
-                        else
-                        {
-                            if (((((*a_control_register).cur >> 1) & 1) == 0))
+                            else if (((vs_ref_get(a_start) != vs_ref_get(a_start_old)) | (vs_ref_get(a_interrupt_request) == 1)))
                             {
-                                if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
+                                vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                            }
+                            if (((int64_t) (*a_stage).cur >= INT64_C(1)))
+                            {
+                                v_decr_88752 = 0;
+                                if ((vs_ref_get(a_interrupt_request) == 0))
+                                {
+                                    if (((((*a_control_register).cur >> 1) & 1) == 0))
+                                    {
+                                        if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
+                                        {
+                                            v_decr_88752 = 1;
+                                        }
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                    else if (((((*a_control_register).cur >> 1) & 1) == 1))
+                                    {
+                                        v_decr_88752 = 1;
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                }
+                                if (v_decr_88752)
                                 {
                                     if (((*a_counter).cur == UINT64_C(0x0)))
                                     {
@@ -790,84 +992,55 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                         }
                                     }
                                 }
-                                vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
-                            }
-                            else
-                            {
-                                if (((*a_counter).cur == UINT64_C(0x0)))
+                                if (((((*a_control_register).cur >> 5) & 1) == 0))
                                 {
-                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                    if (((*a_counter).cur == UINT64_C(0x0)))
                                     {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                        if (v_decr_88752)
+                                        {
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        }
+                                        if (((int64_t) (*a_stage).cur == INT64_C(1)))
+                                        {
+                                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
+                                        }
                                     }
-                                    else
+                                    else if (((((int64_t) (*a_stage).cur == INT64_C(1)) & (vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n))) & (vs_ref_get(a_g_n) == 0)))
                                     {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                        vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
                                     }
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
                                 }
                                 else
                                 {
-                                    if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                    if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
                                     {
-                                        vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        if (v_decr_88752)
                                         {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
                                         }
-                                        else
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
-                                        }
+                                        vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
                                     }
                                 }
-                                vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
                             }
+                            vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
+                            vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
+                            break;
                         }
-                        vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
-                        break;
-                    }
-                    case UINT64_C(0x1):
-                    case UINT64_C(0x5):
-                    {
-                        if (((vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n)) & (vs_ref_get(a_g_n) == 0)))
+                        default:
                         {
-                            if ((vs_ref_get(a_start) == vs_ref_get(a_start_old)))
+                            if (((vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n)) & (vs_ref_get(a_g_n) == 0)))
                             {
-                                if (((int64_t) (*a_stage).cur == INT64_C(0)))
+                                if ((vs_ref_get(a_start) == vs_ref_get(a_start_old)))
                                 {
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
-                                    vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_ref_drive(a_o_out, (uint64_t)(0));
-                                }
-                            }
-                            if (((((*a_control_register).cur >> 5) & 1) == 0))
-                            {
-                                if ((((int64_t) (*a_stage).cur == INT64_C(0)) | ((*a_counter).cur == UINT64_C(0x0))))
-                                {
-                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                    if (((int64_t) (*a_stage).cur == INT64_C(0)))
                                     {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                    }
-                                    else
-                                    {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
+                                        vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_ref_drive(a_o_out, (uint64_t)(0));
                                     }
                                 }
-                            }
-                            else
-                            {
                                 if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
                                 {
                                     vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
@@ -877,228 +1050,106 @@ static void p_timer_0(ptm_63f40 *self, vs_sig *a_e, vs_sig *a_cs, vs_sig *a_rw_n
                                     vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
                                 }
                             }
-                        }
-                        else if (((vs_ref_get(a_start) != vs_ref_get(a_start_old)) | (vs_ref_get(a_interrupt_request) == 1)))
-                        {
-                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                        }
-                        if (((int64_t) (*a_stage).cur >= INT64_C(1)))
-                        {
-                            v_decr_50512 = 0;
-                            if ((vs_ref_get(a_interrupt_request) == 0))
+                            else if ((((vs_ref_get(a_start) != vs_ref_get(a_start_old)) | (vs_ref_get(a_interrupt_request) == 1)) | (vs_ref_get(a_g_n) == 1)))
                             {
-                                if (((((*a_control_register).cur >> 1) & 1) == 0))
-                                {
-                                    if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
-                                    {
-                                        v_decr_50512 = 1;
-                                    }
-                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
-                                }
-                                else if (((((*a_control_register).cur >> 1) & 1) == 1))
-                                {
-                                    v_decr_50512 = 1;
-                                    vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
-                                }
+                                vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
                             }
-                            if (v_decr_50512)
+                            if (((int64_t) (*a_stage).cur >= INT64_C(1)))
                             {
-                                if (((*a_counter).cur == UINT64_C(0x0)))
+                                v_decr_88752 = 0;
+                                if ((vs_ref_get(a_interrupt_request) == 0))
                                 {
-                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                    if (((((*a_control_register).cur >> 1) & 1) == 0))
                                     {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                        if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
+                                        {
+                                            v_decr_88752 = 1;
+                                        }
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                    else if (((((*a_control_register).cur >> 1) & 1) == 1))
+                                    {
+                                        v_decr_88752 = 1;
+                                        vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
+                                    }
+                                }
+                                if (v_decr_88752)
+                                {
+                                    if (((*a_counter).cur == UINT64_C(0x0)))
+                                    {
+                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        {
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
+                                        }
+                                        else
+                                        {
+                                            vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                        }
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
                                     }
                                     else
                                     {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
+                                        if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                        {
+                                            vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
+                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                            {
+                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
+                                            }
+                                            else
+                                            {
+                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                            {
+                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
+                                            }
+                                            else
+                                            {
+                                                vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
+                                            }
+                                        }
                                     }
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                }
+                                if (((((*a_control_register).cur >> 5) & 1) == 0))
+                                {
+                                    if (((*a_counter).cur == UINT64_C(0x0)))
+                                    {
+                                        if (v_decr_88752)
+                                        {
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        }
+                                        if (((int64_t) (*a_stage).cur == INT64_C(1)))
+                                        {
+                                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
+                                        }
+                                    }
+                                    else if ((((int64_t) (*a_stage).cur == INT64_C(1)) & (vs_ref_get(a_g_n) == 1)))
+                                    {
+                                        vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
+                                    }
                                 }
                                 else
                                 {
-                                    if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
+                                    if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
                                     {
-                                        vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
+                                        if (v_decr_88752)
                                         {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
+                                            vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
                                         }
-                                        else
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
-                                        }
-                                    }
-                                }
-                            }
-                            if (((((*a_control_register).cur >> 5) & 1) == 0))
-                            {
-                                if (((*a_counter).cur == UINT64_C(0x0)))
-                                {
-                                    if (v_decr_50512)
-                                    {
-                                        vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    }
-                                    if (((int64_t) (*a_stage).cur == INT64_C(1)))
-                                    {
+                                        vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
                                         vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
                                     }
                                 }
-                                else if (((((int64_t) (*a_stage).cur == INT64_C(1)) & (vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n))) & (vs_ref_get(a_g_n) == 0)))
-                                {
-                                    vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                                }
                             }
-                            else
-                            {
-                                if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
-                                {
-                                    if (v_decr_50512)
-                                    {
-                                        vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    }
-                                    vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                }
-                            }
+                            vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
+                            vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
+                            break;
                         }
-                        vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
-                        vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
-                        break;
-                    }
-                    default:
-                    {
-                        if (((vs_ref_get(a_g_n_old) != vs_ref_get(a_g_n)) & (vs_ref_get(a_g_n) == 0)))
-                        {
-                            if ((vs_ref_get(a_start) == vs_ref_get(a_start_old)))
-                            {
-                                if (((int64_t) (*a_stage).cur == INT64_C(0)))
-                                {
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(1)));
-                                    vs_ref_drive(a_counter_init, (uint64_t)(((vs_ref_get(a_counter_init) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_ref_drive(a_o_out, (uint64_t)(0));
-                                }
-                            }
-                            if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                            {
-                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                            }
-                            else
-                            {
-                                vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                            }
-                        }
-                        else if ((((vs_ref_get(a_start) != vs_ref_get(a_start_old)) | (vs_ref_get(a_interrupt_request) == 1)) | (vs_ref_get(a_g_n) == 1)))
-                        {
-                            vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                        }
-                        if (((int64_t) (*a_stage).cur >= INT64_C(1)))
-                        {
-                            v_decr_50512 = 0;
-                            if ((vs_ref_get(a_interrupt_request) == 0))
-                            {
-                                if (((((*a_control_register).cur >> 1) & 1) == 0))
-                                {
-                                    if (((vs_ref_get(a_c_n) != vs_ref_get(a_c_n_old)) & (vs_ref_get(a_c_n) == 1)))
-                                    {
-                                        v_decr_50512 = 1;
-                                    }
-                                    vs_ref_drive(a_c_n_old, (uint64_t)(vs_ref_get(a_c_n)));
-                                }
-                                else if (((((*a_control_register).cur >> 1) & 1) == 1))
-                                {
-                                    v_decr_50512 = 1;
-                                    vs_ref_drive(a_c_n_old, (uint64_t)((*a_sysclk).cur));
-                                }
-                            }
-                            if (v_decr_50512)
-                            {
-                                if (((*a_counter).cur == UINT64_C(0x0)))
-                                {
-                                    if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                    {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x7)));
-                                    }
-                                    else
-                                    {
-                                        vs_drive(&(*a_counter), (((uint64_t)((*a_latch_register).cur) << 3) | UINT64_C(0x0)));
-                                    }
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                                }
-                                else
-                                {
-                                    if ((((*a_counter).cur & UINT64_C(0x7FF)) == UINT64_C(0x0)))
-                                    {
-                                        vs_drive_bits(&(*a_counter), 11, UINT64_C(0xFF), (((((*a_counter).cur >> (11)) & UINT64_C(0xFF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0xFF)));
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x7)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), (((uint64_t)(((*a_latch_register).cur & UINT64_C(0xFF))) << 3) | UINT64_C(0x0)));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if ((a_is_timer_3 & ((((*a_control_register).cur >> 0) & 1) == 1)))
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(1))) & UINT64_C(0x7FF)));
-                                        }
-                                        else
-                                        {
-                                            vs_drive_bits(&(*a_counter), 0, UINT64_C(0x7FF), ((((*a_counter).cur & UINT64_C(0x7FF)) - (uint64_t)(INT64_C(8))) & UINT64_C(0x7FF)));
-                                        }
-                                    }
-                                }
-                            }
-                            if (((((*a_control_register).cur >> 5) & 1) == 0))
-                            {
-                                if (((*a_counter).cur == UINT64_C(0x0)))
-                                {
-                                    if (v_decr_50512)
-                                    {
-                                        vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    }
-                                    if (((int64_t) (*a_stage).cur == INT64_C(1)))
-                                    {
-                                        vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                    }
-                                }
-                                else if ((((int64_t) (*a_stage).cur == INT64_C(1)) & (vs_ref_get(a_g_n) == 1)))
-                                {
-                                    vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(0)));
-                                }
-                            }
-                            else
-                            {
-                                if ((((*a_counter).cur == UINT64_C(0x0)) & ((int64_t) (*a_stage).cur == INT64_C(1))))
-                                {
-                                    if (v_decr_50512)
-                                    {
-                                        vs_ref_drive(a_o_out, (uint64_t)(((vs_ref_get(a_o_out) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    }
-                                    vs_ref_drive(a_set_irq, (uint64_t)(((vs_ref_get(a_set_irq) ^ UINT64_C(0x1)) & UINT64_C(0x1))));
-                                    vs_drive(&(*a_stage), (uint64_t)(INT64_C(2)));
-                                }
-                            }
-                        }
-                        vs_ref_drive(a_start_old, (uint64_t)(vs_ref_get(a_start)));
-                        vs_ref_drive(a_g_n_old, (uint64_t)(vs_ref_get(a_g_n)));
-                        break;
                     }
                 }
             }
@@ -1200,83 +1251,208 @@ static void ptm_63f40_p5(void *inst)
 static void ptm_63f40_p6(void *inst)
 {
     ptm_63f40 *self = inst;
+    if ((((self->s_control_register.a[0].cur >> 0) & 1) == 1))
+    {
+        vs_drive(&self->s_counter_eff.a[0], (((uint64_t)(self->s_latch_register.a[0].cur) << 3) | UINT64_C(0x0)));
+    }
+    else if ((self->s_lw_tog.a[0].cur != self->s_lw_old.a[0].cur))
+    {
+        vs_drive(&self->s_counter_eff.a[0], (((uint64_t)(self->s_lw_latch.a[0].cur) << 3) | UINT64_C(0x0)));
+    }
+    else
+    {
+        vs_drive(&self->s_counter_eff.a[0], self->s_counter.a[0].cur);
+    }
+}
+
+static void ptm_63f40_p7(void *inst)
+{
+    ptm_63f40 *self = inst;
+    if ((((self->s_control_register.a[0].cur >> 0) & 1) == 1))
+    {
+        vs_drive(&self->s_counter_eff.a[1], (((uint64_t)(self->s_latch_register.a[1].cur) << 3) | UINT64_C(0x0)));
+    }
+    else if ((self->s_lw_tog.a[1].cur != self->s_lw_old.a[1].cur))
+    {
+        vs_drive(&self->s_counter_eff.a[1], (((uint64_t)(self->s_lw_latch.a[1].cur) << 3) | UINT64_C(0x0)));
+    }
+    else
+    {
+        vs_drive(&self->s_counter_eff.a[1], self->s_counter.a[1].cur);
+    }
+}
+
+static void ptm_63f40_p8(void *inst)
+{
+    ptm_63f40 *self = inst;
+    if (((((self->s_control_register.a[0].cur >> 0) & 1) == 1) & (((self->s_control_register.a[2].cur >> 0) & 1) == 1)))
+    {
+        vs_drive(&self->s_counter_eff.a[2], (((uint64_t)(self->s_latch_register.a[2].cur) << 3) | UINT64_C(0x7)));
+    }
+    else if ((((self->s_control_register.a[0].cur >> 0) & 1) == 1))
+    {
+        vs_drive(&self->s_counter_eff.a[2], (((uint64_t)(self->s_latch_register.a[2].cur) << 3) | UINT64_C(0x0)));
+    }
+    else if (((self->s_lw_tog.a[2].cur != self->s_lw_old.a[2].cur) & (((self->s_control_register.a[2].cur >> 0) & 1) == 1)))
+    {
+        vs_drive(&self->s_counter_eff.a[2], (((uint64_t)(self->s_lw_latch.a[2].cur) << 3) | UINT64_C(0x7)));
+    }
+    else if ((self->s_lw_tog.a[2].cur != self->s_lw_old.a[2].cur))
+    {
+        vs_drive(&self->s_counter_eff.a[2], (((uint64_t)(self->s_lw_latch.a[2].cur) << 3) | UINT64_C(0x0)));
+    }
+    else
+    {
+        vs_drive(&self->s_counter_eff.a[2], self->s_counter.a[2].cur);
+    }
+}
+
+static void ptm_63f40_p9(void *inst)
+{
+    ptm_63f40 *self = inst;
+    vs_drive(&(*self->p_d_out), UINT64_C(0x0));
+    if ((((*self->p_cs).cur == 1) & ((*self->p_rw_n).cur == 1)))
+    {
+        switch ((*self->p_addr).cur)
+        {
+            case UINT64_C(0x1):
+            {
+                vs_drive(&(*self->p_d_out), self->s_status_register.cur);
+                break;
+            }
+            case UINT64_C(0x2):
+            {
+                vs_drive(&(*self->p_d_out), ((self->s_counter_eff.a[0].cur >> (11)) & UINT64_C(0xFF)));
+                break;
+            }
+            case UINT64_C(0x3):
+            {
+                vs_drive(&(*self->p_d_out), ((self->s_counter_eff.a[0].cur >> (3)) & UINT64_C(0xFF)));
+                break;
+            }
+            case UINT64_C(0x4):
+            {
+                vs_drive(&(*self->p_d_out), ((self->s_counter_eff.a[1].cur >> (11)) & UINT64_C(0xFF)));
+                break;
+            }
+            case UINT64_C(0x5):
+            {
+                vs_drive(&(*self->p_d_out), ((self->s_counter_eff.a[1].cur >> (3)) & UINT64_C(0xFF)));
+                break;
+            }
+            case UINT64_C(0x6):
+            {
+                vs_drive(&(*self->p_d_out), ((self->s_counter_eff.a[2].cur >> (11)) & UINT64_C(0xFF)));
+                break;
+            }
+            case UINT64_C(0x7):
+            {
+                vs_drive(&(*self->p_d_out), ((self->s_counter_eff.a[2].cur >> (3)) & UINT64_C(0xFF)));
+                break;
+            }
+            default:
+            {
+                ;
+                break;
+            }
+        }
+    }
+}
+
+static void ptm_63f40_p10(void *inst)
+{
+    ptm_63f40 *self = inst;
     if (((*self->p_rst_n).cur == 0))
     {
         control_type_drive(&self->s_control_register, control_type_fill(UINT64_C(0x0)));
         latch_type_drive(&self->s_latch_register, latch_type_fill(UINT64_C(0xFFFF)));
-        vs_drive(&(*self->p_d_out), UINT64_C(0x0));
         vs_drive(&self->s_pending_irq, UINT64_C(0x0));
         vs_drive(&self->s_clr_irq, UINT64_C(0x0));
         vs_drive(&self->s_start, UINT64_C(0x0));
+        lw_type_drive(&self->s_lw_tog, lw_type_fill(UINT64_C(0x0)));
+        latch_type_drive(&self->s_lw_latch, latch_type_fill(UINT64_C(0xFFFF)));
+        vs_drive(&self->s_sr_tog, UINT64_C(0x0));
     }
-    else
+    else if (vs_falling(&(*self->p_e)))
     {
         if (((*self->p_cs).cur == 1))
         {
             if (((*self->p_rw_n).cur == 0))
             {
-                vs_drive(&(*self->p_d_out), UINT64_C(0x0));
-                if (vs_falling(&(*self->p_e)))
+                switch ((*self->p_addr).cur)
                 {
-                    switch ((*self->p_addr).cur)
+                    case UINT64_C(0x0):
                     {
-                        case UINT64_C(0x0):
+                        if ((((self->s_control_register.a[1].cur >> 0) & 1) == 0))
                         {
-                            if ((((self->s_control_register.a[1].cur >> 0) & 1) == 0))
+                            vs_drive(&self->s_control_register.a[2], (*self->p_d_in).cur);
+                        }
+                        else
+                        {
+                            vs_drive(&self->s_control_register.a[0], (*self->p_d_in).cur);
+                            if (((((*self->p_d_in).cur >> 0) & 1) == 1))
                             {
-                                vs_drive(&self->s_control_register.a[2], (*self->p_d_in).cur);
+                                vs_drive(&self->s_clr_irq, ((self->s_clr_irq.cur ^ UINT64_C(0x7)) & UINT64_C(0x7)));
+                                vs_drive(&self->s_sr_tog, f_gray_next_0(self, self->s_sr_tog.cur));
                             }
-                            else
-                            {
-                                vs_drive(&self->s_control_register.a[0], (*self->p_d_in).cur);
-                                if (((((*self->p_d_in).cur >> 0) & 1) == 1))
-                                {
-                                    vs_drive(&self->s_clr_irq, ((self->s_clr_irq.cur ^ UINT64_C(0x7)) & UINT64_C(0x7)));
-                                }
-                            }
-                            break;
                         }
-                        case UINT64_C(0x1):
+                        break;
+                    }
+                    case UINT64_C(0x1):
+                    {
+                        vs_drive(&self->s_control_register.a[1], (*self->p_d_in).cur);
+                        break;
+                    }
+                    case UINT64_C(0x2):
+                    {
+                        vs_drive_bits(&self->s_latch_register.a[0], 8, UINT64_C(0xFF), (*self->p_d_in).cur);
+                        break;
+                    }
+                    case UINT64_C(0x3):
+                    {
+                        vs_drive_bits(&self->s_latch_register.a[0], 0, UINT64_C(0xFF), (*self->p_d_in).cur);
+                        vs_drive_bits(&self->s_clr_irq, 2, UINT64_C(0x1), ((((self->s_clr_irq.cur >> 2) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                        vs_drive_bits(&self->s_start, 2, UINT64_C(0x1), ((((self->s_start.cur >> 2) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                        if ((((self->s_control_register.a[0].cur >> 4) & 1) == 0))
                         {
-                            vs_drive(&self->s_control_register.a[1], (*self->p_d_in).cur);
-                            break;
+                            vs_drive(&self->s_lw_tog.a[0], f_gray_next_0(self, self->s_lw_tog.a[0].cur));
+                            vs_drive(&self->s_lw_latch.a[0], (((uint64_t)(((self->s_latch_register.a[0].cur >> (8)) & UINT64_C(0xFF))) << 8) | (*self->p_d_in).cur));
                         }
-                        case UINT64_C(0x2):
+                        break;
+                    }
+                    case UINT64_C(0x4):
+                    {
+                        vs_drive_bits(&self->s_latch_register.a[1], 8, UINT64_C(0xFF), (*self->p_d_in).cur);
+                        break;
+                    }
+                    case UINT64_C(0x5):
+                    {
+                        vs_drive_bits(&self->s_latch_register.a[1], 0, UINT64_C(0xFF), (*self->p_d_in).cur);
+                        vs_drive_bits(&self->s_clr_irq, 1, UINT64_C(0x1), ((((self->s_clr_irq.cur >> 1) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                        vs_drive_bits(&self->s_start, 1, UINT64_C(0x1), ((((self->s_start.cur >> 1) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                        if ((((self->s_control_register.a[1].cur >> 4) & 1) == 0))
                         {
-                            vs_drive_bits(&self->s_latch_register.a[0], 8, UINT64_C(0xFF), (*self->p_d_in).cur);
-                            break;
+                            vs_drive(&self->s_lw_tog.a[1], f_gray_next_0(self, self->s_lw_tog.a[1].cur));
+                            vs_drive(&self->s_lw_latch.a[1], (((uint64_t)(((self->s_latch_register.a[1].cur >> (8)) & UINT64_C(0xFF))) << 8) | (*self->p_d_in).cur));
                         }
-                        case UINT64_C(0x3):
+                        break;
+                    }
+                    case UINT64_C(0x6):
+                    {
+                        vs_drive_bits(&self->s_latch_register.a[2], 8, UINT64_C(0xFF), (*self->p_d_in).cur);
+                        break;
+                    }
+                    default:
+                    {
+                        vs_drive_bits(&self->s_latch_register.a[2], 0, UINT64_C(0xFF), (*self->p_d_in).cur);
+                        vs_drive_bits(&self->s_clr_irq, 0, UINT64_C(0x1), ((((self->s_clr_irq.cur >> 0) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                        vs_drive_bits(&self->s_start, 0, UINT64_C(0x1), ((((self->s_start.cur >> 0) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                        if ((((self->s_control_register.a[2].cur >> 4) & 1) == 0))
                         {
-                            vs_drive_bits(&self->s_latch_register.a[0], 0, UINT64_C(0xFF), (*self->p_d_in).cur);
-                            vs_drive_bits(&self->s_clr_irq, 2, UINT64_C(0x1), ((((self->s_clr_irq.cur >> 2) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-                            vs_drive_bits(&self->s_start, 2, UINT64_C(0x1), ((((self->s_start.cur >> 2) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-                            break;
+                            vs_drive(&self->s_lw_tog.a[2], f_gray_next_0(self, self->s_lw_tog.a[2].cur));
+                            vs_drive(&self->s_lw_latch.a[2], (((uint64_t)(((self->s_latch_register.a[2].cur >> (8)) & UINT64_C(0xFF))) << 8) | (*self->p_d_in).cur));
                         }
-                        case UINT64_C(0x4):
-                        {
-                            vs_drive_bits(&self->s_latch_register.a[1], 8, UINT64_C(0xFF), (*self->p_d_in).cur);
-                            break;
-                        }
-                        case UINT64_C(0x5):
-                        {
-                            vs_drive_bits(&self->s_latch_register.a[1], 0, UINT64_C(0xFF), (*self->p_d_in).cur);
-                            vs_drive_bits(&self->s_clr_irq, 1, UINT64_C(0x1), ((((self->s_clr_irq.cur >> 1) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-                            vs_drive_bits(&self->s_start, 1, UINT64_C(0x1), ((((self->s_start.cur >> 1) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-                            break;
-                        }
-                        case UINT64_C(0x6):
-                        {
-                            vs_drive_bits(&self->s_latch_register.a[2], 8, UINT64_C(0xFF), (*self->p_d_in).cur);
-                            break;
-                        }
-                        default:
-                        {
-                            vs_drive_bits(&self->s_latch_register.a[2], 0, UINT64_C(0xFF), (*self->p_d_in).cur);
-                            vs_drive_bits(&self->s_clr_irq, 0, UINT64_C(0x1), ((((self->s_clr_irq.cur >> 0) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-                            vs_drive_bits(&self->s_start, 0, UINT64_C(0x1), ((((self->s_start.cur >> 0) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-                            break;
-                        }
+                        break;
                     }
                 }
             }
@@ -1284,25 +1460,13 @@ static void ptm_63f40_p6(void *inst)
             {
                 switch ((*self->p_addr).cur)
                 {
-                    case UINT64_C(0x0):
-                    {
-                        vs_drive(&(*self->p_d_out), UINT64_C(0x0));
-                        break;
-                    }
                     case UINT64_C(0x1):
                     {
-                        vs_drive(&(*self->p_d_out), self->s_status_register.cur);
                         vs_drive(&self->s_pending_irq, (self->s_status_register.cur & UINT64_C(0x7)));
-                        break;
-                    }
-                    case UINT64_C(0x2):
-                    {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[0].cur >> (11)) & UINT64_C(0xFF)));
                         break;
                     }
                     case UINT64_C(0x3):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[0].cur >> (3)) & UINT64_C(0xFF)));
                         if ((((self->s_pending_irq.cur >> 0) & 1) == 1))
                         {
                             vs_drive_bits(&self->s_pending_irq, 0, UINT64_C(0x1), 0);
@@ -1310,14 +1474,8 @@ static void ptm_63f40_p6(void *inst)
                         }
                         break;
                     }
-                    case UINT64_C(0x4):
-                    {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[1].cur >> (11)) & UINT64_C(0xFF)));
-                        break;
-                    }
                     case UINT64_C(0x5):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[1].cur >> (3)) & UINT64_C(0xFF)));
                         if ((((self->s_pending_irq.cur >> 1) & 1) == 1))
                         {
                             vs_drive_bits(&self->s_pending_irq, 1, UINT64_C(0x1), 0);
@@ -1325,14 +1483,8 @@ static void ptm_63f40_p6(void *inst)
                         }
                         break;
                     }
-                    case UINT64_C(0x6):
+                    case UINT64_C(0x7):
                     {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[2].cur >> (11)) & UINT64_C(0xFF)));
-                        break;
-                    }
-                    default:
-                    {
-                        vs_drive(&(*self->p_d_out), ((self->s_counter.a[2].cur >> (3)) & UINT64_C(0xFF)));
                         if ((((self->s_pending_irq.cur >> 2) & 1) == 1))
                         {
                             vs_drive_bits(&self->s_pending_irq, 2, UINT64_C(0x1), 0);
@@ -1340,56 +1492,36 @@ static void ptm_63f40_p6(void *inst)
                         }
                         break;
                     }
+                    default:
+                    {
+                        ;
+                        break;
+                    }
                 }
             }
         }
-        else
-        {
-            vs_drive(&(*self->p_d_out), UINT64_C(0x0));
-        }
     }
 }
 
-static void ptm_63f40_p7(void *inst)
+static void ptm_63f40_p11(void *inst)
 {
     ptm_63f40 *self = inst;
-    if (((((self->s_control_register.a[0].cur >> 0) & 1) == 1) | (((((*self->p_cs).cur == 1) & ((*self->p_rw_n).cur == 0)) & ((*self->p_addr).cur == UINT64_C(0x3))) & (((self->s_control_register.a[0].cur >> 4) & 1) == 0))))
-    {
-        self->v7_soft_reset = 1;
-    }
-    else
-    {
-        self->v7_soft_reset = 0;
-    }
-    p_timer_0(self, &(*self->p_e), &(*self->p_cs), &(*self->p_rw_n), &(*self->p_addr), &(*self->p_sysclk), &(*self->p_rst_n), &self->s_counter.a[0], &self->s_latch_register.a[0], &self->s_control_register.a[0], vs_mkref(&self->s_status_register, 0, 1), vs_mkref(&(*self->p_c_n), 2, 1), vs_mkref(&self->s_c_n_old, 2, 1), vs_mkref(&(*self->p_g_n), 2, 1), vs_mkref(&self->s_g_n_old, 2, 1), vs_mkref(&self->s_o_out, 2, 1), vs_mkref(&self->s_counter_init, 2, 1), vs_mkref(&self->s_set_irq, 2, 1), &self->s_stage.a[0], vs_mkref(&self->s_start, 2, 1), vs_mkref(&self->s_start_old, 2, 1), 0, self->v7_soft_reset);
+    self->v11_soft_reset = (((self->s_control_register.a[0].cur >> 0) & 1) == 1);
+    p_timer_0(self, &(*self->p_e), &(*self->p_cs), &(*self->p_rw_n), &(*self->p_addr), &(*self->p_sysclk), &(*self->p_rst_n), &self->s_counter.a[0], &self->s_latch_register.a[0], &self->s_control_register.a[0], vs_mkref(&self->s_status_register, 0, 1), vs_mkref(&(*self->p_c_n), 2, 1), vs_mkref(&self->s_c_n_old, 2, 1), vs_mkref(&(*self->p_g_n), 2, 1), vs_mkref(&self->s_g_n_old, 2, 1), vs_mkref(&self->s_o_out, 2, 1), vs_mkref(&self->s_counter_init, 2, 1), vs_mkref(&self->s_set_irq, 2, 1), &self->s_stage.a[0], vs_mkref(&self->s_start, 2, 1), vs_mkref(&self->s_start_old, 2, 1), &self->s_lw_tog.a[0], &self->s_lw_old.a[0], &self->s_lw_latch.a[0], &self->s_sr_tog, &self->s_sr_old.a[0], 0, self->v11_soft_reset);
 }
 
-static void ptm_63f40_p8(void *inst)
+static void ptm_63f40_p12(void *inst)
 {
     ptm_63f40 *self = inst;
-    if (((((self->s_control_register.a[0].cur >> 0) & 1) == 1) | (((((*self->p_cs).cur == 1) & ((*self->p_rw_n).cur == 0)) & ((*self->p_addr).cur == UINT64_C(0x5))) & (((self->s_control_register.a[1].cur >> 4) & 1) == 0))))
-    {
-        self->v8_soft_reset = 1;
-    }
-    else
-    {
-        self->v8_soft_reset = 0;
-    }
-    p_timer_0(self, &(*self->p_e), &(*self->p_cs), &(*self->p_rw_n), &(*self->p_addr), &(*self->p_sysclk), &(*self->p_rst_n), &self->s_counter.a[1], &self->s_latch_register.a[1], &self->s_control_register.a[1], vs_mkref(&self->s_status_register, 1, 1), vs_mkref(&(*self->p_c_n), 1, 1), vs_mkref(&self->s_c_n_old, 1, 1), vs_mkref(&(*self->p_g_n), 1, 1), vs_mkref(&self->s_g_n_old, 1, 1), vs_mkref(&self->s_o_out, 1, 1), vs_mkref(&self->s_counter_init, 1, 1), vs_mkref(&self->s_set_irq, 1, 1), &self->s_stage.a[1], vs_mkref(&self->s_start, 1, 1), vs_mkref(&self->s_start_old, 1, 1), 0, self->v8_soft_reset);
+    self->v12_soft_reset = (((self->s_control_register.a[0].cur >> 0) & 1) == 1);
+    p_timer_0(self, &(*self->p_e), &(*self->p_cs), &(*self->p_rw_n), &(*self->p_addr), &(*self->p_sysclk), &(*self->p_rst_n), &self->s_counter.a[1], &self->s_latch_register.a[1], &self->s_control_register.a[1], vs_mkref(&self->s_status_register, 1, 1), vs_mkref(&(*self->p_c_n), 1, 1), vs_mkref(&self->s_c_n_old, 1, 1), vs_mkref(&(*self->p_g_n), 1, 1), vs_mkref(&self->s_g_n_old, 1, 1), vs_mkref(&self->s_o_out, 1, 1), vs_mkref(&self->s_counter_init, 1, 1), vs_mkref(&self->s_set_irq, 1, 1), &self->s_stage.a[1], vs_mkref(&self->s_start, 1, 1), vs_mkref(&self->s_start_old, 1, 1), &self->s_lw_tog.a[1], &self->s_lw_old.a[1], &self->s_lw_latch.a[1], &self->s_sr_tog, &self->s_sr_old.a[1], 0, self->v12_soft_reset);
 }
 
-static void ptm_63f40_p9(void *inst)
+static void ptm_63f40_p13(void *inst)
 {
     ptm_63f40 *self = inst;
-    if (((((self->s_control_register.a[0].cur >> 0) & 1) == 1) | (((((*self->p_cs).cur == 1) & ((*self->p_rw_n).cur == 0)) & ((*self->p_addr).cur == UINT64_C(0x7))) & (((self->s_control_register.a[2].cur >> 4) & 1) == 0))))
-    {
-        self->v9_soft_reset = 1;
-    }
-    else
-    {
-        self->v9_soft_reset = 0;
-    }
-    p_timer_0(self, &(*self->p_e), &(*self->p_cs), &(*self->p_rw_n), &(*self->p_addr), &(*self->p_sysclk), &(*self->p_rst_n), &self->s_counter.a[2], &self->s_latch_register.a[2], &self->s_control_register.a[2], vs_mkref(&self->s_status_register, 2, 1), vs_mkref(&(*self->p_c_n), 0, 1), vs_mkref(&self->s_c_n_old, 0, 1), vs_mkref(&(*self->p_g_n), 0, 1), vs_mkref(&self->s_g_n_old, 0, 1), vs_mkref(&self->s_o_out, 0, 1), vs_mkref(&self->s_counter_init, 0, 1), vs_mkref(&self->s_set_irq, 0, 1), &self->s_stage.a[2], vs_mkref(&self->s_start, 0, 1), vs_mkref(&self->s_start_old, 0, 1), 1, self->v9_soft_reset);
+    self->v13_soft_reset = (((self->s_control_register.a[0].cur >> 0) & 1) == 1);
+    p_timer_0(self, &(*self->p_e), &(*self->p_cs), &(*self->p_rw_n), &(*self->p_addr), &(*self->p_sysclk), &(*self->p_rst_n), &self->s_counter.a[2], &self->s_latch_register.a[2], &self->s_control_register.a[2], vs_mkref(&self->s_status_register, 2, 1), vs_mkref(&(*self->p_c_n), 0, 1), vs_mkref(&self->s_c_n_old, 0, 1), vs_mkref(&(*self->p_g_n), 0, 1), vs_mkref(&self->s_g_n_old, 0, 1), vs_mkref(&self->s_o_out, 0, 1), vs_mkref(&self->s_counter_init, 0, 1), vs_mkref(&self->s_set_irq, 0, 1), &self->s_stage.a[2], vs_mkref(&self->s_start, 0, 1), vs_mkref(&self->s_start_old, 0, 1), &self->s_lw_tog.a[2], &self->s_lw_old.a[2], &self->s_lw_latch.a[2], &self->s_sr_tog, &self->s_sr_old.a[2], 1, self->v13_soft_reset);
 }
 
 void ptm_63f40_create(vs_kernel *k, ptm_63f40 *self, const char *path, vs_sig *e, vs_sig *sysclk, vs_sig *rst_n, vs_sig *cs, vs_sig *mrdy, vs_sig *addr, vs_sig *d_in, vs_sig *d_out, vs_sig *rw_n, vs_sig *irq_n, vs_sig *o, vs_sig *c_n, vs_sig *g_n)
@@ -1437,11 +1569,18 @@ void ptm_63f40_create(vs_kernel *k, ptm_63f40 *self, const char *path, vs_sig *e
     vs_name(k, &self->s_start, path, "start", 3);
     vs_register_signal(k, &self->s_start_old, (uint64_t) (0));
     vs_name(k, &self->s_start_old, path, "start_old", 3);
+    lw_type_register(k, &self->s_lw_tog, lw_type_zero());
+    lw_type_register(k, &self->s_lw_old, lw_type_zero());
+    latch_type_register(k, &self->s_lw_latch, latch_type_zero());
+    vs_register_signal(k, &self->s_sr_tog, (uint64_t) (0));
+    vs_name(k, &self->s_sr_tog, path, "sr_tog", 3);
+    lw_type_register(k, &self->s_sr_old, lw_type_zero());
+    counter_type_register(k, &self->s_counter_eff, counter_type_zero());
     stage_type_register(k, &self->s_stage, stage_type_zero());
     self->v5_i = INT64_C(1);
-    self->v7_soft_reset = 0;
-    self->v8_soft_reset = 0;
-    self->v9_soft_reset = 0;
+    self->v11_soft_reset = 0;
+    self->v12_soft_reset = 0;
+    self->v13_soft_reset = 0;
 
     {
         vs_sig *sens[2];
@@ -1500,68 +1639,111 @@ void ptm_63f40_create(vs_kernel *k, ptm_63f40 *self, const char *path, vs_sig *e
     }
 
     {
-        vs_sig *sens[5];
+        vs_sig *sens[6];
+        uint64_t masks[6];
+        { size_t j; for (j = 0; j < 6; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &(*self->p_rst_n);
-        sens[n++] = &(*self->p_cs);
-        sens[n++] = &(*self->p_addr);
-        sens[n++] = &(*self->p_rw_n);
-        vs_register_process(k, ptm_63f40_p6, self, sens, n);
+        masks[n] = UINT64_C(0xFFFF);
+        sens[n++] = &self->s_latch_register.a[0];
+        masks[n] = UINT64_C(0x1);
+        sens[n++] = &self->s_control_register.a[0];
+        masks[n] = UINT64_C(0xFFFF);
+        sens[n++] = &self->s_lw_latch.a[0];
+        masks[n] = UINT64_C(0x7);
+        sens[n++] = &self->s_lw_tog.a[0];
+        masks[n] = UINT64_C(0x7);
+        sens[n++] = &self->s_lw_old.a[0];
+        masks[n] = UINT64_C(0x7FFFF);
+        sens[n++] = &self->s_counter.a[0];
+        vs_register_process_masked(k, ptm_63f40_p6, self, sens, masks, n);
     }
 
     {
-        vs_sig *sens[8];
-        uint64_t masks[8];
-        { size_t j; for (j = 0; j < 8; j++) { masks[j] = UINT64_MAX; } }
+        vs_sig *sens[6];
+        uint64_t masks[6];
+        { size_t j; for (j = 0; j < 6; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &(*self->p_sysclk);
-        masks[n] = UINT64_C(0x4);
-        sens[n++] = &(*self->p_c_n);
-        sens[n++] = &(*self->p_rst_n);
-        sens[n++] = &(*self->p_cs);
-        sens[n++] = &(*self->p_addr);
-        sens[n++] = &(*self->p_rw_n);
-        masks[n] = UINT64_C(0x4);
-        sens[n++] = &self->s_start;
+        masks[n] = UINT64_C(0xFFFF);
+        sens[n++] = &self->s_latch_register.a[1];
+        masks[n] = UINT64_C(0x1);
+        sens[n++] = &self->s_control_register.a[0];
+        masks[n] = UINT64_C(0xFFFF);
+        sens[n++] = &self->s_lw_latch.a[1];
+        masks[n] = UINT64_C(0x7);
+        sens[n++] = &self->s_lw_tog.a[1];
+        masks[n] = UINT64_C(0x7);
+        sens[n++] = &self->s_lw_old.a[1];
+        masks[n] = UINT64_C(0x7FFFF);
+        sens[n++] = &self->s_counter.a[1];
         vs_register_process_masked(k, ptm_63f40_p7, self, sens, masks, n);
     }
 
     {
-        vs_sig *sens[8];
-        uint64_t masks[8];
-        { size_t j; for (j = 0; j < 8; j++) { masks[j] = UINT64_MAX; } }
+        vs_sig *sens[7];
+        uint64_t masks[7];
+        { size_t j; for (j = 0; j < 7; j++) { masks[j] = UINT64_MAX; } }
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &(*self->p_sysclk);
-        masks[n] = UINT64_C(0x2);
-        sens[n++] = &(*self->p_c_n);
-        sens[n++] = &(*self->p_rst_n);
-        sens[n++] = &(*self->p_cs);
-        sens[n++] = &(*self->p_addr);
-        sens[n++] = &(*self->p_rw_n);
-        masks[n] = UINT64_C(0x2);
-        sens[n++] = &self->s_start;
+        masks[n] = UINT64_C(0xFFFF);
+        sens[n++] = &self->s_latch_register.a[2];
+        masks[n] = UINT64_C(0x1);
+        sens[n++] = &self->s_control_register.a[0];
+        masks[n] = UINT64_C(0x1);
+        sens[n++] = &self->s_control_register.a[2];
+        masks[n] = UINT64_C(0xFFFF);
+        sens[n++] = &self->s_lw_latch.a[2];
+        masks[n] = UINT64_C(0x7);
+        sens[n++] = &self->s_lw_tog.a[2];
+        masks[n] = UINT64_C(0x7);
+        sens[n++] = &self->s_lw_old.a[2];
+        masks[n] = UINT64_C(0x7FFFF);
+        sens[n++] = &self->s_counter.a[2];
         vs_register_process_masked(k, ptm_63f40_p8, self, sens, masks, n);
     }
 
     {
-        vs_sig *sens[8];
-        uint64_t masks[8];
-        { size_t j; for (j = 0; j < 8; j++) { masks[j] = UINT64_MAX; } }
+        vs_sig *sens[7];
         size_t n = 0;
-        sens[n++] = &(*self->p_e);
-        sens[n++] = &(*self->p_sysclk);
-        masks[n] = UINT64_C(0x1);
-        sens[n++] = &(*self->p_c_n);
-        sens[n++] = &(*self->p_rst_n);
         sens[n++] = &(*self->p_cs);
-        sens[n++] = &(*self->p_addr);
         sens[n++] = &(*self->p_rw_n);
-        masks[n] = UINT64_C(0x1);
-        sens[n++] = &self->s_start;
-        vs_register_process_masked(k, ptm_63f40_p9, self, sens, masks, n);
+        sens[n++] = &(*self->p_addr);
+        sens[n++] = &self->s_status_register;
+        n += counter_type_leaves(&self->s_counter_eff, sens + n);
+        vs_register_process(k, ptm_63f40_p9, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        edges[n] = 2;
+        sens[n++] = &(*self->p_e);
+        sens[n++] = &(*self->p_rst_n);
+        vs_register_process_edges(k, ptm_63f40_p10, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &(*self->p_rst_n);
+        vs_register_process(k, ptm_63f40_p11, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &(*self->p_rst_n);
+        vs_register_process(k, ptm_63f40_p12, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &(*self->p_sysclk);
+        sens[n++] = &(*self->p_rst_n);
+        vs_register_process(k, ptm_63f40_p13, self, sens, n);
     }
 }
 

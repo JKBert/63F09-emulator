@@ -192,7 +192,10 @@ static void spi_63f52_p11(void *inst)
                         case UINT64_C(0x0):
                         {
                             vs_drive(&self->s_tx_reg, (*self->p_d_in).cur);
-                            vs_drive(&self->s_txw_tog, ((self->s_txw_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                            if ((self->s_txe_flag_e.cur == 1))
+                            {
+                                vs_drive(&self->s_txw_tog, ((self->s_txw_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                            }
                             vs_drive(&self->s_txe_ack, self->s_txe_evt_e1.cur);
                             break;
                         }

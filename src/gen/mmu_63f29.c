@@ -1215,14 +1215,14 @@ static void mmu_63f29_g24_create(vs_kernel *k, mmu_63f29_g24 *self, const char *
 
 static int64_t f_log2i_0(mmu_63f29_g0 *self, int64_t a_n)
 {
-    int64_t v_r_45840 = INT64_C(0);
-    int64_t v_v_45424 = INT64_C(1);
-    while ((v_v_45424 < a_n))
+    int64_t v_r_23120 = INT64_C(0);
+    int64_t v_v_31472 = INT64_C(1);
+    while ((v_v_31472 < a_n))
     {
-        v_v_45424 = (v_v_45424 * INT64_C(2));
-        v_r_45840 = (v_r_45840 + INT64_C(1));
+        v_v_31472 = (v_v_31472 * INT64_C(2));
+        v_r_23120 = (v_r_23120 + INT64_C(1));
     }
-    return v_r_45840;
+    return v_r_23120;
 }
 
 static void mmu_63f29_g0_p0(void *inst)
@@ -1635,8 +1635,14 @@ static void mmu_63f29_g0_p35(void *inst)
             }
             else
             {
-                vs_drive(&self->s_current_ring, (uint64_t)(INT64_C(0)));
-                vs_drive_bits(&self->s_ring, 0, UINT64_C(0x3), UINT64_C(0x0));
+                if (vs_falling(&(*self->up->p_e_n)))
+                {
+                    vs_drive(&self->s_current_ring, (uint64_t)(INT64_C(0)));
+                }
+                if (vs_falling(&(*self->up->p_e)))
+                {
+                    vs_drive_bits(&self->s_ring, 0, UINT64_C(0x3), UINT64_C(0x0));
+                }
                 self->v35_found = (self->s_vhit.cur == 1);
                 if (self->v35_found)
                 {
