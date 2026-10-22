@@ -15,10 +15,13 @@ static void usage(FILE *f)
         "  --fpu by-core|shared one FPU per core, or one shared by all the cores (default shared, as SoC.vhd)\n"
         "  --ext BASE:SIZE      a memory of the external bus, standing for the companion (several allowed ;\n"
         "                       default 0xF00000000:0x1000000)\n"
-        "  --elf FILE           load the segments of an ELF file : ROM and internal RAM at their\n"
+        "  --elf FILE[,offset=ADDR]\n"
+        "                       load the segments of an ELF file : ROM and internal RAM at their\n"
         "                       addresses (docs/MEMORY_MAP.md), the rest in the external memories. Addresses below 4 GiB get\n"
-        "                       the offset 0xF00000000, the physical address when the MMU is off\n"
-        "  --elf-offset ADDR    change that offset\n"
+        "                       the offset 0xF00000000, the physical address when the MMU is off. Several --elf are\n"
+        "                       loaded in order (a bootloader in the ROM, a program in the RAM) ; where they overlap the\n"
+        "                       last one wins. offset= replaces the offset for that file only\n"
+        "  --elf-offset ADDR    change that offset for the files that have no offset=\n"
         "  --acia N[,baud=B][,in=FILE|-|none][,out=FILE|-|none]\n"
         "                       the serial line of ACIA N (0 or 1) goes to the console : \"-\" is stdin for in\n"
         "                       and stdout for out ; default baud 115200. B is the rate of the host side : the\n"
@@ -164,7 +167,8 @@ int main(int argc, char **argv)
     };
     soc_cfg     cfg;
     soc         *s;
-    const char  *elf = NULL;
+    struct { const char *path; int has_offset; uint64_t offset; } elfs[16];
+    int         nelfs = 0, ielf;
     const char  *restore = NULL;
     uint64_t    peek_addr = 0, peek_len = 0;
     int         peek_eeprom = 0;
@@ -209,8 +213,29 @@ int main(int argc, char **argv)
                 }
                 break;
             case 'e':
-                elf = optarg;
+            {
+                char *comma = strchr(optarg, ',');
+
+                if (nelfs == 16)
+                {
+                    fprintf(stderr, "at most 16 --elf\n");
+                    return 2;
+                }
+                elfs[nelfs].has_offset = 0;
+                if (comma != NULL)
+                {
+                    *comma = '\0';
+                    if (strncmp(comma + 1, "offset=", 7) != 0)
+                    {
+                        fprintf(stderr, "bad --elf option: %s\n", comma + 1);
+                        return 2;
+                    }
+                    elfs[nelfs].has_offset = 1;
+                    elfs[nelfs].offset = strtoull(comma + 8, NULL, 0);
+                }
+                elfs[nelfs++].path = optarg;
                 break;
+            }
             case 'O':
                 cfg.elf_offset = strtoull(optarg, NULL, 0);
                 break;
@@ -303,7 +328,7 @@ int main(int argc, char **argv)
     }
     if (restore != NULL)
     {
-        if (elf != NULL)
+        if (nelfs > 0)
         {
             fprintf(stderr, "--elf and --restore cannot be used together\n");
             return 2;
@@ -325,9 +350,12 @@ int main(int argc, char **argv)
         {
             return 1;
         }
-        if (elf != NULL && soc_load_elf(s, elf) != 0)
+        for (ielf = 0; ielf < nelfs; ielf++)
         {
-            return 1;
+            if (soc_load_elf(s, elfs[ielf].path, elfs[ielf].has_offset ? elfs[ielf].offset : cfg.elf_offset) != 0)
+            {
+                return 1;
+            }
         }
     }
     soc_run(s);

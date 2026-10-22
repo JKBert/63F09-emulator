@@ -34,6 +34,10 @@ until the design is stable. RESET_n is released after ten EXTAL periods.
   `0xF00000000` (external bus) and the reset vector is read at `0xFFFFFFFFE` (ROM).
 * `--ext BASE:SIZE` adds a memory to the external bus (default `0xF00000000:0x1000000`). The 64-bit lane of a byte
   is given by `BYTE_MASK`.
+* `--elf FILE[,offset=ADDR]` can be given several times : the files are loaded in the order of the command line, a bootloader
+  in the ROM and then a program in the external memory for instance, and where they overlap the last one wins.
+  `offset=` replaces `--elf-offset` for that file only. The entry point of an ELF file is not used : the core starts
+  at the reset vector, which belongs to the ROM image.
 * `--elf` loads the `PT_LOAD` segments (ELF32 or ELF64, either byte order) at their physical address : into the
   ROM, the internal RAM or the external memories. Addresses below 4 GiB get `--elf-offset` (default
   `0xF00000000`).

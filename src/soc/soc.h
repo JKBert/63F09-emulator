@@ -119,6 +119,6 @@ uint8_t *soc_byte(soc *s, uint64_t addr);
 
 /* Loads the PT_LOAD segments of an ELF file (32 or 64 bits, any byte order) into the ROM, the internal RAM and the
  * memories of the external bus. Returns 0 on success and prints the reason to stderr otherwise. */
-int     soc_load_elf(soc *s, const char *path);
+int     soc_load_elf(soc *s, const char *path, uint64_t elf_offset);
 
 #endif

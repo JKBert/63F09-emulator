@@ -74,6 +74,13 @@ grep -q 'ended by the VHDL (finish)' "$work/illegal.log"
 grep -q 'core 0 : PC=FFFFF00C .* opcode=87 .*<- trap' "$work/illegal.log"
 echo "illegal instruction test: ok"
 
+# Several ELF files : a bootloader in the ROM (jumps to 0xF100) and a program in the external memory.
+python3 "$here/mkelf.py" "$work/boot.elf" "0xFFFFF000=7E F1 00" "0xFFFFFFFE=F0 00"
+python3 "$here/mkelf.py" "$work/prog.elf" "0xF100=86 77 B7 00 10 20 FE"
+"$emu" --ncpus 1 --elf "$work/boot.elf" --elf "$work/prog.elf,offset=0xF00000000" --peek 0xF00000010:1 --ticks 4000000 > "$work/two.log"
+grep -q '^F00000010: 77' "$work/two.log"
+echo "two ELF files test: ok"
+
 # The SPI interrupt (EIRQ13, vector 0xFFDA) while the core loops in its cache, so that E is stopped (docs/NOTES.md) : the master
 # sends one byte to the slave of the emulator, the handler reads the answer (it acknowledges) and counts at 0xF00001000.
 python3 "$here/mkelf.py" "$work/spiirq.elf" \

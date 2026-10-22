@@ -52,7 +52,7 @@ uint8_t *soc_byte(soc *s, uint64_t addr)
     return byte_at(s, addr);
 }
 
-int soc_load_elf(soc *s, const char *path)
+int soc_load_elf(soc *s, const char *path, uint64_t elf_offset)
 {
     FILE        *f = fopen(path, "rb");
     uint8_t     id[16], *buf;
@@ -124,7 +124,7 @@ int soc_load_elf(soc *s, const char *path)
         (void) vaddr;
         if (paddr < UINT64_C(0x100000000))
         {
-            paddr += s->cfg.elf_offset;
+            paddr += elf_offset;
         }
         if (off + filesz > (uint64_t) len)
         {
