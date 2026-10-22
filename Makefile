@@ -7,6 +7,7 @@
 #   make test        compare the C in src/gen to GHDL on random stimuli (needs VHDL_DIR)
 #   make test-rt     unit tests of the C runtime (no VHDL needed)
 #   make clean       remove the object files ; distclean also removes build/
+#   make emu         build emulator (ATOMIC=1 uses c11 atomic capabilities)
 #
 # VHDL_DIR is the directory that holds the VHDL files (the sources are private and are never
 # stored in this repository) : VHDL_DIR=/path/to/vhdl make test
