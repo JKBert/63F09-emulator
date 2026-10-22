@@ -67,6 +67,13 @@ grep -q '^F00001000: A5 5A' "$work/spi.log"
 
 echo "SPI test: ok"
 
+# An illegal opcode (0x87) ends the simulation (the finish of the VHDL) and the emulator says where.
+python3 "$here/mkelf.py" "$work/illegal.elf" "0xFFFFF000=11 3D 31 10 CE FF FC FF F0 12 12 87 12 12" "0xFFFFFFFE=F0 00"
+"$emu" --ncpus 2 --elf "$work/illegal.elf" --ticks 0 > "$work/illegal.log" 2>&1
+grep -q 'ended by the VHDL (finish)' "$work/illegal.log"
+grep -q 'core 0 : PC=FFFFF00C .* opcode=87 .*<- trap' "$work/illegal.log"
+echo "illegal instruction test: ok"
+
 # The SPI interrupt (EIRQ13, vector 0xFFDA) while the core loops in its cache, so that E is stopped (docs/NOTES.md) : the master
 # sends one byte to the slave of the emulator, the handler reads the answer (it acknowledges) and counts at 0xF00001000.
 python3 "$here/mkelf.py" "$work/spiirq.elf" \

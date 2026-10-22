@@ -94,6 +94,23 @@ raise their interrupt from CPUCLK or SYSCLK, with the flags crossing to E by tog
 PTM, the PIA (`pia_irq.py`), the SPI, the TWI and the ACIA : the core loops in its cache and the handler counts the
 interrupts. `tests/soc/programs/b3_cache_idle.asm` is the minimal program (loops A and B).
 
+## Why a run ends
+
+`--ticks N` stops at N ticks, Ctrl-C (or SIGTERM) stops cleanly, and with `--ticks 0` the run goes on until one of these :
+
+* **an illegal instruction** : the only `finish` of the design is in the CPU (63F09.vhd) : an undefined opcode or post-byte
+  sends the state machine to a state that ends the simulation (GHDL stops there too). The emulator says so on stderr
+  and shows each core (PC after the opcode, opcode, prefix, next state ; `<- trap` marks the core that fell) :
+
+      the simulation was ended by the VHDL (finish) at 777960 ticks : a core executed an illegal instruction
+        core 0 : PC=FFFFF00C (after the opcode) opcode=87 prefix=00 next state=848000   <- trap
+
+  The usual causes are a jump into data, a wrong stack, or a program built for another mode (6309 native or emulation,
+  `LDMD`).
+* **no event left** : nothing is scheduled any more (not seen with the SoC, the clocks never stop).
+
+The counters (ticks, deltas, accesses) are 64 bits : they do not overflow.
+
 ## Environment variables
 
 `VS_STATS=1` prints on stderr, at the end of the run, what the kernel did :

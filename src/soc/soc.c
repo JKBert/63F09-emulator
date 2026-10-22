@@ -446,6 +446,45 @@ static void on_signal(int sig)
     stop_requested = 1;
 }
 
+/* The signal `name` of the CPU of core `core` (a single core has no index in the hierarchical name). */
+static vs_sig *core_signal(soc *s, int core, const char *name)
+{
+    char    path[160];
+    vs_sig  *sig;
+
+    snprintf(path, sizeof(path), "soc.bac0.smp.core(%d).dmc.dmc.mmu_with_cache_l1.cpu.%s", core, name);
+    sig = find_signal(s, path);
+    if (sig == NULL && core == 0)
+    {
+        snprintf(path, sizeof(path), "soc.bac0.smp.dmc.dmc.mmu_with_cache_l1.cpu.%s", name);
+        sig = find_signal(s, path);
+    }
+    return sig;
+}
+
+/* The only `finish` of the design is in the CPU (63F09.vhd) : the state machine reached the state of the illegal
+ * instructions (an undefined opcode or post-byte). Says so, and where the cores are. */
+static void report_finish(soc *s)
+{
+    int i;
+
+    fprintf(stderr, "the simulation was ended by the VHDL (finish) at %llu ticks : a core executed an illegal instruction\n",
+            (unsigned long long) s->k.now);
+    for (i = 0; i < s->cfg.ncpus; i++)
+    {
+        vs_sig *pc = core_signal(s, i, "reg_pc"), *op = core_signal(s, i, "op_code"), *pre = core_signal(s, i, "pre_code");
+        vs_sig *ns = core_signal(s, i, "next_state");
+
+        if (pc != NULL && op != NULL && pre != NULL && ns != NULL)
+        {
+            fprintf(stderr, "  core %d : PC=%08llX (after the opcode) opcode=%02llX prefix=%02llX next state=%llX%s\n", i,
+                    (unsigned long long) (pc->cur & 0xFFFFFFFF), (unsigned long long) (op->cur & 0xFF),
+                    (unsigned long long) (pre->cur & 0xFF), (unsigned long long) ns->cur,
+                    ns->cur == 0x848000 ? "   <- trap" : "");
+        }
+    }
+}
+
 void soc_run(soc *s)
 {
     int saved = 0;
@@ -489,6 +528,10 @@ void soc_run(soc *s)
     if (s->cfg.twi_eeprom)
     {
         i2c_eeprom_save(&s->eeprom);
+    }
+    if (vs_finished)
+    {
+        report_finish(s);
     }
     if (stop_requested)
     {
