@@ -109,6 +109,12 @@ interrupts. `tests/soc/programs/b3_cache_idle.asm` is the minimal program (loops
   `LDMD`).
 * **no event left** : nothing is scheduled any more (not seen with the SoC, the clocks never stop).
 
+* **an access outside every memory** (`--trap-unmapped`) : the first cycle of the external bus that no `--ext` memory
+  answers is always reported on stderr (address, read or write, core, time) ; the pads read as ones and a write is lost,
+  as in the hardware, and the run goes on. With `--trap-unmapped` the run stops there and shows the cores. The ROM, the
+  internal RAM, the peripherals and the MMUs (the windows decoded by the SoC, `MEMORY_MAP.md`) are never concerned. The
+  `external reads`, `external writes` and `unmapped` counts of the last line count the cycles of the external bus only.
+
 The counters (ticks, deltas, accesses) are 64 bits : they do not overflow.
 
 ## Environment variables

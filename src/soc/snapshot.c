@@ -206,6 +206,7 @@ int soc_rehost(soc *s, const soc_cfg *host)
 
     s->cfg.dump = host->dump;
     s->cfg.trace_bus = host->trace_bus;
+    s->cfg.trap_unmapped = host->trap_unmapped;
     s->cfg.max_ticks = host->max_ticks;
     if (s->cfg.twi_eeprom)
     {

@@ -48,6 +48,8 @@ static void usage(FILE *f)
         "  --dump FILE          write every change of every named signal\n"
         "  --peek ADDR:LEN      print LEN bytes of memory at the physical address ADDR when the run ends\n"
         "  --trace-bus          print the cycles of the external bus\n"
+        "  --trap-unmapped      stop at the first cycle of the external bus that no --ext memory answers\n"
+        "                       (the first one is always reported on stderr)\n"
         "  --help\n");
 }
 
@@ -156,6 +158,7 @@ int main(int argc, char **argv)
         { "dump", required_argument, NULL, 'd' },
         { "peek", required_argument, NULL, 'k' },
         { "trace-bus", no_argument, NULL, 'T' },
+        { "trap-unmapped", no_argument, NULL, 'U' },
         { "help", no_argument, NULL, 'h' },
         { NULL, 0, NULL, 0 }
     };
@@ -287,6 +290,9 @@ int main(int argc, char **argv)
                     peek_len = strtoull(strchr(optarg, ':') + 1, NULL, 0);
                 }
                 break;
+            case 'U':
+                cfg.trap_unmapped = 1;
+                break;
             case 'T':
                 cfg.trace_bus = 1;
                 break;
@@ -325,7 +331,7 @@ int main(int argc, char **argv)
         }
     }
     soc_run(s);
-    printf("time %llu ticks, %llu external reads, %llu external writes, %llu unmapped\n",
+    printf("time %llu ticks, %llu external reads, %llu external writes, %llu of the external cycles unmapped\n",
            (unsigned long long) s->k.now, (unsigned long long) s->reads, (unsigned long long) s->writes,
            (unsigned long long) s->unmapped);
     if (getenv("VS_STATS") != NULL)

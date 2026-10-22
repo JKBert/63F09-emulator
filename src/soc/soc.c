@@ -154,6 +154,40 @@ static void trace_cycle(soc *s, uint64_t mask)
     vs_timer_add(&s->k, s->k.now + TRACE_DELAY, trace_print, s);
 }
 
+/* The 64 KiB windows that the SoC decodes itself (ROM, peripherals, MMUs, internal RAM) : everything else is the
+ * external bus. */
+static int internal_block(uint64_t pa)
+{
+    uint64_t w = pa >> 16;
+
+    return w == (MM_ROM_BASE >> 16) || w == (MM_PIA0_BASE >> 16) || w == (MM_MMU0_BASE >> 16) || w == (MM_INTRAM_BASE >> 16);
+}
+
+static void print_cores(soc *s);
+
+/* First cycle on the external bus that no memory answers : the pads read as ones and a write is lost. With
+ * --trap-unmapped the run stops there (a bus error, which the hardware itself does not raise). */
+static void unmapped_first(soc *s, uint64_t base, uint64_t mask)
+{
+    unsigned cpu = s->tr_master != NULL ? (unsigned) s->tr_master->cur : 0;
+    int      lane = 0;
+
+    while (lane < 7 && !((mask >> lane) & 1))
+    {
+        lane++;
+    }
+    fprintf(stderr, "first access to an address that no external memory answers, at %llu ticks : %s of %09llX by core %u "
+            "(%s ; --ext BASE:SIZE adds memory)\n", (unsigned long long) s->k.now, s->rw_n.cur ? "read" : "write",
+            (unsigned long long) (base + (uint64_t) lane), cpu,
+            s->cfg.trap_unmapped ? "stopped, --trap-unmapped" : "reads give ones, writes are lost");
+    if (s->cfg.trap_unmapped)
+    {
+        s->trapped = 1;
+        print_cores(s);
+        vs_finished = 1;
+    }
+}
+
 /* The companion on the external bus : 64-bit data, the lane of the byte is given by BYTE_MASK. A read puts the
  * 8 bytes of the line on DATA while the bus owner reads ; a write is captured when E falls. The pad is driven by
  * the SoC (IOBUF) during a write and by the host otherwise. */
@@ -193,9 +227,16 @@ static void companion_run(void *inst)
         {
             trace_cycle(s, mask);
         }
+        /* only the cycles of the external bus count : the ROM, the internal RAM, the peripherals and the MMUs are decoded
+         * by the SoC (memmap.h), the pins of the 64-bit bus just show them */
+        int external = !internal_block(s->tr_a != NULL ? s->tr_a->cur : base);
+
         if (s->rw_n.cur == 0)
         {
-            s->writes++;
+            if (external)
+            {
+                s->writes++;
+            }
             for (lane = 0; lane < 8; lane++)
             {
                 if (((mask >> lane) & 1) && z != NULL)
@@ -203,17 +244,17 @@ static void companion_run(void *inst)
                     z->data[base - z->base + lane] = (uint8_t) (s->data.cur >> (8 * lane));
                 }
             }
-            if (z == NULL)
-            {
-                s->unmapped++;
-            }
         }
-        else
+        else if (external)
         {
             s->reads++;
-            if (z == NULL)
+        }
+        if (external && z == NULL)
+        {
+            s->unmapped++;
+            if (s->unmapped == 1)
             {
-                s->unmapped++;
+                unmapped_first(s, base, mask);
             }
         }
     }
@@ -466,10 +507,15 @@ static vs_sig *core_signal(soc *s, int core, const char *name)
  * instructions (an undefined opcode or post-byte). Says so, and where the cores are. */
 static void report_finish(soc *s)
 {
-    int i;
-
     fprintf(stderr, "the simulation was ended by the VHDL (finish) at %llu ticks : a core executed an illegal instruction\n",
             (unsigned long long) s->k.now);
+    print_cores(s);
+}
+
+static void print_cores(soc *s)
+{
+    int i;
+
     for (i = 0; i < s->cfg.ncpus; i++)
     {
         vs_sig *pc = core_signal(s, i, "reg_pc"), *op = core_signal(s, i, "op_code"), *pre = core_signal(s, i, "pre_code");
@@ -529,7 +575,7 @@ void soc_run(soc *s)
     {
         i2c_eeprom_save(&s->eeprom);
     }
-    if (vs_finished)
+    if (vs_finished && !s->trapped)
     {
         report_finish(s);
     }
