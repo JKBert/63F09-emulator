@@ -1215,14 +1215,14 @@ static void mmu_63f29_g24_create(vs_kernel *k, mmu_63f29_g24 *self, const char *
 
 static int64_t f_log2i_0(mmu_63f29_g0 *self, int64_t a_n)
 {
-    int64_t v_r_23120 = INT64_C(0);
-    int64_t v_v_31472 = INT64_C(1);
-    while ((v_v_31472 < a_n))
+    int64_t v_r_44176 = INT64_C(0);
+    int64_t v_v_44240 = INT64_C(1);
+    while ((v_v_44240 < a_n))
     {
-        v_v_31472 = (v_v_31472 * INT64_C(2));
-        v_r_23120 = (v_r_23120 + INT64_C(1));
+        v_v_44240 = (v_v_44240 * INT64_C(2));
+        v_r_44176 = (v_r_44176 + INT64_C(1));
     }
-    return v_r_23120;
+    return v_r_44176;
 }
 
 static void mmu_63f29_g0_p0(void *inst)
@@ -1635,14 +1635,8 @@ static void mmu_63f29_g0_p35(void *inst)
             }
             else
             {
-                if (vs_falling(&(*self->up->p_e_n)))
-                {
-                    vs_drive(&self->s_current_ring, (uint64_t)(INT64_C(0)));
-                }
-                if (vs_falling(&(*self->up->p_e)))
-                {
-                    vs_drive_bits(&self->s_ring, 0, UINT64_C(0x3), UINT64_C(0x0));
-                }
+                vs_drive(&self->s_current_ring, (uint64_t)(INT64_C(0)));
+                vs_drive_bits(&self->s_ring, 0, UINT64_C(0x3), UINT64_C(0x0));
                 self->v35_found = (self->s_vhit.cur == 1);
                 if (self->v35_found)
                 {
@@ -2944,7 +2938,7 @@ static void mmu_63f29_p2(void *inst)
     vs_drive(&(*self->p_vma_raw), self->s_cpu_vma_int.cur);
 }
 
-void mmu_63f29_create(vs_kernel *k, mmu_63f29 *self, const char *path, uint64_t g_mmu, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *vma_raw, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, vs_sig *tfm_mode, vs_sig *tfm_count, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n)
+void mmu_63f29_create(vs_kernel *k, mmu_63f29 *self, const char *path, uint64_t g_mmu, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *e_l, vs_sig *q_l, vs_sig *vma_raw, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, vs_sig *tfm_mode, vs_sig *tfm_count, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n)
 {
     (void) path;
     self->g_mmu = g_mmu;
@@ -2964,6 +2958,8 @@ void mmu_63f29_create(vs_kernel *k, mmu_63f29 *self, const char *path, uint64_t 
     self->p_bs = bs;
     self->p_rw_n = rw_n;
     self->p_vma = vma;
+    self->p_e_l = e_l;
+    self->p_q_l = q_l;
     self->p_vma_raw = vma_raw;
     self->p_a = a;
     self->p_d_in = d_in;
@@ -3000,7 +2996,7 @@ void mmu_63f29_create(vs_kernel *k, mmu_63f29 *self, const char *path, uint64_t 
     vs_name(k, &self->s_cpu_irq_n, path, "cpu_irq_n", 1);
     vs_register_signal(k, &self->s_cpu_eirq_n, (uint64_t) (0));
     vs_name(k, &self->s_cpu_eirq_n, path, "cpu_eirq_n", 24);
-    cpu_63f09_create(k, &self->c_cpu_0, vs_join(k, path, "cpu"), self->g_fpu_by_core, 1, INT64_C(0), self->p_extal, self->p_reset_n, &self->s_cpu_nmi_n, &self->s_cpu_firq_n, &self->s_cpu_irq_n, self->p_mrdy, self->p_dma_breq_n, self->p_halt_n, self->p_e, self->p_e_n, self->p_ba, self->p_bs, self->p_rw_n, &self->s_cpu_vma_int, self->p_q, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out_int, &self->s_cpu_eirq_n, self->p_fic, self->p_waiting, self->p_tfm_mode, self->p_tfm_count, self->p_fpu_63f39_in, self->p_fpu_63f39_out, &self->s_pagefault_n, self->p_lock_request, self->p_lock_granted, self->p_reset_request_n);
+    cpu_63f09_create(k, &self->c_cpu_0, vs_join(k, path, "cpu"), self->g_fpu_by_core, 1, INT64_C(0), self->p_extal, self->p_reset_n, &self->s_cpu_nmi_n, &self->s_cpu_firq_n, &self->s_cpu_irq_n, self->p_mrdy, self->p_dma_breq_n, self->p_halt_n, self->p_e, self->p_e_n, self->p_ba, self->p_bs, self->p_rw_n, &self->s_cpu_vma_int, self->p_q, self->p_e_l, self->p_q_l, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out_int, &self->s_cpu_eirq_n, self->p_fic, self->p_waiting, self->p_tfm_mode, self->p_tfm_count, self->p_fpu_63f39_in, self->p_fpu_63f39_out, &self->s_pagefault_n, self->p_lock_request, self->p_lock_granted, self->p_reset_request_n);
     if ((self->g_mmu == 1))
     {
         self->g_mmu_controller_1 = vs_alloc(k, sizeof(*self->g_mmu_controller_1));

@@ -11,12 +11,26 @@
 static void clk_63f75_p0(void *inst)
 {
     clk_63f75 *self = inst;
+    vs_drive(&(*self->p_e_l), self->s_e_lr.cur);
+}
+
+static void clk_63f75_p1(void *inst)
+{
+    clk_63f75 *self = inst;
+    vs_drive(&(*self->p_q_l), self->s_q_lr.cur);
+}
+
+static void clk_63f75_p2(void *inst)
+{
+    clk_63f75 *self = inst;
     if (((*self->p_reset_n).cur == 0))
     {
         vs_drive(&self->s_position, UINT64_C(0x1));
         vs_drive(&(*self->p_e), 0);
         vs_drive(&(*self->p_q), 1);
         vs_drive(&(*self->p_c), 1);
+        vs_drive(&self->s_e_lr, 0);
+        vs_drive(&self->s_q_lr, 1);
     }
     else if (vs_rising(&(*self->p_tick)))
     {
@@ -26,11 +40,13 @@ static void clk_63f75_p0(void *inst)
             vs_drive(&(*self->p_e), (((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)));
             vs_drive(&(*self->p_q), (((self->s_position.cur >> 3) & 1) | ((self->s_position.cur >> 0) & 1)));
             vs_drive(&(*self->p_c), (((((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+            vs_drive(&self->s_e_lr, (((self->s_position.cur >> 0) & 1) | ((self->s_position.cur >> 1) & 1)));
+            vs_drive(&self->s_q_lr, (((self->s_position.cur >> 3) & 1) | ((self->s_position.cur >> 0) & 1)));
         }
     }
 }
 
-void clk_63f75_create(vs_kernel *k, clk_63f75 *self, const char *path, vs_sig *reset_n, vs_sig *mrdy, vs_sig *tick, vs_sig *e, vs_sig *q, vs_sig *c)
+void clk_63f75_create(vs_kernel *k, clk_63f75 *self, const char *path, vs_sig *reset_n, vs_sig *mrdy, vs_sig *tick, vs_sig *e, vs_sig *q, vs_sig *c, vs_sig *e_l, vs_sig *q_l)
 {
     (void) path;
     self->p_reset_n = reset_n;
@@ -39,8 +55,28 @@ void clk_63f75_create(vs_kernel *k, clk_63f75 *self, const char *path, vs_sig *r
     self->p_e = e;
     self->p_q = q;
     self->p_c = c;
+    self->p_e_l = e_l;
+    self->p_q_l = q_l;
     vs_register_signal(k, &self->s_position, (uint64_t) (UINT64_C(0x1)));
     vs_name(k, &self->s_position, path, "position", 4);
+    vs_register_signal(k, &self->s_e_lr, (uint64_t) (0));
+    vs_name(k, &self->s_e_lr, path, "e_lr", 1);
+    vs_register_signal(k, &self->s_q_lr, (uint64_t) (0));
+    vs_name(k, &self->s_q_lr, path, "q_lr", 1);
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_e_lr;
+        vs_register_process(k, clk_63f75_p0, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_q_lr;
+        vs_register_process(k, clk_63f75_p1, self, sens, n);
+    }
 
     {
         vs_sig *sens[2];
@@ -50,7 +86,7 @@ void clk_63f75_create(vs_kernel *k, clk_63f75 *self, const char *path, vs_sig *r
         sens[n++] = &(*self->p_reset_n);
         edges[n] = 1;
         sens[n++] = &(*self->p_tick);
-        vs_register_process_edges(k, clk_63f75_p0, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, clk_63f75_p2, self, sens, NULL, edges, n);
     }
 }
 

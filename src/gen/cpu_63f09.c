@@ -692,13 +692,13 @@ static uint64_t f_index_register_0(cpu_63f09 *self, vs_ref a_rr)
 
 static void p_execute_mem_op_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md, uint64_t a_alu_op, uint64_t a_write_result, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_cc_ctrl, vs_sig *a_a_ctrl, vs_sig *a_b_ctrl, vs_sig *a_e_ctrl, vs_sig *a_f_ctrl, vs_sig *a_v_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl, vs_sig *a_pc_ctrl, vs_sig *a_dp_ctrl, vs_sig *a_ds_ctrl)
 {
-    int64_t v_width_98992 = INT64_C(-2147483648);
+    int64_t v_width_58608 = INT64_C(-2147483648);
     vs_drive(&(*a_left_ctrl), f_register_left_0(self, &(*a_mask), &(*a_reg_md)));
     vs_drive(&(*a_right_ctrl), (UINT64_C(0x200000)));
     vs_drive(&(*a_cc_ctrl), (UINT64_C(0x2)));
-    v_width_98992 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
+    v_width_58608 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
     vs_drive(&(*a_alu_ctrl), a_alu_op);
-    switch (v_width_98992)
+    switch (v_width_58608)
     {
         case INT64_C(8):
         {
@@ -25374,7 +25374,7 @@ static void cpu_63f09_p61(void *inst)
     }
 }
 
-void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t g_fpu_by_core, uint64_t g_use_table_execute, int64_t g_clk_tick_delay, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *q, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, vs_sig *tfm_mode, vs_sig *tfm_count, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, vs_sig *pagefault_n, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n)
+void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t g_fpu_by_core, uint64_t g_use_table_execute, int64_t g_clk_tick_delay, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *q, vs_sig *e_l, vs_sig *q_l, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, vs_sig *tfm_mode, vs_sig *tfm_count, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, vs_sig *pagefault_n, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n)
 {
     (void) path;
     self->g_fpu_by_core = g_fpu_by_core;
@@ -25395,6 +25395,8 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
     self->p_rw_n = rw_n;
     self->p_vma = vma;
     self->p_q = q;
+    self->p_e_l = e_l;
+    self->p_q_l = q_l;
     self->p_a = a;
     self->p_d_in = d_in;
     self->p_d_out = d_out;
@@ -25720,7 +25722,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         self->g_fpu_interface_1->up = self;
         cpu_63f09_g1_create(k, self->g_fpu_interface_1, vs_join(k, path, "fpu_interface"));
     }
-    clk_63f75_create(k, &self->c_clock_ring_2, vs_join(k, path, "clock_ring"), self->p_reset_n, self->p_mrdy, self->p_extal, &self->s_e_internal, &self->s_q_internal, &self->s_c_internal);
+    clk_63f75_create(k, &self->c_clock_ring_2, vs_join(k, path, "clock_ring"), self->p_reset_n, self->p_mrdy, self->p_extal, &self->s_e_internal, &self->s_q_internal, &self->s_c_internal, self->p_e_l, self->p_q_l);
     bufg_create(k, &self->c_e_clk_3, vs_join(k, path, "e_clk"), &self->s_e_internal, self->p_e);
     bufg_create(k, &self->c_q_clk_4, vs_join(k, path, "q_clk"), &self->s_q_internal, self->p_q);
     bufg_create(k, &self->c_c_clk_5, vs_join(k, path, "c_clk"), &self->s_c_internal, &self->s_clk);

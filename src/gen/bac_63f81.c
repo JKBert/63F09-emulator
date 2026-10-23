@@ -5,33 +5,33 @@
 
 #include "bac_63f81.h"
 
-int bac_63f81_create(vs_kernel *k, bac_63f81 *self, const char *path, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *sysclk, vs_sig *cpuclk, vs_sig *memclk, vs_sig *cs, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *mux_d_in, vs_sig *mux_d_out, vs_sig *mux_mrdy, vs_sig *bus_master)
+int bac_63f81_create(vs_kernel *k, bac_63f81 *self, const char *path, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *cacheable_amc, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *sysclk, vs_sig *cpuclk, vs_sig *memclk, vs_sig *cs, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *mux_d_in, vs_sig *mux_d_out, vs_sig *mux_mrdy, vs_sig *bus_master)
 {
     switch (g_ncpus)
     {
         case 1:
-            bac_63f81_n1_create(k, &self->n1, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
+            bac_63f81_n1_create(k, &self->n1, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, cacheable_amc, mrdy_eprom, mrdy_ext, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
             return 0;
         case 2:
-            bac_63f81_n2_create(k, &self->n2, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
+            bac_63f81_n2_create(k, &self->n2, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, cacheable_amc, mrdy_eprom, mrdy_ext, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
             return 0;
         case 3:
-            bac_63f81_n3_create(k, &self->n3, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
+            bac_63f81_n3_create(k, &self->n3, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, cacheable_amc, mrdy_eprom, mrdy_ext, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
             return 0;
         case 4:
-            bac_63f81_n4_create(k, &self->n4, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
+            bac_63f81_n4_create(k, &self->n4, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, cacheable_amc, mrdy_eprom, mrdy_ext, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
             return 0;
         case 5:
-            bac_63f81_n5_create(k, &self->n5, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
+            bac_63f81_n5_create(k, &self->n5, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, cacheable_amc, mrdy_eprom, mrdy_ext, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
             return 0;
         case 6:
-            bac_63f81_n6_create(k, &self->n6, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
+            bac_63f81_n6_create(k, &self->n6, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, cacheable_amc, mrdy_eprom, mrdy_ext, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
             return 0;
         case 7:
-            bac_63f81_n7_create(k, &self->n7, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
+            bac_63f81_n7_create(k, &self->n7, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, cacheable_amc, mrdy_eprom, mrdy_ext, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
             return 0;
         case 8:
-            bac_63f81_n8_create(k, &self->n8, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
+            bac_63f81_n8_create(k, &self->n8, path, g_ncpus, g_fpu_by_core, extal, reset_n, nmi_n, firq_n, irq_n, mrdy, dma_breq_n, halt_n, e, e_n, q, ba, bs, rw_n, vma, a, d_in, d_out, eirq_n, fic, cacheable, cacheable_amc, mrdy_eprom, mrdy_ext, sysclk, cpuclk, memclk, cs, mmu_cs, mmu_mrdy, mux_d_in, mux_d_out, mux_mrdy, bus_master);
             return 0;
         default:
             return -1;
