@@ -13,6 +13,18 @@ package vcomponents is
             O : out std_logic
         );
     end component;
+    component BUFGCE
+        generic
+        (
+            CE_TYPE : string := "SYNC"
+        );
+        port
+        (
+            CE : in std_logic;
+            I : in std_logic;
+            O : out std_logic
+        );
+    end component;
     component BUFHCE
         generic
         (
@@ -324,6 +336,35 @@ end entity BUFG;
 architecture sim of BUFG is
 begin
     O <= I;
+end architecture sim;
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity BUFGCE is
+    generic
+    (
+        CE_TYPE : string := "SYNC"
+    );
+    port
+    (
+        CE : in std_logic;
+        I : in std_logic;
+        O : out std_logic
+    );
+end entity BUFGCE;
+
+architecture sim of BUFGCE is
+    signal ce_latch : std_logic := '0';
+begin
+    -- as the BUFHCE : CE is latched while the clock is low, so that the output never glitches
+    process(I, CE)
+    begin
+        if I = '0' then
+            ce_latch <= CE;
+        end if;
+    end process;
+    O <= I and ce_latch;
 end architecture sim;
 
 library ieee;
