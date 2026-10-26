@@ -10,6 +10,10 @@ instead. Every rewrite keeps the meaning of the construct :
 
   non-static sensitivity      "process(X(dynamic_index)(i), ...)" : the sensitivity set holds the longest static
                               prefix of the name, here X. The rewrite lists that prefix.
+
+  translate_off zones         "-- synthesis translate_off" ... "-- synthesis translate_on" : simulation-only code
+                              (checkers with `wait` statements, which GHDL cannot canonicalise). Not hardware, so
+                              dropped ; the line numbers of the rest of the file are kept.
 """
 
 import os
@@ -100,6 +104,12 @@ def fix_pia_read(text):
                         "if PORT_DDR(i) = '1' then\n                        -- Input : read only data in PORT register", 1)
 
 
+def drop_translate_off(text):
+    """Removes the translate_off zones (simulation-only checkers) and keeps the number of lines."""
+    return re.sub(r"--\s*synthesis\s+translate_off.*?--\s*synthesis\s+translate_on",
+                  lambda m: "\n" * m.group(0).count("\n"), text, flags=re.S | re.I)
+
+
 def fix_empty_statement(text):
     """`end if;;` : GHDL rejects the empty statement (error "extra ';' ignored"), other tools accept it."""
     return re.sub(r";;", ";", text)
@@ -147,7 +157,7 @@ PATCHES = {
     "63F81": [fix_bac_eirq] if os.environ.get("VHDL2C_FIX_BAC_EIRQ") else [],
     "63F21": [fix_pia_read] if os.environ.get("VHDL2C_FIX_PIA_READ") else [],
     "63F09": [fix_incv] if os.environ.get("VHDL2C_FIX_INCV") else [],
-    "63F29": [_static_prefix_sensitivity([
+    "63F29": [drop_translate_off, _static_prefix_sensitivity([
         ("BANK_ARRAY(CURRENT_RING)(i)", "BANK_ARRAY"),
         ("PAYLOAD_ARRAY(CURRENT_RING)(i)", "PAYLOAD_ARRAY"),
     ])],
