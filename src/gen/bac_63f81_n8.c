@@ -154,7 +154,7 @@ struct bac_63f81_n8_g1
     vs_sig s_cpu_mrdy;
     vs_sig s_cpu_dma_breq_n;
     vs_sig s_cpu_halt_n;
-    std_logic_matrix_47_s s_cpu_eirq_n;
+    std_logic_matrix_46_s s_cpu_eirq_n;
     vs_sig s_cpu_rw_n;
     std_logic_matrix_30_s s_cpu_a;
     std_logic_matrix_31_s s_cpu_d_in;
@@ -1194,17 +1194,17 @@ static void bac_63f81_n8_g5_create(vs_kernel *k, bac_63f81_n8_g5 *self, const ch
 
 static int64_t f_interrupted_cpu_6(bac_63f81_n8_g1 *self, uint64_t a_reg_configuration, int64_t a_signal_last_interrupted_cpu)
 {
-    int64_t v_cpu_id_36528 = INT64_C(0);
+    int64_t v_cpu_id_38160 = INT64_C(0);
     for (int64_t i_3 = INT64_C(1); i_3 <= self->up->g_ncpus; i_3++)
     {
-        v_cpu_id_36528 = vs_mod((a_signal_last_interrupted_cpu + i_3), self->up->g_ncpus);
-        if ((((a_reg_configuration >> ((v_cpu_id_36528) - 0)) & 1) == 1))
+        v_cpu_id_38160 = vs_mod((a_signal_last_interrupted_cpu + i_3), self->up->g_ncpus);
+        if ((((a_reg_configuration >> ((v_cpu_id_38160) - 0)) & 1) == 1))
         {
             goto loop_exit_4;
         }
     }
     loop_exit_4:;
-    return v_cpu_id_36528;
+    return v_cpu_id_38160;
 }
 
 static void bac_63f81_n8_g1_p0(void *inst)
@@ -1839,7 +1839,7 @@ static void bac_63f81_n8_g1_create(vs_kernel *k, bac_63f81_n8_g1 *self, const ch
     vs_name(k, &self->s_cpu_dma_breq_n, path, "cpu_dma_breq_n", 8);
     vs_register_signal(k, &self->s_cpu_halt_n, (uint64_t) (0));
     vs_name(k, &self->s_cpu_halt_n, path, "cpu_halt_n", 8);
-    std_logic_matrix_47_register(k, &self->s_cpu_eirq_n, std_logic_matrix_47_zero());
+    std_logic_matrix_46_register(k, &self->s_cpu_eirq_n, std_logic_matrix_46_zero());
     vs_register_signal(k, &self->s_cpu_rw_n, (uint64_t) (0));
     vs_name(k, &self->s_cpu_rw_n, path, "cpu_rw_n", 8);
     std_logic_matrix_30_register(k, &self->s_cpu_a, std_logic_matrix_30_zero());

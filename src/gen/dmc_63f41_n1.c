@@ -119,6 +119,7 @@ struct dmc_63f41_n1_g0
     vs_sig s_early_stall;
     vs_sig s_cpu_mrdy_fsm;
     vs_sig s_cpu_mrdy_fsm_r;
+    vs_sig s_mmu_tr_wait;
     vs_sig s_vma_state;
     vs_sig s_dirty_rw;
     std_logic_matrix_5_s s_dirty_block;
@@ -213,6 +214,8 @@ struct dmc_63f41_n1_g5
     vs_sig x4_open_waiting;
     vs_sig x5_open_tfm_mode;
     vs_sig x6_open_tfm_count;
+    vs_sig x7_open_mmu_mrdy;
+    vs_sig x8_open_tr_wait;
 };
 typedef struct dmc_63f41_n1_g5 dmc_63f41_n1_g5;
 
@@ -516,8 +519,8 @@ static void dmc_63f41_n1_g4_create(vs_kernel *k, dmc_63f41_n1_g4 *self, const ch
 
 static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
 {
-    uint64_t v_low_35888 = 0;
-    v_low_35888 = (a_ad & UINT64_C(0xFFF));
+    uint64_t v_low_17872 = 0;
+    v_low_17872 = (a_ad & UINT64_C(0xFFF));
     if ((((a_ad >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFF)))
     {
         return INT64_C(1);
@@ -528,7 +531,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
         {
             case UINT64_C(0xF):
             {
-                if ((v_low_35888 <= (uint64_t)(INT64_C(9))))
+                if ((v_low_17872 <= (uint64_t)(INT64_C(9))))
                 {
                     return INT64_C(0);
                 }
@@ -540,7 +543,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xE):
             {
-                if ((v_low_35888 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_17872 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -552,7 +555,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xD):
             {
-                if ((v_low_35888 <= (uint64_t)(INT64_C(15))))
+                if ((v_low_17872 <= (uint64_t)(INT64_C(15))))
                 {
                     return INT64_C(0);
                 }
@@ -564,7 +567,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xC):
             {
-                if ((v_low_35888 <= (uint64_t)(INT64_C(3))))
+                if ((v_low_17872 <= (uint64_t)(INT64_C(3))))
                 {
                     return INT64_C(0);
                 }
@@ -576,7 +579,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xB):
             {
-                if ((v_low_35888 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_17872 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -588,7 +591,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xA):
             {
-                if ((v_low_35888 <= (uint64_t)(INT64_C(1))))
+                if ((v_low_17872 <= (uint64_t)(INT64_C(1))))
                 {
                     return INT64_C(0);
                 }
@@ -600,7 +603,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0x9):
             {
-                if ((v_low_35888 <= (uint64_t)(INT64_C(4))))
+                if ((v_low_17872 <= (uint64_t)(INT64_C(4))))
                 {
                     return INT64_C(0);
                 }
@@ -676,7 +679,7 @@ static void dmc_63f41_n1_g0_p5(void *inst)
 static void dmc_63f41_n1_g0_p6(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if (((((int64_t) self->s_ticks_since_e.cur >= ((INT64_C(3)) - INT64_C(1))) & (self->s_captured.cur == 0)) & (self->s_cpu_mrdy_fsm_r.cur == 1)))
+    if ((((((int64_t) self->s_ticks_since_e.cur >= ((INT64_C(3)) - INT64_C(1))) & (self->s_captured.cur == 0)) & (self->s_cpu_mrdy_fsm_r.cur == 1)) & (self->s_mmu_tr_wait.cur == 0)))
     {
         vs_drive(&self->s_capture_strobe, 1);
     }
@@ -2026,6 +2029,8 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_cpu_mrdy_fsm, path, "cpu_mrdy_fsm", 1);
     vs_register_signal(k, &self->s_cpu_mrdy_fsm_r, (uint64_t) (1));
     vs_name(k, &self->s_cpu_mrdy_fsm_r, path, "cpu_mrdy_fsm_r", 1);
+    vs_register_signal(k, &self->s_mmu_tr_wait, (uint64_t) (0));
+    vs_name(k, &self->s_mmu_tr_wait, path, "mmu_tr_wait", 1);
     vs_register_signal(k, &self->s_vma_state, (uint64_t) (0));
     vs_name(k, &self->s_vma_state, path, "vma_state", 1);
     vs_register_signal(k, &self->s_dirty_rw, (uint64_t) (0));
@@ -2157,7 +2162,7 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_next_fill_ack_count, path, "next_fill_ack_count", 64);
     vs_register_signal(k, &self->s_tag_rw, (uint64_t) (0));
     vs_name(k, &self->s_tag_rw, path, "tag_rw", 1);
-    mmu_63f29_create(k, &self->c_mmu_with_cache_l1_0, vs_join(k, path, "mmu_with_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, &self->s_cpu_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, &self->s_cpu_rw_n, &self->s_cpu_vma, &self->s_cpu_e_l, &self->s_cpu_q_l, &self->s_cpu_vma_raw, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out, self->up->p_eirq_n, self->up->p_fic, &self->s_cpu_waiting, &self->s_tfm_mode_i, &self->s_tfm_count_i, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n);
+    mmu_63f29_create(k, &self->c_mmu_with_cache_l1_0, vs_join(k, path, "mmu_with_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, &self->s_cpu_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, &self->s_cpu_rw_n, &self->s_cpu_vma, &self->s_cpu_e_l, &self->s_cpu_q_l, &self->s_cpu_vma_raw, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out, self->up->p_eirq_n, self->up->p_fic, &self->s_cpu_waiting, &self->s_tfm_mode_i, &self->s_tfm_count_i, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, &self->s_mmu_tr_wait, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n);
     vs_register_signal(k, &self->x2_imp_rw, (uint64_t) (0));
     vs_name(k, &self->x2_imp_rw, path, "imp_rw", 1);
     vs_register_signal(k, &self->x3_open_data_out2, (uint64_t) (0));
@@ -2244,11 +2249,12 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     }
 
     {
-        vs_sig *sens[3];
+        vs_sig *sens[4];
         size_t n = 0;
         sens[n++] = &self->s_ticks_since_e;
         sens[n++] = &self->s_captured;
         sens[n++] = &self->s_cpu_mrdy_fsm_r;
+        sens[n++] = &self->s_mmu_tr_wait;
         vs_register_process(k, dmc_63f41_n1_g0_p6, self, sens, n);
     }
 
@@ -2652,7 +2658,11 @@ static void dmc_63f41_n1_g5_create(vs_kernel *k, dmc_63f41_n1_g5 *self, const ch
     vs_name(k, &self->x5_open_tfm_mode, path, "open_tfm_mode", 2);
     vs_register_signal(k, &self->x6_open_tfm_count, (uint64_t) (0));
     vs_name(k, &self->x6_open_tfm_count, path, "open_tfm_count", 16);
-    mmu_63f29_create(k, &self->c_mmu_without_cache_l1_0, vs_join(k, path, "mmu_without_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, self->up->p_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, self->up->p_rw_n, self->up->p_vma, &self->x1_open_e_l, &self->x2_open_q_l, &self->x3_open_vma_raw, self->up->p_a, self->up->p_d_in, self->up->p_d_out, self->up->p_eirq_n, self->up->p_fic, &self->x4_open_waiting, &self->x5_open_tfm_mode, &self->x6_open_tfm_count, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n);
+    vs_register_signal(k, &self->x7_open_mmu_mrdy, (uint64_t) (0));
+    vs_name(k, &self->x7_open_mmu_mrdy, path, "open_mmu_mrdy", 1);
+    vs_register_signal(k, &self->x8_open_tr_wait, (uint64_t) (0));
+    vs_name(k, &self->x8_open_tr_wait, path, "open_tr_wait", 1);
+    mmu_63f29_create(k, &self->c_mmu_without_cache_l1_0, vs_join(k, path, "mmu_without_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, self->up->p_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, self->up->p_rw_n, self->up->p_vma, &self->x1_open_e_l, &self->x2_open_q_l, &self->x3_open_vma_raw, self->up->p_a, self->up->p_d_in, self->up->p_d_out, self->up->p_eirq_n, self->up->p_fic, &self->x4_open_waiting, &self->x5_open_tfm_mode, &self->x6_open_tfm_count, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, &self->x7_open_mmu_mrdy, &self->x8_open_tr_wait, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n);
 
     {
         vs_sig *sens[1];

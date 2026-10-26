@@ -114,42 +114,69 @@ struct dmc_63f41_n8_g9
     vs_sig s_ring_ext_v;
     vs_sig s_ring_ext_lo;
     vs_sig s_ring_ext_hi;
+    vs_sig s_rm_l;
+    vs_sig s_rmc_l;
+    vs_sig s_rm_r;
+    vs_sig s_rmc_r;
+    vs_sig s_chg_m_r;
+    vs_sig s_chg_mc_r;
+    vs_sig s_ci_pp;
+    vs_sig s_ci_addr;
+    vs_sig s_ci_tfm;
+    vs_sig s_ci_rw;
+    vs_sig s_ci_fic;
+    vs_sig s_s2_addr;
+    vs_sig s_s2_rw;
+    vs_sig s_s2_fic;
+    vs_sig s_s2_dep;
+    vs_sig s_s2_cmt;
+    vs_sig s_s2_extev;
+    vs_sig s_s2_blk;
+    vs_sig s_s2_blklo;
+    vs_sig s_s2_blkhi;
+    vs_sig s_s2_blkcnt;
+    vs_sig s_recent_oh;
+    uint64_t v0_a_v;
+    uint64_t v0_lo_v;
+    int64_t v0_n_v;
     ram_61f32x64_t c_ram_i_0;
     vs_sig x1_imp_data_in;
-    uint64_t v5_v1;
-    uint64_t v5_v2;
-    int64_t v16_uc;
-    int64_t v16_age;
-    int64_t v16_ud;
-    uint64_t v16_m;
-    uint64_t v16_mc;
-    uint64_t v16_lo;
-    uint64_t v16_hi;
-    uint64_t v16_e;
-    uint64_t v16_au;
-    int64_t v17_wr_v;
-    int64_t v17_commit_v;
-    int64_t v17_rd_v;
-    int64_t v17_occ;
-    int64_t v17_limit_v;
-    uint64_t v17_ext_clear;
-    int64_t v17_off_v;
-    int64_t v17_cnt0;
-    int64_t v17_n_v;
-    uint64_t v17_a_v;
-    uint64_t v17_lo_v;
-    uint64_t v17_ent0;
-    uint64_t v17_ent1;
-    uint64_t v17_we_v;
-    int64_t v17_wa_v;
-    uint64_t v17_wd_v;
-    int64_t v17_rp_v;
-    int64_t v17_qn_v;
-    uint64_t v17_q0_v;
-    uint64_t v17_q1_v;
-    uint64_t v17_q2_v;
-    uint64_t v17_poph;
-    uint64_t v17_resetq;
+    uint64_t v7_v1;
+    uint64_t v7_v2;
+    int64_t v18_uc;
+    int64_t v18_age;
+    int64_t v18_ud;
+    uint64_t v18_m;
+    uint64_t v18_mc;
+    uint64_t v18_lo;
+    uint64_t v18_hi;
+    uint64_t v18_e;
+    uint64_t v18_au;
+    int64_t v27_wr_v;
+    int64_t v27_commit_v;
+    int64_t v27_rd_v;
+    int64_t v27_occ;
+    int64_t v27_limit_v;
+    uint64_t v27_ext_clear;
+    int64_t v27_off_v;
+    int64_t v27_cnt0;
+    int64_t v27_n_v;
+    uint64_t v27_a_v;
+    uint64_t v27_lo_v;
+    uint64_t v27_ent0;
+    uint64_t v27_ent1;
+    uint64_t v27_we_v;
+    int64_t v27_wa_v;
+    uint64_t v27_wd_v;
+    int64_t v27_rp_v;
+    int64_t v27_qn_v;
+    uint64_t v27_q0_v;
+    uint64_t v27_q1_v;
+    uint64_t v27_q2_v;
+    uint64_t v27_poph;
+    uint64_t v27_resetq;
+    uint64_t v27_chm;
+    uint64_t v27_chmc;
 };
 typedef struct dmc_63f41_n8_g9 dmc_63f41_n8_g9;
 
@@ -224,6 +251,11 @@ struct dmc_63f41_n8_g7
     vs_sig s_fic_dd;
     vs_sig s_ring_match;
     vs_sig s_ring_match_com;
+    vs_sig s_ring_chg_m;
+    vs_sig s_ring_chg_mc;
+    vs_sig s_ba_chg;
+    vs_sig s_ring_match_live;
+    vs_sig s_ring_match_com_live;
     vs_sig s_ring_ext_vec;
     vs_sig s_ring_late_vec;
     vs_sig s_grace_active;
@@ -244,17 +276,19 @@ struct dmc_63f41_n8_g7
     vs_sig s_not_idle;
     vs_sig s_started_r;
     vs_sig s_ccs_invalidation_pending_in_any;
-    uint64_t v20_v;
-    uint64_t v24_ok;
+    uint64_t v24_v;
+    uint64_t v28_ok;
+    uint64_t v33_wl;
+    uint64_t v33_fl;
     struct dmc_63f41_n8_g8 *g_ring_shadow_0;
     int64_t n_g_ring_shadow_0;
     struct dmc_63f41_n8_g10 *g_memclk_internal_2_peers_1;
     int64_t n_g_memclk_internal_2_peers_1;
-    uint64_t v34_found;
-    int64_t v34_ns;
-    uint64_t v34_na;
-    uint64_t v34_start;
-    uint64_t v52_v;
+    uint64_t v40_found;
+    int64_t v40_ns;
+    uint64_t v40_na;
+    uint64_t v40_start;
+    uint64_t v58_v;
 };
 typedef struct dmc_63f41_n8_g7 dmc_63f41_n8_g7;
 
@@ -334,6 +368,7 @@ struct dmc_63f41_n8_g0
     vs_sig s_early_stall;
     vs_sig s_cpu_mrdy_fsm;
     vs_sig s_cpu_mrdy_fsm_r;
+    vs_sig s_mmu_tr_wait;
     vs_sig s_vma_state;
     vs_sig s_dirty_rw;
     std_logic_matrix_33_s s_dirty_block;
@@ -428,6 +463,8 @@ struct dmc_63f41_n8_g13
     vs_sig x4_open_waiting;
     vs_sig x5_open_tfm_mode;
     vs_sig x6_open_tfm_count;
+    vs_sig x7_open_mmu_mrdy;
+    vs_sig x8_open_tr_wait;
 };
 typedef struct dmc_63f41_n8_g13 dmc_63f41_n8_g13;
 
@@ -724,101 +761,195 @@ static void dmc_63f41_n8_g6_create(vs_kernel *k, dmc_63f41_n8_g6 *self, const ch
 static void dmc_63f41_n8_g9_p0(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
-    vs_drive_bits(&self->up->up->s_ring_req, (7 - (self->up->gp_j)), (UINT64_C(1)), 0);
+    if (((*self->up->up->up->up->p_reset_n).cur == 0))
+    {
+        vs_drive(&self->s_s2_addr, UINT64_C(0xFFFFFFFFF));
+        vs_drive(&self->s_s2_rw, 1);
+        vs_drive(&self->s_s2_fic, 0);
+        vs_drive(&self->s_s2_dep, 0);
+        vs_drive(&self->s_s2_cmt, 0);
+        vs_drive(&self->s_s2_extev, 0);
+        vs_drive(&self->s_s2_blk, 0);
+        vs_drive(&self->s_s2_blklo, UINT64_C(0x0));
+        vs_drive(&self->s_s2_blkhi, UINT64_C(0x0));
+        vs_drive(&self->s_s2_blkcnt, UINT64_C(0x0));
+    }
+    else if (vs_rising(&(*self->up->up->up->up->p_extal)))
+    {
+        vs_drive(&self->s_s2_addr, self->s_ci_addr.cur);
+        vs_drive(&self->s_s2_rw, self->s_ci_rw.cur);
+        vs_drive(&self->s_s2_fic, self->s_ci_fic.cur);
+        if (((self->s_s2_rw.cur == 0) & (self->s_ci_rw.cur == 1)))
+        {
+            vs_drive(&self->s_s2_dep, 1);
+        }
+        else
+        {
+            vs_drive(&self->s_s2_dep, 0);
+        }
+        if (((self->s_ci_fic.cur == 1) & (self->s_s2_fic.cur == 0)))
+        {
+            vs_drive(&self->s_s2_cmt, 1);
+        }
+        else
+        {
+            vs_drive(&self->s_s2_cmt, 0);
+        }
+        if ((((self->s_ci_pp.cur == 1) & (self->s_ci_addr.cur != UINT64_C(0xFFFFFFFFF))) & (self->up->up->s_started_r.cur == 1)))
+        {
+            vs_drive(&self->s_s2_extev, 1);
+        }
+        else
+        {
+            vs_drive(&self->s_s2_extev, 0);
+        }
+        if (((((self->s_ci_tfm.cur >> (16)) & UINT64_C(0x3)) != UINT64_C(0x0)) & ((self->s_ci_tfm.cur & UINT64_C(0xFFFF)) != (uint64_t)(INT64_C(0)))))
+        {
+            vs_drive(&self->s_s2_blk, 1);
+        }
+        else
+        {
+            vs_drive(&self->s_s2_blk, 0);
+        }
+        self->v0_a_v = self->s_ci_addr.cur;
+        self->v0_n_v = (int64_t)((self->s_ci_tfm.cur & UINT64_C(0xFFFF)));
+        if ((((self->s_ci_tfm.cur >> (16)) & UINT64_C(0x3)) == UINT64_C(0x3)))
+        {
+            self->v0_n_v = INT64_C(1);
+        }
+        if ((((self->s_ci_tfm.cur >> (16)) & UINT64_C(0x3)) == UINT64_C(0x2)))
+        {
+            self->v0_lo_v = ((self->v0_a_v - (uint64_t)((self->v0_n_v - INT64_C(1)))) & UINT64_C(0xFFFFFFFFF));
+        }
+        else
+        {
+            self->v0_lo_v = self->v0_a_v;
+        }
+        vs_drive(&self->s_s2_blklo, self->v0_lo_v);
+        vs_drive(&self->s_s2_blkhi, ((self->v0_lo_v + (uint64_t)((self->v0_n_v - INT64_C(1)))) & UINT64_C(0xFFFFFFFFF)));
+        vs_drive(&self->s_s2_blkcnt, ((uint64_t)(self->v0_n_v - INT64_C(1)) & UINT64_C(0xFFFF)));
+    }
 }
 
-static void dmc_63f41_n8_g9_i1(void *inst)
+static void dmc_63f41_n8_g9_p1(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
-    vs_drive(&self->x1_imp_data_in, (uint64_t)((((uint64_t)(UINT64_C(0x0)) << 53) | self->s_rw_wd.cur)));
+    if (((*self->up->up->up->up->p_reset_n).cur == 0))
+    {
+        vs_drive(&self->s_ci_pp, 0);
+        vs_drive(&self->s_ci_addr, UINT64_C(0xFFFFFFFFF));
+        vs_drive(&self->s_ci_tfm, UINT64_C(0x0));
+        vs_drive(&self->s_ci_rw, 1);
+        vs_drive(&self->s_ci_fic, 0);
+    }
+    else if (vs_rising(&(*self->up->up->up->up->p_extal)))
+    {
+        vs_drive(&self->s_ci_pp, (((*self->up->up->up->up->p_ccs_prev_pending_in).a[(self->up->gp_j) - 0].cur >> 6) & 1));
+        vs_drive(&self->s_ci_addr, (*self->up->up->up->up->p_ccs_address_in).a[(self->up->gp_j) - 0].cur);
+        vs_drive(&self->s_ci_tfm, (*self->up->up->up->up->p_ccs_tfm_in).a[(self->up->gp_j) - 0].cur);
+        vs_drive(&self->s_ci_rw, (((*self->up->up->up->up->p_ccs_address_rw_n_in).cur >> (7 - (self->up->gp_j))) & 1));
+        vs_drive(&self->s_ci_fic, (((*self->up->up->up->up->p_ccs_fic_in).cur >> (7 - (self->up->gp_j))) & 1));
+    }
 }
 
 static void dmc_63f41_n8_g9_p2(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
-    vs_drive(&self->s_rb_rdata, (self->s_rb_dout.cur & UINT64_C(0x1FFFFFFFFFFFFF)));
+    vs_drive_bits(&self->up->up->s_ring_req, (7 - (self->up->gp_j)), (UINT64_C(1)), 0);
 }
 
-static void dmc_63f41_n8_g9_p3(void *inst)
+static void dmc_63f41_n8_g9_i3(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
-    vs_drive_bits(&self->up->up->s_part_valid, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_part_valid_r.cur);
+    vs_drive(&self->x1_imp_data_in, (uint64_t)((((uint64_t)(UINT64_C(0x0)) << 53) | self->s_rw_wd.cur)));
 }
 
 static void dmc_63f41_n8_g9_p4(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
-    vs_drive_bits(&self->up->up->s_part_valid2, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_part_valid2_r.cur);
+    vs_drive(&self->s_rb_rdata, (self->s_rb_dout.cur & UINT64_C(0x1FFFFFFFFFFFFF)));
 }
 
 static void dmc_63f41_n8_g9_p5(void *inst)
+{
+    dmc_63f41_n8_g9 *self = inst;
+    vs_drive_bits(&self->up->up->s_part_valid, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_part_valid_r.cur);
+}
+
+static void dmc_63f41_n8_g9_p6(void *inst)
+{
+    dmc_63f41_n8_g9 *self = inst;
+    vs_drive_bits(&self->up->up->s_part_valid2, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_part_valid2_r.cur);
+}
+
+static void dmc_63f41_n8_g9_p7(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     if ((vs_rising(&(*self->up->up->up->up->p_extal)) & ((*self->up->up->up->up->p_reset_n).cur == 1)))
     {
         if ((((int64_t) self->s_ring_rd.cur != (int64_t) self->s_ring_limit.cur) & ((int64_t) self->s_ring_qn.cur >= INT64_C(1))))
         {
-            self->v5_v1 = 1;
+            self->v7_v1 = 1;
         }
         else
         {
-            self->v5_v1 = 0;
+            self->v7_v1 = 0;
         }
         if (((((int64_t) self->s_ring_rd.cur != (int64_t) self->s_ring_limit.cur) & ((int64_t) self->s_ring_qn.cur >= INT64_C(1))) & (((int64_t) self->s_ring_off.cur < (int64_t) self->s_e0_cnt_r.cur) | ((vs_mod(((int64_t) self->s_ring_rd.cur + INT64_C(1)), ((INT64_C(2) * (INT64_C(512))))) != (int64_t) self->s_ring_limit.cur) & ((int64_t) self->s_ring_qn.cur >= INT64_C(2))))))
         {
-            self->v5_v2 = 1;
+            self->v7_v2 = 1;
         }
         else
         {
-            self->v5_v2 = 0;
+            self->v7_v2 = 0;
         }
         /* assert */
     }
 }
 
-static void dmc_63f41_n8_g9_p6(void *inst)
+static void dmc_63f41_n8_g9_p8(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     vs_drive(&self->up->up->s_part_addr.a[(self->up->gp_j) - 0], self->s_part_addr_r.cur);
 }
 
-static void dmc_63f41_n8_g9_p7(void *inst)
+static void dmc_63f41_n8_g9_p9(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     vs_drive(&self->up->up->s_part_addr2.a[(self->up->gp_j) - 0], self->s_part_addr2_r.cur);
 }
 
-static void dmc_63f41_n8_g9_p8(void *inst)
+static void dmc_63f41_n8_g9_p10(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     vs_drive_bits(&self->up->up->s_ring_ext_vec, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_ring_ext_v.cur);
 }
 
-static void dmc_63f41_n8_g9_p9(void *inst)
+static void dmc_63f41_n8_g9_p11(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     vs_drive_bits(&self->up->up->s_ring_ovf_vec, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_ring_overflow.cur);
 }
 
-static void dmc_63f41_n8_g9_p10(void *inst)
+static void dmc_63f41_n8_g9_p12(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     vs_drive_bits(&self->up->up->s_ring_late_vec, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_ring_commit_late.cur);
 }
 
-static void dmc_63f41_n8_g9_p11(void *inst)
+static void dmc_63f41_n8_g9_p13(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     vs_drive_bits(&self->up->up->s_ring_pending, (7 - (self->up->gp_j)), (UINT64_C(1)), 0);
 }
 
-static void dmc_63f41_n8_g9_p12(void *inst)
+static void dmc_63f41_n8_g9_p14(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     vs_drive(&self->up->up->s_ring_addr_out.a[(self->up->gp_j) - 0], UINT64_C(0xFFFFFFFFF));
 }
 
-static void dmc_63f41_n8_g9_p13(void *inst)
+static void dmc_63f41_n8_g9_p15(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     if (((int64_t) self->s_ring_rd.cur != (int64_t) self->s_ring_commit.cur))
@@ -831,7 +962,7 @@ static void dmc_63f41_n8_g9_p13(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g9_p14(void *inst)
+static void dmc_63f41_n8_g9_p16(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     if (((int64_t) self->s_ring_rd.cur != (int64_t) self->s_ring_limit.cur))
@@ -844,58 +975,126 @@ static void dmc_63f41_n8_g9_p14(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g9_p15(void *inst)
+static void dmc_63f41_n8_g9_p17(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     vs_drive_bits(&self->up->up->s_ring_busy_v, (7 - (self->up->gp_j)), (UINT64_C(1)), 0);
 }
 
-static void dmc_63f41_n8_g9_p16(void *inst)
+static void dmc_63f41_n8_g9_p18(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
-    self->v16_uc = vs_mod((((int64_t) self->s_ring_wr.cur - (int64_t) self->s_ring_commit.cur) + ((INT64_C(2) * (INT64_C(512))))), ((INT64_C(2) * (INT64_C(512)))));
-    self->v16_ud = vs_mod((((int64_t) self->s_ring_wr.cur - (int64_t) self->s_ring_rd.cur) + ((INT64_C(2) * (INT64_C(512))))), ((INT64_C(2) * (INT64_C(512)))));
-    self->v16_m = 0;
-    self->v16_mc = 0;
-    self->v16_au = self->up->up->up->s_buffered_a.cur;
+    self->v18_uc = vs_mod((((int64_t) self->s_ring_wr.cur - (int64_t) self->s_ring_commit.cur) + ((INT64_C(2) * (INT64_C(512))))), ((INT64_C(2) * (INT64_C(512)))));
+    self->v18_ud = vs_mod((((int64_t) self->s_ring_wr.cur - (int64_t) self->s_ring_rd.cur) + ((INT64_C(2) * (INT64_C(512))))), ((INT64_C(2) * (INT64_C(512)))));
+    self->v18_m = 0;
+    self->v18_mc = 0;
+    self->v18_au = self->up->up->up->s_buffered_a.cur;
     if ((self->s_ring_ext_v.cur == 1))
     {
-        self->v16_lo = self->s_ring_ext_lo.cur;
-        self->v16_hi = self->s_ring_ext_hi.cur;
-        if ((self->v16_lo < (uint64_t)(INT64_C(31))))
+        self->v18_lo = self->s_ring_ext_lo.cur;
+        self->v18_hi = self->s_ring_ext_hi.cur;
+        if ((self->v18_lo < (uint64_t)(INT64_C(31))))
         {
-            self->v16_lo = UINT64_C(0x0);
+            self->v18_lo = UINT64_C(0x0);
         }
         else
         {
-            self->v16_lo = ((self->v16_lo - (uint64_t)(INT64_C(31))) & UINT64_C(0xFFFFFFFFF));
+            self->v18_lo = ((self->v18_lo - (uint64_t)(INT64_C(31))) & UINT64_C(0xFFFFFFFFF));
         }
-        self->v16_hi = ((self->v16_hi + (uint64_t)(INT64_C(31))) & UINT64_C(0xFFFFFFFFF));
-        if (((self->v16_au >= self->v16_lo) & (self->v16_au <= self->v16_hi)))
+        self->v18_hi = ((self->v18_hi + (uint64_t)(INT64_C(31))) & UINT64_C(0xFFFFFFFFF));
+        if (((self->v18_au >= self->v18_lo) & (self->v18_au <= self->v18_hi)))
         {
-            self->v16_m = 1;
+            self->v18_m = 1;
         }
     }
     for (int64_t i_9 = INT64_C(0); i_9 <= INT64_C(15); i_9++)
     {
-        self->v16_age = (vs_mod((((int64_t) self->s_recent_wp.cur - i_9) + INT64_C(31)), INT64_C(16)) + INT64_C(1));
-        if (((self->v16_age <= self->v16_ud) & (self->v16_age > self->v16_uc)))
+        self->v18_age = (vs_mod((((int64_t) self->s_recent_wp.cur - i_9) + INT64_C(31)), INT64_C(16)) + INT64_C(1));
+        if (((self->v18_age <= self->v18_ud) & (self->v18_age > self->v18_uc)))
         {
             if ((self->s_ring_recent.a[(i_9) - 0].cur == self->up->up->up->s_buffered_a.cur))
             {
-                self->v16_mc = 1;
+                self->v18_mc = 1;
             }
         }
     }
-    if ((((self->s_rng_v.cur == 1) & (self->v16_au >= self->s_rng_lo.cur)) & (self->v16_au <= self->s_rng_hi.cur)))
+    if ((((self->s_rng_v.cur == 1) & (self->v18_au >= self->s_rng_lo.cur)) & (self->v18_au <= self->s_rng_hi.cur)))
     {
-        self->v16_mc = 1;
+        self->v18_mc = 1;
     }
-    vs_drive_bits(&self->up->up->s_ring_match, (7 - (self->up->gp_j)), (UINT64_C(1)), self->v16_m);
-    vs_drive_bits(&self->up->up->s_ring_match_com, (7 - (self->up->gp_j)), (UINT64_C(1)), self->v16_mc);
+    vs_drive(&self->s_rm_l, self->v18_m);
+    vs_drive(&self->s_rmc_l, self->v18_mc);
 }
 
-static void dmc_63f41_n8_g9_p17(void *inst)
+static void dmc_63f41_n8_g9_p19(void *inst)
+{
+    dmc_63f41_n8_g9 *self = inst;
+    vs_drive_bits(&self->up->up->s_ring_match_live, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_rm_l.cur);
+}
+
+static void dmc_63f41_n8_g9_p20(void *inst)
+{
+    dmc_63f41_n8_g9 *self = inst;
+    vs_drive_bits(&self->up->up->s_ring_match_com_live, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_rmc_l.cur);
+}
+
+static void dmc_63f41_n8_g9_p21(void *inst)
+{
+    dmc_63f41_n8_g9 *self = inst;
+    vs_drive_bits(&self->up->up->s_ring_match, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_rm_r.cur);
+}
+
+static void dmc_63f41_n8_g9_p22(void *inst)
+{
+    dmc_63f41_n8_g9 *self = inst;
+    vs_drive_bits(&self->up->up->s_ring_match_com, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_rmc_r.cur);
+}
+
+static void dmc_63f41_n8_g9_p23(void *inst)
+{
+    dmc_63f41_n8_g9 *self = inst;
+    vs_drive_bits(&self->up->up->s_ring_chg_m, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_chg_m_r.cur);
+}
+
+static void dmc_63f41_n8_g9_p24(void *inst)
+{
+    dmc_63f41_n8_g9 *self = inst;
+    vs_drive_bits(&self->up->up->s_ring_chg_mc, (7 - (self->up->gp_j)), (UINT64_C(1)), self->s_chg_mc_r.cur);
+}
+
+static void dmc_63f41_n8_g9_p25(void *inst)
+{
+    dmc_63f41_n8_g9 *self = inst;
+    if (((*self->up->up->up->up->p_reset_n).cur == 0))
+    {
+        vs_drive(&self->s_rm_r, 0);
+        vs_drive(&self->s_rmc_r, 0);
+    }
+    else if (vs_rising(&(*self->up->up->up->up->p_extal)))
+    {
+        vs_drive(&self->s_rm_r, self->s_rm_l.cur);
+        vs_drive(&self->s_rmc_r, self->s_rmc_l.cur);
+    }
+}
+
+static void dmc_63f41_n8_g9_p26(void *inst)
+{
+    dmc_63f41_n8_g9 *self = inst;
+    if ((vs_rising(&(*self->up->up->up->up->p_extal)) & ((*self->up->up->up->up->p_reset_n).cur == 1)))
+    {
+        /* assert */
+        if (((self->s_chg_m_r.cur == 0) & (self->up->up->s_ba_chg.cur == 0)))
+        {
+            /* assert */
+        }
+        if (((self->s_chg_mc_r.cur == 0) & (self->up->up->s_ba_chg.cur == 0)))
+        {
+            /* assert */
+        }
+    }
+}
+
+static void dmc_63f41_n8_g9_p27(void *inst)
 {
     dmc_63f41_n8_g9 *self = inst;
     if (((*self->up->up->up->up->p_reset_n).cur == 0))
@@ -926,126 +1125,131 @@ static void dmc_63f41_n8_g9_p17(void *inst)
         vs_drive(&self->s_ring_busy, 0);
         vs_drive(&self->s_ring_req_r, 0);
         vs_drive(&self->s_ring_ext_v, 0);
+        vs_drive(&self->s_chg_m_r, 0);
+        vs_drive(&self->s_chg_mc_r, 0);
+        vs_drive(&self->s_recent_oh, UINT64_C(0x8000));
     }
     else if (vs_rising(&(*self->up->up->up->up->p_extal)))
     {
-        self->v17_wr_v = (int64_t) self->s_ring_wr.cur;
-        self->v17_commit_v = (int64_t) self->s_ring_commit.cur;
-        self->v17_rd_v = (int64_t) self->s_ring_rd.cur;
-        self->v17_limit_v = (int64_t) self->s_ring_limit.cur;
-        self->v17_ext_clear = 0;
-        self->v17_we_v = 0;
-        self->v17_wa_v = INT64_C(0);
-        self->v17_wd_v = UINT64_C(0x0);
-        if (((((((*self->up->up->up->up->p_ccs_prev_pending_in).a[(self->up->gp_j) - 0].cur >> 6) & 1) == 1) & ((*self->up->up->up->up->p_ccs_address_in).a[(self->up->gp_j) - 0].cur != UINT64_C(0xFFFFFFFFF))) & (self->up->up->s_started_r.cur == 1)))
+        self->v27_chm = 0;
+        self->v27_chmc = 0;
+        self->v27_wr_v = (int64_t) self->s_ring_wr.cur;
+        self->v27_commit_v = (int64_t) self->s_ring_commit.cur;
+        self->v27_rd_v = (int64_t) self->s_ring_rd.cur;
+        self->v27_limit_v = (int64_t) self->s_ring_limit.cur;
+        self->v27_ext_clear = 0;
+        self->v27_we_v = 0;
+        self->v27_wa_v = INT64_C(0);
+        self->v27_wd_v = UINT64_C(0x0);
+        if ((self->s_s2_extev.cur == 1))
         {
-            if ((((self->s_ring_ext_v.cur == 0) & ((((*self->up->up->up->up->p_ccs_tfm_in).a[(self->up->gp_j) - 0].cur >> (16)) & UINT64_C(0x3)) != UINT64_C(0x0))) & (((*self->up->up->up->up->p_ccs_tfm_in).a[(self->up->gp_j) - 0].cur & UINT64_C(0xFFFF)) != (uint64_t)(INT64_C(0)))))
+            if (((self->s_ring_ext_v.cur == 0) & (self->s_s2_blk.cur == 1)))
             {
-                self->v17_a_v = (*self->up->up->up->up->p_ccs_address_in).a[(self->up->gp_j) - 0].cur;
-                self->v17_n_v = (int64_t)(((*self->up->up->up->up->p_ccs_tfm_in).a[(self->up->gp_j) - 0].cur & UINT64_C(0xFFFF)));
-                if (((((*self->up->up->up->up->p_ccs_tfm_in).a[(self->up->gp_j) - 0].cur >> (16)) & UINT64_C(0x3)) == UINT64_C(0x3)))
-                {
-                    self->v17_n_v = INT64_C(1);
-                }
-                if (((((*self->up->up->up->up->p_ccs_tfm_in).a[(self->up->gp_j) - 0].cur >> (16)) & UINT64_C(0x3)) == UINT64_C(0x2)))
-                {
-                    self->v17_lo_v = ((self->v17_a_v - (uint64_t)((self->v17_n_v - INT64_C(1)))) & UINT64_C(0xFFFFFFFFF));
-                }
-                else
-                {
-                    self->v17_lo_v = self->v17_a_v;
-                }
                 vs_drive(&self->s_ring_ext_v, 1);
-                vs_drive(&self->s_ring_ext_lo, self->v17_lo_v);
-                vs_drive(&self->s_ring_ext_hi, ((self->v17_lo_v + (uint64_t)((self->v17_n_v - INT64_C(1)))) & UINT64_C(0xFFFFFFFFF)));
-                self->v17_occ = (int64_t) self->s_ring_occ_r.cur;
-                if ((self->v17_occ >= (INT64_C(512))))
+                self->v27_chm = 1;
+                vs_drive(&self->s_ring_ext_lo, self->s_s2_blklo.cur);
+                vs_drive(&self->s_ring_ext_hi, self->s_s2_blkhi.cur);
+                self->v27_occ = (int64_t) self->s_ring_occ_r.cur;
+                if ((self->v27_occ >= (INT64_C(512))))
                 {
                     vs_drive(&self->s_ring_overflow, 1);
                 }
                 else
                 {
-                    self->v17_we_v = 1;
-                    self->v17_wa_v = vs_mod(self->v17_wr_v, (INT64_C(512)));
-                    self->v17_wd_v = (((uint64_t)((((uint64_t)(1) << 36) | self->v17_lo_v)) << 16) | ((uint64_t)(self->v17_n_v - INT64_C(1)) & UINT64_C(0xFFFF)));
-                    self->v17_wr_v = vs_mod((self->v17_wr_v + INT64_C(1)), ((INT64_C(2) * (INT64_C(512)))));
+                    self->v27_we_v = 1;
+                    self->v27_wa_v = vs_mod(self->v27_wr_v, (INT64_C(512)));
+                    self->v27_wd_v = (((uint64_t)((((uint64_t)(1) << 36) | self->s_s2_blklo.cur)) << 16) | self->s_s2_blkcnt.cur);
+                    self->v27_wr_v = vs_mod((self->v27_wr_v + INT64_C(1)), ((INT64_C(2) * (INT64_C(512)))));
                     vs_drive(&self->s_ring_range_act, 1);
                 }
             }
             else if ((self->s_ring_ext_v.cur == 0))
             {
                 vs_drive(&self->s_ring_ext_v, 1);
-                vs_drive(&self->s_ring_ext_lo, (*self->up->up->up->up->p_ccs_address_in).a[(self->up->gp_j) - 0].cur);
-                vs_drive(&self->s_ring_ext_hi, (*self->up->up->up->up->p_ccs_address_in).a[(self->up->gp_j) - 0].cur);
+                self->v27_chm = 1;
+                vs_drive(&self->s_ring_ext_lo, self->s_s2_addr.cur);
+                vs_drive(&self->s_ring_ext_hi, self->s_s2_addr.cur);
             }
             else
             {
-                if (((*self->up->up->up->up->p_ccs_address_in).a[(self->up->gp_j) - 0].cur < self->s_ring_ext_lo.cur))
+                if ((self->s_s2_addr.cur < self->s_ring_ext_lo.cur))
                 {
-                    vs_drive(&self->s_ring_ext_lo, (*self->up->up->up->up->p_ccs_address_in).a[(self->up->gp_j) - 0].cur);
+                    vs_drive(&self->s_ring_ext_lo, self->s_s2_addr.cur);
+                    self->v27_chm = 1;
                 }
-                if (((*self->up->up->up->up->p_ccs_address_in).a[(self->up->gp_j) - 0].cur > self->s_ring_ext_hi.cur))
+                if ((self->s_s2_addr.cur > self->s_ring_ext_hi.cur))
                 {
-                    vs_drive(&self->s_ring_ext_hi, (*self->up->up->up->up->p_ccs_address_in).a[(self->up->gp_j) - 0].cur);
+                    vs_drive(&self->s_ring_ext_hi, self->s_s2_addr.cur);
+                    self->v27_chm = 1;
                 }
             }
         }
-        vs_drive(&self->s_ring_rw_prev, (((*self->up->up->up->up->p_ccs_address_rw_n_in).cur >> (7 - (self->up->gp_j))) & 1));
-        vs_drive(&self->s_ring_fic_prev, (((*self->up->up->up->up->p_ccs_fic_in).cur >> (7 - (self->up->gp_j))) & 1));
+        vs_drive(&self->s_ring_rw_prev, self->s_s2_rw.cur);
+        vs_drive(&self->s_ring_fic_prev, self->s_s2_fic.cur);
         vs_drive(&self->s_ring_own_fic_prev, (*self->up->up->up->up->p_fic).cur);
-        if (((((*self->up->up->up->up->p_ccs_address_rw_n_in).cur >> (7 - (self->up->gp_j))) & 1) == 0))
+        if ((self->s_s2_rw.cur == 0))
         {
-            vs_drive(&self->s_ring_addr_latch, (*self->up->up->up->up->p_ccs_address_in).a[(self->up->gp_j) - 0].cur);
+            vs_drive(&self->s_ring_addr_latch, self->s_s2_addr.cur);
         }
-        if (((self->s_ring_rw_prev.cur == 0) & ((((*self->up->up->up->up->p_ccs_address_rw_n_in).cur >> (7 - (self->up->gp_j))) & 1) == 1)))
+        if ((self->s_s2_dep.cur == 1))
         {
-            self->v17_occ = (int64_t) self->s_ring_occ_r.cur;
+            self->v27_occ = (int64_t) self->s_ring_occ_r.cur;
             if ((self->s_ring_range_act.cur == 1))
             {
                 ;
             }
-            else if (((self->v17_occ >= (INT64_C(512))) | (self->v17_we_v == 1)))
+            else if (((self->v27_occ >= (INT64_C(512))) | (self->v27_we_v == 1)))
             {
                 vs_drive(&self->s_ring_overflow, 1);
                 /* report */
             }
             else
             {
-                self->v17_we_v = 1;
-                self->v17_wa_v = vs_mod(self->v17_wr_v, (INT64_C(512)));
-                self->v17_wd_v = (((uint64_t)((((uint64_t)(0) << 36) | self->s_ring_addr_latch.cur)) << 16) | UINT64_C(0x0));
-                vs_drive(&self->s_ring_recent.a[((int64_t) self->s_recent_wp.cur) - 0], self->s_ring_addr_latch.cur);
-                vs_drive(&self->s_recent_wp, (uint64_t)(vs_mod(((int64_t) self->s_recent_wp.cur + INT64_C(1)), INT64_C(16))));
-                self->v17_wr_v = vs_mod((self->v17_wr_v + INT64_C(1)), ((INT64_C(2) * (INT64_C(512)))));
-                self->v17_occ = (self->v17_occ + INT64_C(1));
-                if ((self->v17_occ > (int64_t) self->s_ring_occ_max.cur))
+                self->v27_we_v = 1;
+                self->v27_wa_v = vs_mod(self->v27_wr_v, (INT64_C(512)));
+                self->v27_wd_v = (((uint64_t)((((uint64_t)(0) << 36) | self->s_ring_addr_latch.cur)) << 16) | UINT64_C(0x0));
+                for (int64_t i_11 = INT64_C(0); i_11 <= INT64_C(15); i_11++)
                 {
-                    vs_drive(&self->s_ring_occ_max, (uint64_t)(self->v17_occ));
+                    if ((((self->s_recent_oh.cur >> (15 - (i_11))) & 1) == 1))
+                    {
+                        vs_drive(&self->s_ring_recent.a[(i_11) - 0], self->s_ring_addr_latch.cur);
+                    }
+                }
+                vs_drive(&self->s_recent_oh, (((uint64_t)(((self->s_recent_oh.cur >> 0) & 1)) << 15) | ((self->s_recent_oh.cur >> (1)) & UINT64_C(0x7FFF))));
+                vs_drive(&self->s_recent_wp, (uint64_t)(vs_mod(((int64_t) self->s_recent_wp.cur + INT64_C(1)), INT64_C(16))));
+                self->v27_chmc = 1;
+                self->v27_wr_v = vs_mod((self->v27_wr_v + INT64_C(1)), ((INT64_C(2) * (INT64_C(512)))));
+                self->v27_occ = (self->v27_occ + INT64_C(1));
+                if ((self->v27_occ > (int64_t) self->s_ring_occ_max.cur))
+                {
+                    vs_drive(&self->s_ring_occ_max, (uint64_t)(self->v27_occ));
                     /* report */
                 }
             }
             if ((self->s_ring_commit_late.cur == 1))
             {
-                self->v17_commit_v = self->v17_wr_v;
+                self->v27_commit_v = self->v27_wr_v;
                 vs_drive(&self->s_ring_commit_late, 0);
-                self->v17_ext_clear = 1;
+                self->v27_ext_clear = 1;
             }
         }
-        if ((((((*self->up->up->up->up->p_ccs_fic_in).cur >> (7 - (self->up->gp_j))) & 1) == 1) & (self->s_ring_fic_prev.cur == 0)))
+        if ((self->s_s2_cmt.cur == 1))
         {
-            if (((((*self->up->up->up->up->p_ccs_address_rw_n_in).cur >> (7 - (self->up->gp_j))) & 1) == 0))
+            if ((self->s_s2_rw.cur == 0))
             {
                 vs_drive(&self->s_ring_commit_late, 1);
                 /* report */
             }
             else
             {
-                self->v17_commit_v = self->v17_wr_v;
-                self->v17_ext_clear = 1;
+                self->v27_commit_v = self->v27_wr_v;
+                self->v27_ext_clear = 1;
             }
         }
-        if (self->v17_ext_clear)
+        if (self->v27_ext_clear)
         {
+            self->v27_chm = 1;
+            self->v27_chmc = 1;
             vs_drive(&self->s_ring_ext_v, 0);
             vs_drive(&self->s_ring_range_act, 0);
             if ((self->s_ring_range_act.cur == 1))
@@ -1057,129 +1261,137 @@ static void dmc_63f41_n8_g9_p17(void *inst)
         }
         if ((((self->up->up->s_fic_d.cur == 1) & (self->up->up->s_fic_dd.cur == 0)) | (self->up->up->s_out_hold.cur == 1)))
         {
-            self->v17_limit_v = self->v17_commit_v;
+            self->v27_limit_v = self->v27_commit_v;
         }
-        self->v17_off_v = (int64_t) self->s_ring_off.cur;
-        self->v17_poph = 0;
-        self->v17_resetq = 0;
+        self->v27_off_v = (int64_t) self->s_ring_off.cur;
+        self->v27_poph = 0;
+        self->v27_resetq = 0;
         if ((((self->up->up->s_part_pop.cur >> (7 - (self->up->gp_j))) & 1) == 1))
         {
-            if ((self->v17_off_v < (int64_t) self->s_e0_cnt_r.cur))
+            if ((self->v27_off_v < (int64_t) self->s_e0_cnt_r.cur))
             {
-                self->v17_off_v = (self->v17_off_v + INT64_C(1));
+                self->v27_off_v = (self->v27_off_v + INT64_C(1));
             }
             else
             {
-                self->v17_off_v = INT64_C(0);
-                self->v17_rd_v = vs_mod((self->v17_rd_v + INT64_C(1)), ((INT64_C(2) * (INT64_C(512)))));
-                self->v17_poph = 1;
+                self->v27_off_v = INT64_C(0);
+                self->v27_rd_v = vs_mod((self->v27_rd_v + INT64_C(1)), ((INT64_C(2) * (INT64_C(512)))));
+                self->v27_poph = 1;
             }
         }
         if ((self->up->up->s_flush_done.cur == 1))
         {
-            self->v17_resetq = 1;
-            self->v17_rd_v = self->v17_commit_v;
-            self->v17_limit_v = self->v17_commit_v;
-            self->v17_off_v = INT64_C(0);
+            self->v27_resetq = 1;
+            self->v27_rd_v = self->v27_commit_v;
+            self->v27_limit_v = self->v27_commit_v;
+            self->v27_off_v = INT64_C(0);
             vs_drive(&self->s_rng_v, 0);
+            self->v27_chmc = 1;
             vs_drive(&self->s_ring_overflow, 0);
         }
         if ((self->up->up->s_started_r.cur == 0))
         {
-            self->v17_wr_v = INT64_C(0);
-            self->v17_commit_v = INT64_C(0);
-            self->v17_rd_v = INT64_C(0);
-            self->v17_limit_v = INT64_C(0);
-            self->v17_off_v = INT64_C(0);
-            self->v17_resetq = 1;
+            self->v27_wr_v = INT64_C(0);
+            self->v27_commit_v = INT64_C(0);
+            self->v27_rd_v = INT64_C(0);
+            self->v27_limit_v = INT64_C(0);
+            self->v27_off_v = INT64_C(0);
+            self->v27_resetq = 1;
         }
-        self->v17_rp_v = (int64_t) self->s_ring_rp.cur;
-        self->v17_qn_v = (int64_t) self->s_ring_qn.cur;
-        self->v17_q0_v = self->s_ring_q.a[0].cur;
-        self->v17_q1_v = self->s_ring_q.a[1].cur;
-        self->v17_q2_v = self->s_ring_q.a[2].cur;
-        if (self->v17_resetq)
+        self->v27_rp_v = (int64_t) self->s_ring_rp.cur;
+        self->v27_qn_v = (int64_t) self->s_ring_qn.cur;
+        self->v27_q0_v = self->s_ring_q.a[0].cur;
+        self->v27_q1_v = self->s_ring_q.a[1].cur;
+        self->v27_q2_v = self->s_ring_q.a[2].cur;
+        if (self->v27_resetq)
         {
-            self->v17_rp_v = self->v17_rd_v;
-            self->v17_qn_v = INT64_C(0);
+            self->v27_rp_v = self->v27_rd_v;
+            self->v27_qn_v = INT64_C(0);
             vs_drive(&self->s_rb_v1, 0);
             vs_drive(&self->s_rb_v2, 0);
         }
         else
         {
-            if ((self->v17_poph & (self->v17_qn_v > INT64_C(0))))
+            if ((self->v27_poph & (self->v27_qn_v > INT64_C(0))))
             {
-                self->v17_q0_v = self->v17_q1_v;
-                self->v17_q1_v = self->v17_q2_v;
-                self->v17_qn_v = (self->v17_qn_v - INT64_C(1));
+                self->v27_q0_v = self->v27_q1_v;
+                self->v27_q1_v = self->v27_q2_v;
+                self->v27_qn_v = (self->v27_qn_v - INT64_C(1));
             }
             if ((self->s_rb_v2.cur == 1))
             {
-                if ((self->v17_qn_v == INT64_C(0)))
+                if ((self->v27_qn_v == INT64_C(0)))
                 {
-                    self->v17_q0_v = self->s_rb_rdata.cur;
+                    self->v27_q0_v = self->s_rb_rdata.cur;
                 }
-                else if ((self->v17_qn_v == INT64_C(1)))
+                else if ((self->v27_qn_v == INT64_C(1)))
                 {
-                    self->v17_q1_v = self->s_rb_rdata.cur;
+                    self->v27_q1_v = self->s_rb_rdata.cur;
                 }
                 else
                 {
-                    self->v17_q2_v = self->s_rb_rdata.cur;
+                    self->v27_q2_v = self->s_rb_rdata.cur;
                 }
-                self->v17_qn_v = (self->v17_qn_v + INT64_C(1));
+                self->v27_qn_v = (self->v27_qn_v + INT64_C(1));
             }
             vs_drive(&self->s_rb_v2, self->s_rb_v1.cur);
-            if (((self->v17_rp_v != (int64_t) self->s_ring_commit.cur) & (((self->v17_qn_v == INT64_C(0)) | (self->v17_qn_v == INT64_C(1))) | ((self->v17_qn_v == INT64_C(2)) & (self->s_rb_v1.cur == 0)))))
+            if (((self->v27_rp_v != (int64_t) self->s_ring_commit.cur) & (((self->v27_qn_v == INT64_C(0)) | (self->v27_qn_v == INT64_C(1))) | ((self->v27_qn_v == INT64_C(2)) & (self->s_rb_v1.cur == 0)))))
             {
-                vs_drive(&self->s_rb_ra, ((uint64_t)vs_mod(self->v17_rp_v, (INT64_C(512))) & UINT64_C(0x1FF)));
+                vs_drive(&self->s_rb_ra, ((uint64_t)vs_mod(self->v27_rp_v, (INT64_C(512))) & UINT64_C(0x1FF)));
                 vs_drive(&self->s_rb_v1, 1);
-                self->v17_rp_v = vs_mod((self->v17_rp_v + INT64_C(1)), ((INT64_C(2) * (INT64_C(512)))));
+                self->v27_rp_v = vs_mod((self->v27_rp_v + INT64_C(1)), ((INT64_C(2) * (INT64_C(512)))));
             }
             else
             {
                 vs_drive(&self->s_rb_v1, 0);
             }
         }
-        vs_drive(&self->s_ring_rp, (uint64_t)(self->v17_rp_v));
-        vs_drive(&self->s_ring_qn, (uint64_t)(self->v17_qn_v));
-        vs_drive(&self->s_ring_q.a[0], self->v17_q0_v);
-        vs_drive(&self->s_ring_q.a[1], self->v17_q1_v);
-        vs_drive(&self->s_ring_q.a[2], self->v17_q2_v);
-        vs_drive(&self->s_rw_we, self->v17_we_v);
-        vs_drive(&self->s_rw_wa, ((uint64_t)self->v17_wa_v & UINT64_C(0x1FF)));
-        vs_drive(&self->s_rw_wd, self->v17_wd_v);
-        self->v17_ent0 = self->v17_q0_v;
-        self->v17_ent1 = self->v17_q1_v;
-        if (((self->v17_qn_v > INT64_C(0)) & (((self->v17_ent0 >> 52) & 1) == 1)))
+        vs_drive(&self->s_ring_rp, (uint64_t)(self->v27_rp_v));
+        vs_drive(&self->s_ring_qn, (uint64_t)(self->v27_qn_v));
+        vs_drive(&self->s_ring_q.a[0], self->v27_q0_v);
+        vs_drive(&self->s_ring_q.a[1], self->v27_q1_v);
+        vs_drive(&self->s_ring_q.a[2], self->v27_q2_v);
+        vs_drive(&self->s_rw_we, self->v27_we_v);
+        vs_drive(&self->s_rw_wa, ((uint64_t)self->v27_wa_v & UINT64_C(0x1FF)));
+        vs_drive(&self->s_rw_wd, self->v27_wd_v);
+        self->v27_ent0 = self->v27_q0_v;
+        self->v27_ent1 = self->v27_q1_v;
+        if (((self->v27_qn_v > INT64_C(0)) & (((self->v27_ent0 >> 52) & 1) == 1)))
         {
-            self->v17_cnt0 = (int64_t)((self->v17_ent0 & UINT64_C(0xFFFF)));
+            self->v27_cnt0 = (int64_t)((self->v27_ent0 & UINT64_C(0xFFFF)));
         }
         else
         {
-            self->v17_cnt0 = INT64_C(0);
+            self->v27_cnt0 = INT64_C(0);
         }
-        vs_drive(&self->s_e0_cnt_r, (uint64_t)(self->v17_cnt0));
-        vs_drive(&self->s_part_addr_r, ((((self->v17_ent0 >> (16)) & UINT64_C(0xFFFFFFFFF)) + (uint64_t)(self->v17_off_v)) & UINT64_C(0xFFFFFFFFF)));
-        if ((self->v17_off_v < self->v17_cnt0))
+        vs_drive(&self->s_e0_cnt_r, (uint64_t)(self->v27_cnt0));
+        vs_drive(&self->s_part_addr_r, ((((self->v27_ent0 >> (16)) & UINT64_C(0xFFFFFFFFF)) + (uint64_t)(self->v27_off_v)) & UINT64_C(0xFFFFFFFFF)));
+        if ((self->v27_off_v < self->v27_cnt0))
         {
-            vs_drive(&self->s_part_addr2_r, ((((((self->v17_ent0 >> (16)) & UINT64_C(0xFFFFFFFFF)) + (uint64_t)(self->v17_off_v)) & UINT64_C(0xFFFFFFFFF)) + (uint64_t)(INT64_C(1))) & UINT64_C(0xFFFFFFFFF)));
+            vs_drive(&self->s_part_addr2_r, ((((((self->v27_ent0 >> (16)) & UINT64_C(0xFFFFFFFFF)) + (uint64_t)(self->v27_off_v)) & UINT64_C(0xFFFFFFFFF)) + (uint64_t)(INT64_C(1))) & UINT64_C(0xFFFFFFFFF)));
         }
         else
         {
-            vs_drive(&self->s_part_addr2_r, ((self->v17_ent1 >> (16)) & UINT64_C(0xFFFFFFFFF)));
+            vs_drive(&self->s_part_addr2_r, ((self->v27_ent1 >> (16)) & UINT64_C(0xFFFFFFFFF)));
         }
-        vs_drive(&self->s_ring_off, (uint64_t)(self->v17_off_v));
-        if (((self->v17_rd_v == self->v17_wr_v) & (self->s_rng_v.cur == 1)))
+        vs_drive(&self->s_ring_off, (uint64_t)(self->v27_off_v));
+        if (((self->v27_rd_v == self->v27_wr_v) & (self->s_rng_v.cur == 1)))
         {
             vs_drive(&self->s_rng_v, 0);
+            self->v27_chmc = 1;
         }
-        vs_drive(&self->s_ring_limit, (uint64_t)(self->v17_limit_v));
-        vs_drive(&self->s_ring_wr, (uint64_t)(self->v17_wr_v));
-        vs_drive(&self->s_ring_commit, (uint64_t)(self->v17_commit_v));
-        vs_drive(&self->s_ring_rd, (uint64_t)(self->v17_rd_v));
-        vs_drive(&self->s_ring_occ_r, (uint64_t)(vs_mod(((self->v17_wr_v - self->v17_rd_v) + ((INT64_C(2) * (INT64_C(512))))), ((INT64_C(2) * (INT64_C(512)))))));
-        if (((self->v17_rd_v != self->v17_limit_v) & (self->v17_qn_v >= INT64_C(1))))
+        if ((((self->v27_wr_v != (int64_t) self->s_ring_wr.cur) | (self->v27_commit_v != (int64_t) self->s_ring_commit.cur)) | (self->v27_rd_v != (int64_t) self->s_ring_rd.cur)))
+        {
+            self->v27_chmc = 1;
+        }
+        vs_drive(&self->s_chg_m_r, self->v27_chm);
+        vs_drive(&self->s_chg_mc_r, self->v27_chmc);
+        vs_drive(&self->s_ring_limit, (uint64_t)(self->v27_limit_v));
+        vs_drive(&self->s_ring_wr, (uint64_t)(self->v27_wr_v));
+        vs_drive(&self->s_ring_commit, (uint64_t)(self->v27_commit_v));
+        vs_drive(&self->s_ring_rd, (uint64_t)(self->v27_rd_v));
+        vs_drive(&self->s_ring_occ_r, (uint64_t)(vs_mod(((self->v27_wr_v - self->v27_rd_v) + ((INT64_C(2) * (INT64_C(512))))), ((INT64_C(2) * (INT64_C(512)))))));
+        if (((self->v27_rd_v != self->v27_limit_v) & (self->v27_qn_v >= INT64_C(1))))
         {
             vs_drive(&self->s_part_valid_r, 1);
         }
@@ -1187,7 +1399,7 @@ static void dmc_63f41_n8_g9_p17(void *inst)
         {
             vs_drive(&self->s_part_valid_r, 0);
         }
-        if ((((self->v17_rd_v != self->v17_limit_v) & (self->v17_qn_v >= INT64_C(1))) & ((self->v17_off_v < self->v17_cnt0) | ((vs_mod((self->v17_rd_v + INT64_C(1)), ((INT64_C(2) * (INT64_C(512))))) != self->v17_limit_v) & (self->v17_qn_v >= INT64_C(2))))))
+        if ((((self->v27_rd_v != self->v27_limit_v) & (self->v27_qn_v >= INT64_C(1))) & ((self->v27_off_v < self->v27_cnt0) | ((vs_mod((self->v27_rd_v + INT64_C(1)), ((INT64_C(2) * (INT64_C(512))))) != self->v27_limit_v) & (self->v27_qn_v >= INT64_C(2))))))
         {
             vs_drive(&self->s_part_valid2_r, 1);
         }
@@ -1278,50 +1490,121 @@ static void dmc_63f41_n8_g9_create(vs_kernel *k, dmc_63f41_n8_g9 *self, const ch
     vs_name(k, &self->s_ring_ext_lo, path, "ring_ext_lo", 36);
     vs_register_signal(k, &self->s_ring_ext_hi, (uint64_t) (UINT64_C(0x0)));
     vs_name(k, &self->s_ring_ext_hi, path, "ring_ext_hi", 36);
+    vs_register_signal(k, &self->s_rm_l, (uint64_t) (0));
+    vs_name(k, &self->s_rm_l, path, "rm_l", 1);
+    vs_register_signal(k, &self->s_rmc_l, (uint64_t) (0));
+    vs_name(k, &self->s_rmc_l, path, "rmc_l", 1);
+    vs_register_signal(k, &self->s_rm_r, (uint64_t) (0));
+    vs_name(k, &self->s_rm_r, path, "rm_r", 1);
+    vs_register_signal(k, &self->s_rmc_r, (uint64_t) (0));
+    vs_name(k, &self->s_rmc_r, path, "rmc_r", 1);
+    vs_register_signal(k, &self->s_chg_m_r, (uint64_t) (0));
+    vs_name(k, &self->s_chg_m_r, path, "chg_m_r", 1);
+    vs_register_signal(k, &self->s_chg_mc_r, (uint64_t) (0));
+    vs_name(k, &self->s_chg_mc_r, path, "chg_mc_r", 1);
+    vs_register_signal(k, &self->s_ci_pp, (uint64_t) (0));
+    vs_name(k, &self->s_ci_pp, path, "ci_pp", 1);
+    vs_register_signal(k, &self->s_ci_addr, (uint64_t) (UINT64_C(0xFFFFFFFFF)));
+    vs_name(k, &self->s_ci_addr, path, "ci_addr", 36);
+    vs_register_signal(k, &self->s_ci_tfm, (uint64_t) (UINT64_C(0x0)));
+    vs_name(k, &self->s_ci_tfm, path, "ci_tfm", 18);
+    vs_register_signal(k, &self->s_ci_rw, (uint64_t) (1));
+    vs_name(k, &self->s_ci_rw, path, "ci_rw", 1);
+    vs_register_signal(k, &self->s_ci_fic, (uint64_t) (0));
+    vs_name(k, &self->s_ci_fic, path, "ci_fic", 1);
+    vs_register_signal(k, &self->s_s2_addr, (uint64_t) (UINT64_C(0xFFFFFFFFF)));
+    vs_name(k, &self->s_s2_addr, path, "s2_addr", 36);
+    vs_register_signal(k, &self->s_s2_rw, (uint64_t) (1));
+    vs_name(k, &self->s_s2_rw, path, "s2_rw", 1);
+    vs_register_signal(k, &self->s_s2_fic, (uint64_t) (0));
+    vs_name(k, &self->s_s2_fic, path, "s2_fic", 1);
+    vs_register_signal(k, &self->s_s2_dep, (uint64_t) (0));
+    vs_name(k, &self->s_s2_dep, path, "s2_dep", 1);
+    vs_register_signal(k, &self->s_s2_cmt, (uint64_t) (0));
+    vs_name(k, &self->s_s2_cmt, path, "s2_cmt", 1);
+    vs_register_signal(k, &self->s_s2_extev, (uint64_t) (0));
+    vs_name(k, &self->s_s2_extev, path, "s2_extev", 1);
+    vs_register_signal(k, &self->s_s2_blk, (uint64_t) (0));
+    vs_name(k, &self->s_s2_blk, path, "s2_blk", 1);
+    vs_register_signal(k, &self->s_s2_blklo, (uint64_t) (UINT64_C(0x0)));
+    vs_name(k, &self->s_s2_blklo, path, "s2_blklo", 36);
+    vs_register_signal(k, &self->s_s2_blkhi, (uint64_t) (UINT64_C(0x0)));
+    vs_name(k, &self->s_s2_blkhi, path, "s2_blkhi", 36);
+    vs_register_signal(k, &self->s_s2_blkcnt, (uint64_t) (UINT64_C(0x0)));
+    vs_name(k, &self->s_s2_blkcnt, path, "s2_blkcnt", 16);
+    vs_register_signal(k, &self->s_recent_oh, (uint64_t) (UINT64_C(0x8000)));
+    vs_name(k, &self->s_recent_oh, path, "recent_oh", 16);
+    self->v0_a_v = 0;
+    self->v0_lo_v = 0;
+    self->v0_n_v = INT64_C(0);
     vs_register_signal(k, &self->x1_imp_data_in, (uint64_t) (0));
     vs_name(k, &self->x1_imp_data_in, path, "imp_data_in", 64);
     ram_61f32x64_create(k, &self->c_ram_i_0, vs_join(k, path, "ram_i"), self->up->up->up->up->p_extal, self->up->up->up->up->p_extal, &self->s_rw_we, &self->s_rb_ra, &self->s_rw_wa, &self->x1_imp_data_in, &self->s_rb_dout);
-    self->v5_v1 = 0;
-    self->v5_v2 = 0;
-    self->v16_uc = INT64_C(-2147483648);
-    self->v16_age = INT64_C(-2147483648);
-    self->v16_ud = INT64_C(-2147483648);
-    self->v16_m = 0;
-    self->v16_mc = 0;
-    self->v16_lo = 0;
-    self->v16_hi = 0;
-    self->v16_e = 0;
-    self->v16_au = 0;
-    self->v17_wr_v = INT64_C(0);
-    self->v17_commit_v = INT64_C(0);
-    self->v17_rd_v = INT64_C(0);
-    self->v17_occ = INT64_C(-2147483648);
-    self->v17_limit_v = INT64_C(0);
-    self->v17_ext_clear = 0;
-    self->v17_off_v = INT64_C(0);
-    self->v17_cnt0 = INT64_C(0);
-    self->v17_n_v = INT64_C(0);
-    self->v17_a_v = 0;
-    self->v17_lo_v = 0;
-    self->v17_ent0 = 0;
-    self->v17_ent1 = 0;
-    self->v17_we_v = 0;
-    self->v17_wa_v = INT64_C(0);
-    self->v17_wd_v = 0;
-    self->v17_rp_v = INT64_C(0);
-    self->v17_qn_v = INT64_C(0);
-    self->v17_q0_v = 0;
-    self->v17_q1_v = 0;
-    self->v17_q2_v = 0;
-    self->v17_poph = 0;
-    self->v17_resetq = 0;
-    vs_register_process(k, dmc_63f41_n8_g9_p0, self, NULL, 0);
+    self->v7_v1 = 0;
+    self->v7_v2 = 0;
+    self->v18_uc = INT64_C(-2147483648);
+    self->v18_age = INT64_C(-2147483648);
+    self->v18_ud = INT64_C(-2147483648);
+    self->v18_m = 0;
+    self->v18_mc = 0;
+    self->v18_lo = 0;
+    self->v18_hi = 0;
+    self->v18_e = 0;
+    self->v18_au = 0;
+    self->v27_wr_v = INT64_C(0);
+    self->v27_commit_v = INT64_C(0);
+    self->v27_rd_v = INT64_C(0);
+    self->v27_occ = INT64_C(-2147483648);
+    self->v27_limit_v = INT64_C(0);
+    self->v27_ext_clear = 0;
+    self->v27_off_v = INT64_C(0);
+    self->v27_cnt0 = INT64_C(0);
+    self->v27_n_v = INT64_C(0);
+    self->v27_a_v = 0;
+    self->v27_lo_v = 0;
+    self->v27_ent0 = 0;
+    self->v27_ent1 = 0;
+    self->v27_we_v = 0;
+    self->v27_wa_v = INT64_C(0);
+    self->v27_wd_v = 0;
+    self->v27_rp_v = INT64_C(0);
+    self->v27_qn_v = INT64_C(0);
+    self->v27_q0_v = 0;
+    self->v27_q1_v = 0;
+    self->v27_q2_v = 0;
+    self->v27_poph = 0;
+    self->v27_resetq = 0;
+    self->v27_chm = 0;
+    self->v27_chmc = 0;
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        sens[n++] = &(*self->up->up->up->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->up->up->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n8_g9_p0, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        sens[n++] = &(*self->up->up->up->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->up->up->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n8_g9_p1, self, sens, NULL, edges, n);
+    }
+    vs_register_process(k, dmc_63f41_n8_g9_p2, self, NULL, 0);
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &self->s_rw_wd;
-        vs_register_process(k, dmc_63f41_n8_g9_i1, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g9_i3, self, sens, n);
     }
 
     {
@@ -1331,73 +1614,73 @@ static void dmc_63f41_n8_g9_create(vs_kernel *k, dmc_63f41_n8_g9 *self, const ch
         size_t n = 0;
         masks[n] = UINT64_C(0x1FFFFFFFFFFFFF);
         sens[n++] = &self->s_rb_dout;
-        vs_register_process_masked(k, dmc_63f41_n8_g9_p2, self, sens, masks, n);
+        vs_register_process_masked(k, dmc_63f41_n8_g9_p4, self, sens, masks, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &self->s_part_valid_r;
-        vs_register_process(k, dmc_63f41_n8_g9_p3, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[1];
-        size_t n = 0;
-        sens[n++] = &self->s_part_valid2_r;
-        vs_register_process(k, dmc_63f41_n8_g9_p4, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[1];
-        size_t n = 0;
-        sens[n++] = &(*self->up->up->up->up->p_extal);
         vs_register_process(k, dmc_63f41_n8_g9_p5, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &self->s_part_addr_r;
+        sens[n++] = &self->s_part_valid2_r;
         vs_register_process(k, dmc_63f41_n8_g9_p6, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &self->s_part_addr2_r;
+        sens[n++] = &(*self->up->up->up->up->p_extal);
         vs_register_process(k, dmc_63f41_n8_g9_p7, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &self->s_ring_ext_v;
+        sens[n++] = &self->s_part_addr_r;
         vs_register_process(k, dmc_63f41_n8_g9_p8, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &self->s_ring_overflow;
+        sens[n++] = &self->s_part_addr2_r;
         vs_register_process(k, dmc_63f41_n8_g9_p9, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &self->s_ring_commit_late;
+        sens[n++] = &self->s_ring_ext_v;
         vs_register_process(k, dmc_63f41_n8_g9_p10, self, sens, n);
     }
-    vs_register_process(k, dmc_63f41_n8_g9_p11, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n8_g9_p12, self, NULL, 0);
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_ring_overflow;
+        vs_register_process(k, dmc_63f41_n8_g9_p11, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_ring_commit_late;
+        vs_register_process(k, dmc_63f41_n8_g9_p12, self, sens, n);
+    }
+    vs_register_process(k, dmc_63f41_n8_g9_p13, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g9_p14, self, NULL, 0);
 
     {
         vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &self->s_ring_rd;
         sens[n++] = &self->s_ring_commit;
-        vs_register_process(k, dmc_63f41_n8_g9_p13, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g9_p15, self, sens, n);
     }
 
     {
@@ -1405,9 +1688,9 @@ static void dmc_63f41_n8_g9_create(vs_kernel *k, dmc_63f41_n8_g9 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_ring_rd;
         sens[n++] = &self->s_ring_limit;
-        vs_register_process(k, dmc_63f41_n8_g9_p14, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g9_p16, self, sens, n);
     }
-    vs_register_process(k, dmc_63f41_n8_g9_p15, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g9_p17, self, NULL, 0);
 
     {
         vs_sig *sens[27];
@@ -1424,7 +1707,49 @@ static void dmc_63f41_n8_g9_create(vs_kernel *k, dmc_63f41_n8_g9 *self, const ch
         sens[n++] = &self->s_rng_v;
         sens[n++] = &self->s_rng_lo;
         sens[n++] = &self->s_rng_hi;
-        vs_register_process(k, dmc_63f41_n8_g9_p16, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g9_p18, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_rm_l;
+        vs_register_process(k, dmc_63f41_n8_g9_p19, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_rmc_l;
+        vs_register_process(k, dmc_63f41_n8_g9_p20, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_rm_r;
+        vs_register_process(k, dmc_63f41_n8_g9_p21, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_rmc_r;
+        vs_register_process(k, dmc_63f41_n8_g9_p22, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_chg_m_r;
+        vs_register_process(k, dmc_63f41_n8_g9_p23, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_chg_mc_r;
+        vs_register_process(k, dmc_63f41_n8_g9_p24, self, sens, n);
     }
 
     {
@@ -1435,7 +1760,25 @@ static void dmc_63f41_n8_g9_create(vs_kernel *k, dmc_63f41_n8_g9 *self, const ch
         sens[n++] = &(*self->up->up->up->up->p_reset_n);
         edges[n] = 1;
         sens[n++] = &(*self->up->up->up->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n8_g9_p17, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, dmc_63f41_n8_g9_p25, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &(*self->up->up->up->up->p_extal);
+        vs_register_process(k, dmc_63f41_n8_g9_p26, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        sens[n++] = &(*self->up->up->up->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->up->up->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n8_g9_p27, self, sens, NULL, edges, n);
     }
 }
 
@@ -1653,12 +1996,12 @@ static void p_continue_6(dmc_63f41_n8_g7 *self, int64_t a_cur)
 {
     p_next_entry_6(self, a_cur);
     vs_drive_bits(&self->s_part_pop, (7 - (a_cur)), (UINT64_C(1)), 1);
-    if (self->v34_found)
+    if (self->v40_found)
     {
-        vs_drive(&self->s_dr_blk, (self->v34_na & UINT64_C(0xFFFF)));
-        vs_drive(&self->s_dr_tag, ((self->v34_na >> (16)) & UINT64_C(0xFFFFF)));
-        vs_drive(&self->s_dr_src, (uint64_t)(self->v34_ns));
-        vs_drive(&self->up->s_x_dirty_block, (self->v34_na & UINT64_C(0xFFFF)));
+        vs_drive(&self->s_dr_blk, (self->v40_na & UINT64_C(0xFFFF)));
+        vs_drive(&self->s_dr_tag, ((self->v40_na >> (16)) & UINT64_C(0xFFFFF)));
+        vs_drive(&self->s_dr_src, (uint64_t)(self->v40_ns));
+        vs_drive(&self->up->s_x_dirty_block, (self->v40_na & UINT64_C(0xFFFF)));
         vs_drive(&self->up->s_memclk_external, 0);
         vs_drive(&self->up->s_memclk_ext_logic, 0);
         vs_drive(&self->s_dr_state, 2);
@@ -1673,24 +2016,24 @@ static void p_continue_6(dmc_63f41_n8_g7 *self, int64_t a_cur)
 
 static void p_next_entry_6(dmc_63f41_n8_g7 *self, int64_t a_cur)
 {
-    self->v34_found = 0;
-    self->v34_ns = INT64_C(0);
-    self->v34_na = UINT64_C(0xFFFFFFFFF);
+    self->v40_found = 0;
+    self->v40_ns = INT64_C(0);
+    self->v40_na = UINT64_C(0xFFFFFFFFF);
     if ((((self->s_part_valid2.cur >> (7 - (a_cur))) & 1) == 1))
     {
-        self->v34_found = 1;
-        self->v34_ns = a_cur;
-        self->v34_na = self->s_part_addr2.a[(a_cur) - 0].cur;
+        self->v40_found = 1;
+        self->v40_ns = a_cur;
+        self->v40_na = self->s_part_addr2.a[(a_cur) - 0].cur;
     }
     else
     {
-        for (int64_t i_13 = INT64_C(0); i_13 <= (self->up->up->g_ncpus - INT64_C(1)); i_13++)
+        for (int64_t i_15 = INT64_C(0); i_15 <= (self->up->up->g_ncpus - INT64_C(1)); i_15++)
         {
-            if ((((((self->v34_found ^ UINT64_C(0x1)) & UINT64_C(0x1)) & (i_13 != a_cur)) & (i_13 != self->up->up->g_cpu_number)) & (((self->s_part_valid.cur >> (7 - (i_13))) & 1) == 1)))
+            if ((((((self->v40_found ^ UINT64_C(0x1)) & UINT64_C(0x1)) & (i_15 != a_cur)) & (i_15 != self->up->up->g_cpu_number)) & (((self->s_part_valid.cur >> (7 - (i_15))) & 1) == 1)))
             {
-                self->v34_found = 1;
-                self->v34_ns = i_13;
-                self->v34_na = self->s_part_addr.a[(i_13) - 0].cur;
+                self->v40_found = 1;
+                self->v40_ns = i_15;
+                self->v40_na = self->s_part_addr.a[(i_15) - 0].cur;
             }
         }
     }
@@ -1705,55 +2048,79 @@ static void dmc_63f41_n8_g7_p0(void *inst)
 static void dmc_63f41_n8_g7_p1(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    vs_drive_bits(&self->s_part_valid, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
+    vs_drive_bits(&self->s_ring_chg_m, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
 static void dmc_63f41_n8_g7_p2(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    vs_drive_bits(&self->s_part_valid2, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
+    vs_drive_bits(&self->s_ring_chg_mc, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
 static void dmc_63f41_n8_g7_p3(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    vs_drive(&self->s_part_addr.a[(self->up->up->g_cpu_number) - 0], UINT64_C(0xFFFFFFFFF));
+    vs_drive_bits(&self->s_ring_match_live, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
 static void dmc_63f41_n8_g7_p4(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    vs_drive(&self->s_part_addr2.a[(self->up->up->g_cpu_number) - 0], UINT64_C(0xFFFFFFFFF));
+    vs_drive_bits(&self->s_ring_match_com_live, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
 static void dmc_63f41_n8_g7_p5(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    vs_drive_bits(&self->s_ring_match_com, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
+    vs_drive_bits(&self->s_part_valid, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
 static void dmc_63f41_n8_g7_p6(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    vs_drive_bits(&self->s_ring_ext_vec, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
+    vs_drive_bits(&self->s_part_valid2, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
 static void dmc_63f41_n8_g7_p7(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    vs_drive_bits(&self->s_ring_ovf_vec, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
+    vs_drive(&self->s_part_addr.a[(self->up->up->g_cpu_number) - 0], UINT64_C(0xFFFFFFFFF));
 }
 
 static void dmc_63f41_n8_g7_p8(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    vs_drive_bits(&self->s_ring_late_vec, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
+    vs_drive(&self->s_part_addr2.a[(self->up->up->g_cpu_number) - 0], UINT64_C(0xFFFFFFFFF));
 }
 
 static void dmc_63f41_n8_g7_p9(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    if ((((self->up->s_buffered_vma.cur == 1) & (self->up->s_buffered_rw_n.cur == 1)) & (self->s_ring_match_com.cur != UINT64_C(0x0))))
+    vs_drive_bits(&self->s_ring_match_com, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
+}
+
+static void dmc_63f41_n8_g7_p10(void *inst)
+{
+    dmc_63f41_n8_g7 *self = inst;
+    vs_drive_bits(&self->s_ring_ext_vec, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
+}
+
+static void dmc_63f41_n8_g7_p11(void *inst)
+{
+    dmc_63f41_n8_g7 *self = inst;
+    vs_drive_bits(&self->s_ring_ovf_vec, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
+}
+
+static void dmc_63f41_n8_g7_p12(void *inst)
+{
+    dmc_63f41_n8_g7 *self = inst;
+    vs_drive_bits(&self->s_ring_late_vec, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
+}
+
+static void dmc_63f41_n8_g7_p13(void *inst)
+{
+    dmc_63f41_n8_g7 *self = inst;
+    if ((((self->up->s_buffered_vma.cur == 1) & (self->up->s_buffered_rw_n.cur == 1)) & (((self->s_ring_match_com.cur | self->s_ring_chg_mc.cur) | ((UINT64_C(0x0) & ~UINT64_C(0xFF)) | (self->s_ba_chg.cur ? UINT64_C(0xFF) : 0))) != UINT64_C(0x0))))
     {
         vs_drive(&self->up->s_rd_force_miss, 1);
     }
@@ -1763,49 +2130,49 @@ static void dmc_63f41_n8_g7_p9(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p10(void *inst)
+static void dmc_63f41_n8_g7_p14(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive_bits(&self->s_ring_req, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
-static void dmc_63f41_n8_g7_p11(void *inst)
+static void dmc_63f41_n8_g7_p15(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive_bits(&self->s_ring_pending, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
-static void dmc_63f41_n8_g7_p12(void *inst)
+static void dmc_63f41_n8_g7_p16(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->s_ring_addr_out.a[(self->up->up->g_cpu_number) - 0], UINT64_C(0xFFFFFFFFF));
 }
 
-static void dmc_63f41_n8_g7_p13(void *inst)
+static void dmc_63f41_n8_g7_p17(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive_bits(&self->s_ring_undrained, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
-static void dmc_63f41_n8_g7_p14(void *inst)
+static void dmc_63f41_n8_g7_p18(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive_bits(&self->s_ring_limit_pending, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
-static void dmc_63f41_n8_g7_p15(void *inst)
+static void dmc_63f41_n8_g7_p19(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive_bits(&self->s_ring_busy_v, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
-static void dmc_63f41_n8_g7_p16(void *inst)
+static void dmc_63f41_n8_g7_p20(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive_bits(&self->s_ring_ack, (7 - (self->up->up->g_cpu_number)), (UINT64_C(1)), 0);
 }
 
-static void dmc_63f41_n8_g7_p17(void *inst)
+static void dmc_63f41_n8_g7_p21(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if ((self->s_ring_ovf_vec.cur != UINT64_C(0x0)))
@@ -1818,7 +2185,7 @@ static void dmc_63f41_n8_g7_p17(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p18(void *inst)
+static void dmc_63f41_n8_g7_p22(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if (((((((((*self->up->up->p_fic).cur == 1) & (self->s_fic_d.cur == 0)) | ((self->s_fic_d.cur == 1) & (self->s_fic_dd.cur == 0))) & ((self->s_ring_undrained.cur != UINT64_C(0x0)) | (self->s_flush_pend.cur == 1))) | (self->s_ring_limit_pending.cur != UINT64_C(0x0))) | (self->s_flush_active.cur == 1)) | ((((*self->up->up->p_fic).cur == 1) | (self->s_fic_d.cur == 1)) & (self->s_flush_pend.cur == 1))))
@@ -1831,7 +2198,7 @@ static void dmc_63f41_n8_g7_p18(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p19(void *inst)
+static void dmc_63f41_n8_g7_p23(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if (((*self->up->up->p_reset_n).cur == 0))
@@ -1846,27 +2213,27 @@ static void dmc_63f41_n8_g7_p19(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p20(void *inst)
+static void dmc_63f41_n8_g7_p24(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    self->v20_v = 0;
+    self->v24_v = 0;
     for (int64_t i_3 = INT64_C(0); i_3 <= (self->up->up->g_ncpus - INT64_C(1)); i_3++)
     {
         if (((i_3 != self->up->up->g_cpu_number) & ((((*self->up->up->p_ccs_invalidation_pending_in).a[(i_3) - 0].cur >> (7 - (self->up->up->g_cpu_number))) & 1) == 1)))
         {
-            self->v20_v = 1;
+            self->v24_v = 1;
         }
     }
-    vs_drive(&self->s_ccs_invalidation_pending_in_any, self->v20_v);
+    vs_drive(&self->s_ccs_invalidation_pending_in_any, self->v24_v);
 }
 
-static void dmc_63f41_n8_g7_p21(void *inst)
+static void dmc_63f41_n8_g7_p25(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->s_out_pending, self->s_ccs_invalidation_pending_in_any.cur);
 }
 
-static void dmc_63f41_n8_g7_p22(void *inst)
+static void dmc_63f41_n8_g7_p26(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if (((self->s_not_idle.cur == 0) | (self->s_wpark_r.cur == 1)))
@@ -1879,19 +2246,19 @@ static void dmc_63f41_n8_g7_p22(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p23(void *inst)
+static void dmc_63f41_n8_g7_p27(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&(*self->up->up->p_ccs_tfm_out), (((uint64_t)(self->up->s_tfm_mode_i.cur) << 16) | self->up->s_tfm_count_i.cur));
 }
 
-static void dmc_63f41_n8_g7_p24(void *inst)
+static void dmc_63f41_n8_g7_p28(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    self->v24_ok = self->s_grace_active.cur;
+    self->v28_ok = self->s_grace_active.cur;
     if (((self->s_wr_pend.cur == 1) | (self->s_wr_late.cur == 1)))
     {
-        self->v24_ok = 0;
+        self->v28_ok = 0;
     }
     for (int64_t i_5 = INT64_C(0); i_5 <= (self->up->up->g_ncpus - INT64_C(1)); i_5++)
     {
@@ -1899,14 +2266,14 @@ static void dmc_63f41_n8_g7_p24(void *inst)
         {
             if ((((((((self->s_grace_seen.cur >> (7 - (i_5))) & 1) == 1) | ((((*self->up->up->p_ccs_write_gen_in).cur >> (7 - (i_5))) & 1) == 1)) | ((((*self->up->up->p_ccs_fic_in).cur >> (7 - (i_5))) & 1) == 1)) ^ UINT64_C(0x1)) & UINT64_C(0x1)))
             {
-                self->v24_ok = 0;
+                self->v28_ok = 0;
             }
         }
     }
-    vs_drive(&self->s_grace_ok, self->v24_ok);
+    vs_drive(&self->s_grace_ok, self->v28_ok);
 }
 
-static void dmc_63f41_n8_g7_p25(void *inst)
+static void dmc_63f41_n8_g7_p29(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if ((((self->up->s_buffered_vma.cur == 1) & (self->up->s_buffered_rw_n.cur == 0)) & (((self->up->s_last_a_valid.cur == 0) | (self->up->s_buffered_a.cur != self->up->s_last_a.cur)) | (self->up->s_buffered_rw_n.cur != self->up->s_last_rw_n.cur))))
@@ -1919,7 +2286,7 @@ static void dmc_63f41_n8_g7_p25(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p26(void *inst)
+static void dmc_63f41_n8_g7_p30(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if ((((((self->up->s_buffered_vma.cur == 1) & (self->up->s_buffered_rw_n.cur == 0)) & (self->s_fw_done.cur == 0)) & (self->s_grace_ok.cur == 0)) & (((self->s_grace_active.cur == 1) | (self->s_wr_new.cur == 1)) | (self->s_wr_wait.cur == 1))))
@@ -1932,10 +2299,10 @@ static void dmc_63f41_n8_g7_p26(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p27(void *inst)
+static void dmc_63f41_n8_g7_p31(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    if ((((self->up->s_buffered_vma.cur == 1) & (self->up->s_buffered_rw_n.cur == 1)) & ((self->s_ring_match.cur & self->s_start_ext.cur) != UINT64_C(0x0))))
+    if ((((self->up->s_buffered_vma.cur == 1) & (self->up->s_buffered_rw_n.cur == 1)) & ((((self->s_ring_match.cur | self->s_ring_chg_m.cur) | ((UINT64_C(0x0) & ~UINT64_C(0xFF)) | (self->s_ba_chg.cur ? UINT64_C(0xFF) : 0))) & self->s_start_ext.cur) != UINT64_C(0x0))))
     {
         vs_drive(&self->up->s_win_rd_hold, 1);
     }
@@ -1945,7 +2312,57 @@ static void dmc_63f41_n8_g7_p27(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p28(void *inst)
+static void dmc_63f41_n8_g7_p32(void *inst)
+{
+    dmc_63f41_n8_g7 *self = inst;
+    if (((*self->up->up->p_reset_n).cur == 0))
+    {
+        vs_drive(&self->s_ba_chg, 1);
+    }
+    else if (vs_rising(&(*self->up->up->p_extal)))
+    {
+        vs_drive(&self->s_ba_chg, self->up->s_capture_strobe.cur);
+    }
+}
+
+static void dmc_63f41_n8_g7_p33(void *inst)
+{
+    dmc_63f41_n8_g7 *self = inst;
+    if ((vs_rising(&(*self->up->up->p_extal)) & ((*self->up->up->p_reset_n).cur == 1)))
+    {
+        if (((((self->up->s_buffered_vma.cur == 1) & (self->up->s_buffered_rw_n.cur == 1)) & ((int64_t) self->up->s_bram_wait_states.cur == INT64_C(0))) & ((((((uint32_t) self->up->s_state.cur == 0) & (self->up->s_fill_hazard.cur == 0)) & (self->up->s_portb_hazard.cur == 0)) & (((self->up->s_last_a_valid.cur == 0) | (self->up->s_buffered_a.cur != self->up->s_last_a.cur)) | (self->up->s_buffered_rw_n.cur != self->up->s_last_rw_n.cur))) | ((uint32_t) self->up->s_state.cur == 1))))
+        {
+            if (((self->s_ring_match_live.cur & self->s_start_ext.cur) != UINT64_C(0x0)))
+            {
+                self->v33_wl = 1;
+            }
+            else
+            {
+                self->v33_wl = 0;
+            }
+            if ((self->s_ring_match_com_live.cur != UINT64_C(0x0)))
+            {
+                self->v33_fl = 1;
+            }
+            else
+            {
+                self->v33_fl = 0;
+            }
+            if (((uint32_t) self->up->s_state.cur == 0))
+            {
+                /* assert */
+                /* assert */
+            }
+            if (((uint32_t) self->up->s_state.cur == 1))
+            {
+                /* assert */
+                /* assert */
+            }
+        }
+    }
+}
+
+static void dmc_63f41_n8_g7_p34(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if (((*self->up->up->p_reset_n).cur == 0))
@@ -2016,13 +2433,13 @@ static void dmc_63f41_n8_g7_p28(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p29(void *inst)
+static void dmc_63f41_n8_g7_p35(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->s_out_hold, 0);
 }
 
-static void dmc_63f41_n8_g7_p30(void *inst)
+static void dmc_63f41_n8_g7_p36(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if (((*self->up->up->p_reset_n).cur == 0))
@@ -2072,7 +2489,7 @@ static void dmc_63f41_n8_g7_p30(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p31(void *inst)
+static void dmc_63f41_n8_g7_p37(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if (((*self->up->up->p_rw_n).cur == 0))
@@ -2089,19 +2506,19 @@ static void dmc_63f41_n8_g7_p31(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p32(void *inst)
+static void dmc_63f41_n8_g7_p38(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&(*self->up->up->p_ccs_address_rw_n_out), (*self->up->up->p_rw_n).cur);
 }
 
-static void dmc_63f41_n8_g7_p33(void *inst)
+static void dmc_63f41_n8_g7_p39(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&(*self->up->up->p_ccs_bus_granted_out), (*self->up->up->p_bus_granted).cur);
 }
 
-static void dmc_63f41_n8_g7_p34(void *inst)
+static void dmc_63f41_n8_g7_p40(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if (((*self->up->up->p_reset_n).cur == 0))
@@ -2140,7 +2557,7 @@ static void dmc_63f41_n8_g7_p34(void *inst)
         {
             case 0:
             {
-                self->v34_start = (((((self->s_part_valid.cur != UINT64_C(0x0)) & (self->up->s_tag_rw.cur == 0)) & (self->up->s_memclk_int_logic.cur == 0)) & (self->up->s_fill_req.cur == 0)) & (self->up->s_tag_local_fill_busy.cur == 0));
+                self->v40_start = (((((self->s_part_valid.cur != UINT64_C(0x0)) & (self->up->s_tag_rw.cur == 0)) & (self->up->s_memclk_int_logic.cur == 0)) & (self->up->s_fill_req.cur == 0)) & (self->up->s_tag_local_fill_busy.cur == 0));
                 if ((((((self->s_flush_pend.cur == 1) & (self->s_fic_d.cur == 1)) & (self->up->s_fill_req.cur == 0)) & (self->up->s_tag_local_fill_busy.cur == 0)) & (((self->s_invalidation_pending.cur >> (7 - (self->up->up->g_cpu_number))) & 1) == 0)))
                 {
                     /* report */
@@ -2169,27 +2586,27 @@ static void dmc_63f41_n8_g7_p34(void *inst)
                     }
                     vs_drive(&self->s_last_invalidated_cache, (uint64_t)(self->up->up->g_cpu_number));
                 }
-                else if (self->v34_start)
+                else if (self->v40_start)
                 {
-                    self->v34_found = 0;
-                    self->v34_ns = INT64_C(0);
-                    self->v34_na = UINT64_C(0xFFFFFFFFF);
-                    for (int64_t i_11 = INT64_C(0); i_11 <= (self->up->up->g_ncpus - INT64_C(1)); i_11++)
+                    self->v40_found = 0;
+                    self->v40_ns = INT64_C(0);
+                    self->v40_na = UINT64_C(0xFFFFFFFFF);
+                    for (int64_t i_13 = INT64_C(0); i_13 <= (self->up->up->g_ncpus - INT64_C(1)); i_13++)
                     {
-                        if (((((self->v34_found ^ UINT64_C(0x1)) & UINT64_C(0x1)) & (i_11 != self->up->up->g_cpu_number)) & (((self->s_part_valid.cur >> (7 - (i_11))) & 1) == 1)))
+                        if (((((self->v40_found ^ UINT64_C(0x1)) & UINT64_C(0x1)) & (i_13 != self->up->up->g_cpu_number)) & (((self->s_part_valid.cur >> (7 - (i_13))) & 1) == 1)))
                         {
-                            self->v34_found = 1;
-                            self->v34_ns = i_11;
-                            self->v34_na = self->s_part_addr.a[(i_11) - 0].cur;
+                            self->v40_found = 1;
+                            self->v40_ns = i_13;
+                            self->v40_na = self->s_part_addr.a[(i_13) - 0].cur;
                         }
                     }
-                    if (self->v34_found)
+                    if (self->v40_found)
                     {
                         vs_drive(&self->s_dr_own, 1);
-                        vs_drive(&self->s_dr_src, (uint64_t)(self->v34_ns));
-                        vs_drive(&self->s_dr_blk, (self->v34_na & UINT64_C(0xFFFF)));
-                        vs_drive(&self->s_dr_tag, ((self->v34_na >> (16)) & UINT64_C(0xFFFFF)));
-                        vs_drive(&self->up->s_x_dirty_block, (self->v34_na & UINT64_C(0xFFFF)));
+                        vs_drive(&self->s_dr_src, (uint64_t)(self->v40_ns));
+                        vs_drive(&self->s_dr_blk, (self->v40_na & UINT64_C(0xFFFF)));
+                        vs_drive(&self->s_dr_tag, ((self->v40_na >> (16)) & UINT64_C(0xFFFFF)));
+                        vs_drive(&self->up->s_x_dirty_block, (self->v40_na & UINT64_C(0xFFFF)));
                         vs_drive(&self->up->s_memclk_external, 0);
                         vs_drive(&self->up->s_memclk_ext_logic, 0);
                         vs_drive(&self->up->s_cache_mrdy, 0);
@@ -2289,13 +2706,13 @@ static void dmc_63f41_n8_g7_p34(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p35(void *inst)
+static void dmc_63f41_n8_g7_p41(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->up->s_local_fill_granted, ((self->s_ccs_cpu.cur >> (7 - (self->up->up->g_cpu_number))) & 1));
 }
 
-static void dmc_63f41_n8_g7_p36(void *inst)
+static void dmc_63f41_n8_g7_p42(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if ((((((*self->up->up->p_ba).cur == 1) | (self->s_started_r.cur == 0)) | (self->s_wpark_r.cur == 1)) | (self->up->s_cpu_waiting.cur == 1)))
@@ -2308,7 +2725,7 @@ static void dmc_63f41_n8_g7_p36(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p37(void *inst)
+static void dmc_63f41_n8_g7_p43(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if (((*self->up->up->p_reset_n).cur == 0))
@@ -2324,31 +2741,31 @@ static void dmc_63f41_n8_g7_p37(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p38(void *inst)
+static void dmc_63f41_n8_g7_p44(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&(*self->up->up->p_ccs_invalidation_pending_out), (self->s_ring_undrained.cur & ((UINT64_C(0x0) & ~UINT64_C(0xFF)) | (self->s_not_idle.cur ? UINT64_C(0xFF) : 0))));
 }
 
-static void dmc_63f41_n8_g7_p39(void *inst)
+static void dmc_63f41_n8_g7_p45(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&(*self->up->up->p_ccs_prev_pending_out), ((UINT64_C(0x0) & ~UINT64_C(0x40)) | (((self->s_fw_done.cur | self->s_grace_active.cur) & 1) << 6)));
 }
 
-static void dmc_63f41_n8_g7_p40(void *inst)
+static void dmc_63f41_n8_g7_p46(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&(*self->up->up->p_ccs_parked_stalled_out), self->s_parked_stalled.cur);
 }
 
-static void dmc_63f41_n8_g7_p41(void *inst)
+static void dmc_63f41_n8_g7_p47(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&(*self->up->up->p_ccs_fic_out), (*self->up->up->p_fic).cur);
 }
 
-static void dmc_63f41_n8_g7_p42(void *inst)
+static void dmc_63f41_n8_g7_p48(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if (((*self->up->up->p_reset_n).cur == 0))
@@ -2361,49 +2778,49 @@ static void dmc_63f41_n8_g7_p42(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p43(void *inst)
+static void dmc_63f41_n8_g7_p49(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->up->s_source_safe, UINT64_C(0xFF));
 }
 
-static void dmc_63f41_n8_g7_p44(void *inst)
+static void dmc_63f41_n8_g7_p50(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->up->s_all_sources_safe, 1);
 }
 
-static void dmc_63f41_n8_g7_p45(void *inst)
+static void dmc_63f41_n8_g7_p51(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->up->s_my_parked_stalled_block, 0);
 }
 
-static void dmc_63f41_n8_g7_p46(void *inst)
+static void dmc_63f41_n8_g7_p52(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->up->s_my_invalidation_still_pending_prev, 0);
 }
 
-static void dmc_63f41_n8_g7_p47(void *inst)
+static void dmc_63f41_n8_g7_p53(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->up->s_my_invalidation_strict_wait_prev, 0);
 }
 
-static void dmc_63f41_n8_g7_p48(void *inst)
+static void dmc_63f41_n8_g7_p54(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->up->s_my_invalidation_still_pending, 0);
 }
 
-static void dmc_63f41_n8_g7_p49(void *inst)
+static void dmc_63f41_n8_g7_p55(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->up->s_my_invalidation_strict_wait, 0);
 }
 
-static void dmc_63f41_n8_g7_p50(void *inst)
+static void dmc_63f41_n8_g7_p56(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     if ((((self->up->s_cache_mrdy.cur == 0) | (self->s_drain_hold.cur == 1)) | (self->s_out_hold.cur == 1)))
@@ -2416,27 +2833,27 @@ static void dmc_63f41_n8_g7_p50(void *inst)
     }
 }
 
-static void dmc_63f41_n8_g7_p51(void *inst)
+static void dmc_63f41_n8_g7_p57(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
     vs_drive(&self->up->s_fic_freeze, (self->s_drain_hold.cur | self->s_out_hold.cur));
 }
 
-static void dmc_63f41_n8_g7_p52(void *inst)
+static void dmc_63f41_n8_g7_p58(void *inst)
 {
     dmc_63f41_n8_g7 *self = inst;
-    self->v52_v = 0;
-    for (int64_t i_15 = INT64_C(0); i_15 <= (self->up->up->g_ncpus - INT64_C(1)); i_15++)
+    self->v58_v = 0;
+    for (int64_t i_17 = INT64_C(0); i_17 <= (self->up->up->g_ncpus - INT64_C(1)); i_17++)
     {
-        if ((i_15 != self->up->up->g_cpu_number))
+        if ((i_17 != self->up->up->g_cpu_number))
         {
-            if ((((((*self->up->up->p_ccs_address_rw_n_in).cur >> (7 - (i_15))) & 1) == 0) & ((*self->up->up->p_ccs_address_in).a[(i_15) - 0].cur == self->up->s_buffered_a.cur)))
+            if ((((((*self->up->up->p_ccs_address_rw_n_in).cur >> (7 - (i_17))) & 1) == 0) & ((*self->up->up->p_ccs_address_in).a[(i_17) - 0].cur == self->up->s_buffered_a.cur)))
             {
-                self->v52_v = 1;
+                self->v58_v = 1;
             }
         }
     }
-    vs_drive(&self->up->s_peer_write_same, self->v52_v);
+    vs_drive(&self->up->s_peer_write_same, self->v58_v);
 }
 
 static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const char *path)
@@ -2516,6 +2933,16 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
     vs_name(k, &self->s_ring_match, path, "ring_match", 8);
     vs_register_signal(k, &self->s_ring_match_com, (uint64_t) (0));
     vs_name(k, &self->s_ring_match_com, path, "ring_match_com", 8);
+    vs_register_signal(k, &self->s_ring_chg_m, (uint64_t) (0));
+    vs_name(k, &self->s_ring_chg_m, path, "ring_chg_m", 8);
+    vs_register_signal(k, &self->s_ring_chg_mc, (uint64_t) (0));
+    vs_name(k, &self->s_ring_chg_mc, path, "ring_chg_mc", 8);
+    vs_register_signal(k, &self->s_ba_chg, (uint64_t) (1));
+    vs_name(k, &self->s_ba_chg, path, "ba_chg", 1);
+    vs_register_signal(k, &self->s_ring_match_live, (uint64_t) (0));
+    vs_name(k, &self->s_ring_match_live, path, "ring_match_live", 8);
+    vs_register_signal(k, &self->s_ring_match_com_live, (uint64_t) (0));
+    vs_name(k, &self->s_ring_match_com_live, path, "ring_match_com_live", 8);
     vs_register_signal(k, &self->s_ring_ext_vec, (uint64_t) (0));
     vs_name(k, &self->s_ring_ext_vec, path, "ring_ext_vec", 8);
     vs_register_signal(k, &self->s_ring_late_vec, (uint64_t) (0));
@@ -2556,8 +2983,10 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
     vs_name(k, &self->s_started_r, path, "started_r", 1);
     vs_register_signal(k, &self->s_ccs_invalidation_pending_in_any, (uint64_t) (0));
     vs_name(k, &self->s_ccs_invalidation_pending_in_any, path, "ccs_invalidation_pending_in_any", 1);
-    self->v20_v = 0;
-    self->v24_ok = 0;
+    self->v24_v = 0;
+    self->v28_ok = 0;
+    self->v33_wl = 0;
+    self->v33_fl = 0;
 
     {
         int64_t l = INT64_C(0), r = (self->up->up->g_ncpus - INT64_C(1)), i, n;
@@ -2592,11 +3021,11 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
             dmc_63f41_n8_g10_create(k, b, vs_join(k, path, name));
         }
     }
-    self->v34_found = 0;
-    self->v34_ns = INT64_C(0);
-    self->v34_na = 0;
-    self->v34_start = 0;
-    self->v52_v = 0;
+    self->v40_found = 0;
+    self->v40_ns = INT64_C(0);
+    self->v40_na = 0;
+    self->v40_start = 0;
+    self->v58_v = 0;
     vs_register_process(k, dmc_63f41_n8_g7_p0, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n8_g7_p1, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n8_g7_p2, self, NULL, 0);
@@ -2606,28 +3035,34 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
     vs_register_process(k, dmc_63f41_n8_g7_p6, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n8_g7_p7, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n8_g7_p8, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p9, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p10, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p11, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p12, self, NULL, 0);
 
     {
-        vs_sig *sens[3];
+        vs_sig *sens[5];
         size_t n = 0;
         sens[n++] = &self->up->s_buffered_vma;
         sens[n++] = &self->up->s_buffered_rw_n;
         sens[n++] = &self->s_ring_match_com;
-        vs_register_process(k, dmc_63f41_n8_g7_p9, self, sens, n);
+        sens[n++] = &self->s_ring_chg_mc;
+        sens[n++] = &self->s_ba_chg;
+        vs_register_process(k, dmc_63f41_n8_g7_p13, self, sens, n);
     }
-    vs_register_process(k, dmc_63f41_n8_g7_p10, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n8_g7_p11, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n8_g7_p12, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n8_g7_p13, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n8_g7_p14, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n8_g7_p15, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n8_g7_p16, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p17, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p18, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p19, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p20, self, NULL, 0);
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &self->s_ring_ovf_vec;
-        vs_register_process(k, dmc_63f41_n8_g7_p17, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p21, self, sens, n);
     }
 
     {
@@ -2640,7 +3075,7 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         sens[n++] = &self->s_flush_pend;
         sens[n++] = &self->s_ring_limit_pending;
         sens[n++] = &self->s_flush_active;
-        vs_register_process(k, dmc_63f41_n8_g7_p18, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p22, self, sens, n);
     }
 
     {
@@ -2651,21 +3086,21 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         sens[n++] = &(*self->up->up->p_reset_n);
         edges[n] = 1;
         sens[n++] = &(*self->up->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n8_g7_p19, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, dmc_63f41_n8_g7_p23, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[8];
         size_t n = 0;
         n += std_logic_matrix_31_leaves(&(*self->up->up->p_ccs_invalidation_pending_in), sens + n);
-        vs_register_process(k, dmc_63f41_n8_g7_p20, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p24, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &self->s_ccs_invalidation_pending_in_any;
-        vs_register_process(k, dmc_63f41_n8_g7_p21, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p25, self, sens, n);
     }
 
     {
@@ -2673,7 +3108,7 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_not_idle;
         sens[n++] = &self->s_wpark_r;
-        vs_register_process(k, dmc_63f41_n8_g7_p22, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p26, self, sens, n);
     }
 
     {
@@ -2681,7 +3116,7 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         size_t n = 0;
         sens[n++] = &self->up->s_tfm_mode_i;
         sens[n++] = &self->up->s_tfm_count_i;
-        vs_register_process(k, dmc_63f41_n8_g7_p23, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p27, self, sens, n);
     }
 
     {
@@ -2693,7 +3128,7 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         sens[n++] = &(*self->up->up->p_ccs_fic_in);
         sens[n++] = &self->s_wr_pend;
         sens[n++] = &self->s_wr_late;
-        vs_register_process(k, dmc_63f41_n8_g7_p24, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p28, self, sens, n);
     }
 
     {
@@ -2705,7 +3140,7 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         sens[n++] = &self->up->s_buffered_a;
         sens[n++] = &self->up->s_last_a;
         sens[n++] = &self->up->s_last_rw_n;
-        vs_register_process(k, dmc_63f41_n8_g7_p25, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p29, self, sens, n);
     }
 
     {
@@ -2718,66 +3153,36 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         sens[n++] = &self->s_grace_active;
         sens[n++] = &self->s_wr_new;
         sens[n++] = &self->s_wr_wait;
-        vs_register_process(k, dmc_63f41_n8_g7_p26, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p30, self, sens, n);
     }
 
     {
-        vs_sig *sens[4];
+        vs_sig *sens[6];
         size_t n = 0;
         sens[n++] = &self->up->s_buffered_vma;
         sens[n++] = &self->up->s_buffered_rw_n;
         sens[n++] = &self->s_ring_match;
+        sens[n++] = &self->s_ring_chg_m;
+        sens[n++] = &self->s_ba_chg;
         sens[n++] = &self->s_start_ext;
-        vs_register_process(k, dmc_63f41_n8_g7_p27, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        uint8_t edges[2];
-        memset(edges, 0, sizeof(edges));
-        size_t n = 0;
-        sens[n++] = &(*self->up->up->p_reset_n);
-        edges[n] = 1;
-        sens[n++] = &(*self->up->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n8_g7_p28, self, sens, NULL, edges, n);
-    }
-    vs_register_process(k, dmc_63f41_n8_g7_p29, self, NULL, 0);
-
-    {
-        vs_sig *sens[2];
-        uint8_t edges[2];
-        memset(edges, 0, sizeof(edges));
-        size_t n = 0;
-        sens[n++] = &(*self->up->up->p_reset_n);
-        edges[n] = 1;
-        sens[n++] = &(*self->up->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n8_g7_p30, self, sens, NULL, edges, n);
-    }
-
-    {
-        vs_sig *sens[7];
-        size_t n = 0;
-        sens[n++] = &self->up->s_last_a;
-        sens[n++] = &(*self->up->up->p_rw_n);
-        sens[n++] = &self->up->s_buffered_a;
-        sens[n++] = &self->s_fw_done;
-        sens[n++] = &self->s_grace_active;
-        sens[n++] = &self->up->s_buffered_vma;
-        sens[n++] = &self->up->s_buffered_rw_n;
         vs_register_process(k, dmc_63f41_n8_g7_p31, self, sens, n);
     }
 
     {
-        vs_sig *sens[1];
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
-        sens[n++] = &(*self->up->up->p_rw_n);
-        vs_register_process(k, dmc_63f41_n8_g7_p32, self, sens, n);
+        sens[n++] = &(*self->up->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n8_g7_p32, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &(*self->up->up->p_bus_granted);
+        sens[n++] = &(*self->up->up->p_extal);
         vs_register_process(k, dmc_63f41_n8_g7_p33, self, sens, n);
     }
 
@@ -2791,22 +3196,44 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         sens[n++] = &(*self->up->up->p_extal);
         vs_register_process_edges(k, dmc_63f41_n8_g7_p34, self, sens, NULL, edges, n);
     }
+    vs_register_process(k, dmc_63f41_n8_g7_p35, self, NULL, 0);
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        sens[n++] = &(*self->up->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n8_g7_p36, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[7];
+        size_t n = 0;
+        sens[n++] = &self->up->s_last_a;
+        sens[n++] = &(*self->up->up->p_rw_n);
+        sens[n++] = &self->up->s_buffered_a;
+        sens[n++] = &self->s_fw_done;
+        sens[n++] = &self->s_grace_active;
+        sens[n++] = &self->up->s_buffered_vma;
+        sens[n++] = &self->up->s_buffered_rw_n;
+        vs_register_process(k, dmc_63f41_n8_g7_p37, self, sens, n);
+    }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &self->s_ccs_cpu;
-        vs_register_process(k, dmc_63f41_n8_g7_p35, self, sens, n);
+        sens[n++] = &(*self->up->up->p_rw_n);
+        vs_register_process(k, dmc_63f41_n8_g7_p38, self, sens, n);
     }
 
     {
-        vs_sig *sens[4];
+        vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &(*self->up->up->p_ba);
-        sens[n++] = &self->s_started_r;
-        sens[n++] = &self->s_wpark_r;
-        sens[n++] = &self->up->s_cpu_waiting;
-        vs_register_process(k, dmc_63f41_n8_g7_p36, self, sens, n);
+        sens[n++] = &(*self->up->up->p_bus_granted);
+        vs_register_process(k, dmc_63f41_n8_g7_p39, self, sens, n);
     }
 
     {
@@ -2817,7 +3244,35 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         sens[n++] = &(*self->up->up->p_reset_n);
         edges[n] = 1;
         sens[n++] = &(*self->up->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n8_g7_p37, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, dmc_63f41_n8_g7_p40, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_ccs_cpu;
+        vs_register_process(k, dmc_63f41_n8_g7_p41, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[4];
+        size_t n = 0;
+        sens[n++] = &(*self->up->up->p_ba);
+        sens[n++] = &self->s_started_r;
+        sens[n++] = &self->s_wpark_r;
+        sens[n++] = &self->up->s_cpu_waiting;
+        vs_register_process(k, dmc_63f41_n8_g7_p42, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        sens[n++] = &(*self->up->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n8_g7_p43, self, sens, NULL, edges, n);
     }
 
     {
@@ -2825,7 +3280,7 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_ring_undrained;
         sens[n++] = &self->s_not_idle;
-        vs_register_process(k, dmc_63f41_n8_g7_p38, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p44, self, sens, n);
     }
 
     {
@@ -2833,21 +3288,21 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_fw_done;
         sens[n++] = &self->s_grace_active;
-        vs_register_process(k, dmc_63f41_n8_g7_p39, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p45, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &self->s_parked_stalled;
-        vs_register_process(k, dmc_63f41_n8_g7_p40, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p46, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &(*self->up->up->p_fic);
-        vs_register_process(k, dmc_63f41_n8_g7_p41, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p47, self, sens, n);
     }
 
     {
@@ -2858,15 +3313,15 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         sens[n++] = &(*self->up->up->p_reset_n);
         edges[n] = 1;
         sens[n++] = &(*self->up->up->p_rw_n);
-        vs_register_process_edges(k, dmc_63f41_n8_g7_p42, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, dmc_63f41_n8_g7_p48, self, sens, NULL, edges, n);
     }
-    vs_register_process(k, dmc_63f41_n8_g7_p43, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n8_g7_p44, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n8_g7_p45, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n8_g7_p46, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n8_g7_p47, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n8_g7_p48, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n8_g7_p49, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p50, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p51, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p52, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p53, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p54, self, NULL, 0);
+    vs_register_process(k, dmc_63f41_n8_g7_p55, self, NULL, 0);
 
     {
         vs_sig *sens[3];
@@ -2874,7 +3329,7 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         sens[n++] = &self->up->s_cache_mrdy;
         sens[n++] = &self->s_drain_hold;
         sens[n++] = &self->s_out_hold;
-        vs_register_process(k, dmc_63f41_n8_g7_p50, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p56, self, sens, n);
     }
 
     {
@@ -2882,7 +3337,7 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_drain_hold;
         sens[n++] = &self->s_out_hold;
-        vs_register_process(k, dmc_63f41_n8_g7_p51, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p57, self, sens, n);
     }
 
     {
@@ -2891,14 +3346,14 @@ static void dmc_63f41_n8_g7_create(vs_kernel *k, dmc_63f41_n8_g7 *self, const ch
         n += std_logic_matrix_30_leaves(&(*self->up->up->p_ccs_address_in), sens + n);
         sens[n++] = &(*self->up->up->p_ccs_address_rw_n_in);
         sens[n++] = &self->up->s_buffered_a;
-        vs_register_process(k, dmc_63f41_n8_g7_p52, self, sens, n);
+        vs_register_process(k, dmc_63f41_n8_g7_p58, self, sens, n);
     }
 }
 
 static int64_t f_mrdy_source_7(dmc_63f41_n8_g0 *self, uint64_t a_ad)
 {
-    uint64_t v_low_61136 = 0;
-    v_low_61136 = (a_ad & UINT64_C(0xFFF));
+    uint64_t v_low_14480 = 0;
+    v_low_14480 = (a_ad & UINT64_C(0xFFF));
     if ((((a_ad >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFF)))
     {
         return INT64_C(1);
@@ -2909,7 +3364,7 @@ static int64_t f_mrdy_source_7(dmc_63f41_n8_g0 *self, uint64_t a_ad)
         {
             case UINT64_C(0xF):
             {
-                if ((v_low_61136 <= (uint64_t)(INT64_C(9))))
+                if ((v_low_14480 <= (uint64_t)(INT64_C(9))))
                 {
                     return INT64_C(0);
                 }
@@ -2921,7 +3376,7 @@ static int64_t f_mrdy_source_7(dmc_63f41_n8_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xE):
             {
-                if ((v_low_61136 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_14480 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -2933,7 +3388,7 @@ static int64_t f_mrdy_source_7(dmc_63f41_n8_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xD):
             {
-                if ((v_low_61136 <= (uint64_t)(INT64_C(15))))
+                if ((v_low_14480 <= (uint64_t)(INT64_C(15))))
                 {
                     return INT64_C(0);
                 }
@@ -2945,7 +3400,7 @@ static int64_t f_mrdy_source_7(dmc_63f41_n8_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xC):
             {
-                if ((v_low_61136 <= (uint64_t)(INT64_C(3))))
+                if ((v_low_14480 <= (uint64_t)(INT64_C(3))))
                 {
                     return INT64_C(0);
                 }
@@ -2957,7 +3412,7 @@ static int64_t f_mrdy_source_7(dmc_63f41_n8_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xB):
             {
-                if ((v_low_61136 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_14480 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -2969,7 +3424,7 @@ static int64_t f_mrdy_source_7(dmc_63f41_n8_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xA):
             {
-                if ((v_low_61136 <= (uint64_t)(INT64_C(1))))
+                if ((v_low_14480 <= (uint64_t)(INT64_C(1))))
                 {
                     return INT64_C(0);
                 }
@@ -2981,7 +3436,7 @@ static int64_t f_mrdy_source_7(dmc_63f41_n8_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0x9):
             {
-                if ((v_low_61136 <= (uint64_t)(INT64_C(4))))
+                if ((v_low_14480 <= (uint64_t)(INT64_C(4))))
                 {
                     return INT64_C(0);
                 }
@@ -3057,7 +3512,7 @@ static void dmc_63f41_n8_g0_p5(void *inst)
 static void dmc_63f41_n8_g0_p6(void *inst)
 {
     dmc_63f41_n8_g0 *self = inst;
-    if (((((int64_t) self->s_ticks_since_e.cur >= ((INT64_C(3)) - INT64_C(1))) & (self->s_captured.cur == 0)) & (self->s_cpu_mrdy_fsm_r.cur == 1)))
+    if ((((((int64_t) self->s_ticks_since_e.cur >= ((INT64_C(3)) - INT64_C(1))) & (self->s_captured.cur == 0)) & (self->s_cpu_mrdy_fsm_r.cur == 1)) & (self->s_mmu_tr_wait.cur == 0)))
     {
         vs_drive(&self->s_capture_strobe, 1);
     }
@@ -3606,11 +4061,11 @@ static void dmc_63f41_n8_g0_p32(void *inst)
                     self->v32_dirty_flag = 0;
                     if ((self->up->g_ncpus > INT64_C(1)))
                     {
-                        for (int64_t i_17 = INT64_C(0); i_17 <= (self->up->g_ncpus - INT64_C(1)); i_17++)
+                        for (int64_t i_19 = INT64_C(0); i_19 <= (self->up->g_ncpus - INT64_C(1)); i_19++)
                         {
-                            if ((i_17 != self->up->g_cpu_number))
+                            if ((i_19 != self->up->g_cpu_number))
                             {
-                                if ((((self->s_dirty_out.cur >> (7 - (i_17))) & 1) == 1))
+                                if ((((self->s_dirty_out.cur >> (7 - (i_19))) & 1) == 1))
                                 {
                                     self->v32_dirty_flag = 1;
                                 }
@@ -4407,6 +4862,8 @@ static void dmc_63f41_n8_g0_create(vs_kernel *k, dmc_63f41_n8_g0 *self, const ch
     vs_name(k, &self->s_cpu_mrdy_fsm, path, "cpu_mrdy_fsm", 1);
     vs_register_signal(k, &self->s_cpu_mrdy_fsm_r, (uint64_t) (1));
     vs_name(k, &self->s_cpu_mrdy_fsm_r, path, "cpu_mrdy_fsm_r", 1);
+    vs_register_signal(k, &self->s_mmu_tr_wait, (uint64_t) (0));
+    vs_name(k, &self->s_mmu_tr_wait, path, "mmu_tr_wait", 1);
     vs_register_signal(k, &self->s_vma_state, (uint64_t) (0));
     vs_name(k, &self->s_vma_state, path, "vma_state", 1);
     vs_register_signal(k, &self->s_dirty_rw, (uint64_t) (0));
@@ -4538,7 +4995,7 @@ static void dmc_63f41_n8_g0_create(vs_kernel *k, dmc_63f41_n8_g0 *self, const ch
     vs_name(k, &self->s_next_fill_ack_count, path, "next_fill_ack_count", 64);
     vs_register_signal(k, &self->s_tag_rw, (uint64_t) (0));
     vs_name(k, &self->s_tag_rw, path, "tag_rw", 1);
-    mmu_63f29_create(k, &self->c_mmu_with_cache_l1_0, vs_join(k, path, "mmu_with_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, &self->s_cpu_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, &self->s_cpu_rw_n, &self->s_cpu_vma, &self->s_cpu_e_l, &self->s_cpu_q_l, &self->s_cpu_vma_raw, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out, self->up->p_eirq_n, self->up->p_fic, &self->s_cpu_waiting, &self->s_tfm_mode_i, &self->s_tfm_count_i, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n);
+    mmu_63f29_create(k, &self->c_mmu_with_cache_l1_0, vs_join(k, path, "mmu_with_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, &self->s_cpu_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, &self->s_cpu_rw_n, &self->s_cpu_vma, &self->s_cpu_e_l, &self->s_cpu_q_l, &self->s_cpu_vma_raw, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out, self->up->p_eirq_n, self->up->p_fic, &self->s_cpu_waiting, &self->s_tfm_mode_i, &self->s_tfm_count_i, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, &self->s_mmu_tr_wait, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n);
     vs_register_signal(k, &self->x2_imp_rw, (uint64_t) (0));
     vs_name(k, &self->x2_imp_rw, path, "imp_rw", 1);
     vs_register_signal(k, &self->x3_open_data_out2, (uint64_t) (0));
@@ -4625,11 +5082,12 @@ static void dmc_63f41_n8_g0_create(vs_kernel *k, dmc_63f41_n8_g0 *self, const ch
     }
 
     {
-        vs_sig *sens[3];
+        vs_sig *sens[4];
         size_t n = 0;
         sens[n++] = &self->s_ticks_since_e;
         sens[n++] = &self->s_captured;
         sens[n++] = &self->s_cpu_mrdy_fsm_r;
+        sens[n++] = &self->s_mmu_tr_wait;
         vs_register_process(k, dmc_63f41_n8_g0_p6, self, sens, n);
     }
 
@@ -5033,7 +5491,11 @@ static void dmc_63f41_n8_g13_create(vs_kernel *k, dmc_63f41_n8_g13 *self, const 
     vs_name(k, &self->x5_open_tfm_mode, path, "open_tfm_mode", 2);
     vs_register_signal(k, &self->x6_open_tfm_count, (uint64_t) (0));
     vs_name(k, &self->x6_open_tfm_count, path, "open_tfm_count", 16);
-    mmu_63f29_create(k, &self->c_mmu_without_cache_l1_0, vs_join(k, path, "mmu_without_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, self->up->p_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, self->up->p_rw_n, self->up->p_vma, &self->x1_open_e_l, &self->x2_open_q_l, &self->x3_open_vma_raw, self->up->p_a, self->up->p_d_in, self->up->p_d_out, self->up->p_eirq_n, self->up->p_fic, &self->x4_open_waiting, &self->x5_open_tfm_mode, &self->x6_open_tfm_count, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n);
+    vs_register_signal(k, &self->x7_open_mmu_mrdy, (uint64_t) (0));
+    vs_name(k, &self->x7_open_mmu_mrdy, path, "open_mmu_mrdy", 1);
+    vs_register_signal(k, &self->x8_open_tr_wait, (uint64_t) (0));
+    vs_name(k, &self->x8_open_tr_wait, path, "open_tr_wait", 1);
+    mmu_63f29_create(k, &self->c_mmu_without_cache_l1_0, vs_join(k, path, "mmu_without_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, self->up->p_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, self->up->p_rw_n, self->up->p_vma, &self->x1_open_e_l, &self->x2_open_q_l, &self->x3_open_vma_raw, self->up->p_a, self->up->p_d_in, self->up->p_d_out, self->up->p_eirq_n, self->up->p_fic, &self->x4_open_waiting, &self->x5_open_tfm_mode, &self->x6_open_tfm_count, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, &self->x7_open_mmu_mrdy, &self->x8_open_tr_wait, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n);
 
     {
         vs_sig *sens[1];
