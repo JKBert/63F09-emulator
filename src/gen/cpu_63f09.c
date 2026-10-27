@@ -692,13 +692,13 @@ static uint64_t f_index_register_0(cpu_63f09 *self, vs_ref a_rr)
 
 static void p_execute_mem_op_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md, uint64_t a_alu_op, uint64_t a_write_result, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_cc_ctrl, vs_sig *a_a_ctrl, vs_sig *a_b_ctrl, vs_sig *a_e_ctrl, vs_sig *a_f_ctrl, vs_sig *a_v_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl, vs_sig *a_pc_ctrl, vs_sig *a_dp_ctrl, vs_sig *a_ds_ctrl)
 {
-    int64_t v_width_46800 = INT64_C(-2147483648);
+    int64_t v_width_65648 = INT64_C(-2147483648);
     vs_drive(&(*a_left_ctrl), f_register_left_0(self, &(*a_mask), &(*a_reg_md)));
     vs_drive(&(*a_right_ctrl), (UINT64_C(0x200000)));
     vs_drive(&(*a_cc_ctrl), (UINT64_C(0x2)));
-    v_width_46800 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
+    v_width_65648 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
     vs_drive(&(*a_alu_ctrl), a_alu_op);
-    switch (v_width_46800)
+    switch (v_width_65648)
     {
         case INT64_C(8):
         {
@@ -4142,6 +4142,10 @@ static void cpu_63f09_p44(void *inst)
             break;
         }
     }
+    if (((f_is_32bits_0(self, &self->s_reg_md) ^ UINT64_C(0x1)) & UINT64_C(0x1)))
+    {
+        vs_drive_bits(&(*self->p_a), 16, UINT64_C(0xFFFF), UINT64_C(0xFFFF));
+    }
 }
 
 static void cpu_63f09_p45(void *inst)
@@ -4982,7 +4986,7 @@ static void cpu_63f09_p50(void *inst)
     }
     else if ((self->s_alu_ctrl.cur == (UINT64_C(0x820))))
     {
-        vs_drive(&self->s_int_alu, (self->s_left_alu.cur & ((self->s_right_alu.cur ^ UINT64_MAX) & UINT64_MAX)));
+        vs_drive(&self->s_int_alu, (self->s_left_alu.cur & (((self->s_right_alu.cur & UINT64_C(0xC0)) ^ UINT64_MAX) & UINT64_MAX)));
     }
     else if ((self->s_alu_ctrl.cur == (UINT64_C(0x802))))
     {
@@ -5207,6 +5211,10 @@ static void cpu_63f09_p51(void *inst)
     }
     self->v51_zres = (((((self->v51_nz0 | (self->v51_nz1 & ((((self->v51_ez >> 1) & 1) | ((self->v51_ez >> 2) & 1)) | ((self->v51_ez >> 3) & 1)))) | (self->v51_nz2 & (((self->v51_ez >> 2) & 1) | ((self->v51_ez >> 3) & 1)))) | (self->v51_nz3 & ((self->v51_ez >> 3) & 1))) ^ UINT64_C(0x1)) & UINT64_C(0x1));
     self->v51_nres = ((((((self->v51_en >> 0) & 1) & ((self->s_ccp_res.cur >> 7) & 1)) | (((self->v51_en >> 1) & 1) & ((self->s_ccp_res.cur >> 15) & 1))) | (((self->v51_en >> 2) & 1) & ((self->s_ccp_res.cur >> 31) & 1))) | (((self->v51_en >> 3) & 1) & ((self->s_ccp_res.cur >> 63) & 1)));
+    if ((((self->s_ccp_ctrl.cur == (UINT64_C(0x810))) & (((self->s_ccp_res.cur >> 7) & 1) == 1)) & (((self->s_ccp_res.cur >> 6) & 1) == 1)))
+    {
+        self->v51_zres = 1;
+    }
     switch (self->s_ccp_ctrl.cur)
     {
         case UINT64_C(0x101):
@@ -16938,6 +16946,7 @@ static void cpu_63f09_p61(void *inst)
                                             vs_drive(&self->s_alu_ctrl, (UINT64_C(0x1704)));
                                             vs_drive(&self->s_cc_ctrl, (UINT64_C(0x2)));
                                             vs_drive(&self->s_iv_ctrl, (UINT64_C(0x80)));
+                                            vs_drive(&self->s_s_ctrl, (UINT64_C(0x100)));
                                             vs_drive(&self->s_return_state, (UINT64_C(0x104)));
                                             vs_drive(&self->s_stack_ctrl, 1);
                                             vs_drive(&self->s_next_state, (UINT64_C(0x848000)));
@@ -16969,6 +16978,7 @@ static void cpu_63f09_p61(void *inst)
                                             vs_drive(&self->s_alu_ctrl, (UINT64_C(0x1704)));
                                             vs_drive(&self->s_cc_ctrl, (UINT64_C(0x2)));
                                             vs_drive(&self->s_iv_ctrl, (UINT64_C(0x80)));
+                                            vs_drive(&self->s_s_ctrl, (UINT64_C(0x100)));
                                             vs_drive(&self->s_return_state, (UINT64_C(0x104)));
                                             vs_drive(&self->s_stack_ctrl, 1);
                                             vs_drive(&self->s_next_state, (UINT64_C(0x848000)));
@@ -17004,6 +17014,7 @@ static void cpu_63f09_p61(void *inst)
                                             vs_drive(&self->s_alu_ctrl, (UINT64_C(0x1704)));
                                             vs_drive(&self->s_cc_ctrl, (UINT64_C(0x2)));
                                             vs_drive(&self->s_iv_ctrl, (UINT64_C(0x80)));
+                                            vs_drive(&self->s_s_ctrl, (UINT64_C(0x100)));
                                             vs_drive(&self->s_return_state, (UINT64_C(0x104)));
                                             vs_drive(&self->s_stack_ctrl, 1);
                                             vs_drive(&self->s_next_state, (UINT64_C(0x848000)));
@@ -17035,6 +17046,7 @@ static void cpu_63f09_p61(void *inst)
                                             vs_drive(&self->s_alu_ctrl, (UINT64_C(0x1704)));
                                             vs_drive(&self->s_cc_ctrl, (UINT64_C(0x2)));
                                             vs_drive(&self->s_iv_ctrl, (UINT64_C(0x80)));
+                                            vs_drive(&self->s_s_ctrl, (UINT64_C(0x100)));
                                             vs_drive(&self->s_return_state, (UINT64_C(0x104)));
                                             vs_drive(&self->s_stack_ctrl, 1);
                                             vs_drive(&self->s_next_state, (UINT64_C(0x848000)));
@@ -17301,6 +17313,7 @@ static void cpu_63f09_p61(void *inst)
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x1704)));
                                         vs_drive(&self->s_cc_ctrl, (UINT64_C(0x2)));
                                         vs_drive(&self->s_iv_ctrl, (UINT64_C(0x80)));
+                                        vs_drive(&self->s_s_ctrl, (UINT64_C(0x100)));
                                         vs_drive(&self->s_return_state, (UINT64_C(0x104)));
                                         vs_drive(&self->s_stack_ctrl, 1);
                                         vs_drive(&self->s_next_state, (UINT64_C(0x848000)));
@@ -17333,6 +17346,7 @@ static void cpu_63f09_p61(void *inst)
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x1704)));
                                         vs_drive(&self->s_cc_ctrl, (UINT64_C(0x2)));
                                         vs_drive(&self->s_iv_ctrl, (UINT64_C(0x80)));
+                                        vs_drive(&self->s_s_ctrl, (UINT64_C(0x100)));
                                         vs_drive(&self->s_return_state, (UINT64_C(0x104)));
                                         vs_drive(&self->s_stack_ctrl, 1);
                                         vs_drive(&self->s_next_state, (UINT64_C(0x848000)));
@@ -18157,6 +18171,7 @@ static void cpu_63f09_p61(void *inst)
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x1704)));
                                         vs_drive(&self->s_cc_ctrl, (UINT64_C(0x2)));
                                         vs_drive(&self->s_iv_ctrl, (UINT64_C(0x80)));
+                                        vs_drive(&self->s_s_ctrl, (UINT64_C(0x100)));
                                         vs_drive(&self->s_return_state, (UINT64_C(0x104)));
                                         vs_drive(&self->s_stack_ctrl, 1);
                                         vs_drive(&self->s_next_state, (UINT64_C(0x848000)));
@@ -18178,6 +18193,7 @@ static void cpu_63f09_p61(void *inst)
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x1704)));
                                         vs_drive(&self->s_cc_ctrl, (UINT64_C(0x2)));
                                         vs_drive(&self->s_iv_ctrl, (UINT64_C(0x80)));
+                                        vs_drive(&self->s_s_ctrl, (UINT64_C(0x100)));
                                         vs_drive(&self->s_return_state, (UINT64_C(0x104)));
                                         vs_drive(&self->s_stack_ctrl, 1);
                                         vs_drive(&self->s_next_state, (UINT64_C(0x848000)));
@@ -25361,6 +25377,7 @@ static void cpu_63f09_p61(void *inst)
             vs_finished = 1;
             vs_drive(&self->s_md_ctrl, (UINT64_C(0x100)));
             vs_drive(&self->s_iv_ctrl, (UINT64_C(0x80)));
+            vs_drive(&self->s_s_ctrl, (UINT64_C(0x100)));
             vs_drive(&self->s_return_state, (UINT64_C(0x104)));
             vs_drive(&self->s_stack_ctrl, 1);
             vs_drive(&self->s_next_state, (UINT64_C(0x848000)));
@@ -26208,13 +26225,19 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
     }
 
     {
-        vs_sig *sens[6];
+        vs_sig *sens[12];
         size_t n = 0;
         sens[n++] = &self->s_addr_ctrl;
         sens[n++] = &self->s_int_addr;
         sens[n++] = &self->s_reg_pc;
         sens[n++] = &self->s_reg_u;
         sens[n++] = &self->s_reg_s;
+        sens[n++] = &self->s_reg_x;
+        sens[n++] = &self->s_reg_y;
+        sens[n++] = &self->s_reg_ds;
+        sens[n++] = &self->s_reg_a;
+        sens[n++] = &self->s_reg_b;
+        sens[n++] = &self->s_reg_md;
         sens[n++] = &self->s_iv;
         vs_register_process(k, cpu_63f09_p44, self, sens, n);
     }
