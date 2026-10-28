@@ -38,6 +38,7 @@ typedef struct dmc_63f41_n1
     vs_sig *p_cacheable_ext;
     vs_sig *p_mrdy_eprom;
     vs_sig *p_mrdy_ext;
+    vs_sig *p_rem_rdy_in;
     vs_sig *p_e;
     vs_sig *p_q;
     vs_sig *p_bus_request;
@@ -64,6 +65,16 @@ typedef struct dmc_63f41_n1
     vs_sig *p_ccs_tfm_out;
     vs_sig *p_mmu_cs;
     vs_sig *p_mmu_mrdy;
+    vs_sig *p_run_req;
+    vs_sig *p_e_v;
+    vs_sig *p_rem_cs;
+    vs_sig *p_rem_rw_n;
+    vs_sig *p_rem_a;
+    vs_sig *p_rem_d;
+    vs_sig *p_rem_e;
+    vs_sig *p_vclk_on;
+    vs_sig *p_rem_d_out;
+    vs_sig *p_rem_rdy;
     vs_sig *p_lock_request;
     vs_sig *p_lock_granted;
     vs_sig *p_reset_request_n;
@@ -71,6 +82,6 @@ typedef struct dmc_63f41_n1
     struct dmc_63f41_n1_g5 *g_dmc_1;
 } dmc_63f41_n1;
 
-void dmc_63f41_n1_create(vs_kernel *k, dmc_63f41_n1 *self, const char *path, uint64_t g_cached_memory, int64_t g_cpu_number, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *cacheable_ext, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *e, vs_sig *q, vs_sig *bus_request, vs_sig *bus_granted, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, std_logic_matrix_2_s *ccs_address_in, vs_sig *ccs_address_rw_n_in, vs_sig *ccs_bus_granted_in, std_logic_matrix_3_s *ccs_invalidation_pending_in, vs_sig *ccs_fic_in, vs_sig *ccs_write_gen_in, std_logic_matrix_3_s *ccs_prev_pending_in, std_logic_matrix_3_s *ccs_parked_stalled_in, vs_sig *ccs_address_out, vs_sig *ccs_address_rw_n_out, vs_sig *ccs_bus_granted_out, vs_sig *ccs_invalidation_pending_out, vs_sig *ccs_fic_out, vs_sig *ccs_write_gen_out, vs_sig *ccs_prev_pending_out, vs_sig *ccs_parked_stalled_out, std_logic_matrix_4_s *ccs_tfm_in, vs_sig *ccs_tfm_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n);
+void dmc_63f41_n1_create(vs_kernel *k, dmc_63f41_n1 *self, const char *path, uint64_t g_cached_memory, int64_t g_cpu_number, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *cacheable_ext, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *rem_rdy_in, vs_sig *e, vs_sig *q, vs_sig *bus_request, vs_sig *bus_granted, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, std_logic_matrix_2_s *ccs_address_in, vs_sig *ccs_address_rw_n_in, vs_sig *ccs_bus_granted_in, std_logic_matrix_3_s *ccs_invalidation_pending_in, vs_sig *ccs_fic_in, vs_sig *ccs_write_gen_in, std_logic_matrix_3_s *ccs_prev_pending_in, std_logic_matrix_3_s *ccs_parked_stalled_in, vs_sig *ccs_address_out, vs_sig *ccs_address_rw_n_out, vs_sig *ccs_bus_granted_out, vs_sig *ccs_invalidation_pending_out, vs_sig *ccs_fic_out, vs_sig *ccs_write_gen_out, vs_sig *ccs_prev_pending_out, vs_sig *ccs_parked_stalled_out, std_logic_matrix_4_s *ccs_tfm_in, vs_sig *ccs_tfm_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *run_req, vs_sig *e_v, vs_sig *rem_cs, vs_sig *rem_rw_n, vs_sig *rem_a, vs_sig *rem_d, vs_sig *rem_e, vs_sig *vclk_on, vs_sig *rem_d_out, vs_sig *rem_rdy, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n);
 
 #endif

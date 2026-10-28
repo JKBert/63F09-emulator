@@ -34,80 +34,102 @@ struct bac_63f81_n1_g1
     struct bac_63f81_n1 *up;
     dmc_63f41_n1 c_dmc_0;
     vs_sig x1_imp_reset_n;
-    vs_sig x2_open_bus_request;
-    vs_sig x3_imp_bus_granted;
-    std_logic_matrix_2_s x4_imp_ccs_address_in;
-    vs_sig x5_imp_ccs_address_rw_n_in;
-    vs_sig x6_imp_ccs_bus_granted_in;
-    std_logic_matrix_3_s x7_imp_ccs_invalidation_pending_in;
-    vs_sig x8_imp_ccs_fic_in;
-    vs_sig x9_imp_ccs_write_gen_in;
-    std_logic_matrix_3_s x10_imp_ccs_prev_pending_in;
-    std_logic_matrix_3_s x11_imp_ccs_parked_stalled_in;
-    vs_sig x12_open_ccs_address_out;
-    vs_sig x13_open_ccs_address_rw_n_out;
-    vs_sig x14_open_ccs_bus_granted_out;
-    vs_sig x15_open_ccs_invalidation_pending_out;
-    vs_sig x16_open_ccs_fic_out;
-    vs_sig x17_open_ccs_write_gen_out;
-    vs_sig x18_open_ccs_prev_pending_out;
-    vs_sig x19_open_ccs_parked_stalled_out;
-    std_logic_matrix_4_s x20_imp_ccs_tfm_in;
-    vs_sig x21_open_ccs_tfm_out;
-    vs_sig x22_tie_mmu_cs;
-    vs_sig x23_open_lock_request;
-    vs_sig x24_imp_lock_granted;
-    vs_sig x25_tie_reset_request_n;
-    vs_sig x26_w_extal;
-    vs_sig x27_w_reset_n;
-    vs_sig x28_w_nmi_n;
-    vs_sig x29_w_firq_n;
-    vs_sig x30_w_irq_n;
-    vs_sig x31_w_mrdy;
-    vs_sig x32_w_dma_breq_n;
-    vs_sig x33_w_halt_n;
-    vs_sig x34_w_ba;
-    vs_sig x35_w_bs;
-    vs_sig x36_w_rw_n;
-    vs_sig x37_w_vma;
-    vs_sig x38_w_a;
-    vs_sig x39_w_d_in;
-    vs_sig x40_w_d_out;
-    vs_sig x41_w_eirq_n;
-    vs_sig x42_w_fic;
-    vs_sig x43_w_cacheable;
-    vs_sig x44_w_cacheable_ext;
-    vs_sig x45_w_mrdy_eprom;
-    vs_sig x46_w_mrdy_ext;
-    vs_sig x47_w_e;
-    vs_sig x48_w_q;
-    vs_sig x49_w_bus_request;
-    vs_sig x50_w_bus_granted;
-    fp_unit_in_type_s x51_w_fpu_63f39_in;
-    fp_unit_out_type_s x52_w_fpu_63f39_out;
-    std_logic_matrix_2_s x53_w_ccs_address_in;
-    vs_sig x54_w_ccs_address_rw_n_in;
-    vs_sig x55_w_ccs_bus_granted_in;
-    std_logic_matrix_3_s x56_w_ccs_invalidation_pending_in;
-    vs_sig x57_w_ccs_fic_in;
-    vs_sig x58_w_ccs_write_gen_in;
-    std_logic_matrix_3_s x59_w_ccs_prev_pending_in;
-    std_logic_matrix_3_s x60_w_ccs_parked_stalled_in;
-    vs_sig x61_w_ccs_address_out;
-    vs_sig x62_w_ccs_address_rw_n_out;
-    vs_sig x63_w_ccs_bus_granted_out;
-    vs_sig x64_w_ccs_invalidation_pending_out;
-    vs_sig x65_w_ccs_fic_out;
-    vs_sig x66_w_ccs_write_gen_out;
-    vs_sig x67_w_ccs_prev_pending_out;
-    vs_sig x68_w_ccs_parked_stalled_out;
-    std_logic_matrix_4_s x69_w_ccs_tfm_in;
-    vs_sig x70_w_ccs_tfm_out;
-    vs_sig x71_w_mmu_cs;
-    vs_sig x72_w_mmu_mrdy;
-    vs_sig x73_w_lock_request;
-    vs_sig x74_w_lock_granted;
-    vs_sig x75_w_reset_request_n;
+    vs_sig x2_open_rem_rdy_in;
+    vs_sig x3_open_bus_request;
+    vs_sig x4_imp_bus_granted;
+    std_logic_matrix_2_s x5_imp_ccs_address_in;
+    vs_sig x6_imp_ccs_address_rw_n_in;
+    vs_sig x7_imp_ccs_bus_granted_in;
+    std_logic_matrix_3_s x8_imp_ccs_invalidation_pending_in;
+    vs_sig x9_imp_ccs_fic_in;
+    vs_sig x10_imp_ccs_write_gen_in;
+    std_logic_matrix_3_s x11_imp_ccs_prev_pending_in;
+    std_logic_matrix_3_s x12_imp_ccs_parked_stalled_in;
+    vs_sig x13_open_ccs_address_out;
+    vs_sig x14_open_ccs_address_rw_n_out;
+    vs_sig x15_open_ccs_bus_granted_out;
+    vs_sig x16_open_ccs_invalidation_pending_out;
+    vs_sig x17_open_ccs_fic_out;
+    vs_sig x18_open_ccs_write_gen_out;
+    vs_sig x19_open_ccs_prev_pending_out;
+    vs_sig x20_open_ccs_parked_stalled_out;
+    std_logic_matrix_4_s x21_imp_ccs_tfm_in;
+    vs_sig x22_open_ccs_tfm_out;
+    vs_sig x23_tie_mmu_cs;
+    vs_sig x24_open_run_req;
+    vs_sig x25_open_e_v;
+    vs_sig x26_open_rem_cs;
+    vs_sig x27_open_rem_rw_n;
+    vs_sig x28_open_rem_a;
+    vs_sig x29_open_rem_d;
+    vs_sig x30_open_rem_e;
+    vs_sig x31_open_vclk_on;
+    vs_sig x32_open_rem_d_out;
+    vs_sig x33_open_rem_rdy;
+    vs_sig x34_open_lock_request;
+    vs_sig x35_imp_lock_granted;
+    vs_sig x36_tie_reset_request_n;
+    vs_sig x37_w_extal;
+    vs_sig x38_w_reset_n;
+    vs_sig x39_w_nmi_n;
+    vs_sig x40_w_firq_n;
+    vs_sig x41_w_irq_n;
+    vs_sig x42_w_mrdy;
+    vs_sig x43_w_dma_breq_n;
+    vs_sig x44_w_halt_n;
+    vs_sig x45_w_ba;
+    vs_sig x46_w_bs;
+    vs_sig x47_w_rw_n;
+    vs_sig x48_w_vma;
+    vs_sig x49_w_a;
+    vs_sig x50_w_d_in;
+    vs_sig x51_w_d_out;
+    vs_sig x52_w_eirq_n;
+    vs_sig x53_w_fic;
+    vs_sig x54_w_cacheable;
+    vs_sig x55_w_cacheable_ext;
+    vs_sig x56_w_mrdy_eprom;
+    vs_sig x57_w_mrdy_ext;
+    vs_sig x58_w_rem_rdy_in;
+    vs_sig x59_w_e;
+    vs_sig x60_w_q;
+    vs_sig x61_w_bus_request;
+    vs_sig x62_w_bus_granted;
+    fp_unit_in_type_s x63_w_fpu_63f39_in;
+    fp_unit_out_type_s x64_w_fpu_63f39_out;
+    std_logic_matrix_2_s x65_w_ccs_address_in;
+    vs_sig x66_w_ccs_address_rw_n_in;
+    vs_sig x67_w_ccs_bus_granted_in;
+    std_logic_matrix_3_s x68_w_ccs_invalidation_pending_in;
+    vs_sig x69_w_ccs_fic_in;
+    vs_sig x70_w_ccs_write_gen_in;
+    std_logic_matrix_3_s x71_w_ccs_prev_pending_in;
+    std_logic_matrix_3_s x72_w_ccs_parked_stalled_in;
+    vs_sig x73_w_ccs_address_out;
+    vs_sig x74_w_ccs_address_rw_n_out;
+    vs_sig x75_w_ccs_bus_granted_out;
+    vs_sig x76_w_ccs_invalidation_pending_out;
+    vs_sig x77_w_ccs_fic_out;
+    vs_sig x78_w_ccs_write_gen_out;
+    vs_sig x79_w_ccs_prev_pending_out;
+    vs_sig x80_w_ccs_parked_stalled_out;
+    std_logic_matrix_4_s x81_w_ccs_tfm_in;
+    vs_sig x82_w_ccs_tfm_out;
+    vs_sig x83_w_mmu_cs;
+    vs_sig x84_w_mmu_mrdy;
+    vs_sig x85_w_run_req;
+    vs_sig x86_w_e_v;
+    vs_sig x87_w_rem_cs;
+    vs_sig x88_w_rem_rw_n;
+    vs_sig x89_w_rem_a;
+    vs_sig x90_w_rem_d;
+    vs_sig x91_w_rem_e;
+    vs_sig x92_w_vclk_on;
+    vs_sig x93_w_rem_d_out;
+    vs_sig x94_w_rem_rdy;
+    vs_sig x95_w_lock_request;
+    vs_sig x96_w_lock_granted;
+    vs_sig x97_w_reset_request_n;
 };
 typedef struct bac_63f81_n1_g1 bac_63f81_n1_g1;
 
@@ -318,55 +340,83 @@ static void bac_63f81_n1_g1_p3(void *inst)
     vs_drive(&(*self->up->p_bus_master), (uint64_t)(INT64_C(0)));
 }
 
+static void bac_63f81_n1_g1_p4(void *inst)
+{
+    bac_63f81_n1_g1 *self = inst;
+    vs_drive(&(*self->up->p_mmu_d_out), UINT64_C(0xFF));
+}
+
 static void bac_63f81_n1_g1_create(vs_kernel *k, bac_63f81_n1_g1 *self, const char *path)
 {
     vs_register_signal(k, &self->x1_imp_reset_n, (uint64_t) (0));
     vs_name(k, &self->x1_imp_reset_n, path, "imp_reset_n", 1);
-    vs_register_signal(k, &self->x2_open_bus_request, (uint64_t) (0));
-    vs_name(k, &self->x2_open_bus_request, path, "open_bus_request", 1);
-    vs_register_signal(k, &self->x3_imp_bus_granted, (uint64_t) (1));
-    vs_name(k, &self->x3_imp_bus_granted, path, "imp_bus_granted", 1);
-    std_logic_matrix_2_register(k, &self->x4_imp_ccs_address_in, std_logic_matrix_2_fill(UINT64_C(0xFFFFFFFFF)));
-    vs_register_signal(k, &self->x5_imp_ccs_address_rw_n_in, (uint64_t) (UINT64_C(0x1)));
-    vs_name(k, &self->x5_imp_ccs_address_rw_n_in, path, "imp_ccs_address_rw_n_in", 1);
-    vs_register_signal(k, &self->x6_imp_ccs_bus_granted_in, (uint64_t) (UINT64_C(0x1)));
-    vs_name(k, &self->x6_imp_ccs_bus_granted_in, path, "imp_ccs_bus_granted_in", 1);
-    std_logic_matrix_3_register(k, &self->x7_imp_ccs_invalidation_pending_in, std_logic_matrix_3_fill(UINT64_C(0x0)));
-    vs_register_signal(k, &self->x8_imp_ccs_fic_in, (uint64_t) (UINT64_C(0x0)));
-    vs_name(k, &self->x8_imp_ccs_fic_in, path, "imp_ccs_fic_in", 1);
-    vs_register_signal(k, &self->x9_imp_ccs_write_gen_in, (uint64_t) (UINT64_C(0x0)));
-    vs_name(k, &self->x9_imp_ccs_write_gen_in, path, "imp_ccs_write_gen_in", 1);
-    std_logic_matrix_3_register(k, &self->x10_imp_ccs_prev_pending_in, std_logic_matrix_3_fill(UINT64_C(0x0)));
-    std_logic_matrix_3_register(k, &self->x11_imp_ccs_parked_stalled_in, std_logic_matrix_3_fill(UINT64_C(0x0)));
-    vs_register_signal(k, &self->x12_open_ccs_address_out, (uint64_t) (0));
-    vs_name(k, &self->x12_open_ccs_address_out, path, "open_ccs_address_out", 36);
-    vs_register_signal(k, &self->x13_open_ccs_address_rw_n_out, (uint64_t) (0));
-    vs_name(k, &self->x13_open_ccs_address_rw_n_out, path, "open_ccs_address_rw_n_out", 1);
-    vs_register_signal(k, &self->x14_open_ccs_bus_granted_out, (uint64_t) (0));
-    vs_name(k, &self->x14_open_ccs_bus_granted_out, path, "open_ccs_bus_granted_out", 1);
-    vs_register_signal(k, &self->x15_open_ccs_invalidation_pending_out, (uint64_t) (0));
-    vs_name(k, &self->x15_open_ccs_invalidation_pending_out, path, "open_ccs_invalidation_pending_out", 1);
-    vs_register_signal(k, &self->x16_open_ccs_fic_out, (uint64_t) (0));
-    vs_name(k, &self->x16_open_ccs_fic_out, path, "open_ccs_fic_out", 1);
-    vs_register_signal(k, &self->x17_open_ccs_write_gen_out, (uint64_t) (0));
-    vs_name(k, &self->x17_open_ccs_write_gen_out, path, "open_ccs_write_gen_out", 1);
-    vs_register_signal(k, &self->x18_open_ccs_prev_pending_out, (uint64_t) (0));
-    vs_name(k, &self->x18_open_ccs_prev_pending_out, path, "open_ccs_prev_pending_out", 1);
-    vs_register_signal(k, &self->x19_open_ccs_parked_stalled_out, (uint64_t) (0));
-    vs_name(k, &self->x19_open_ccs_parked_stalled_out, path, "open_ccs_parked_stalled_out", 1);
-    std_logic_matrix_4_register(k, &self->x20_imp_ccs_tfm_in, std_logic_matrix_4_fill(UINT64_C(0x0)));
-    vs_register_signal(k, &self->x21_open_ccs_tfm_out, (uint64_t) (0));
-    vs_name(k, &self->x21_open_ccs_tfm_out, path, "open_ccs_tfm_out", 18);
-    vs_register_signal(k, &self->x22_tie_mmu_cs, (uint64_t) (0));
-    vs_name(k, &self->x22_tie_mmu_cs, path, "tie_mmu_cs", 1);
-    vs_tie_fields(&(*self->up->p_mmu_cs), 0, &self->x22_tie_mmu_cs, 0, 1);
-    vs_register_signal(k, &self->x23_open_lock_request, (uint64_t) (0));
-    vs_name(k, &self->x23_open_lock_request, path, "open_lock_request", 1);
-    vs_register_signal(k, &self->x24_imp_lock_granted, (uint64_t) (1));
-    vs_name(k, &self->x24_imp_lock_granted, path, "imp_lock_granted", 1);
-    vs_register_signal(k, &self->x25_tie_reset_request_n, (uint64_t) (0));
-    vs_name(k, &self->x25_tie_reset_request_n, path, "tie_reset_request_n", 1);
-    vs_tie_fields(&self->x25_tie_reset_request_n, 0, &self->up->s_reset_request_n, 0, 1);
+    vs_register_signal(k, &self->x2_open_rem_rdy_in, (uint64_t) (0));
+    vs_name(k, &self->x2_open_rem_rdy_in, path, "open_rem_rdy_in", 8);
+    vs_register_signal(k, &self->x3_open_bus_request, (uint64_t) (0));
+    vs_name(k, &self->x3_open_bus_request, path, "open_bus_request", 1);
+    vs_register_signal(k, &self->x4_imp_bus_granted, (uint64_t) (1));
+    vs_name(k, &self->x4_imp_bus_granted, path, "imp_bus_granted", 1);
+    std_logic_matrix_2_register(k, &self->x5_imp_ccs_address_in, std_logic_matrix_2_fill(UINT64_C(0xFFFFFFFFF)));
+    vs_register_signal(k, &self->x6_imp_ccs_address_rw_n_in, (uint64_t) (UINT64_C(0x1)));
+    vs_name(k, &self->x6_imp_ccs_address_rw_n_in, path, "imp_ccs_address_rw_n_in", 1);
+    vs_register_signal(k, &self->x7_imp_ccs_bus_granted_in, (uint64_t) (UINT64_C(0x1)));
+    vs_name(k, &self->x7_imp_ccs_bus_granted_in, path, "imp_ccs_bus_granted_in", 1);
+    std_logic_matrix_3_register(k, &self->x8_imp_ccs_invalidation_pending_in, std_logic_matrix_3_fill(UINT64_C(0x0)));
+    vs_register_signal(k, &self->x9_imp_ccs_fic_in, (uint64_t) (UINT64_C(0x0)));
+    vs_name(k, &self->x9_imp_ccs_fic_in, path, "imp_ccs_fic_in", 1);
+    vs_register_signal(k, &self->x10_imp_ccs_write_gen_in, (uint64_t) (UINT64_C(0x0)));
+    vs_name(k, &self->x10_imp_ccs_write_gen_in, path, "imp_ccs_write_gen_in", 1);
+    std_logic_matrix_3_register(k, &self->x11_imp_ccs_prev_pending_in, std_logic_matrix_3_fill(UINT64_C(0x0)));
+    std_logic_matrix_3_register(k, &self->x12_imp_ccs_parked_stalled_in, std_logic_matrix_3_fill(UINT64_C(0x0)));
+    vs_register_signal(k, &self->x13_open_ccs_address_out, (uint64_t) (0));
+    vs_name(k, &self->x13_open_ccs_address_out, path, "open_ccs_address_out", 36);
+    vs_register_signal(k, &self->x14_open_ccs_address_rw_n_out, (uint64_t) (0));
+    vs_name(k, &self->x14_open_ccs_address_rw_n_out, path, "open_ccs_address_rw_n_out", 1);
+    vs_register_signal(k, &self->x15_open_ccs_bus_granted_out, (uint64_t) (0));
+    vs_name(k, &self->x15_open_ccs_bus_granted_out, path, "open_ccs_bus_granted_out", 1);
+    vs_register_signal(k, &self->x16_open_ccs_invalidation_pending_out, (uint64_t) (0));
+    vs_name(k, &self->x16_open_ccs_invalidation_pending_out, path, "open_ccs_invalidation_pending_out", 1);
+    vs_register_signal(k, &self->x17_open_ccs_fic_out, (uint64_t) (0));
+    vs_name(k, &self->x17_open_ccs_fic_out, path, "open_ccs_fic_out", 1);
+    vs_register_signal(k, &self->x18_open_ccs_write_gen_out, (uint64_t) (0));
+    vs_name(k, &self->x18_open_ccs_write_gen_out, path, "open_ccs_write_gen_out", 1);
+    vs_register_signal(k, &self->x19_open_ccs_prev_pending_out, (uint64_t) (0));
+    vs_name(k, &self->x19_open_ccs_prev_pending_out, path, "open_ccs_prev_pending_out", 1);
+    vs_register_signal(k, &self->x20_open_ccs_parked_stalled_out, (uint64_t) (0));
+    vs_name(k, &self->x20_open_ccs_parked_stalled_out, path, "open_ccs_parked_stalled_out", 1);
+    std_logic_matrix_4_register(k, &self->x21_imp_ccs_tfm_in, std_logic_matrix_4_fill(UINT64_C(0x0)));
+    vs_register_signal(k, &self->x22_open_ccs_tfm_out, (uint64_t) (0));
+    vs_name(k, &self->x22_open_ccs_tfm_out, path, "open_ccs_tfm_out", 18);
+    vs_register_signal(k, &self->x23_tie_mmu_cs, (uint64_t) (0));
+    vs_name(k, &self->x23_tie_mmu_cs, path, "tie_mmu_cs", 1);
+    vs_tie_fields(&(*self->up->p_mmu_cs), 0, &self->x23_tie_mmu_cs, 0, 1);
+    vs_register_signal(k, &self->x24_open_run_req, (uint64_t) (0));
+    vs_name(k, &self->x24_open_run_req, path, "open_run_req", 1);
+    vs_register_signal(k, &self->x25_open_e_v, (uint64_t) (0));
+    vs_name(k, &self->x25_open_e_v, path, "open_e_v", 1);
+    vs_register_signal(k, &self->x26_open_rem_cs, (uint64_t) (0));
+    vs_name(k, &self->x26_open_rem_cs, path, "open_rem_cs", 1);
+    vs_register_signal(k, &self->x27_open_rem_rw_n, (uint64_t) (0));
+    vs_name(k, &self->x27_open_rem_rw_n, path, "open_rem_rw_n", 1);
+    vs_register_signal(k, &self->x28_open_rem_a, (uint64_t) (0));
+    vs_name(k, &self->x28_open_rem_a, path, "open_rem_a", 12);
+    vs_register_signal(k, &self->x29_open_rem_d, (uint64_t) (0));
+    vs_name(k, &self->x29_open_rem_d, path, "open_rem_d", 8);
+    vs_register_signal(k, &self->x30_open_rem_e, (uint64_t) (0));
+    vs_name(k, &self->x30_open_rem_e, path, "open_rem_e", 1);
+    vs_register_signal(k, &self->x31_open_vclk_on, (uint64_t) (0));
+    vs_name(k, &self->x31_open_vclk_on, path, "open_vclk_on", 1);
+    vs_register_signal(k, &self->x32_open_rem_d_out, (uint64_t) (0));
+    vs_name(k, &self->x32_open_rem_d_out, path, "open_rem_d_out", 8);
+    vs_register_signal(k, &self->x33_open_rem_rdy, (uint64_t) (0));
+    vs_name(k, &self->x33_open_rem_rdy, path, "open_rem_rdy", 1);
+    vs_register_signal(k, &self->x34_open_lock_request, (uint64_t) (0));
+    vs_name(k, &self->x34_open_lock_request, path, "open_lock_request", 1);
+    vs_register_signal(k, &self->x35_imp_lock_granted, (uint64_t) (1));
+    vs_name(k, &self->x35_imp_lock_granted, path, "imp_lock_granted", 1);
+    vs_register_signal(k, &self->x36_tie_reset_request_n, (uint64_t) (0));
+    vs_name(k, &self->x36_tie_reset_request_n, path, "tie_reset_request_n", 1);
+    vs_tie_fields(&self->x36_tie_reset_request_n, 0, &self->up->s_reset_request_n, 0, 1);
     {
     vs_sig *p0 = self->up->p_cpuclk;
     vs_sig *p1 = &self->x1_imp_reset_n;
@@ -389,483 +439,593 @@ static void bac_63f81_n1_g1_create(vs_kernel *k, bac_63f81_n1_g1 *self, const ch
     vs_sig *p18 = self->up->p_cacheable_amc;
     vs_sig *p19 = self->up->p_mrdy_eprom;
     vs_sig *p20 = self->up->p_mrdy_ext;
-    vs_sig *p21 = self->up->p_e;
-    vs_sig *p22 = self->up->p_q;
-    vs_sig *p23 = &self->x2_open_bus_request;
-    vs_sig *p24 = &self->x3_imp_bus_granted;
-    fp_unit_in_type_s *p25 = &self->up->s_fpu_in.a[0];
-    fp_unit_out_type_s *p26 = &self->up->s_fpu_out;
-    std_logic_matrix_2_s *p27 = &self->x4_imp_ccs_address_in;
-    vs_sig *p28 = &self->x5_imp_ccs_address_rw_n_in;
-    vs_sig *p29 = &self->x6_imp_ccs_bus_granted_in;
-    std_logic_matrix_3_s *p30 = &self->x7_imp_ccs_invalidation_pending_in;
-    vs_sig *p31 = &self->x8_imp_ccs_fic_in;
-    vs_sig *p32 = &self->x9_imp_ccs_write_gen_in;
-    std_logic_matrix_3_s *p33 = &self->x10_imp_ccs_prev_pending_in;
-    std_logic_matrix_3_s *p34 = &self->x11_imp_ccs_parked_stalled_in;
-    vs_sig *p35 = &self->x12_open_ccs_address_out;
-    vs_sig *p36 = &self->x13_open_ccs_address_rw_n_out;
-    vs_sig *p37 = &self->x14_open_ccs_bus_granted_out;
-    vs_sig *p38 = &self->x15_open_ccs_invalidation_pending_out;
-    vs_sig *p39 = &self->x16_open_ccs_fic_out;
-    vs_sig *p40 = &self->x17_open_ccs_write_gen_out;
-    vs_sig *p41 = &self->x18_open_ccs_prev_pending_out;
-    vs_sig *p42 = &self->x19_open_ccs_parked_stalled_out;
-    std_logic_matrix_4_s *p43 = &self->x20_imp_ccs_tfm_in;
-    vs_sig *p44 = &self->x21_open_ccs_tfm_out;
-    vs_sig *p45 = &self->x22_tie_mmu_cs;
-    vs_sig *p46 = self->up->p_mmu_mrdy;
-    vs_sig *p47 = &self->x23_open_lock_request;
-    vs_sig *p48 = &self->x24_imp_lock_granted;
-    vs_sig *p49 = &self->x25_tie_reset_request_n;
+    vs_sig *p21 = &self->x2_open_rem_rdy_in;
+    vs_sig *p22 = self->up->p_e;
+    vs_sig *p23 = self->up->p_q;
+    vs_sig *p24 = &self->x3_open_bus_request;
+    vs_sig *p25 = &self->x4_imp_bus_granted;
+    fp_unit_in_type_s *p26 = &self->up->s_fpu_in.a[0];
+    fp_unit_out_type_s *p27 = &self->up->s_fpu_out;
+    std_logic_matrix_2_s *p28 = &self->x5_imp_ccs_address_in;
+    vs_sig *p29 = &self->x6_imp_ccs_address_rw_n_in;
+    vs_sig *p30 = &self->x7_imp_ccs_bus_granted_in;
+    std_logic_matrix_3_s *p31 = &self->x8_imp_ccs_invalidation_pending_in;
+    vs_sig *p32 = &self->x9_imp_ccs_fic_in;
+    vs_sig *p33 = &self->x10_imp_ccs_write_gen_in;
+    std_logic_matrix_3_s *p34 = &self->x11_imp_ccs_prev_pending_in;
+    std_logic_matrix_3_s *p35 = &self->x12_imp_ccs_parked_stalled_in;
+    vs_sig *p36 = &self->x13_open_ccs_address_out;
+    vs_sig *p37 = &self->x14_open_ccs_address_rw_n_out;
+    vs_sig *p38 = &self->x15_open_ccs_bus_granted_out;
+    vs_sig *p39 = &self->x16_open_ccs_invalidation_pending_out;
+    vs_sig *p40 = &self->x17_open_ccs_fic_out;
+    vs_sig *p41 = &self->x18_open_ccs_write_gen_out;
+    vs_sig *p42 = &self->x19_open_ccs_prev_pending_out;
+    vs_sig *p43 = &self->x20_open_ccs_parked_stalled_out;
+    std_logic_matrix_4_s *p44 = &self->x21_imp_ccs_tfm_in;
+    vs_sig *p45 = &self->x22_open_ccs_tfm_out;
+    vs_sig *p46 = &self->x23_tie_mmu_cs;
+    vs_sig *p47 = self->up->p_mmu_mrdy;
+    vs_sig *p48 = &self->x24_open_run_req;
+    vs_sig *p49 = &self->x25_open_e_v;
+    vs_sig *p50 = &self->x26_open_rem_cs;
+    vs_sig *p51 = &self->x27_open_rem_rw_n;
+    vs_sig *p52 = &self->x28_open_rem_a;
+    vs_sig *p53 = &self->x29_open_rem_d;
+    vs_sig *p54 = &self->x30_open_rem_e;
+    vs_sig *p55 = &self->x31_open_vclk_on;
+    vs_sig *p56 = &self->x32_open_rem_d_out;
+    vs_sig *p57 = &self->x33_open_rem_rdy;
+    vs_sig *p58 = &self->x34_open_lock_request;
+    vs_sig *p59 = &self->x35_imp_lock_granted;
+    vs_sig *p60 = &self->x36_tie_reset_request_n;
     if (k->threaded)
     {
     vs_part_enter(k, 1 + (unsigned) (INT64_C(0)));
-    vs_register_signal(k, &self->x26_w_extal, (uint64_t) (0));
-    vs_name(k, &self->x26_w_extal, path, "w_extal", 1);
+    vs_register_signal(k, &self->x37_w_extal, (uint64_t) (0));
+    vs_name(k, &self->x37_w_extal, path, "w_extal", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p0); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x26_w_extal; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x37_w_extal; }
     vs_tie_all(ma, wa, 1);
-    p0 = &self->x26_w_extal;
+    p0 = &self->x37_w_extal;
     }
-    vs_register_signal(k, &self->x27_w_reset_n, (uint64_t) (0));
-    vs_name(k, &self->x27_w_reset_n, path, "w_reset_n", 1);
+    vs_register_signal(k, &self->x38_w_reset_n, (uint64_t) (0));
+    vs_name(k, &self->x38_w_reset_n, path, "w_reset_n", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p1); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x27_w_reset_n; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x38_w_reset_n; }
     vs_tie_all(ma, wa, 1);
-    p1 = &self->x27_w_reset_n;
+    p1 = &self->x38_w_reset_n;
     }
-    vs_register_signal(k, &self->x28_w_nmi_n, (uint64_t) (0));
-    vs_name(k, &self->x28_w_nmi_n, path, "w_nmi_n", 1);
+    vs_register_signal(k, &self->x39_w_nmi_n, (uint64_t) (0));
+    vs_name(k, &self->x39_w_nmi_n, path, "w_nmi_n", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p2); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x28_w_nmi_n; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x39_w_nmi_n; }
     vs_tie_all(ma, wa, 1);
-    p2 = &self->x28_w_nmi_n;
+    p2 = &self->x39_w_nmi_n;
     }
-    vs_register_signal(k, &self->x29_w_firq_n, (uint64_t) (0));
-    vs_name(k, &self->x29_w_firq_n, path, "w_firq_n", 1);
+    vs_register_signal(k, &self->x40_w_firq_n, (uint64_t) (0));
+    vs_name(k, &self->x40_w_firq_n, path, "w_firq_n", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p3); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x29_w_firq_n; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x40_w_firq_n; }
     vs_tie_all(ma, wa, 1);
-    p3 = &self->x29_w_firq_n;
+    p3 = &self->x40_w_firq_n;
     }
-    vs_register_signal(k, &self->x30_w_irq_n, (uint64_t) (0));
-    vs_name(k, &self->x30_w_irq_n, path, "w_irq_n", 1);
+    vs_register_signal(k, &self->x41_w_irq_n, (uint64_t) (0));
+    vs_name(k, &self->x41_w_irq_n, path, "w_irq_n", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p4); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x30_w_irq_n; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x41_w_irq_n; }
     vs_tie_all(ma, wa, 1);
-    p4 = &self->x30_w_irq_n;
+    p4 = &self->x41_w_irq_n;
     }
-    vs_register_signal(k, &self->x31_w_mrdy, (uint64_t) (0));
-    vs_name(k, &self->x31_w_mrdy, path, "w_mrdy", 1);
+    vs_register_signal(k, &self->x42_w_mrdy, (uint64_t) (0));
+    vs_name(k, &self->x42_w_mrdy, path, "w_mrdy", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p5); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x31_w_mrdy; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x42_w_mrdy; }
     vs_tie_all(ma, wa, 1);
-    p5 = &self->x31_w_mrdy;
+    p5 = &self->x42_w_mrdy;
     }
-    vs_register_signal(k, &self->x32_w_dma_breq_n, (uint64_t) (0));
-    vs_name(k, &self->x32_w_dma_breq_n, path, "w_dma_breq_n", 1);
+    vs_register_signal(k, &self->x43_w_dma_breq_n, (uint64_t) (0));
+    vs_name(k, &self->x43_w_dma_breq_n, path, "w_dma_breq_n", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p6); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x32_w_dma_breq_n; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x43_w_dma_breq_n; }
     vs_tie_all(ma, wa, 1);
-    p6 = &self->x32_w_dma_breq_n;
+    p6 = &self->x43_w_dma_breq_n;
     }
-    vs_register_signal(k, &self->x33_w_halt_n, (uint64_t) (0));
-    vs_name(k, &self->x33_w_halt_n, path, "w_halt_n", 1);
+    vs_register_signal(k, &self->x44_w_halt_n, (uint64_t) (0));
+    vs_name(k, &self->x44_w_halt_n, path, "w_halt_n", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p7); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x33_w_halt_n; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x44_w_halt_n; }
     vs_tie_all(ma, wa, 1);
-    p7 = &self->x33_w_halt_n;
+    p7 = &self->x44_w_halt_n;
     }
-    vs_register_signal(k, &self->x34_w_ba, (uint64_t) (0));
-    vs_name(k, &self->x34_w_ba, path, "w_ba", 1);
+    vs_register_signal(k, &self->x45_w_ba, (uint64_t) (0));
+    vs_name(k, &self->x45_w_ba, path, "w_ba", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p8); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x34_w_ba; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x45_w_ba; }
     vs_tie_all(wa, ma, 1);
-    p8 = &self->x34_w_ba;
+    p8 = &self->x45_w_ba;
     }
-    vs_register_signal(k, &self->x35_w_bs, (uint64_t) (0));
-    vs_name(k, &self->x35_w_bs, path, "w_bs", 1);
+    vs_register_signal(k, &self->x46_w_bs, (uint64_t) (0));
+    vs_name(k, &self->x46_w_bs, path, "w_bs", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p9); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x35_w_bs; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x46_w_bs; }
     vs_tie_all(wa, ma, 1);
-    p9 = &self->x35_w_bs;
+    p9 = &self->x46_w_bs;
     }
-    vs_register_signal(k, &self->x36_w_rw_n, (uint64_t) (0));
-    vs_name(k, &self->x36_w_rw_n, path, "w_rw_n", 1);
+    vs_register_signal(k, &self->x47_w_rw_n, (uint64_t) (0));
+    vs_name(k, &self->x47_w_rw_n, path, "w_rw_n", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p10); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x36_w_rw_n; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x47_w_rw_n; }
     vs_tie_all(wa, ma, 1);
-    p10 = &self->x36_w_rw_n;
+    p10 = &self->x47_w_rw_n;
     }
-    vs_register_signal(k, &self->x37_w_vma, (uint64_t) (0));
-    vs_name(k, &self->x37_w_vma, path, "w_vma", 1);
+    vs_register_signal(k, &self->x48_w_vma, (uint64_t) (0));
+    vs_name(k, &self->x48_w_vma, path, "w_vma", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p11); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x37_w_vma; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x48_w_vma; }
     vs_tie_all(wa, ma, 1);
-    p11 = &self->x37_w_vma;
+    p11 = &self->x48_w_vma;
     }
-    vs_register_signal(k, &self->x38_w_a, (uint64_t) (0));
-    vs_name(k, &self->x38_w_a, path, "w_a", 36);
+    vs_register_signal(k, &self->x49_w_a, (uint64_t) (0));
+    vs_name(k, &self->x49_w_a, path, "w_a", 36);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p12); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x38_w_a; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x49_w_a; }
     vs_tie_all(wa, ma, 1);
-    p12 = &self->x38_w_a;
+    p12 = &self->x49_w_a;
     }
-    vs_register_signal(k, &self->x39_w_d_in, (uint64_t) (0));
-    vs_name(k, &self->x39_w_d_in, path, "w_d_in", 8);
+    vs_register_signal(k, &self->x50_w_d_in, (uint64_t) (0));
+    vs_name(k, &self->x50_w_d_in, path, "w_d_in", 8);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p13); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x39_w_d_in; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x50_w_d_in; }
     vs_tie_all(ma, wa, 1);
-    p13 = &self->x39_w_d_in;
+    p13 = &self->x50_w_d_in;
     }
-    vs_register_signal(k, &self->x40_w_d_out, (uint64_t) (0));
-    vs_name(k, &self->x40_w_d_out, path, "w_d_out", 8);
+    vs_register_signal(k, &self->x51_w_d_out, (uint64_t) (0));
+    vs_name(k, &self->x51_w_d_out, path, "w_d_out", 8);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p14); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x40_w_d_out; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x51_w_d_out; }
     vs_tie_all(wa, ma, 1);
-    p14 = &self->x40_w_d_out;
+    p14 = &self->x51_w_d_out;
     }
-    vs_register_signal(k, &self->x41_w_eirq_n, (uint64_t) (0));
-    vs_name(k, &self->x41_w_eirq_n, path, "w_eirq_n", 24);
+    vs_register_signal(k, &self->x52_w_eirq_n, (uint64_t) (0));
+    vs_name(k, &self->x52_w_eirq_n, path, "w_eirq_n", 24);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p15); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x41_w_eirq_n; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x52_w_eirq_n; }
     vs_tie_all(ma, wa, 1);
-    p15 = &self->x41_w_eirq_n;
+    p15 = &self->x52_w_eirq_n;
     }
-    vs_register_signal(k, &self->x42_w_fic, (uint64_t) (0));
-    vs_name(k, &self->x42_w_fic, path, "w_fic", 1);
+    vs_register_signal(k, &self->x53_w_fic, (uint64_t) (0));
+    vs_name(k, &self->x53_w_fic, path, "w_fic", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p16); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x42_w_fic; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x53_w_fic; }
     vs_tie_all(wa, ma, 1);
-    p16 = &self->x42_w_fic;
+    p16 = &self->x53_w_fic;
     }
-    vs_register_signal(k, &self->x43_w_cacheable, (uint64_t) (0));
-    vs_name(k, &self->x43_w_cacheable, path, "w_cacheable", 1);
+    vs_register_signal(k, &self->x54_w_cacheable, (uint64_t) (0));
+    vs_name(k, &self->x54_w_cacheable, path, "w_cacheable", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p17); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x43_w_cacheable; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x54_w_cacheable; }
     vs_tie_all(ma, wa, 1);
-    p17 = &self->x43_w_cacheable;
+    p17 = &self->x54_w_cacheable;
     }
-    vs_register_signal(k, &self->x44_w_cacheable_ext, (uint64_t) (0));
-    vs_name(k, &self->x44_w_cacheable_ext, path, "w_cacheable_ext", 1);
+    vs_register_signal(k, &self->x55_w_cacheable_ext, (uint64_t) (0));
+    vs_name(k, &self->x55_w_cacheable_ext, path, "w_cacheable_ext", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p18); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x44_w_cacheable_ext; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x55_w_cacheable_ext; }
     vs_tie_all(ma, wa, 1);
-    p18 = &self->x44_w_cacheable_ext;
+    p18 = &self->x55_w_cacheable_ext;
     }
-    vs_register_signal(k, &self->x45_w_mrdy_eprom, (uint64_t) (0));
-    vs_name(k, &self->x45_w_mrdy_eprom, path, "w_mrdy_eprom", 1);
+    vs_register_signal(k, &self->x56_w_mrdy_eprom, (uint64_t) (0));
+    vs_name(k, &self->x56_w_mrdy_eprom, path, "w_mrdy_eprom", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p19); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x45_w_mrdy_eprom; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x56_w_mrdy_eprom; }
     vs_tie_all(ma, wa, 1);
-    p19 = &self->x45_w_mrdy_eprom;
+    p19 = &self->x56_w_mrdy_eprom;
     }
-    vs_register_signal(k, &self->x46_w_mrdy_ext, (uint64_t) (0));
-    vs_name(k, &self->x46_w_mrdy_ext, path, "w_mrdy_ext", 1);
+    vs_register_signal(k, &self->x57_w_mrdy_ext, (uint64_t) (0));
+    vs_name(k, &self->x57_w_mrdy_ext, path, "w_mrdy_ext", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p20); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x46_w_mrdy_ext; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x57_w_mrdy_ext; }
     vs_tie_all(ma, wa, 1);
-    p20 = &self->x46_w_mrdy_ext;
+    p20 = &self->x57_w_mrdy_ext;
     }
-    vs_register_signal(k, &self->x47_w_e, (uint64_t) (0));
-    vs_name(k, &self->x47_w_e, path, "w_e", 1);
+    vs_register_signal(k, &self->x58_w_rem_rdy_in, (uint64_t) (0));
+    vs_name(k, &self->x58_w_rem_rdy_in, path, "w_rem_rdy_in", 8);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p21); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x47_w_e; }
-    vs_tie_all(wa, ma, 1);
-    p21 = &self->x47_w_e;
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x58_w_rem_rdy_in; }
+    vs_tie_all(ma, wa, 1);
+    p21 = &self->x58_w_rem_rdy_in;
     }
-    vs_register_signal(k, &self->x48_w_q, (uint64_t) (0));
-    vs_name(k, &self->x48_w_q, path, "w_q", 1);
+    vs_register_signal(k, &self->x59_w_e, (uint64_t) (0));
+    vs_name(k, &self->x59_w_e, path, "w_e", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p22); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x48_w_q; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x59_w_e; }
     vs_tie_all(wa, ma, 1);
-    p22 = &self->x48_w_q;
+    p22 = &self->x59_w_e;
     }
-    vs_register_signal(k, &self->x49_w_bus_request, (uint64_t) (0));
-    vs_name(k, &self->x49_w_bus_request, path, "w_bus_request", 1);
+    vs_register_signal(k, &self->x60_w_q, (uint64_t) (0));
+    vs_name(k, &self->x60_w_q, path, "w_q", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p23); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x49_w_bus_request; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x60_w_q; }
     vs_tie_all(wa, ma, 1);
-    p23 = &self->x49_w_bus_request;
+    p23 = &self->x60_w_q;
     }
-    vs_register_signal(k, &self->x50_w_bus_granted, (uint64_t) (0));
-    vs_name(k, &self->x50_w_bus_granted, path, "w_bus_granted", 1);
+    vs_register_signal(k, &self->x61_w_bus_request, (uint64_t) (0));
+    vs_name(k, &self->x61_w_bus_request, path, "w_bus_request", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p24); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x50_w_bus_granted; }
-    vs_tie_all(ma, wa, 1);
-    p24 = &self->x50_w_bus_granted;
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x61_w_bus_request; }
+    vs_tie_all(wa, ma, 1);
+    p24 = &self->x61_w_bus_request;
     }
-    fp_unit_in_type_register(k, &self->x51_w_fpu_63f39_in, fp_unit_in_type_zero());
+    vs_register_signal(k, &self->x62_w_bus_granted, (uint64_t) (0));
+    vs_name(k, &self->x62_w_bus_granted, path, "w_bus_granted", 1);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p25); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x62_w_bus_granted; }
+    vs_tie_all(ma, wa, 1);
+    p25 = &self->x62_w_bus_granted;
+    }
+    fp_unit_in_type_register(k, &self->x63_w_fpu_63f39_in, fp_unit_in_type_zero());
     {
     vs_sig *ma[25], *wa[25];
-    { vs_sig **out = ma; size_t n = 0; n += fp_unit_in_type_leaves(&(*p25), out + n); }
-    { vs_sig **out = wa; size_t n = 0; n += fp_unit_in_type_leaves(&self->x51_w_fpu_63f39_in, out + n); }
+    { vs_sig **out = ma; size_t n = 0; n += fp_unit_in_type_leaves(&(*p26), out + n); }
+    { vs_sig **out = wa; size_t n = 0; n += fp_unit_in_type_leaves(&self->x63_w_fpu_63f39_in, out + n); }
     vs_tie_all(wa, ma, 25);
-    p25 = &self->x51_w_fpu_63f39_in;
+    p26 = &self->x63_w_fpu_63f39_in;
     }
-    fp_unit_out_type_register(k, &self->x52_w_fpu_63f39_out, fp_unit_out_type_zero());
+    fp_unit_out_type_register(k, &self->x64_w_fpu_63f39_out, fp_unit_out_type_zero());
     {
     vs_sig *ma[3], *wa[3];
-    { vs_sig **out = ma; size_t n = 0; n += fp_unit_out_type_leaves(&(*p26), out + n); }
-    { vs_sig **out = wa; size_t n = 0; n += fp_unit_out_type_leaves(&self->x52_w_fpu_63f39_out, out + n); }
+    { vs_sig **out = ma; size_t n = 0; n += fp_unit_out_type_leaves(&(*p27), out + n); }
+    { vs_sig **out = wa; size_t n = 0; n += fp_unit_out_type_leaves(&self->x64_w_fpu_63f39_out, out + n); }
     vs_tie_all(ma, wa, 3);
-    p26 = &self->x52_w_fpu_63f39_out;
+    p27 = &self->x64_w_fpu_63f39_out;
     }
-    std_logic_matrix_2_register(k, &self->x53_w_ccs_address_in, std_logic_matrix_2_zero());
+    std_logic_matrix_2_register(k, &self->x65_w_ccs_address_in, std_logic_matrix_2_zero());
     {
     vs_sig *ma[1], *wa[1];
-    { vs_sig **out = ma; size_t n = 0; n += std_logic_matrix_2_leaves(&(*p27), out + n); }
-    { vs_sig **out = wa; size_t n = 0; n += std_logic_matrix_2_leaves(&self->x53_w_ccs_address_in, out + n); }
+    { vs_sig **out = ma; size_t n = 0; n += std_logic_matrix_2_leaves(&(*p28), out + n); }
+    { vs_sig **out = wa; size_t n = 0; n += std_logic_matrix_2_leaves(&self->x65_w_ccs_address_in, out + n); }
     vs_tie_all(ma, wa, 1);
-    p27 = &self->x53_w_ccs_address_in;
+    p28 = &self->x65_w_ccs_address_in;
     }
-    vs_register_signal(k, &self->x54_w_ccs_address_rw_n_in, (uint64_t) (0));
-    vs_name(k, &self->x54_w_ccs_address_rw_n_in, path, "w_ccs_address_rw_n_in", 1);
-    {
-    vs_sig *ma[1], *wa[1];
-    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p28); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x54_w_ccs_address_rw_n_in; }
-    vs_tie_all(ma, wa, 1);
-    p28 = &self->x54_w_ccs_address_rw_n_in;
-    }
-    vs_register_signal(k, &self->x55_w_ccs_bus_granted_in, (uint64_t) (0));
-    vs_name(k, &self->x55_w_ccs_bus_granted_in, path, "w_ccs_bus_granted_in", 1);
+    vs_register_signal(k, &self->x66_w_ccs_address_rw_n_in, (uint64_t) (0));
+    vs_name(k, &self->x66_w_ccs_address_rw_n_in, path, "w_ccs_address_rw_n_in", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p29); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x55_w_ccs_bus_granted_in; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x66_w_ccs_address_rw_n_in; }
     vs_tie_all(ma, wa, 1);
-    p29 = &self->x55_w_ccs_bus_granted_in;
+    p29 = &self->x66_w_ccs_address_rw_n_in;
     }
-    std_logic_matrix_3_register(k, &self->x56_w_ccs_invalidation_pending_in, std_logic_matrix_3_zero());
+    vs_register_signal(k, &self->x67_w_ccs_bus_granted_in, (uint64_t) (0));
+    vs_name(k, &self->x67_w_ccs_bus_granted_in, path, "w_ccs_bus_granted_in", 1);
     {
     vs_sig *ma[1], *wa[1];
-    { vs_sig **out = ma; size_t n = 0; n += std_logic_matrix_3_leaves(&(*p30), out + n); }
-    { vs_sig **out = wa; size_t n = 0; n += std_logic_matrix_3_leaves(&self->x56_w_ccs_invalidation_pending_in, out + n); }
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p30); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x67_w_ccs_bus_granted_in; }
     vs_tie_all(ma, wa, 1);
-    p30 = &self->x56_w_ccs_invalidation_pending_in;
+    p30 = &self->x67_w_ccs_bus_granted_in;
     }
-    vs_register_signal(k, &self->x57_w_ccs_fic_in, (uint64_t) (0));
-    vs_name(k, &self->x57_w_ccs_fic_in, path, "w_ccs_fic_in", 1);
+    std_logic_matrix_3_register(k, &self->x68_w_ccs_invalidation_pending_in, std_logic_matrix_3_zero());
     {
     vs_sig *ma[1], *wa[1];
-    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p31); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x57_w_ccs_fic_in; }
+    { vs_sig **out = ma; size_t n = 0; n += std_logic_matrix_3_leaves(&(*p31), out + n); }
+    { vs_sig **out = wa; size_t n = 0; n += std_logic_matrix_3_leaves(&self->x68_w_ccs_invalidation_pending_in, out + n); }
     vs_tie_all(ma, wa, 1);
-    p31 = &self->x57_w_ccs_fic_in;
+    p31 = &self->x68_w_ccs_invalidation_pending_in;
     }
-    vs_register_signal(k, &self->x58_w_ccs_write_gen_in, (uint64_t) (0));
-    vs_name(k, &self->x58_w_ccs_write_gen_in, path, "w_ccs_write_gen_in", 1);
+    vs_register_signal(k, &self->x69_w_ccs_fic_in, (uint64_t) (0));
+    vs_name(k, &self->x69_w_ccs_fic_in, path, "w_ccs_fic_in", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p32); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x58_w_ccs_write_gen_in; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x69_w_ccs_fic_in; }
     vs_tie_all(ma, wa, 1);
-    p32 = &self->x58_w_ccs_write_gen_in;
+    p32 = &self->x69_w_ccs_fic_in;
     }
-    std_logic_matrix_3_register(k, &self->x59_w_ccs_prev_pending_in, std_logic_matrix_3_zero());
+    vs_register_signal(k, &self->x70_w_ccs_write_gen_in, (uint64_t) (0));
+    vs_name(k, &self->x70_w_ccs_write_gen_in, path, "w_ccs_write_gen_in", 1);
     {
     vs_sig *ma[1], *wa[1];
-    { vs_sig **out = ma; size_t n = 0; n += std_logic_matrix_3_leaves(&(*p33), out + n); }
-    { vs_sig **out = wa; size_t n = 0; n += std_logic_matrix_3_leaves(&self->x59_w_ccs_prev_pending_in, out + n); }
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p33); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x70_w_ccs_write_gen_in; }
     vs_tie_all(ma, wa, 1);
-    p33 = &self->x59_w_ccs_prev_pending_in;
+    p33 = &self->x70_w_ccs_write_gen_in;
     }
-    std_logic_matrix_3_register(k, &self->x60_w_ccs_parked_stalled_in, std_logic_matrix_3_zero());
+    std_logic_matrix_3_register(k, &self->x71_w_ccs_prev_pending_in, std_logic_matrix_3_zero());
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; n += std_logic_matrix_3_leaves(&(*p34), out + n); }
-    { vs_sig **out = wa; size_t n = 0; n += std_logic_matrix_3_leaves(&self->x60_w_ccs_parked_stalled_in, out + n); }
+    { vs_sig **out = wa; size_t n = 0; n += std_logic_matrix_3_leaves(&self->x71_w_ccs_prev_pending_in, out + n); }
     vs_tie_all(ma, wa, 1);
-    p34 = &self->x60_w_ccs_parked_stalled_in;
+    p34 = &self->x71_w_ccs_prev_pending_in;
     }
-    vs_register_signal(k, &self->x61_w_ccs_address_out, (uint64_t) (0));
-    vs_name(k, &self->x61_w_ccs_address_out, path, "w_ccs_address_out", 36);
+    std_logic_matrix_3_register(k, &self->x72_w_ccs_parked_stalled_in, std_logic_matrix_3_zero());
     {
     vs_sig *ma[1], *wa[1];
-    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p35); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x61_w_ccs_address_out; }
-    vs_tie_all(wa, ma, 1);
-    p35 = &self->x61_w_ccs_address_out;
+    { vs_sig **out = ma; size_t n = 0; n += std_logic_matrix_3_leaves(&(*p35), out + n); }
+    { vs_sig **out = wa; size_t n = 0; n += std_logic_matrix_3_leaves(&self->x72_w_ccs_parked_stalled_in, out + n); }
+    vs_tie_all(ma, wa, 1);
+    p35 = &self->x72_w_ccs_parked_stalled_in;
     }
-    vs_register_signal(k, &self->x62_w_ccs_address_rw_n_out, (uint64_t) (0));
-    vs_name(k, &self->x62_w_ccs_address_rw_n_out, path, "w_ccs_address_rw_n_out", 1);
+    vs_register_signal(k, &self->x73_w_ccs_address_out, (uint64_t) (0));
+    vs_name(k, &self->x73_w_ccs_address_out, path, "w_ccs_address_out", 36);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p36); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x62_w_ccs_address_rw_n_out; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x73_w_ccs_address_out; }
     vs_tie_all(wa, ma, 1);
-    p36 = &self->x62_w_ccs_address_rw_n_out;
+    p36 = &self->x73_w_ccs_address_out;
     }
-    vs_register_signal(k, &self->x63_w_ccs_bus_granted_out, (uint64_t) (0));
-    vs_name(k, &self->x63_w_ccs_bus_granted_out, path, "w_ccs_bus_granted_out", 1);
+    vs_register_signal(k, &self->x74_w_ccs_address_rw_n_out, (uint64_t) (0));
+    vs_name(k, &self->x74_w_ccs_address_rw_n_out, path, "w_ccs_address_rw_n_out", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p37); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x63_w_ccs_bus_granted_out; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x74_w_ccs_address_rw_n_out; }
     vs_tie_all(wa, ma, 1);
-    p37 = &self->x63_w_ccs_bus_granted_out;
+    p37 = &self->x74_w_ccs_address_rw_n_out;
     }
-    vs_register_signal(k, &self->x64_w_ccs_invalidation_pending_out, (uint64_t) (0));
-    vs_name(k, &self->x64_w_ccs_invalidation_pending_out, path, "w_ccs_invalidation_pending_out", 1);
+    vs_register_signal(k, &self->x75_w_ccs_bus_granted_out, (uint64_t) (0));
+    vs_name(k, &self->x75_w_ccs_bus_granted_out, path, "w_ccs_bus_granted_out", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p38); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x64_w_ccs_invalidation_pending_out; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x75_w_ccs_bus_granted_out; }
     vs_tie_all(wa, ma, 1);
-    p38 = &self->x64_w_ccs_invalidation_pending_out;
+    p38 = &self->x75_w_ccs_bus_granted_out;
     }
-    vs_register_signal(k, &self->x65_w_ccs_fic_out, (uint64_t) (0));
-    vs_name(k, &self->x65_w_ccs_fic_out, path, "w_ccs_fic_out", 1);
+    vs_register_signal(k, &self->x76_w_ccs_invalidation_pending_out, (uint64_t) (0));
+    vs_name(k, &self->x76_w_ccs_invalidation_pending_out, path, "w_ccs_invalidation_pending_out", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p39); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x65_w_ccs_fic_out; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x76_w_ccs_invalidation_pending_out; }
     vs_tie_all(wa, ma, 1);
-    p39 = &self->x65_w_ccs_fic_out;
+    p39 = &self->x76_w_ccs_invalidation_pending_out;
     }
-    vs_register_signal(k, &self->x66_w_ccs_write_gen_out, (uint64_t) (0));
-    vs_name(k, &self->x66_w_ccs_write_gen_out, path, "w_ccs_write_gen_out", 1);
+    vs_register_signal(k, &self->x77_w_ccs_fic_out, (uint64_t) (0));
+    vs_name(k, &self->x77_w_ccs_fic_out, path, "w_ccs_fic_out", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p40); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x66_w_ccs_write_gen_out; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x77_w_ccs_fic_out; }
     vs_tie_all(wa, ma, 1);
-    p40 = &self->x66_w_ccs_write_gen_out;
+    p40 = &self->x77_w_ccs_fic_out;
     }
-    vs_register_signal(k, &self->x67_w_ccs_prev_pending_out, (uint64_t) (0));
-    vs_name(k, &self->x67_w_ccs_prev_pending_out, path, "w_ccs_prev_pending_out", 1);
+    vs_register_signal(k, &self->x78_w_ccs_write_gen_out, (uint64_t) (0));
+    vs_name(k, &self->x78_w_ccs_write_gen_out, path, "w_ccs_write_gen_out", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p41); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x67_w_ccs_prev_pending_out; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x78_w_ccs_write_gen_out; }
     vs_tie_all(wa, ma, 1);
-    p41 = &self->x67_w_ccs_prev_pending_out;
+    p41 = &self->x78_w_ccs_write_gen_out;
     }
-    vs_register_signal(k, &self->x68_w_ccs_parked_stalled_out, (uint64_t) (0));
-    vs_name(k, &self->x68_w_ccs_parked_stalled_out, path, "w_ccs_parked_stalled_out", 1);
+    vs_register_signal(k, &self->x79_w_ccs_prev_pending_out, (uint64_t) (0));
+    vs_name(k, &self->x79_w_ccs_prev_pending_out, path, "w_ccs_prev_pending_out", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p42); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x68_w_ccs_parked_stalled_out; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x79_w_ccs_prev_pending_out; }
     vs_tie_all(wa, ma, 1);
-    p42 = &self->x68_w_ccs_parked_stalled_out;
+    p42 = &self->x79_w_ccs_prev_pending_out;
     }
-    std_logic_matrix_4_register(k, &self->x69_w_ccs_tfm_in, std_logic_matrix_4_zero());
+    vs_register_signal(k, &self->x80_w_ccs_parked_stalled_out, (uint64_t) (0));
+    vs_name(k, &self->x80_w_ccs_parked_stalled_out, path, "w_ccs_parked_stalled_out", 1);
     {
     vs_sig *ma[1], *wa[1];
-    { vs_sig **out = ma; size_t n = 0; n += std_logic_matrix_4_leaves(&(*p43), out + n); }
-    { vs_sig **out = wa; size_t n = 0; n += std_logic_matrix_4_leaves(&self->x69_w_ccs_tfm_in, out + n); }
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p43); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x80_w_ccs_parked_stalled_out; }
+    vs_tie_all(wa, ma, 1);
+    p43 = &self->x80_w_ccs_parked_stalled_out;
+    }
+    std_logic_matrix_4_register(k, &self->x81_w_ccs_tfm_in, std_logic_matrix_4_zero());
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; n += std_logic_matrix_4_leaves(&(*p44), out + n); }
+    { vs_sig **out = wa; size_t n = 0; n += std_logic_matrix_4_leaves(&self->x81_w_ccs_tfm_in, out + n); }
     vs_tie_all(ma, wa, 1);
-    p43 = &self->x69_w_ccs_tfm_in;
+    p44 = &self->x81_w_ccs_tfm_in;
     }
-    vs_register_signal(k, &self->x70_w_ccs_tfm_out, (uint64_t) (0));
-    vs_name(k, &self->x70_w_ccs_tfm_out, path, "w_ccs_tfm_out", 18);
-    {
-    vs_sig *ma[1], *wa[1];
-    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p44); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x70_w_ccs_tfm_out; }
-    vs_tie_all(wa, ma, 1);
-    p44 = &self->x70_w_ccs_tfm_out;
-    }
-    vs_register_signal(k, &self->x71_w_mmu_cs, (uint64_t) (0));
-    vs_name(k, &self->x71_w_mmu_cs, path, "w_mmu_cs", 1);
+    vs_register_signal(k, &self->x82_w_ccs_tfm_out, (uint64_t) (0));
+    vs_name(k, &self->x82_w_ccs_tfm_out, path, "w_ccs_tfm_out", 18);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p45); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x71_w_mmu_cs; }
-    vs_tie_all(ma, wa, 1);
-    p45 = &self->x71_w_mmu_cs;
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x82_w_ccs_tfm_out; }
+    vs_tie_all(wa, ma, 1);
+    p45 = &self->x82_w_ccs_tfm_out;
     }
-    vs_register_signal(k, &self->x72_w_mmu_mrdy, (uint64_t) (0));
-    vs_name(k, &self->x72_w_mmu_mrdy, path, "w_mmu_mrdy", 1);
+    vs_register_signal(k, &self->x83_w_mmu_cs, (uint64_t) (0));
+    vs_name(k, &self->x83_w_mmu_cs, path, "w_mmu_cs", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p46); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x72_w_mmu_mrdy; }
-    vs_tie_all(wa, ma, 1);
-    p46 = &self->x72_w_mmu_mrdy;
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x83_w_mmu_cs; }
+    vs_tie_all(ma, wa, 1);
+    p46 = &self->x83_w_mmu_cs;
     }
-    vs_register_signal(k, &self->x73_w_lock_request, (uint64_t) (0));
-    vs_name(k, &self->x73_w_lock_request, path, "w_lock_request", 1);
+    vs_register_signal(k, &self->x84_w_mmu_mrdy, (uint64_t) (0));
+    vs_name(k, &self->x84_w_mmu_mrdy, path, "w_mmu_mrdy", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p47); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x73_w_lock_request; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x84_w_mmu_mrdy; }
     vs_tie_all(wa, ma, 1);
-    p47 = &self->x73_w_lock_request;
+    p47 = &self->x84_w_mmu_mrdy;
     }
-    vs_register_signal(k, &self->x74_w_lock_granted, (uint64_t) (0));
-    vs_name(k, &self->x74_w_lock_granted, path, "w_lock_granted", 1);
+    vs_register_signal(k, &self->x85_w_run_req, (uint64_t) (0));
+    vs_name(k, &self->x85_w_run_req, path, "w_run_req", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p48); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x74_w_lock_granted; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x85_w_run_req; }
     vs_tie_all(ma, wa, 1);
-    p48 = &self->x74_w_lock_granted;
+    p48 = &self->x85_w_run_req;
     }
-    vs_register_signal(k, &self->x75_w_reset_request_n, (uint64_t) (0));
-    vs_name(k, &self->x75_w_reset_request_n, path, "w_reset_request_n", 1);
+    vs_register_signal(k, &self->x86_w_e_v, (uint64_t) (0));
+    vs_name(k, &self->x86_w_e_v, path, "w_e_v", 1);
     {
     vs_sig *ma[1], *wa[1];
     { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p49); }
-    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x75_w_reset_request_n; }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x86_w_e_v; }
+    vs_tie_all(ma, wa, 1);
+    p49 = &self->x86_w_e_v;
+    }
+    vs_register_signal(k, &self->x87_w_rem_cs, (uint64_t) (0));
+    vs_name(k, &self->x87_w_rem_cs, path, "w_rem_cs", 1);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p50); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x87_w_rem_cs; }
+    vs_tie_all(ma, wa, 1);
+    p50 = &self->x87_w_rem_cs;
+    }
+    vs_register_signal(k, &self->x88_w_rem_rw_n, (uint64_t) (0));
+    vs_name(k, &self->x88_w_rem_rw_n, path, "w_rem_rw_n", 1);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p51); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x88_w_rem_rw_n; }
+    vs_tie_all(ma, wa, 1);
+    p51 = &self->x88_w_rem_rw_n;
+    }
+    vs_register_signal(k, &self->x89_w_rem_a, (uint64_t) (0));
+    vs_name(k, &self->x89_w_rem_a, path, "w_rem_a", 12);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p52); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x89_w_rem_a; }
+    vs_tie_all(ma, wa, 1);
+    p52 = &self->x89_w_rem_a;
+    }
+    vs_register_signal(k, &self->x90_w_rem_d, (uint64_t) (0));
+    vs_name(k, &self->x90_w_rem_d, path, "w_rem_d", 8);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p53); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x90_w_rem_d; }
+    vs_tie_all(ma, wa, 1);
+    p53 = &self->x90_w_rem_d;
+    }
+    vs_register_signal(k, &self->x91_w_rem_e, (uint64_t) (0));
+    vs_name(k, &self->x91_w_rem_e, path, "w_rem_e", 1);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p54); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x91_w_rem_e; }
+    vs_tie_all(ma, wa, 1);
+    p54 = &self->x91_w_rem_e;
+    }
+    vs_register_signal(k, &self->x92_w_vclk_on, (uint64_t) (0));
+    vs_name(k, &self->x92_w_vclk_on, path, "w_vclk_on", 1);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p55); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x92_w_vclk_on; }
     vs_tie_all(wa, ma, 1);
-    p49 = &self->x75_w_reset_request_n;
+    p55 = &self->x92_w_vclk_on;
+    }
+    vs_register_signal(k, &self->x93_w_rem_d_out, (uint64_t) (0));
+    vs_name(k, &self->x93_w_rem_d_out, path, "w_rem_d_out", 8);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p56); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x93_w_rem_d_out; }
+    vs_tie_all(wa, ma, 1);
+    p56 = &self->x93_w_rem_d_out;
+    }
+    vs_register_signal(k, &self->x94_w_rem_rdy, (uint64_t) (0));
+    vs_name(k, &self->x94_w_rem_rdy, path, "w_rem_rdy", 1);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p57); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x94_w_rem_rdy; }
+    vs_tie_all(wa, ma, 1);
+    p57 = &self->x94_w_rem_rdy;
+    }
+    vs_register_signal(k, &self->x95_w_lock_request, (uint64_t) (0));
+    vs_name(k, &self->x95_w_lock_request, path, "w_lock_request", 1);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p58); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x95_w_lock_request; }
+    vs_tie_all(wa, ma, 1);
+    p58 = &self->x95_w_lock_request;
+    }
+    vs_register_signal(k, &self->x96_w_lock_granted, (uint64_t) (0));
+    vs_name(k, &self->x96_w_lock_granted, path, "w_lock_granted", 1);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p59); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x96_w_lock_granted; }
+    vs_tie_all(ma, wa, 1);
+    p59 = &self->x96_w_lock_granted;
+    }
+    vs_register_signal(k, &self->x97_w_reset_request_n, (uint64_t) (0));
+    vs_name(k, &self->x97_w_reset_request_n, path, "w_reset_request_n", 1);
+    {
+    vs_sig *ma[1], *wa[1];
+    { vs_sig **out = ma; size_t n = 0; out[n++] = &(*p60); }
+    { vs_sig **out = wa; size_t n = 0; out[n++] = &self->x97_w_reset_request_n; }
+    vs_tie_all(wa, ma, 1);
+    p60 = &self->x97_w_reset_request_n;
     }
     }
-    dmc_63f41_n1_create(k, &self->c_dmc_0, vs_join(k, path, "dmc"), 1, INT64_C(0), INT64_C(1), 1, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49);
+    dmc_63f41_n1_create(k, &self->c_dmc_0, vs_join(k, path, "dmc"), 1, INT64_C(0), INT64_C(1), 1, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49, p50, p51, p52, p53, p54, p55, p56, p57, p58, p59, p60);
     if (k->threaded)
     {
     vs_part_enter(k, 0);
@@ -894,6 +1054,7 @@ static void bac_63f81_n1_g1_create(vs_kernel *k, bac_63f81_n1_g1 *self, const ch
         vs_register_process(k, bac_63f81_n1_g1_p2, self, sens, n);
     }
     vs_register_process(k, bac_63f81_n1_g1_p3, self, NULL, 0);
+    vs_register_process(k, bac_63f81_n1_g1_p4, self, NULL, 0);
 }
 
 static void bac_63f81_n1_p0(void *inst)
@@ -902,7 +1063,7 @@ static void bac_63f81_n1_p0(void *inst)
     vs_drive(&(*self->p_mux_mrdy), 1);
 }
 
-void bac_63f81_n1_create(vs_kernel *k, bac_63f81_n1 *self, const char *path, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *cacheable_amc, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *sysclk, vs_sig *cpuclk, vs_sig *memclk, vs_sig *cs, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *mux_d_in, vs_sig *mux_d_out, vs_sig *mux_mrdy, vs_sig *bus_master)
+void bac_63f81_n1_create(vs_kernel *k, bac_63f81_n1 *self, const char *path, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *cacheable_amc, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *sysclk, vs_sig *cpuclk, vs_sig *memclk, vs_sig *cs, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *mux_d_in, vs_sig *mux_d_out, vs_sig *mux_mrdy, vs_sig *bus_master, vs_sig *mmu_d_out)
 {
     (void) path;
     self->g_ncpus = g_ncpus;
@@ -941,6 +1102,7 @@ void bac_63f81_n1_create(vs_kernel *k, bac_63f81_n1 *self, const char *path, int
     self->p_mux_d_out = mux_d_out;
     self->p_mux_mrdy = mux_mrdy;
     self->p_bus_master = bus_master;
+    self->p_mmu_d_out = mmu_d_out;
     vs_register_signal(k, &self->s_pll_locked, (uint64_t) (0));
     vs_name(k, &self->s_pll_locked, path, "pll_locked", 1);
     vs_register_signal(k, &self->s_cpuclk_pll, (uint64_t) (0));

@@ -29,7 +29,7 @@ static void p_direct8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl,
 static void p_immediate8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl, vs_sig *a_mem_data_ctrl);
 static void p_immediate8_unsigned_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl, vs_sig *a_mem_data_ctrl);
 static uint64_t f_is_6309_only_0(cpu_63f09 *self, vs_sig *a_reg_md);
-static void p_indexed8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl, vs_sig *a_mem_data_ctrl, vs_sig *a_next_state, vs_sig *a_return_state, vs_sig *a_stack_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_ea_ctrl, vs_sig *a_m_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl);
+static void p_indexed8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl, vs_sig *a_mem_data_ctrl, vs_sig *a_next_state, vs_sig *a_return_state, vs_sig *a_stack_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_ea_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl);
 static uint64_t f_index_register_0(cpu_63f09 *self, vs_ref a_rr);
 static void p_execute_mem_op_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md, uint64_t a_alu_op, uint64_t a_write_result, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_cc_ctrl, vs_sig *a_a_ctrl, vs_sig *a_b_ctrl, vs_sig *a_e_ctrl, vs_sig *a_f_ctrl, vs_sig *a_v_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl, vs_sig *a_pc_ctrl, vs_sig *a_dp_ctrl, vs_sig *a_ds_ctrl);
 static uint64_t f_register_left_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md);
@@ -182,7 +182,7 @@ static uint64_t f_is_6309_only_0(cpu_63f09 *self, vs_sig *a_reg_md)
     return (((((*a_reg_md).cur >> 4) & 1) == 0) & ((((*a_reg_md).cur >> 0) & 1) == 1));
 }
 
-static void p_indexed8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl, vs_sig *a_mem_data_ctrl, vs_sig *a_next_state, vs_sig *a_return_state, vs_sig *a_stack_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_ea_ctrl, vs_sig *a_m_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl)
+static void p_indexed8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl, vs_sig *a_mem_data_ctrl, vs_sig *a_next_state, vs_sig *a_return_state, vs_sig *a_stack_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_ea_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl)
 {
     if ((((self->s_mem_data.cur >> 7) & 1) == 0))
     {
@@ -207,8 +207,7 @@ static void p_indexed8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl
                     vs_drive(&(*a_alu_ctrl), (UINT64_C(0x101)));
                     vs_drive(&(*a_alu_width), (UINT64_C(0x2)));
                     vs_drive(&(*a_ea_ctrl), (UINT64_C(0x2)));
-                    vs_drive(&(*a_m_ctrl), (UINT64_C(0x4)));
-                    vs_drive(&(*a_next_state), (UINT64_C(0x1002)));
+                    vs_drive(&(*a_next_state), (UINT64_C(0x1201)));
                 }
                 else
                 {
@@ -223,54 +222,44 @@ static void p_indexed8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl
                 vs_drive(&(*a_right_ctrl), (UINT64_C(0x1)));
                 vs_drive(&(*a_alu_ctrl), (UINT64_C(0x101)));
                 vs_drive(&(*a_alu_width), (UINT64_C(0x2)));
-                if (f_is_32bits_0(self, &self->s_reg_md))
+                if ((((self->s_mem_data.cur >> 4) & 1) == 0))
                 {
-                    if ((((self->s_mem_data.cur >> 4) & 1) == 0))
+                    vs_drive(&(*a_ea_ctrl), (UINT64_C(0x2)));
+                    if (f_is_32bits_0(self, &self->s_reg_md))
                     {
                         switch (self->s_data_width.cur)
                         {
                             case UINT64_C(0x1):
                             {
-                                vs_drive(&(*a_m_ctrl), (UINT64_C(0x4)));
+                                vs_drive(&(*a_next_state), (UINT64_C(0x1201)));
                                 break;
                             }
                             case UINT64_C(0x2):
                             {
-                                vs_drive(&(*a_m_ctrl), (UINT64_C(0x8)));
+                                vs_drive(&(*a_next_state), (UINT64_C(0x1202)));
                                 break;
                             }
                             case UINT64_C(0x4):
                             {
-                                vs_drive(&(*a_m_ctrl), (UINT64_C(0x10)));
+                                vs_drive(&(*a_next_state), (UINT64_C(0x1204)));
                                 break;
                             }
                             default:
                             {
-                                vs_drive(&(*a_m_ctrl), (UINT64_C(0x20)));
+                                vs_drive(&(*a_next_state), (UINT64_C(0x1208)));
                                 break;
                             }
                         }
                     }
                     else
                     {
-                        vs_drive(&(*a_m_ctrl), (UINT64_C(0x10)));
+                        vs_drive(&(*a_next_state), (UINT64_C(0x1202)));
                     }
                 }
                 else
                 {
-                    vs_drive(&(*a_m_ctrl), (UINT64_C(0x8)));
-                }
-                if ((((self->s_mem_data.cur >> 4) & 1) == 0))
-                {
                     vs_drive(&(*a_ea_ctrl), (UINT64_C(0x2)));
-                    vs_drive(&(*a_next_state), (UINT64_C(0x1002)));
-                }
-                else
-                {
-                    vs_drive(&(*a_mem_data_ctrl), (UINT64_C(0x4)));
-                    vs_drive(&(*a_return_state), (UINT64_C(0x1002)));
-                    vs_drive(&(*a_stack_ctrl), 1);
-                    vs_drive(&(*a_next_state), (UINT64_C(0x1010)));
+                    vs_drive(&(*a_next_state), (UINT64_C(0x1210)));
                 }
                 break;
             }
@@ -487,7 +476,7 @@ static void p_indexed8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl
                 vs_drive(&(*a_right_ctrl), (UINT64_C(0x1)));
                 vs_drive(&(*a_alu_ctrl), (UINT64_C(0x101)));
                 vs_drive(&(*a_alu_width), (UINT64_C(0x2)));
-                vs_drive(&(*a_m_ctrl), (UINT64_C(0x2)));
+                vs_drive(&(*a_ea_ctrl), (UINT64_C(0x2)));
                 if ((((self->s_mem_data.cur >> 4) & 1) == 0))
                 {
                     vs_drive(&(*a_next_state), (UINT64_C(0x1004)));
@@ -507,7 +496,7 @@ static void p_indexed8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl
                 vs_drive(&(*a_right_ctrl), (UINT64_C(0x1)));
                 vs_drive(&(*a_alu_ctrl), (UINT64_C(0x101)));
                 vs_drive(&(*a_alu_width), (UINT64_C(0x2)));
-                vs_drive(&(*a_m_ctrl), (UINT64_C(0x2)));
+                vs_drive(&(*a_ea_ctrl), (UINT64_C(0x2)));
                 if ((((self->s_mem_data.cur >> 4) & 1) == 0))
                 {
                     vs_drive(&(*a_return_state), (UINT64_C(0x1004)));
@@ -576,7 +565,7 @@ static void p_indexed8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl
                 vs_drive(&(*a_right_ctrl), (UINT64_C(0x2)));
                 vs_drive(&(*a_alu_ctrl), (UINT64_C(0x101)));
                 vs_drive(&(*a_alu_width), (UINT64_C(0x2)));
-                vs_drive(&(*a_m_ctrl), (UINT64_C(0x2)));
+                vs_drive(&(*a_ea_ctrl), (UINT64_C(0x2)));
                 if ((((self->s_mem_data.cur >> 4) & 1) == 0))
                 {
                     vs_drive(&(*a_next_state), (UINT64_C(0x1004)));
@@ -603,7 +592,7 @@ static void p_indexed8_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl
                 }
                 vs_drive(&(*a_alu_ctrl), (UINT64_C(0x101)));
                 vs_drive(&(*a_alu_width), (UINT64_C(0x2)));
-                vs_drive(&(*a_m_ctrl), (UINT64_C(0x2)));
+                vs_drive(&(*a_ea_ctrl), (UINT64_C(0x2)));
                 if ((((self->s_mem_data.cur >> 4) & 1) == 0))
                 {
                     vs_drive(&(*a_return_state), (UINT64_C(0x1004)));
@@ -692,13 +681,13 @@ static uint64_t f_index_register_0(cpu_63f09 *self, vs_ref a_rr)
 
 static void p_execute_mem_op_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md, uint64_t a_alu_op, uint64_t a_write_result, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_cc_ctrl, vs_sig *a_a_ctrl, vs_sig *a_b_ctrl, vs_sig *a_e_ctrl, vs_sig *a_f_ctrl, vs_sig *a_v_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl, vs_sig *a_pc_ctrl, vs_sig *a_dp_ctrl, vs_sig *a_ds_ctrl)
 {
-    int64_t v_width_65648 = INT64_C(-2147483648);
+    int64_t v_width_9328 = INT64_C(-2147483648);
     vs_drive(&(*a_left_ctrl), f_register_left_0(self, &(*a_mask), &(*a_reg_md)));
     vs_drive(&(*a_right_ctrl), (UINT64_C(0x200000)));
     vs_drive(&(*a_cc_ctrl), (UINT64_C(0x2)));
-    v_width_65648 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
+    v_width_9328 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
     vs_drive(&(*a_alu_ctrl), a_alu_op);
-    switch (v_width_65648)
+    switch (v_width_9328)
     {
         case INT64_C(8):
         {
@@ -2197,6 +2186,14 @@ static void cpu_63f09_p7(void *inst)
             {
                 vs_drive(&(*self->p_waiting), 0);
             }
+            if ((self->s_next_state.cur == (UINT64_C(0xA08002))))
+            {
+                vs_drive(&(*self->p_halted), 1);
+            }
+            else
+            {
+                vs_drive(&(*self->p_halted), 0);
+            }
             switch (self->s_next_state.cur)
             {
                 case UINT64_C(0xA08001):
@@ -3265,26 +3262,6 @@ static void cpu_63f09_p26(void *inst)
                 vs_drive(&self->s_reg_m, self->s_int_alu.cur);
                 break;
             }
-            case UINT64_C(0x4):
-            {
-                vs_drive(&self->s_reg_m, UINT64_C(0x1));
-                break;
-            }
-            case UINT64_C(0x8):
-            {
-                vs_drive(&self->s_reg_m, UINT64_C(0x2));
-                break;
-            }
-            case UINT64_C(0x10):
-            {
-                vs_drive(&self->s_reg_m, UINT64_C(0x4));
-                break;
-            }
-            case UINT64_C(0x20):
-            {
-                vs_drive(&self->s_reg_m, UINT64_C(0x8));
-                break;
-            }
             default:
             {
                 ;
@@ -3833,6 +3810,26 @@ static void cpu_63f09_p38(void *inst)
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
     {
+        if (((*self->p_reset_n).cur == 0))
+        {
+            vs_drive(&self->s_sync_halted, 0);
+        }
+        else if (((self->s_state.cur == (UINT64_C(0xA08001))) & (self->s_next_state.cur == (UINT64_C(0xA08002)))))
+        {
+            vs_drive(&self->s_sync_halted, 1);
+        }
+        else if (((((self->s_state.cur == (UINT64_C(0xA08002))) | (self->s_state.cur == (UINT64_C(0x908002)))) & (self->s_next_state.cur != (UINT64_C(0xA08002)))) & (self->s_next_state.cur != (UINT64_C(0x908002)))))
+        {
+            vs_drive(&self->s_sync_halted, 0);
+        }
+    }
+}
+
+static void cpu_63f09_p39(void *inst)
+{
+    cpu_63f09 *self = inst;
+    if (vs_falling(&self->s_clk))
+    {
         switch ((uint32_t) self->s_stack_ctrl.cur)
         {
             case 1:
@@ -3866,7 +3863,7 @@ static void cpu_63f09_p38(void *inst)
     vs_drive(&self->s_saved_state, self->s_state_stack.a[2].cur);
 }
 
-static void cpu_63f09_p39(void *inst)
+static void cpu_63f09_p40(void *inst)
 {
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
@@ -3892,7 +3889,7 @@ static void cpu_63f09_p39(void *inst)
     }
 }
 
-static void cpu_63f09_p40(void *inst)
+static void cpu_63f09_p41(void *inst)
 {
     cpu_63f09 *self = inst;
     if (((*self->p_reset_n).cur == 0))
@@ -3915,7 +3912,7 @@ static void cpu_63f09_p40(void *inst)
     }
 }
 
-static void cpu_63f09_p41(void *inst)
+static void cpu_63f09_p42(void *inst)
 {
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
@@ -3941,22 +3938,22 @@ static void cpu_63f09_p41(void *inst)
     }
 }
 
-static void cpu_63f09_p42(void *inst)
+static void cpu_63f09_p43(void *inst)
 {
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
     {
-        self->v42_cn = self->s_counter.cur;
+        self->v43_cn = self->s_counter.cur;
         switch ((uint32_t) self->s_counter_ctrl.cur)
         {
             case 0:
             {
-                self->v42_cn = UINT64_C(0x1);
+                self->v43_cn = UINT64_C(0x1);
                 break;
             }
             case 2:
             {
-                self->v42_cn = (((uint64_t)((self->s_counter.cur & UINT64_C(0x7FFFFFFFFFFFFFFF))) << 1) | ((self->s_counter.cur >> 63) & 1));
+                self->v43_cn = (((uint64_t)((self->s_counter.cur & UINT64_C(0x7FFFFFFFFFFFFFFF))) << 1) | ((self->s_counter.cur >> 63) & 1));
                 break;
             }
             default:
@@ -3965,20 +3962,20 @@ static void cpu_63f09_p42(void *inst)
                 break;
             }
         }
-        self->v42_ohn = self->s_fp_limit_oh.cur;
+        self->v43_ohn = self->s_fp_limit_oh.cur;
         switch ((uint32_t) self->s_reg_fp_limit_ctrl.cur)
         {
             case 1:
             {
-                self->v42_ohn = UINT64_C(0x10000);
+                self->v43_ohn = UINT64_C(0x10000);
                 break;
             }
             case 2:
             {
-                self->v42_ohn = UINT64_C(0x0);
+                self->v43_ohn = UINT64_C(0x0);
                 if ((((self->s_mem_data.cur >> (6)) & UINT64_C(0x3)) == UINT64_C(0x0)))
                 {
-                    self->v42_ohn = (self->v42_ohn & ~((UINT64_C(1)) << (((int64_t)((self->s_mem_data.cur & UINT64_C(0x3F)))) - 0))) | ((1 << (((int64_t)((self->s_mem_data.cur & UINT64_C(0x3F)))) - 0)) & ((UINT64_C(1)) << (((int64_t)((self->s_mem_data.cur & UINT64_C(0x3F)))) - 0)));
+                    self->v43_ohn = (self->v43_ohn & ~((UINT64_C(1)) << (((int64_t)((self->s_mem_data.cur & UINT64_C(0x3F)))) - 0))) | ((1 << (((int64_t)((self->s_mem_data.cur & UINT64_C(0x3F)))) - 0)) & ((UINT64_C(1)) << (((int64_t)((self->s_mem_data.cur & UINT64_C(0x3F)))) - 0)));
                 }
                 break;
             }
@@ -3988,11 +3985,11 @@ static void cpu_63f09_p42(void *inst)
                 break;
             }
         }
-        vs_drive(&self->s_fp_done, ((self->v42_cn & self->v42_ohn) != 0));
+        vs_drive(&self->s_fp_done, ((self->v43_cn & self->v43_ohn) != 0));
     }
 }
 
-static void cpu_63f09_p43(void *inst)
+static void cpu_63f09_p44(void *inst)
 {
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
@@ -4024,7 +4021,7 @@ static void cpu_63f09_p43(void *inst)
     }
 }
 
-static void cpu_63f09_p44(void *inst)
+static void cpu_63f09_p45(void *inst)
 {
     cpu_63f09 *self = inst;
     switch (self->s_addr_ctrl.cur)
@@ -4148,7 +4145,7 @@ static void cpu_63f09_p44(void *inst)
     }
 }
 
-static void cpu_63f09_p45(void *inst)
+static void cpu_63f09_p46(void *inst)
 {
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
@@ -4174,7 +4171,7 @@ static void cpu_63f09_p45(void *inst)
     }
 }
 
-static void cpu_63f09_p46(void *inst)
+static void cpu_63f09_p47(void *inst)
 {
     cpu_63f09 *self = inst;
     switch (self->s_dout_ctrl.cur)
@@ -4459,7 +4456,7 @@ static void cpu_63f09_p46(void *inst)
     }
 }
 
-static void cpu_63f09_p47(void *inst)
+static void cpu_63f09_p48(void *inst)
 {
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
@@ -4497,7 +4494,7 @@ static void cpu_63f09_p47(void *inst)
     }
 }
 
-static void cpu_63f09_p48(void *inst)
+static void cpu_63f09_p49(void *inst)
 {
     cpu_63f09 *self = inst;
     switch (self->s_left_ctrl.cur)
@@ -4651,7 +4648,7 @@ static void cpu_63f09_p48(void *inst)
     }
 }
 
-static void cpu_63f09_p49(void *inst)
+static void cpu_63f09_p50(void *inst)
 {
     cpu_63f09 *self = inst;
     switch (self->s_right_ctrl.cur)
@@ -4878,70 +4875,70 @@ static void cpu_63f09_p49(void *inst)
     }
 }
 
-static void cpu_63f09_p50(void *inst)
+static void cpu_63f09_p51(void *inst)
 {
     cpu_63f09 *self = inst;
     if (((((self->s_alu_ctrl.cur == (UINT64_C(0x201))) | (self->s_alu_ctrl.cur == (UINT64_C(0xC02)))) | (self->s_alu_ctrl.cur == (UINT64_C(0xB04)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x601)))))
     {
-        self->v50_carry_in = ((self->s_reg_cc.cur >> 0) & 1);
+        self->v51_carry_in = ((self->s_reg_cc.cur >> 0) & 1);
     }
     else if (((self->s_alu_ctrl.cur == (UINT64_C(0xB01))) & (self->s_alu_width.cur == (UINT64_C(0x0)))))
     {
-        self->v50_carry_in = ((self->s_left_alu.cur >> 7) & 1);
+        self->v51_carry_in = ((self->s_left_alu.cur >> 7) & 1);
     }
     else if (((self->s_alu_ctrl.cur == (UINT64_C(0xB01))) & (self->s_alu_width.cur == (UINT64_C(0x1)))))
     {
-        self->v50_carry_in = ((self->s_left_alu.cur >> 15) & 1);
+        self->v51_carry_in = ((self->s_left_alu.cur >> 15) & 1);
     }
     else if (((self->s_alu_ctrl.cur == (UINT64_C(0xB01))) & (self->s_alu_width.cur == (UINT64_C(0x2)))))
     {
-        self->v50_carry_in = ((self->s_left_alu.cur >> 31) & 1);
+        self->v51_carry_in = ((self->s_left_alu.cur >> 31) & 1);
     }
     else if (((self->s_alu_ctrl.cur == (UINT64_C(0xB01))) & (self->s_alu_width.cur == (UINT64_C(0x3)))))
     {
-        self->v50_carry_in = ((self->s_left_alu.cur >> 63) & 1);
+        self->v51_carry_in = ((self->s_left_alu.cur >> 63) & 1);
     }
     else
     {
-        self->v50_carry_in = 0;
+        self->v51_carry_in = 0;
     }
-    self->v50_valid_lo = ((self->s_left_alu.cur & UINT64_C(0xF)) <= (uint64_t)(INT64_C(9)));
-    self->v50_valid_hi = (((self->s_left_alu.cur >> (4)) & UINT64_C(0xF)) <= (uint64_t)(INT64_C(9)));
+    self->v51_valid_lo = ((self->s_left_alu.cur & UINT64_C(0xF)) <= (uint64_t)(INT64_C(9)));
+    self->v51_valid_hi = (((self->s_left_alu.cur >> (4)) & UINT64_C(0xF)) <= (uint64_t)(INT64_C(9)));
     if ((((self->s_reg_cc.cur >> 0) & 1) == 0))
     {
         if ((((self->s_reg_cc.cur >> 5) & 1) == 1))
         {
-            if (self->v50_valid_hi)
+            if (self->v51_valid_hi)
             {
-                self->v50_daa_reg = UINT64_C(0x6);
+                self->v51_daa_reg = UINT64_C(0x6);
             }
             else
             {
-                self->v50_daa_reg = UINT64_C(0x66);
+                self->v51_daa_reg = UINT64_C(0x66);
             }
         }
         else
         {
-            if (self->v50_valid_lo)
+            if (self->v51_valid_lo)
             {
-                if (self->v50_valid_hi)
+                if (self->v51_valid_hi)
                 {
-                    self->v50_daa_reg = UINT64_C(0x0);
+                    self->v51_daa_reg = UINT64_C(0x0);
                 }
                 else
                 {
-                    self->v50_daa_reg = UINT64_C(0x60);
+                    self->v51_daa_reg = UINT64_C(0x60);
                 }
             }
             else
             {
                 if ((((self->s_left_alu.cur >> (4)) & UINT64_C(0xF)) <= (uint64_t)(INT64_C(8))))
                 {
-                    self->v50_daa_reg = UINT64_C(0x6);
+                    self->v51_daa_reg = UINT64_C(0x6);
                 }
                 else
                 {
-                    self->v50_daa_reg = UINT64_C(0x66);
+                    self->v51_daa_reg = UINT64_C(0x66);
                 }
             }
         }
@@ -4950,27 +4947,27 @@ static void cpu_63f09_p50(void *inst)
     {
         if ((((self->s_reg_cc.cur >> 5) & 1) == 1))
         {
-            self->v50_daa_reg = UINT64_C(0x66);
+            self->v51_daa_reg = UINT64_C(0x66);
         }
         else
         {
-            if (self->v50_valid_lo)
+            if (self->v51_valid_lo)
             {
-                self->v50_daa_reg = UINT64_C(0x60);
+                self->v51_daa_reg = UINT64_C(0x60);
             }
             else
             {
-                self->v50_daa_reg = UINT64_C(0x66);
+                self->v51_daa_reg = UINT64_C(0x66);
             }
         }
     }
     if ((((((((((self->s_alu_ctrl.cur == (UINT64_C(0x701))) | (self->s_alu_ctrl.cur == (UINT64_C(0x708)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x740)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x782)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x201)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x202)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x101)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x204)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x102)))))
     {
-        vs_drive(&self->s_int_alu, ((((self->s_left_alu.cur + self->s_right_alu.cur) & UINT64_MAX) + (((uint64_t)(UINT64_C(0x0)) << 1) | self->v50_carry_in)) & UINT64_MAX));
+        vs_drive(&self->s_int_alu, ((((self->s_left_alu.cur + self->s_right_alu.cur) & UINT64_MAX) + (((uint64_t)(UINT64_C(0x0)) << 1) | self->v51_carry_in)) & UINT64_MAX));
     }
     else if ((((self->s_alu_ctrl.cur == (UINT64_C(0x402))) | (self->s_alu_ctrl.cur == (UINT64_C(0x601)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x401)))))
     {
-        vs_drive(&self->s_int_alu, ((((self->s_left_alu.cur - self->s_right_alu.cur) & UINT64_MAX) - (((uint64_t)(UINT64_C(0x0)) << 1) | self->v50_carry_in)) & UINT64_MAX));
+        vs_drive(&self->s_int_alu, ((((self->s_left_alu.cur - self->s_right_alu.cur) & UINT64_MAX) - (((uint64_t)(UINT64_C(0x0)) << 1) | self->v51_carry_in)) & UINT64_MAX));
     }
     else if ((self->s_alu_ctrl.cur == (UINT64_C(0x104))))
     {
@@ -4998,23 +4995,23 @@ static void cpu_63f09_p50(void *inst)
     }
     else if (((self->s_alu_ctrl.cur == (UINT64_C(0xC01))) | (self->s_alu_ctrl.cur == (UINT64_C(0xC02)))))
     {
-        vs_drive(&self->s_int_alu, (((uint64_t)((self->s_left_alu.cur & UINT64_C(0x7FFFFFFFFFFFFFFF))) << 1) | self->v50_carry_in));
+        vs_drive(&self->s_int_alu, (((uint64_t)((self->s_left_alu.cur & UINT64_C(0x7FFFFFFFFFFFFFFF))) << 1) | self->v51_carry_in));
     }
     else if (((((self->s_alu_ctrl.cur == (UINT64_C(0xB01))) & (self->s_alu_width.cur == (UINT64_C(0x0)))) | ((self->s_alu_ctrl.cur == (UINT64_C(0xB02))) & (self->s_alu_width.cur == (UINT64_C(0x0))))) | ((self->s_alu_ctrl.cur == (UINT64_C(0xB04))) & (self->s_alu_width.cur == (UINT64_C(0x0))))))
     {
-        vs_drive(&self->s_int_alu, (((uint64_t)((((uint64_t)(UINT64_C(0x0)) << 1) | self->v50_carry_in)) << 7) | ((self->s_left_alu.cur >> (1)) & UINT64_C(0x7F))));
+        vs_drive(&self->s_int_alu, (((uint64_t)((((uint64_t)(UINT64_C(0x0)) << 1) | self->v51_carry_in)) << 7) | ((self->s_left_alu.cur >> (1)) & UINT64_C(0x7F))));
     }
     else if (((((self->s_alu_ctrl.cur == (UINT64_C(0xB01))) & (self->s_alu_width.cur == (UINT64_C(0x1)))) | ((self->s_alu_ctrl.cur == (UINT64_C(0xB02))) & (self->s_alu_width.cur == (UINT64_C(0x1))))) | ((self->s_alu_ctrl.cur == (UINT64_C(0xB04))) & (self->s_alu_width.cur == (UINT64_C(0x1))))))
     {
-        vs_drive(&self->s_int_alu, (((uint64_t)((((uint64_t)(UINT64_C(0x0)) << 1) | self->v50_carry_in)) << 15) | ((self->s_left_alu.cur >> (1)) & UINT64_C(0x7FFF))));
+        vs_drive(&self->s_int_alu, (((uint64_t)((((uint64_t)(UINT64_C(0x0)) << 1) | self->v51_carry_in)) << 15) | ((self->s_left_alu.cur >> (1)) & UINT64_C(0x7FFF))));
     }
     else if (((((self->s_alu_ctrl.cur == (UINT64_C(0xB01))) & (self->s_alu_width.cur == (UINT64_C(0x2)))) | ((self->s_alu_ctrl.cur == (UINT64_C(0xB02))) & (self->s_alu_width.cur == (UINT64_C(0x2))))) | ((self->s_alu_ctrl.cur == (UINT64_C(0xB04))) & (self->s_alu_width.cur == (UINT64_C(0x2))))))
     {
-        vs_drive(&self->s_int_alu, (((uint64_t)((((uint64_t)(UINT64_C(0x0)) << 1) | self->v50_carry_in)) << 31) | ((self->s_left_alu.cur >> (1)) & UINT64_C(0x7FFFFFFF))));
+        vs_drive(&self->s_int_alu, (((uint64_t)((((uint64_t)(UINT64_C(0x0)) << 1) | self->v51_carry_in)) << 31) | ((self->s_left_alu.cur >> (1)) & UINT64_C(0x7FFFFFFF))));
     }
     else if (((((self->s_alu_ctrl.cur == (UINT64_C(0xB01))) & (self->s_alu_width.cur == (UINT64_C(0x3)))) | ((self->s_alu_ctrl.cur == (UINT64_C(0xB02))) & (self->s_alu_width.cur == (UINT64_C(0x3))))) | ((self->s_alu_ctrl.cur == (UINT64_C(0xB04))) & (self->s_alu_width.cur == (UINT64_C(0x3))))))
     {
-        vs_drive(&self->s_int_alu, (((uint64_t)(self->v50_carry_in) << 63) | ((self->s_left_alu.cur >> (1)) & UINT64_C(0x7FFFFFFFFFFFFFFF))));
+        vs_drive(&self->s_int_alu, (((uint64_t)(self->v51_carry_in) << 63) | ((self->s_left_alu.cur >> (1)) & UINT64_C(0x7FFFFFFFFFFFFFFF))));
     }
     else if (((((self->s_alu_ctrl.cur == (UINT64_C(0x704))) | (self->s_alu_ctrl.cur == (UINT64_C(0x781)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x720)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x501)))))
     {
@@ -5042,7 +5039,7 @@ static void cpu_63f09_p50(void *inst)
     }
     else if ((self->s_alu_ctrl.cur == (UINT64_C(0x1601))))
     {
-        vs_drive(&self->s_int_alu, ((self->s_left_alu.cur + (((uint64_t)(UINT64_C(0x0)) << 8) | self->v50_daa_reg)) & UINT64_MAX));
+        vs_drive(&self->s_int_alu, ((self->s_left_alu.cur + (((uint64_t)(UINT64_C(0x0)) << 8) | self->v51_daa_reg)) & UINT64_MAX));
     }
     else if (((self->s_alu_ctrl.cur == (UINT64_C(0x1301))) & (self->s_alu_width.cur == (UINT64_C(0x0)))))
     {
@@ -5081,38 +5078,38 @@ static void cpu_63f09_p50(void *inst)
     {
         vs_drive(&self->s_int_alu, self->s_left_alu.cur);
     }
-    vs_drive(&self->s_alu_daa_reg, self->v50_daa_reg);
+    vs_drive(&self->s_alu_daa_reg, self->v51_daa_reg);
 }
 
-static void cpu_63f09_p51(void *inst)
+static void cpu_63f09_p52(void *inst)
 {
     cpu_63f09 *self = inst;
-    self->v51_w8 = (((((self->s_ccp_width.cur >> 1) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((((self->s_ccp_width.cur >> 0) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-    self->v51_w16 = (((((self->s_ccp_width.cur >> 1) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_ccp_width.cur >> 0) & 1));
-    self->v51_w32 = (((self->s_ccp_width.cur >> 1) & 1) & ((((self->s_ccp_width.cur >> 0) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-    self->v51_w64 = (((self->s_ccp_width.cur >> 1) & 1) & ((self->s_ccp_width.cur >> 0) & 1));
-    self->v51_ls = ((((self->v51_w8 & ((self->s_ccp_left.cur >> 7) & 1)) | (self->v51_w16 & ((self->s_ccp_left.cur >> 15) & 1))) | (self->v51_w32 & ((self->s_ccp_left.cur >> 31) & 1))) | (self->v51_w64 & ((self->s_ccp_left.cur >> 63) & 1)));
-    self->v51_rs = ((((self->v51_w8 & ((self->s_ccp_right.cur >> 7) & 1)) | (self->v51_w16 & ((self->s_ccp_right.cur >> 15) & 1))) | (self->v51_w32 & ((self->s_ccp_right.cur >> 31) & 1))) | (self->v51_w64 & ((self->s_ccp_right.cur >> 63) & 1)));
-    self->v51_ss = ((((self->v51_w8 & ((self->s_ccp_res.cur >> 7) & 1)) | (self->v51_w16 & ((self->s_ccp_res.cur >> 15) & 1))) | (self->v51_w32 & ((self->s_ccp_res.cur >> 31) & 1))) | (self->v51_w64 & ((self->s_ccp_res.cur >> 63) & 1)));
-    self->v51_l2 = ((((self->v51_w8 & ((self->s_ccp_left.cur >> 6) & 1)) | (self->v51_w16 & ((self->s_ccp_left.cur >> 14) & 1))) | (self->v51_w32 & ((self->s_ccp_left.cur >> 30) & 1))) | (self->v51_w64 & ((self->s_ccp_left.cur >> 62) & 1)));
-    self->v51_a0 = ((self->s_ccp_left.cur & UINT64_C(0x7F)) == UINT64_C(0x7F));
-    self->v51_a1 = (((self->s_ccp_left.cur >> (7)) & UINT64_C(0xFF)) == UINT64_C(0xFF));
-    self->v51_a2 = (((self->s_ccp_left.cur >> (15)) & UINT64_C(0xFFFF)) == UINT64_C(0xFFFF));
-    self->v51_a3 = (((self->s_ccp_left.cur >> (31)) & UINT64_C(0xFFFFFFFF)) == UINT64_C(0xFFFFFFFF));
-    self->v51_o0 = ((self->s_ccp_left.cur & UINT64_C(0x7F)) != 0);
-    self->v51_o1 = (((self->s_ccp_left.cur >> (7)) & UINT64_C(0xFF)) != 0);
-    self->v51_o2 = (((self->s_ccp_left.cur >> (15)) & UINT64_C(0xFFFF)) != 0);
-    self->v51_o3 = (((self->s_ccp_left.cur >> (31)) & UINT64_C(0xFFFFFFFF)) != 0);
-    self->v51_low1 = (((self->v51_a0 & (self->v51_w8 | self->v51_a1)) & ((((self->v51_w32 | self->v51_w64) ^ UINT64_C(0x1)) & UINT64_C(0x1)) | self->v51_a2)) & (((self->v51_w64 ^ UINT64_C(0x1)) & UINT64_C(0x1)) | self->v51_a3));
-    self->v51_low0 = (((((self->v51_o0 | (self->v51_o1 & ((self->v51_w8 ^ UINT64_C(0x1)) & UINT64_C(0x1)))) | (self->v51_o2 & (self->v51_w32 | self->v51_w64))) | (self->v51_o3 & self->v51_w64)) ^ UINT64_C(0x1)) & UINT64_C(0x1));
-    self->v51_nz0 = ((self->s_ccp_res.cur & UINT64_C(0xFF)) != 0);
-    self->v51_nz1 = (((self->s_ccp_res.cur >> (8)) & UINT64_C(0xFF)) != 0);
-    self->v51_nz2 = (((self->s_ccp_res.cur >> (16)) & UINT64_C(0xFFFF)) != 0);
-    self->v51_nz3 = (((self->s_ccp_res.cur >> (32)) & UINT64_C(0xFFFFFFFF)) != 0);
-    self->v51_zen = 0;
-    self->v51_nen = 0;
-    self->v51_ez = (((uint64_t)((((uint64_t)((((uint64_t)(self->v51_w64) << 1) | self->v51_w32)) << 1) | self->v51_w16)) << 1) | self->v51_w8);
-    self->v51_en = self->v51_ez;
+    self->v52_w8 = (((((self->s_ccp_width.cur >> 1) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((((self->s_ccp_width.cur >> 0) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+    self->v52_w16 = (((((self->s_ccp_width.cur >> 1) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_ccp_width.cur >> 0) & 1));
+    self->v52_w32 = (((self->s_ccp_width.cur >> 1) & 1) & ((((self->s_ccp_width.cur >> 0) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+    self->v52_w64 = (((self->s_ccp_width.cur >> 1) & 1) & ((self->s_ccp_width.cur >> 0) & 1));
+    self->v52_ls = ((((self->v52_w8 & ((self->s_ccp_left.cur >> 7) & 1)) | (self->v52_w16 & ((self->s_ccp_left.cur >> 15) & 1))) | (self->v52_w32 & ((self->s_ccp_left.cur >> 31) & 1))) | (self->v52_w64 & ((self->s_ccp_left.cur >> 63) & 1)));
+    self->v52_rs = ((((self->v52_w8 & ((self->s_ccp_right.cur >> 7) & 1)) | (self->v52_w16 & ((self->s_ccp_right.cur >> 15) & 1))) | (self->v52_w32 & ((self->s_ccp_right.cur >> 31) & 1))) | (self->v52_w64 & ((self->s_ccp_right.cur >> 63) & 1)));
+    self->v52_ss = ((((self->v52_w8 & ((self->s_ccp_res.cur >> 7) & 1)) | (self->v52_w16 & ((self->s_ccp_res.cur >> 15) & 1))) | (self->v52_w32 & ((self->s_ccp_res.cur >> 31) & 1))) | (self->v52_w64 & ((self->s_ccp_res.cur >> 63) & 1)));
+    self->v52_l2 = ((((self->v52_w8 & ((self->s_ccp_left.cur >> 6) & 1)) | (self->v52_w16 & ((self->s_ccp_left.cur >> 14) & 1))) | (self->v52_w32 & ((self->s_ccp_left.cur >> 30) & 1))) | (self->v52_w64 & ((self->s_ccp_left.cur >> 62) & 1)));
+    self->v52_a0 = ((self->s_ccp_left.cur & UINT64_C(0x7F)) == UINT64_C(0x7F));
+    self->v52_a1 = (((self->s_ccp_left.cur >> (7)) & UINT64_C(0xFF)) == UINT64_C(0xFF));
+    self->v52_a2 = (((self->s_ccp_left.cur >> (15)) & UINT64_C(0xFFFF)) == UINT64_C(0xFFFF));
+    self->v52_a3 = (((self->s_ccp_left.cur >> (31)) & UINT64_C(0xFFFFFFFF)) == UINT64_C(0xFFFFFFFF));
+    self->v52_o0 = ((self->s_ccp_left.cur & UINT64_C(0x7F)) != 0);
+    self->v52_o1 = (((self->s_ccp_left.cur >> (7)) & UINT64_C(0xFF)) != 0);
+    self->v52_o2 = (((self->s_ccp_left.cur >> (15)) & UINT64_C(0xFFFF)) != 0);
+    self->v52_o3 = (((self->s_ccp_left.cur >> (31)) & UINT64_C(0xFFFFFFFF)) != 0);
+    self->v52_low1 = (((self->v52_a0 & (self->v52_w8 | self->v52_a1)) & ((((self->v52_w32 | self->v52_w64) ^ UINT64_C(0x1)) & UINT64_C(0x1)) | self->v52_a2)) & (((self->v52_w64 ^ UINT64_C(0x1)) & UINT64_C(0x1)) | self->v52_a3));
+    self->v52_low0 = (((((self->v52_o0 | (self->v52_o1 & ((self->v52_w8 ^ UINT64_C(0x1)) & UINT64_C(0x1)))) | (self->v52_o2 & (self->v52_w32 | self->v52_w64))) | (self->v52_o3 & self->v52_w64)) ^ UINT64_C(0x1)) & UINT64_C(0x1));
+    self->v52_nz0 = ((self->s_ccp_res.cur & UINT64_C(0xFF)) != 0);
+    self->v52_nz1 = (((self->s_ccp_res.cur >> (8)) & UINT64_C(0xFF)) != 0);
+    self->v52_nz2 = (((self->s_ccp_res.cur >> (16)) & UINT64_C(0xFFFF)) != 0);
+    self->v52_nz3 = (((self->s_ccp_res.cur >> (32)) & UINT64_C(0xFFFFFFFF)) != 0);
+    self->v52_zen = 0;
+    self->v52_nen = 0;
+    self->v52_ez = (((uint64_t)((((uint64_t)((((uint64_t)(self->v52_w64) << 1) | self->v52_w32)) << 1) | self->v52_w16)) << 1) | self->v52_w8);
+    self->v52_en = self->v52_ez;
     switch (self->s_ccp_ctrl.cur)
     {
         case UINT64_C(0x101):
@@ -5136,8 +5133,8 @@ static void cpu_63f09_p51(void *inst)
         case UINT64_C(0xA01):
         case UINT64_C(0x1301):
         {
-            self->v51_zen = 1;
-            self->v51_nen = 1;
+            self->v52_zen = 1;
+            self->v52_nen = 1;
             break;
         }
         case UINT64_C(0x202):
@@ -5145,31 +5142,31 @@ static void cpu_63f09_p51(void *inst)
         case UINT64_C(0x810):
         case UINT64_C(0x1601):
         {
-            self->v51_zen = 1;
-            self->v51_nen = 1;
-            self->v51_ez = UINT64_C(0x1);
-            self->v51_en = UINT64_C(0x1);
+            self->v52_zen = 1;
+            self->v52_nen = 1;
+            self->v52_ez = UINT64_C(0x1);
+            self->v52_en = UINT64_C(0x1);
             break;
         }
         case UINT64_C(0x701):
         {
-            self->v51_zen = 1;
-            self->v51_ez = UINT64_C(0x2);
+            self->v52_zen = 1;
+            self->v52_ez = UINT64_C(0x2);
             break;
         }
         case UINT64_C(0x702):
         case UINT64_C(0x704):
         {
-            self->v51_zen = 1;
-            self->v51_nen = 1;
-            self->v51_ez = UINT64_C(0x4);
-            self->v51_en = UINT64_C(0x4);
+            self->v52_zen = 1;
+            self->v52_nen = 1;
+            self->v52_ez = UINT64_C(0x4);
+            self->v52_en = UINT64_C(0x4);
             break;
         }
         case UINT64_C(0x708):
         {
-            self->v51_zen = 1;
-            self->v51_ez = UINT64_C(0x4);
+            self->v52_zen = 1;
+            self->v52_ez = UINT64_C(0x4);
             break;
         }
         case UINT64_C(0x710):
@@ -5177,29 +5174,29 @@ static void cpu_63f09_p51(void *inst)
         case UINT64_C(0x780):
         case UINT64_C(0x781):
         {
-            self->v51_zen = 1;
-            self->v51_nen = 1;
-            self->v51_ez = UINT64_C(0x8);
-            self->v51_en = UINT64_C(0x8);
+            self->v52_zen = 1;
+            self->v52_nen = 1;
+            self->v52_ez = UINT64_C(0x8);
+            self->v52_en = UINT64_C(0x8);
             break;
         }
         case UINT64_C(0x740):
         case UINT64_C(0x782):
         {
-            self->v51_zen = 1;
-            self->v51_ez = UINT64_C(0x8);
+            self->v52_zen = 1;
+            self->v52_ez = UINT64_C(0x8);
             break;
         }
         case UINT64_C(0x1501):
         {
-            self->v51_zen = 1;
+            self->v52_zen = 1;
             if ((self->s_ccp_is32.cur == 1))
             {
-                self->v51_ez = UINT64_C(0x4);
+                self->v52_ez = UINT64_C(0x4);
             }
             else
             {
-                self->v51_ez = UINT64_C(0x2);
+                self->v52_ez = UINT64_C(0x2);
             }
             break;
         }
@@ -5209,11 +5206,11 @@ static void cpu_63f09_p51(void *inst)
             break;
         }
     }
-    self->v51_zres = (((((self->v51_nz0 | (self->v51_nz1 & ((((self->v51_ez >> 1) & 1) | ((self->v51_ez >> 2) & 1)) | ((self->v51_ez >> 3) & 1)))) | (self->v51_nz2 & (((self->v51_ez >> 2) & 1) | ((self->v51_ez >> 3) & 1)))) | (self->v51_nz3 & ((self->v51_ez >> 3) & 1))) ^ UINT64_C(0x1)) & UINT64_C(0x1));
-    self->v51_nres = ((((((self->v51_en >> 0) & 1) & ((self->s_ccp_res.cur >> 7) & 1)) | (((self->v51_en >> 1) & 1) & ((self->s_ccp_res.cur >> 15) & 1))) | (((self->v51_en >> 2) & 1) & ((self->s_ccp_res.cur >> 31) & 1))) | (((self->v51_en >> 3) & 1) & ((self->s_ccp_res.cur >> 63) & 1)));
+    self->v52_zres = (((((self->v52_nz0 | (self->v52_nz1 & ((((self->v52_ez >> 1) & 1) | ((self->v52_ez >> 2) & 1)) | ((self->v52_ez >> 3) & 1)))) | (self->v52_nz2 & (((self->v52_ez >> 2) & 1) | ((self->v52_ez >> 3) & 1)))) | (self->v52_nz3 & ((self->v52_ez >> 3) & 1))) ^ UINT64_C(0x1)) & UINT64_C(0x1));
+    self->v52_nres = ((((((self->v52_en >> 0) & 1) & ((self->s_ccp_res.cur >> 7) & 1)) | (((self->v52_en >> 1) & 1) & ((self->s_ccp_res.cur >> 15) & 1))) | (((self->v52_en >> 2) & 1) & ((self->s_ccp_res.cur >> 31) & 1))) | (((self->v52_en >> 3) & 1) & ((self->s_ccp_res.cur >> 63) & 1)));
     if ((((self->s_ccp_ctrl.cur == (UINT64_C(0x810))) & (((self->s_ccp_res.cur >> 7) & 1) == 1)) & (((self->s_ccp_res.cur >> 6) & 1) == 1)))
     {
-        self->v51_zres = 1;
+        self->v52_zres = 1;
     }
     switch (self->s_ccp_ctrl.cur)
     {
@@ -5222,13 +5219,13 @@ static void cpu_63f09_p51(void *inst)
         case UINT64_C(0x202):
         case UINT64_C(0x204):
         {
-            vs_drive_bits(&self->s_alu_cc, 0, UINT64_C(0x1), (((self->v51_ls & self->v51_rs) | (self->v51_ls & ((self->v51_ss ^ UINT64_C(0x1)) & UINT64_C(0x1)))) | (self->v51_rs & ((self->v51_ss ^ UINT64_C(0x1)) & UINT64_C(0x1)))));
+            vs_drive_bits(&self->s_alu_cc, 0, UINT64_C(0x1), (((self->v52_ls & self->v52_rs) | (self->v52_ls & ((self->v52_ss ^ UINT64_C(0x1)) & UINT64_C(0x1)))) | (self->v52_rs & ((self->v52_ss ^ UINT64_C(0x1)) & UINT64_C(0x1)))));
             break;
         }
         case UINT64_C(0x401):
         case UINT64_C(0x601):
         {
-            vs_drive_bits(&self->s_alu_cc, 0, UINT64_C(0x1), (((((self->v51_ls ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->v51_rs) | (((self->v51_ls ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->v51_ss)) | (self->v51_rs & self->v51_ss)));
+            vs_drive_bits(&self->s_alu_cc, 0, UINT64_C(0x1), (((((self->v52_ls ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->v52_rs) | (((self->v52_ls ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->v52_ss)) | (self->v52_rs & self->v52_ss)));
             break;
         }
         case UINT64_C(0xB04):
@@ -5241,7 +5238,7 @@ static void cpu_63f09_p51(void *inst)
         case UINT64_C(0xC02):
         case UINT64_C(0xC01):
         {
-            vs_drive_bits(&self->s_alu_cc, 0, UINT64_C(0x1), self->v51_ls);
+            vs_drive_bits(&self->s_alu_cc, 0, UINT64_C(0x1), self->v52_ls);
             break;
         }
         case UINT64_C(0x808):
@@ -5256,7 +5253,7 @@ static void cpu_63f09_p51(void *inst)
         }
         case UINT64_C(0x501):
         {
-            vs_drive_bits(&self->s_alu_cc, 0, UINT64_C(0x1), ((self->v51_zres ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+            vs_drive_bits(&self->s_alu_cc, 0, UINT64_C(0x1), ((self->v52_zres ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             break;
         }
         case UINT64_C(0x701):
@@ -5322,9 +5319,9 @@ static void cpu_63f09_p51(void *inst)
             break;
         }
     }
-    if ((self->v51_zen == 1))
+    if ((self->v52_zen == 1))
     {
-        vs_drive_bits(&self->s_alu_cc, 2, UINT64_C(0x1), self->v51_zres);
+        vs_drive_bits(&self->s_alu_cc, 2, UINT64_C(0x1), self->v52_zres);
     }
     else
     {
@@ -5363,9 +5360,9 @@ static void cpu_63f09_p51(void *inst)
             }
         }
     }
-    if ((self->v51_nen == 1))
+    if ((self->v52_nen == 1))
     {
-        vs_drive_bits(&self->s_alu_cc, 3, UINT64_C(0x1), self->v51_nres);
+        vs_drive_bits(&self->s_alu_cc, 3, UINT64_C(0x1), self->v52_nres);
     }
     else
     {
@@ -5406,30 +5403,30 @@ static void cpu_63f09_p51(void *inst)
         case UINT64_C(0x202):
         case UINT64_C(0x204):
         {
-            vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (((self->v51_ls & self->v51_rs) & ((self->v51_ss ^ UINT64_C(0x1)) & UINT64_C(0x1))) | ((((self->v51_ls ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->v51_rs ^ UINT64_C(0x1)) & UINT64_C(0x1))) & self->v51_ss)));
+            vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (((self->v52_ls & self->v52_rs) & ((self->v52_ss ^ UINT64_C(0x1)) & UINT64_C(0x1))) | ((((self->v52_ls ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->v52_rs ^ UINT64_C(0x1)) & UINT64_C(0x1))) & self->v52_ss)));
             break;
         }
         case UINT64_C(0x401):
         case UINT64_C(0x601):
         {
-            vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (((self->v51_ls & ((self->v51_rs ^ UINT64_C(0x1)) & UINT64_C(0x1))) & ((self->v51_ss ^ UINT64_C(0x1)) & UINT64_C(0x1))) | ((((self->v51_ls ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->v51_rs) & self->v51_ss)));
+            vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (((self->v52_ls & ((self->v52_rs ^ UINT64_C(0x1)) & UINT64_C(0x1))) & ((self->v52_ss ^ UINT64_C(0x1)) & UINT64_C(0x1))) | ((((self->v52_ls ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->v52_rs) & self->v52_ss)));
             break;
         }
         case UINT64_C(0x102):
         {
-            vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (((self->v51_ls ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->v51_low1));
+            vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (((self->v52_ls ^ UINT64_C(0x1)) & UINT64_C(0x1)) & self->v52_low1));
             break;
         }
         case UINT64_C(0x402):
         case UINT64_C(0x501):
         {
-            vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (self->v51_ls & self->v51_low0));
+            vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (self->v52_ls & self->v52_low0));
             break;
         }
         case UINT64_C(0xC02):
         case UINT64_C(0xC01):
         {
-            vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (self->v51_ls ^ self->v51_l2));
+            vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (self->v52_ls ^ self->v52_l2));
             break;
         }
         case UINT64_C(0x1601):
@@ -5482,13 +5479,13 @@ static void cpu_63f09_p51(void *inst)
         }
         case UINT64_C(0x1701):
         {
-            if ((((self->s_ccp_is32.cur == 1) | (self->v51_w32 == 1)) | (self->v51_w64 == 1)))
+            if ((((self->s_ccp_is32.cur == 1) | (self->v52_w32 == 1)) | (self->v52_w64 == 1)))
             {
                 vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), 0);
             }
             else
             {
-                vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (self->s_ccp_cond.cur ^ self->v51_ss));
+                vs_drive_bits(&self->s_alu_cc, 1, UINT64_C(0x1), (self->s_ccp_cond.cur ^ self->v52_ss));
             }
             break;
         }
@@ -5508,7 +5505,7 @@ static void cpu_63f09_p51(void *inst)
         case UINT64_C(0x101):
         case UINT64_C(0x201):
         {
-            if ((self->v51_w8 == 1))
+            if ((self->v52_w8 == 1))
             {
                 vs_drive_bits(&self->s_alu_cc, 5, UINT64_C(0x1), (((((self->s_ccp_left.cur >> 3) & 1) & ((self->s_ccp_right.cur >> 3) & 1)) | (((self->s_ccp_right.cur >> 3) & 1) & ((((self->s_ccp_res.cur >> 3) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)))) | (((self->s_ccp_left.cur >> 3) & 1) & ((((self->s_ccp_res.cur >> 3) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)))));
             }
@@ -5613,7 +5610,7 @@ static void cpu_63f09_p51(void *inst)
     }
 }
 
-static void cpu_63f09_p52(void *inst)
+static void cpu_63f09_p53(void *inst)
 {
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
@@ -5625,7 +5622,7 @@ static void cpu_63f09_p52(void *inst)
     }
 }
 
-static void cpu_63f09_p53(void *inst)
+static void cpu_63f09_p54(void *inst)
 {
     cpu_63f09 *self = inst;
     if ((self->s_right_ctrl.cur == (UINT64_C(0x200000))))
@@ -5638,13 +5635,13 @@ static void cpu_63f09_p53(void *inst)
     }
 }
 
-static void cpu_63f09_p54(void *inst)
+static void cpu_63f09_p55(void *inst)
 {
     cpu_63f09 *self = inst;
     vs_drive(&self->s_mul_ovf_next, ((self->s_mul_ovf.cur | (self->s_mul_lost.cur & self->s_mul_sel.cur)) | ((((self->s_left_alu.cur >> 63) & 1) & ((self->s_right_alu.cur >> 63) & 1)) | ((((self->s_left_alu.cur >> 63) & 1) | ((self->s_right_alu.cur >> 63) & 1)) & ((((self->s_int_alu.cur >> 63) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1))))));
 }
 
-static void cpu_63f09_p55(void *inst)
+static void cpu_63f09_p56(void *inst)
 {
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
@@ -5672,17 +5669,17 @@ static void cpu_63f09_p55(void *inst)
     }
 }
 
-static void cpu_63f09_p56(void *inst)
+static void cpu_63f09_p57(void *inst)
 {
     cpu_63f09 *self = inst;
-    self->v56_r = 0;
+    self->v57_r = 0;
     if ((((self->s_mi_req.cur >> 0) & 1) == 1))
     {
-        self->v56_r = (((*self->p_firq_n).cur ^ UINT64_C(0x1)) & UINT64_C(0x1));
+        self->v57_r = (((*self->p_firq_n).cur ^ UINT64_C(0x1)) & UINT64_C(0x1));
     }
     else if ((((self->s_mi_req.cur >> 1) & 1) == 1))
     {
-        self->v56_r = (((*self->p_irq_n).cur ^ UINT64_C(0x1)) & UINT64_C(0x1));
+        self->v57_r = (((*self->p_irq_n).cur ^ UINT64_C(0x1)) & UINT64_C(0x1));
     }
     else
     {
@@ -5692,21 +5689,21 @@ static void cpu_63f09_p56(void *inst)
             {
                 if ((((self->s_reg_md.cur >> 2) & 1) == 1))
                 {
-                    self->v56_r = 1;
+                    self->v57_r = 1;
                 }
                 else
                 {
-                    self->v56_r = (((((*self->p_eirq_n).cur >> ((i_9) - 0)) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1));
+                    self->v57_r = (((((*self->p_eirq_n).cur >> ((i_9) - 0)) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1));
                 }
                 goto loop_exit_10;
             }
         }
         loop_exit_10:;
     }
-    vs_drive(&self->s_sync_line, self->v56_r);
+    vs_drive(&self->s_sync_line, self->v57_r);
 }
 
-static void cpu_63f09_p57(void *inst)
+static void cpu_63f09_p58(void *inst)
 {
     cpu_63f09 *self = inst;
     if (((*self->p_reset_n).cur == 0))
@@ -5821,14 +5818,14 @@ static void cpu_63f09_p57(void *inst)
     }
 }
 
-static void cpu_63f09_p58(void *inst)
+static void cpu_63f09_p59(void *inst)
 {
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
     {
-        self->v58_n = (int64_t)((self->s_mem_data.cur & UINT64_C(0xF)));
-        self->v58_m = (int64_t)(((self->s_mem_data.cur >> (4)) & UINT64_C(0xF)));
-        self->v58_n_count = (self->v58_n + INT64_C(1));
+        self->v59_n = (int64_t)((self->s_mem_data.cur & UINT64_C(0xF)));
+        self->v59_m = (int64_t)(((self->s_mem_data.cur >> (4)) & UINT64_C(0xF)));
+        self->v59_n_count = (self->v59_n + INT64_C(1));
         switch ((uint32_t) self->s_fp_stack_ctrl.cur)
         {
             case 1:
@@ -6024,7 +6021,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 18:
             {
-                switch (self->v58_n_count)
+                switch (self->v59_n_count)
                 {
                     case INT64_C(0):
                     {
@@ -6234,7 +6231,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 17:
             {
-                switch (self->v58_n_count)
+                switch (self->v59_n_count)
                 {
                     case INT64_C(1):
                     {
@@ -6363,7 +6360,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 19:
             {
-                switch (self->v58_n_count)
+                switch (self->v59_n_count)
                 {
                     case INT64_C(2):
                     {
@@ -6507,7 +6504,7 @@ static void cpu_63f09_p58(void *inst)
             }
             case 20:
             {
-                switch (self->v58_n_count)
+                switch (self->v59_n_count)
                 {
                     case INT64_C(2):
                     {
@@ -6655,7 +6652,7 @@ static void cpu_63f09_p58(void *inst)
                 {
                     vs_drive(&self->s_reg_fp.a[((i_183 + INT64_C(1))) - 0], self->s_reg_fp.a[(i_183) - 0].cur);
                 }
-                vs_drive(&self->s_reg_fp.a[0], self->s_reg_fp.a[(self->v58_n) - 0].cur);
+                vs_drive(&self->s_reg_fp.a[0], self->s_reg_fp.a[(self->v59_n) - 0].cur);
                 break;
             }
             case 14:
@@ -6666,8 +6663,8 @@ static void cpu_63f09_p58(void *inst)
             }
             case 22:
             {
-                vs_drive(&self->s_reg_fp.a[(self->v58_n) - 0], self->s_reg_fp.a[(self->v58_m) - 0].cur);
-                vs_drive(&self->s_reg_fp.a[(self->v58_m) - 0], self->s_reg_fp.a[(self->v58_n) - 0].cur);
+                vs_drive(&self->s_reg_fp.a[(self->v59_n) - 0], self->s_reg_fp.a[(self->v59_m) - 0].cur);
+                vs_drive(&self->s_reg_fp.a[(self->v59_m) - 0], self->s_reg_fp.a[(self->v59_n) - 0].cur);
                 break;
             }
             case 16:
@@ -6946,7 +6943,7 @@ static void cpu_63f09_p58(void *inst)
     }
 }
 
-static void cpu_63f09_p59(void *inst)
+static void cpu_63f09_p60(void *inst)
 {
     cpu_63f09 *self = inst;
     if (((uint32_t) self->s_fp_stack_conf_ctrl.cur == 0))
@@ -6963,7 +6960,7 @@ static void cpu_63f09_p59(void *inst)
     }
 }
 
-static void cpu_63f09_p60(void *inst)
+static void cpu_63f09_p61(void *inst)
 {
     cpu_63f09 *self = inst;
     if (vs_falling(&self->s_clk))
@@ -6989,7 +6986,7 @@ static void cpu_63f09_p60(void *inst)
     }
 }
 
-static void cpu_63f09_p61(void *inst)
+static void cpu_63f09_p62(void *inst)
 {
     cpu_63f09 *self = inst;
     vs_drive(&self->s_cc_ctrl, (UINT64_C(0x20)));
@@ -7006,7 +7003,7 @@ static void cpu_63f09_p61(void *inst)
     vs_drive(&self->s_u_ctrl, (UINT64_C(0x80)));
     vs_drive(&self->s_s_ctrl, (UINT64_C(0x80)));
     vs_drive(&self->s_pc_ctrl, (UINT64_C(0x800)));
-    vs_drive(&self->s_m_ctrl, (UINT64_C(0x40)));
+    vs_drive(&self->s_m_ctrl, (UINT64_C(0x4)));
     vs_drive(&self->s_mem_data_ctrl, (UINT64_C(0x2)));
     vs_drive(&self->s_ea_ctrl, (UINT64_C(0x20)));
     vs_drive(&self->s_iv_ctrl, (UINT64_C(0x0)));
@@ -12157,7 +12154,7 @@ static void cpu_63f09_p61(void *inst)
                                         }
                                         else
                                         {
-                                            vs_drive(&self->s_data_width_ctrl, 3);
+                                            vs_drive(&self->s_data_width_ctrl, 4);
                                             vs_drive(&self->s_return_state, (UINT64_C(0x1090)));
                                             vs_drive(&self->s_stack_ctrl, 1);
                                             vs_drive(&self->s_next_state, (UINT64_C(0x1001)));
@@ -14110,6 +14107,7 @@ static void cpu_63f09_p61(void *inst)
                                         vs_drive(&self->s_condition_ctrl, 2);
                                     }
                                     vs_drive(&self->s_m_ctrl, (UINT64_C(0x2)));
+                                    vs_drive(&self->s_data_width_ctrl, 4);
                                     vs_drive(&self->s_return_state, (UINT64_C(0x1090)));
                                     vs_drive(&self->s_stack_ctrl, 1);
                                     p_immediate8_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_mem_data_ctrl);
@@ -14161,6 +14159,7 @@ static void cpu_63f09_p61(void *inst)
                                     vs_drive(&self->s_alu_ctrl, (UINT64_C(0xA01)));
                                     vs_drive(&self->s_alu_width, (UINT64_C(0x2)));
                                     vs_drive(&self->s_m_ctrl, (UINT64_C(0x2)));
+                                    vs_drive(&self->s_data_width_ctrl, 4);
                                     vs_drive(&self->s_return_state, (UINT64_C(0x1190)));
                                     vs_drive(&self->s_stack_ctrl, 1);
                                     p_immediate8_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_mem_data_ctrl);
@@ -14706,7 +14705,7 @@ static void cpu_63f09_p61(void *inst)
         }
         case UINT64_C(0x1001):
         {
-            p_indexed8_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_mem_data_ctrl, &self->s_next_state, &self->s_return_state, &self->s_stack_ctrl, &self->s_alu_ctrl, &self->s_alu_width, &self->s_left_ctrl, &self->s_right_ctrl, &self->s_ea_ctrl, &self->s_m_ctrl, &self->s_x_ctrl, &self->s_y_ctrl, &self->s_u_ctrl, &self->s_s_ctrl);
+            p_indexed8_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_mem_data_ctrl, &self->s_next_state, &self->s_return_state, &self->s_stack_ctrl, &self->s_alu_ctrl, &self->s_alu_width, &self->s_left_ctrl, &self->s_right_ctrl, &self->s_ea_ctrl, &self->s_x_ctrl, &self->s_y_ctrl, &self->s_u_ctrl, &self->s_s_ctrl);
             break;
         }
         case UINT64_C(0x1082):
@@ -14809,10 +14808,10 @@ static void cpu_63f09_p61(void *inst)
             }
             break;
         }
-        case UINT64_C(0x1002):
+        case UINT64_C(0x1201):
         {
             vs_drive(&self->s_left_ctrl, f_index_register_0(self, vs_mkref(&self->s_mem_data, 5, 2)));
-            vs_drive(&self->s_right_ctrl, (UINT64_C(0x100000)));
+            vs_drive(&self->s_right_ctrl, (UINT64_C(0x2)));
             vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
             vs_drive(&self->s_alu_width, (UINT64_C(0x2)));
             switch (f_index_register_0(self, vs_mkref(&self->s_mem_data, 5, 2)))
@@ -14842,6 +14841,153 @@ static void cpu_63f09_p61(void *inst)
             vs_drive(&self->s_next_state, self->s_saved_state.cur);
             break;
         }
+        case UINT64_C(0x1202):
+        {
+            vs_drive(&self->s_left_ctrl, f_index_register_0(self, vs_mkref(&self->s_mem_data, 5, 2)));
+            vs_drive(&self->s_right_ctrl, (UINT64_C(0x4)));
+            vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
+            vs_drive(&self->s_alu_width, (UINT64_C(0x2)));
+            switch (f_index_register_0(self, vs_mkref(&self->s_mem_data, 5, 2)))
+            {
+                case UINT64_C(0x100):
+                {
+                    vs_drive(&self->s_x_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                case UINT64_C(0x200):
+                {
+                    vs_drive(&self->s_y_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                case UINT64_C(0x400):
+                {
+                    vs_drive(&self->s_u_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                default:
+                {
+                    vs_drive(&self->s_s_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+            }
+            vs_drive(&self->s_stack_ctrl, 2);
+            vs_drive(&self->s_next_state, self->s_saved_state.cur);
+            break;
+        }
+        case UINT64_C(0x1204):
+        {
+            vs_drive(&self->s_left_ctrl, f_index_register_0(self, vs_mkref(&self->s_mem_data, 5, 2)));
+            vs_drive(&self->s_right_ctrl, (UINT64_C(0x8)));
+            vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
+            vs_drive(&self->s_alu_width, (UINT64_C(0x2)));
+            switch (f_index_register_0(self, vs_mkref(&self->s_mem_data, 5, 2)))
+            {
+                case UINT64_C(0x100):
+                {
+                    vs_drive(&self->s_x_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                case UINT64_C(0x200):
+                {
+                    vs_drive(&self->s_y_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                case UINT64_C(0x400):
+                {
+                    vs_drive(&self->s_u_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                default:
+                {
+                    vs_drive(&self->s_s_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+            }
+            vs_drive(&self->s_stack_ctrl, 2);
+            vs_drive(&self->s_next_state, self->s_saved_state.cur);
+            break;
+        }
+        case UINT64_C(0x1208):
+        {
+            vs_drive(&self->s_left_ctrl, f_index_register_0(self, vs_mkref(&self->s_mem_data, 5, 2)));
+            vs_drive(&self->s_right_ctrl, (UINT64_C(0x10)));
+            vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
+            vs_drive(&self->s_alu_width, (UINT64_C(0x2)));
+            switch (f_index_register_0(self, vs_mkref(&self->s_mem_data, 5, 2)))
+            {
+                case UINT64_C(0x100):
+                {
+                    vs_drive(&self->s_x_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                case UINT64_C(0x200):
+                {
+                    vs_drive(&self->s_y_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                case UINT64_C(0x400):
+                {
+                    vs_drive(&self->s_u_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                default:
+                {
+                    vs_drive(&self->s_s_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+            }
+            vs_drive(&self->s_stack_ctrl, 2);
+            vs_drive(&self->s_next_state, self->s_saved_state.cur);
+            break;
+        }
+        case UINT64_C(0x1210):
+        {
+            vs_drive(&self->s_left_ctrl, f_index_register_0(self, vs_mkref(&self->s_mem_data, 5, 2)));
+            if (f_is_32bits_0(self, &self->s_reg_md))
+            {
+                vs_drive(&self->s_right_ctrl, (UINT64_C(0x8)));
+            }
+            else
+            {
+                vs_drive(&self->s_right_ctrl, (UINT64_C(0x4)));
+            }
+            vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
+            vs_drive(&self->s_alu_width, (UINT64_C(0x2)));
+            switch (f_index_register_0(self, vs_mkref(&self->s_mem_data, 5, 2)))
+            {
+                case UINT64_C(0x100):
+                {
+                    vs_drive(&self->s_x_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                case UINT64_C(0x200):
+                {
+                    vs_drive(&self->s_y_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                case UINT64_C(0x400):
+                {
+                    vs_drive(&self->s_u_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+                default:
+                {
+                    vs_drive(&self->s_s_ctrl, (UINT64_C(0x2)));
+                    break;
+                }
+            }
+            vs_drive(&self->s_return_state, (UINT64_C(0x1020)));
+            vs_drive(&self->s_stack_ctrl, 1);
+            if (f_is_32bits_0(self, &self->s_reg_md))
+            {
+                vs_drive(&self->s_next_state, (UINT64_C(0x410)));
+            }
+            else
+            {
+                vs_drive(&self->s_next_state, (UINT64_C(0x404)));
+            }
+            break;
+        }
         case UINT64_C(0x1040):
         {
             vs_drive(&self->s_stack_ctrl, 2);
@@ -14850,7 +14996,7 @@ static void cpu_63f09_p61(void *inst)
         }
         case UINT64_C(0x1004):
         {
-            vs_drive(&self->s_left_ctrl, (UINT64_C(0x10000)));
+            vs_drive(&self->s_left_ctrl, (UINT64_C(0x80000)));
             vs_drive(&self->s_right_ctrl, (UINT64_C(0x200000)));
             vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
             vs_drive(&self->s_alu_width, (UINT64_C(0x2)));
@@ -14862,7 +15008,7 @@ static void cpu_63f09_p61(void *inst)
         }
         case UINT64_C(0x1008):
         {
-            vs_drive(&self->s_left_ctrl, (UINT64_C(0x10000)));
+            vs_drive(&self->s_left_ctrl, (UINT64_C(0x80000)));
             vs_drive(&self->s_right_ctrl, (UINT64_C(0x200000)));
             vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
             vs_drive(&self->s_alu_width, (UINT64_C(0x2)));
@@ -15770,13 +15916,13 @@ static void cpu_63f09_p61(void *inst)
                                 case UINT64_C(0x0):
                                 {
                                     vs_drive(&self->s_left_ctrl, f_register_left_1(self, vs_mkref(&self->s_mem_data, 4, 4), &self->s_reg_md));
-                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v61_size);
-                                    if ((self->v61_size == INT64_C(8)))
+                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v62_size);
+                                    if ((self->v62_size == INT64_C(8)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x204)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x0)));
                                     }
-                                    else if ((self->v61_size == INT64_C(16)))
+                                    else if ((self->v62_size == INT64_C(16)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x1)));
@@ -15795,13 +15941,13 @@ static void cpu_63f09_p61(void *inst)
                                 case UINT64_C(0x1):
                                 {
                                     vs_drive(&self->s_left_ctrl, f_register_left_1(self, vs_mkref(&self->s_mem_data, 4, 4), &self->s_reg_md));
-                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v61_size);
-                                    if ((self->v61_size == INT64_C(8)))
+                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v62_size);
+                                    if ((self->v62_size == INT64_C(8)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x202)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x0)));
                                     }
-                                    else if ((self->v61_size == INT64_C(16)))
+                                    else if ((self->v62_size == INT64_C(16)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x201)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x1)));
@@ -15820,13 +15966,13 @@ static void cpu_63f09_p61(void *inst)
                                 case UINT64_C(0x2):
                                 {
                                     vs_drive(&self->s_left_ctrl, f_register_left_1(self, vs_mkref(&self->s_mem_data, 4, 4), &self->s_reg_md));
-                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v61_size);
-                                    if ((self->v61_size == INT64_C(8)))
+                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v62_size);
+                                    if ((self->v62_size == INT64_C(8)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x401)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x0)));
                                     }
-                                    else if ((self->v61_size == INT64_C(16)))
+                                    else if ((self->v62_size == INT64_C(16)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x401)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x1)));
@@ -15845,13 +15991,13 @@ static void cpu_63f09_p61(void *inst)
                                 case UINT64_C(0x3):
                                 {
                                     vs_drive(&self->s_left_ctrl, f_register_left_1(self, vs_mkref(&self->s_mem_data, 4, 4), &self->s_reg_md));
-                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v61_size);
-                                    if ((self->v61_size == INT64_C(8)))
+                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v62_size);
+                                    if ((self->v62_size == INT64_C(8)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x601)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x0)));
                                     }
-                                    else if ((self->v61_size == INT64_C(16)))
+                                    else if ((self->v62_size == INT64_C(16)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x601)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x1)));
@@ -15870,13 +16016,13 @@ static void cpu_63f09_p61(void *inst)
                                 case UINT64_C(0x4):
                                 {
                                     vs_drive(&self->s_left_ctrl, f_register_left_1(self, vs_mkref(&self->s_mem_data, 4, 4), &self->s_reg_md));
-                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v61_size);
-                                    if ((self->v61_size == INT64_C(8)))
+                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v62_size);
+                                    if ((self->v62_size == INT64_C(8)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x801)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x0)));
                                     }
-                                    else if ((self->v61_size == INT64_C(16)))
+                                    else if ((self->v62_size == INT64_C(16)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x801)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x1)));
@@ -15895,13 +16041,13 @@ static void cpu_63f09_p61(void *inst)
                                 case UINT64_C(0x5):
                                 {
                                     vs_drive(&self->s_left_ctrl, f_register_left_1(self, vs_mkref(&self->s_mem_data, 4, 4), &self->s_reg_md));
-                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v61_size);
-                                    if ((self->v61_size == INT64_C(8)))
+                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v62_size);
+                                    if ((self->v62_size == INT64_C(8)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x802)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x0)));
                                     }
-                                    else if ((self->v61_size == INT64_C(16)))
+                                    else if ((self->v62_size == INT64_C(16)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x802)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x1)));
@@ -15920,13 +16066,13 @@ static void cpu_63f09_p61(void *inst)
                                 case UINT64_C(0x6):
                                 {
                                     vs_drive(&self->s_left_ctrl, f_register_left_1(self, vs_mkref(&self->s_mem_data, 4, 4), &self->s_reg_md));
-                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v61_size);
-                                    if ((self->v61_size == INT64_C(8)))
+                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v62_size);
+                                    if ((self->v62_size == INT64_C(8)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x804)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x0)));
                                     }
-                                    else if ((self->v61_size == INT64_C(16)))
+                                    else if ((self->v62_size == INT64_C(16)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x804)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x1)));
@@ -15945,13 +16091,13 @@ static void cpu_63f09_p61(void *inst)
                                 case UINT64_C(0x7):
                                 {
                                     vs_drive(&self->s_left_ctrl, f_register_left_1(self, vs_mkref(&self->s_mem_data, 4, 4), &self->s_reg_md));
-                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v61_size);
-                                    if ((self->v61_size == INT64_C(8)))
+                                    p_register_right_0(self, vs_mkref(&self->s_mem_data, 0, 4), &self->s_reg_md, &self->s_right_ctrl, &self->v62_size);
+                                    if ((self->v62_size == INT64_C(8)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x401)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x0)));
                                     }
-                                    else if ((self->v61_size == INT64_C(16)))
+                                    else if ((self->v62_size == INT64_C(16)))
                                     {
                                         vs_drive(&self->s_alu_ctrl, (UINT64_C(0x401)));
                                         vs_drive(&self->s_alu_width, (UINT64_C(0x1)));
@@ -24227,30 +24373,30 @@ static void cpu_63f09_p61(void *inst)
                 {
                     vs_drive(&self->s_left_ctrl, (UINT64_C(0x1)));
                     vs_drive(&self->s_cc_ctrl, (UINT64_C(0x3)));
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x1):
                 {
                     vs_drive(&self->s_left_ctrl, (UINT64_C(0x10)));
                     vs_drive(&self->s_a_ctrl, (UINT64_C(0x2)));
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x2):
                 {
                     vs_drive(&self->s_left_ctrl, (UINT64_C(0x20)));
                     vs_drive(&self->s_b_ctrl, (UINT64_C(0x2)));
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 default:
                 {
-                    self->v61_flag = 0;
+                    self->v62_flag = 0;
                     break;
                 }
             }
-            if (self->v61_flag)
+            if (self->v62_flag)
             {
                 switch ((self->s_op_code.cur & UINT64_C(0xF)))
                 {
@@ -24392,28 +24538,28 @@ static void cpu_63f09_p61(void *inst)
                 case UINT64_C(0x0):
                 {
                     vs_drive(&self->s_left_ctrl, (UINT64_C(0x1)));
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x1):
                 {
                     vs_drive(&self->s_left_ctrl, (UINT64_C(0x10)));
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x2):
                 {
                     vs_drive(&self->s_left_ctrl, (UINT64_C(0x20)));
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 default:
                 {
-                    self->v61_flag = 0;
+                    self->v62_flag = 0;
                     break;
                 }
             }
-            if (self->v61_flag)
+            if (self->v62_flag)
             {
                 vs_drive(&self->s_right_ctrl, (UINT64_C(0x2000000)));
                 vs_drive(&self->s_alu_ctrl, (UINT64_C(0x801)));
@@ -24512,7 +24658,7 @@ static void cpu_63f09_p61(void *inst)
                             break;
                         }
                     }
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x1):
@@ -24545,7 +24691,7 @@ static void cpu_63f09_p61(void *inst)
                             break;
                         }
                     }
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x2):
@@ -24578,7 +24724,7 @@ static void cpu_63f09_p61(void *inst)
                             break;
                         }
                     }
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x3):
@@ -24611,7 +24757,7 @@ static void cpu_63f09_p61(void *inst)
                             break;
                         }
                     }
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x4):
@@ -24644,16 +24790,16 @@ static void cpu_63f09_p61(void *inst)
                             break;
                         }
                     }
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 default:
                 {
-                    self->v61_flag = 0;
+                    self->v62_flag = 0;
                     break;
                 }
             }
-            if (self->v61_flag)
+            if (self->v62_flag)
             {
                 vs_drive(&self->s_mem_data_ctrl, (UINT64_C(0x8)));
                 vs_drive(&self->s_next_state, (UINT64_C(0x414004)));
@@ -24701,7 +24847,7 @@ static void cpu_63f09_p61(void *inst)
                             break;
                         }
                     }
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x1):
@@ -24734,7 +24880,7 @@ static void cpu_63f09_p61(void *inst)
                             break;
                         }
                     }
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x2):
@@ -24767,7 +24913,7 @@ static void cpu_63f09_p61(void *inst)
                             break;
                         }
                     }
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x3):
@@ -24800,7 +24946,7 @@ static void cpu_63f09_p61(void *inst)
                             break;
                         }
                     }
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 case UINT64_C(0x4):
@@ -24833,16 +24979,16 @@ static void cpu_63f09_p61(void *inst)
                             break;
                         }
                     }
-                    self->v61_flag = 1;
+                    self->v62_flag = 1;
                     break;
                 }
                 default:
                 {
-                    self->v61_flag = 0;
+                    self->v62_flag = 0;
                     break;
                 }
             }
-            if (self->v61_flag)
+            if (self->v62_flag)
             {
                 vs_drive(&self->s_next_state, (UINT64_C(0x414001)));
             }
@@ -24959,7 +25105,11 @@ static void cpu_63f09_p61(void *inst)
         }
         case UINT64_C(0xA08001):
         {
-            if (((self->s_nmi_req.cur == 1) & (self->s_nmi_ack.cur == 0)))
+            if (((*self->p_halt_n).cur == 0))
+            {
+                vs_drive(&self->s_next_state, (UINT64_C(0xA08002)));
+            }
+            else if (((self->s_nmi_req.cur == 1) & (self->s_nmi_ack.cur == 0)))
             {
                 vs_drive(&self->s_counter_ctrl, 0);
                 vs_drive(&self->s_iv_ctrl, (UINT64_C(0x2)));
@@ -25119,9 +25269,16 @@ static void cpu_63f09_p61(void *inst)
                 vs_drive(&self->s_addr_ctrl, (UINT64_C(0x1)));
                 vs_drive(&self->s_next_state, (UINT64_C(0xA08002)));
             }
+            else if (((*self->p_dma_breq_n).cur == 0))
+            {
+                vs_drive(&self->s_next_state, (UINT64_C(0x908002)));
+            }
+            else if ((self->s_sync_halted.cur == 1))
+            {
+                vs_drive(&self->s_next_state, (UINT64_C(0xA08001)));
+            }
             else
             {
-                p_fetch_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_op_ctrl, &self->s_pre_ctrl, &self->s_ea_ctrl);
                 vs_drive(&self->s_next_state, (UINT64_C(0x201)));
             }
             break;
@@ -25134,9 +25291,16 @@ static void cpu_63f09_p61(void *inst)
                 vs_drive(&self->s_addr_ctrl, (UINT64_C(0x1)));
                 vs_drive(&self->s_next_state, (UINT64_C(0x908002)));
             }
+            else if (((*self->p_halt_n).cur == 0))
+            {
+                vs_drive(&self->s_next_state, (UINT64_C(0xA08002)));
+            }
+            else if ((self->s_sync_halted.cur == 1))
+            {
+                vs_drive(&self->s_next_state, (UINT64_C(0xA08001)));
+            }
             else
             {
-                p_fetch_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_op_ctrl, &self->s_pre_ctrl, &self->s_ea_ctrl);
                 vs_drive(&self->s_next_state, (UINT64_C(0x201)));
             }
             break;
@@ -25391,7 +25555,7 @@ static void cpu_63f09_p61(void *inst)
     }
 }
 
-void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t g_fpu_by_core, uint64_t g_use_table_execute, int64_t g_clk_tick_delay, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *q, vs_sig *e_l, vs_sig *q_l, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, vs_sig *tfm_mode, vs_sig *tfm_count, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, vs_sig *pagefault_n, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n)
+void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t g_fpu_by_core, uint64_t g_use_table_execute, int64_t g_clk_tick_delay, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *halted, vs_sig *q, vs_sig *e_l, vs_sig *q_l, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, vs_sig *tfm_mode, vs_sig *tfm_count, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, vs_sig *pagefault_n, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n)
 {
     (void) path;
     self->g_fpu_by_core = g_fpu_by_core;
@@ -25411,6 +25575,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
     self->p_bs = bs;
     self->p_rw_n = rw_n;
     self->p_vma = vma;
+    self->p_halted = halted;
     self->p_q = q;
     self->p_e_l = e_l;
     self->p_q_l = q_l;
@@ -25444,6 +25609,8 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
     vs_name(k, &self->s_return_state, path, "return_state", 24);
     vs_register_signal(k, &self->s_saved_state, (uint64_t) (0));
     vs_name(k, &self->s_saved_state, path, "saved_state", 24);
+    vs_register_signal(k, &self->s_sync_halted, (uint64_t) (0));
+    vs_name(k, &self->s_sync_halted, path, "sync_halted", 1);
     vs_register_signal(k, &self->s_reg_x, (uint64_t) (0));
     vs_name(k, &self->s_reg_x, path, "reg_x", 32);
     vs_register_signal(k, &self->s_reg_y, (uint64_t) (0));
@@ -25556,8 +25723,8 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
     vs_name(k, &self->s_e_ctrl, path, "e_ctrl", 8);
     vs_register_signal(k, &self->s_f_ctrl, (uint64_t) ((UINT64_C(0x8))));
     vs_name(k, &self->s_f_ctrl, path, "f_ctrl", 7);
-    vs_register_signal(k, &self->s_m_ctrl, (uint64_t) ((UINT64_C(0x40))));
-    vs_name(k, &self->s_m_ctrl, path, "m_ctrl", 7);
+    vs_register_signal(k, &self->s_m_ctrl, (uint64_t) ((UINT64_C(0x4))));
+    vs_name(k, &self->s_m_ctrl, path, "m_ctrl", 3);
     vs_register_signal(k, &self->s_x_ctrl, (uint64_t) ((UINT64_C(0x80))));
     vs_name(k, &self->s_x_ctrl, path, "x_ctrl", 8);
     vs_register_signal(k, &self->s_y_ctrl, (uint64_t) ((UINT64_C(0x80))));
@@ -25744,48 +25911,48 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
     bufg_create(k, &self->c_q_clk_4, vs_join(k, path, "q_clk"), &self->s_q_internal, self->p_q);
     bufg_create(k, &self->c_c_clk_5, vs_join(k, path, "c_clk"), &self->s_c_internal, &self->s_clk);
     self->v6_i = INT64_C(-2147483648);
-    self->v42_cn = 0;
-    self->v42_ohn = 0;
-    self->v50_valid_lo = 0;
-    self->v50_valid_hi = 0;
-    self->v50_carry_in = 0;
-    self->v50_daa_reg = 0;
-    self->v51_w8 = 0;
-    self->v51_w16 = 0;
-    self->v51_w32 = 0;
-    self->v51_w64 = 0;
-    self->v51_ls = 0;
-    self->v51_rs = 0;
-    self->v51_ss = 0;
-    self->v51_l2 = 0;
-    self->v51_low1 = 0;
-    self->v51_low0 = 0;
-    self->v51_nz0 = 0;
-    self->v51_nz1 = 0;
-    self->v51_nz2 = 0;
-    self->v51_nz3 = 0;
-    self->v51_ez = 0;
-    self->v51_en = 0;
-    self->v51_zen = 0;
-    self->v51_nen = 0;
-    self->v51_zres = 0;
-    self->v51_nres = 0;
-    self->v51_a0 = 0;
-    self->v51_a1 = 0;
-    self->v51_a2 = 0;
-    self->v51_a3 = 0;
-    self->v51_o0 = 0;
-    self->v51_o1 = 0;
-    self->v51_o2 = 0;
-    self->v51_o3 = 0;
-    self->v56_r = 0;
-    self->v57_i = INT64_C(-2147483648);
+    self->v43_cn = 0;
+    self->v43_ohn = 0;
+    self->v51_valid_lo = 0;
+    self->v51_valid_hi = 0;
+    self->v51_carry_in = 0;
+    self->v51_daa_reg = 0;
+    self->v52_w8 = 0;
+    self->v52_w16 = 0;
+    self->v52_w32 = 0;
+    self->v52_w64 = 0;
+    self->v52_ls = 0;
+    self->v52_rs = 0;
+    self->v52_ss = 0;
+    self->v52_l2 = 0;
+    self->v52_low1 = 0;
+    self->v52_low0 = 0;
+    self->v52_nz0 = 0;
+    self->v52_nz1 = 0;
+    self->v52_nz2 = 0;
+    self->v52_nz3 = 0;
+    self->v52_ez = 0;
+    self->v52_en = 0;
+    self->v52_zen = 0;
+    self->v52_nen = 0;
+    self->v52_zres = 0;
+    self->v52_nres = 0;
+    self->v52_a0 = 0;
+    self->v52_a1 = 0;
+    self->v52_a2 = 0;
+    self->v52_a3 = 0;
+    self->v52_o0 = 0;
+    self->v52_o1 = 0;
+    self->v52_o2 = 0;
+    self->v52_o3 = 0;
+    self->v57_r = 0;
     self->v58_i = INT64_C(-2147483648);
-    self->v58_n = INT64_C(-2147483648);
-    self->v58_m = INT64_C(-2147483648);
-    self->v58_n_count = INT64_C(-2147483648);
-    self->v61_size = INT64_C(0);
-    self->v61_flag = 0;
+    self->v59_i = INT64_C(-2147483648);
+    self->v59_n = INT64_C(-2147483648);
+    self->v59_m = INT64_C(-2147483648);
+    self->v59_n_count = INT64_C(-2147483648);
+    self->v62_size = INT64_C(0);
+    self->v62_flag = 0;
 
     {
         vs_sig *sens[1];
@@ -26166,11 +26333,21 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
     }
 
     {
+        vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        edges[n] = 2;
+        sens[n++] = &self->s_clk;
+        vs_register_process_edges(k, cpu_63f09_p38, self, sens, NULL, edges, n);
+    }
+
+    {
         vs_sig *sens[4];
         size_t n = 0;
         sens[n++] = &self->s_clk;
         n += internal_stack_type_leaves(&self->s_state_stack, sens + n);
-        vs_register_process(k, cpu_63f09_p38, self, sens, n);
+        vs_register_process(k, cpu_63f09_p39, self, sens, n);
     }
 
     {
@@ -26180,7 +26357,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         size_t n = 0;
         edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process_edges(k, cpu_63f09_p39, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, cpu_63f09_p40, self, sens, NULL, edges, n);
     }
 
     {
@@ -26189,16 +26366,6 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         memset(edges, 0, sizeof(edges));
         size_t n = 0;
         sens[n++] = &(*self->p_reset_n);
-        edges[n] = 2;
-        sens[n++] = &self->s_clk;
-        vs_register_process_edges(k, cpu_63f09_p40, self, sens, NULL, edges, n);
-    }
-
-    {
-        vs_sig *sens[1];
-        uint8_t edges[1];
-        memset(edges, 0, sizeof(edges));
-        size_t n = 0;
         edges[n] = 2;
         sens[n++] = &self->s_clk;
         vs_register_process_edges(k, cpu_63f09_p41, self, sens, NULL, edges, n);
@@ -26225,6 +26392,16 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
     }
 
     {
+        vs_sig *sens[1];
+        uint8_t edges[1];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        edges[n] = 2;
+        sens[n++] = &self->s_clk;
+        vs_register_process_edges(k, cpu_63f09_p44, self, sens, NULL, edges, n);
+    }
+
+    {
         vs_sig *sens[12];
         size_t n = 0;
         sens[n++] = &self->s_addr_ctrl;
@@ -26239,7 +26416,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_reg_b;
         sens[n++] = &self->s_reg_md;
         sens[n++] = &self->s_iv;
-        vs_register_process(k, cpu_63f09_p44, self, sens, n);
+        vs_register_process(k, cpu_63f09_p45, self, sens, n);
     }
 
     {
@@ -26249,7 +26426,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         size_t n = 0;
         edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process_edges(k, cpu_63f09_p45, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, cpu_63f09_p46, self, sens, NULL, edges, n);
     }
 
     {
@@ -26275,7 +26452,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_int_alu;
         n += reg_fp_type_leaves(&self->s_reg_fp, sens + n);
         sens[n++] = &self->s_reg_fp_byte;
-        vs_register_process(k, cpu_63f09_p46, self, sens, n);
+        vs_register_process(k, cpu_63f09_p47, self, sens, n);
     }
 
     {
@@ -26285,7 +26462,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         size_t n = 0;
         edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process_edges(k, cpu_63f09_p47, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, cpu_63f09_p48, self, sens, NULL, edges, n);
     }
 
     {
@@ -26308,7 +26485,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_mem_data;
         sens[n++] = &self->s_reg_m;
         sens[n++] = &self->s_div_r;
-        vs_register_process(k, cpu_63f09_p48, self, sens, n);
+        vs_register_process(k, cpu_63f09_p49, self, sens, n);
     }
 
     {
@@ -26332,7 +26509,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_reg_s;
         sens[n++] = &self->s_reg_pc;
         sens[n++] = &self->s_mask;
-        vs_register_process(k, cpu_63f09_p49, self, sens, n);
+        vs_register_process(k, cpu_63f09_p50, self, sens, n);
     }
 
     {
@@ -26343,7 +26520,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_left_alu;
         sens[n++] = &self->s_right_alu;
         sens[n++] = &self->s_reg_cc;
-        vs_register_process(k, cpu_63f09_p50, self, sens, n);
+        vs_register_process(k, cpu_63f09_p51, self, sens, n);
     }
 
     {
@@ -26359,7 +26536,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_ccp_cc;
         sens[n++] = &self->s_ccp_movf;
         sens[n++] = &self->s_ccp_cond;
-        vs_register_process(k, cpu_63f09_p51, self, sens, n);
+        vs_register_process(k, cpu_63f09_p52, self, sens, n);
     }
 
     {
@@ -26369,14 +26546,14 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         size_t n = 0;
         edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process_edges(k, cpu_63f09_p52, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, cpu_63f09_p53, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &self->s_right_ctrl;
-        vs_register_process(k, cpu_63f09_p53, self, sens, n);
+        vs_register_process(k, cpu_63f09_p54, self, sens, n);
     }
 
     {
@@ -26393,7 +26570,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_right_alu;
         masks[n] = UINT64_C(0x8000000000000000);
         sens[n++] = &self->s_int_alu;
-        vs_register_process_masked(k, cpu_63f09_p54, self, sens, masks, n);
+        vs_register_process_masked(k, cpu_63f09_p55, self, sens, masks, n);
     }
 
     {
@@ -26403,7 +26580,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         size_t n = 0;
         edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process_edges(k, cpu_63f09_p55, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, cpu_63f09_p56, self, sens, NULL, edges, n);
     }
 
     {
@@ -26414,7 +26591,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &(*self->p_irq_n);
         sens[n++] = &self->s_reg_md;
         sens[n++] = &(*self->p_eirq_n);
-        vs_register_process(k, cpu_63f09_p56, self, sens, n);
+        vs_register_process(k, cpu_63f09_p57, self, sens, n);
     }
 
     {
@@ -26425,7 +26602,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &(*self->p_reset_n);
         edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process_edges(k, cpu_63f09_p57, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, cpu_63f09_p58, self, sens, NULL, edges, n);
     }
 
     {
@@ -26435,7 +26612,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         size_t n = 0;
         edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process_edges(k, cpu_63f09_p58, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, cpu_63f09_p59, self, sens, NULL, edges, n);
     }
 
     {
@@ -26443,7 +26620,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         size_t n = 0;
         sens[n++] = &self->s_fp_stack_conf_ctrl;
         sens[n++] = &self->s_fp_stack_conf;
-        vs_register_process(k, cpu_63f09_p59, self, sens, n);
+        vs_register_process(k, cpu_63f09_p60, self, sens, n);
     }
 
     {
@@ -26453,7 +26630,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         size_t n = 0;
         edges[n] = 2;
         sens[n++] = &self->s_clk;
-        vs_register_process_edges(k, cpu_63f09_p60, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, cpu_63f09_p61, self, sens, NULL, edges, n);
     }
 
     {
@@ -26492,7 +26669,6 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_alu_width;
         sens[n++] = &self->s_left_ctrl;
         sens[n++] = &self->s_right_ctrl;
-        sens[n++] = &self->s_m_ctrl;
         sens[n++] = &self->s_x_ctrl;
         sens[n++] = &self->s_y_ctrl;
         sens[n++] = &self->s_u_ctrl;
@@ -26528,10 +26704,11 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_reg_e;
         sens[n++] = &self->s_reg_f;
         sens[n++] = &self->s_mi_req;
+        sens[n++] = &(*self->p_halt_n);
         sens[n++] = &self->s_maskedi_req;
         sens[n++] = &self->s_sync_line;
-        sens[n++] = &(*self->p_halt_n);
         sens[n++] = &(*self->p_dma_breq_n);
+        sens[n++] = &self->s_sync_halted;
         sens[n++] = &self->s_fpu_ready_sel;
         n += fp_unit_out_type_leaves(&self->s_fpu_out, sens + n);
         sens[n++] = &self->s_fp_done;
@@ -26539,7 +26716,7 @@ void cpu_63f09_create(vs_kernel *k, cpu_63f09 *self, const char *path, uint64_t 
         sens[n++] = &self->s_pagefault_counter;
         sens[n++] = &self->s_pagefault_nest;
         sens[n++] = &(*self->p_lock_granted);
-        vs_register_process(k, cpu_63f09_p61, self, sens, n);
+        vs_register_process(k, cpu_63f09_p62, self, sens, n);
     }
 }
 

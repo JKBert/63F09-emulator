@@ -50,6 +50,16 @@ typedef struct mmu_63f29
     vs_sig *p_lock_request;
     vs_sig *p_lock_granted;
     vs_sig *p_reset_request_n;
+    vs_sig *p_run_req;
+    vs_sig *p_e_v;
+    vs_sig *p_rem_cs;
+    vs_sig *p_rem_rw_n;
+    vs_sig *p_rem_a;
+    vs_sig *p_rem_d;
+    vs_sig *p_rem_e;
+    vs_sig *p_vclk_on;
+    vs_sig *p_rem_d_out;
+    vs_sig *p_rem_rdy;
     vs_sig s_cpu_a;
     vs_sig s_pagefault_n;
     vs_sig s_cpu_d_in;
@@ -60,11 +70,12 @@ typedef struct mmu_63f29
     vs_sig s_cpu_firq_n;
     vs_sig s_cpu_irq_n;
     vs_sig s_cpu_eirq_n;
+    vs_sig s_halted;
     cpu_63f09 c_cpu_0;
     struct mmu_63f29_g0 *g_mmu_controller_1;
     struct mmu_63f29_g31 *g_mmu_controller_2;
 } mmu_63f29;
 
-void mmu_63f29_create(vs_kernel *k, mmu_63f29 *self, const char *path, uint64_t g_mmu, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *e_l, vs_sig *q_l, vs_sig *vma_raw, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, vs_sig *tfm_mode, vs_sig *tfm_count, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *tr_wait, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n);
+void mmu_63f29_create(vs_kernel *k, mmu_63f29 *self, const char *path, uint64_t g_mmu, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *e_l, vs_sig *q_l, vs_sig *vma_raw, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, vs_sig *tfm_mode, vs_sig *tfm_count, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *tr_wait, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n, vs_sig *run_req, vs_sig *e_v, vs_sig *rem_cs, vs_sig *rem_rw_n, vs_sig *rem_a, vs_sig *rem_d, vs_sig *rem_e, vs_sig *vclk_on, vs_sig *rem_d_out, vs_sig *rem_rdy);
 
 #endif

@@ -30,7 +30,7 @@ BANNER = """/*
 # Entities written by hand (they wrap vendor primitives) : never translated, instantiated through
 # the create functions of src/hand.
 HAND_WRITTEN = ("ram_61f64x1", "ram_61f512", "ram_61f32x64", "rom_27f512",
-                "bufg", "bufhce", "bufgce", "iobuf", "obuf", "obuft", "plle2_base", "ramb18e1", "ramb36e1")
+                "bufg", "bufhce", "bufgce", "bufgctrl", "iobuf", "obuf", "obuft", "plle2_base", "ramb18e1", "ramb36e1")
 
 
 HAND_GENERICS = {"plle2_base": ("clkfbout_mult", "clkout0_divide", "clkout1_divide", "divclk_divide")}

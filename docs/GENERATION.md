@@ -168,7 +168,7 @@ with the emulator (planned, see the project notes).
 * Static `if generate` conditions (on NCPUS) are decided when the variant is generated : the branches that do not
   exist in the variant are not translated.
 * `inout` ports connected to a part of a vector are tied in both directions.
-* Hand-written models of the vendor primitives : IOBUF, OBUF, OBUFT, BUFG, BUFHCE, BUFGCE, PLLE2_BASE ; of the memories :
+* Hand-written models of the vendor primitives : IOBUF, OBUF, OBUFT, BUFG, BUFHCE, BUFGCE, BUFGCTRL, PLLE2_BASE ; of the memories :
   RAM_61F64x1, RAM_61F512, RAM_61F32x64, ROM_27F512 (their content is reachable by the loader through
   `vs_region_find`).
 

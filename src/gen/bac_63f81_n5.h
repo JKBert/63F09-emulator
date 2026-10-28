@@ -51,6 +51,7 @@ typedef struct bac_63f81_n5
     vs_sig *p_mux_d_out;
     vs_sig *p_mux_mrdy;
     vs_sig *p_bus_master;
+    vs_sig *p_mmu_d_out;
     vs_sig s_pll_locked;
     vs_sig s_cpuclk_pll;
     vs_sig s_clkfb;
@@ -68,6 +69,6 @@ typedef struct bac_63f81_n5
     struct bac_63f81_n5_g1 *g_smp_5;
 } bac_63f81_n5;
 
-void bac_63f81_n5_create(vs_kernel *k, bac_63f81_n5 *self, const char *path, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *cacheable_amc, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *sysclk, vs_sig *cpuclk, vs_sig *memclk, vs_sig *cs, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *mux_d_in, vs_sig *mux_d_out, vs_sig *mux_mrdy, vs_sig *bus_master);
+void bac_63f81_n5_create(vs_kernel *k, bac_63f81_n5 *self, const char *path, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *cacheable_amc, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *sysclk, vs_sig *cpuclk, vs_sig *memclk, vs_sig *cs, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *mux_d_in, vs_sig *mux_d_out, vs_sig *mux_mrdy, vs_sig *bus_master, vs_sig *mmu_d_out);
 
 #endif

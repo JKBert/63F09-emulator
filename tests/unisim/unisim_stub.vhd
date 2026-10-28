@@ -25,6 +25,26 @@ package vcomponents is
             O : out std_logic
         );
     end component;
+    component BUFGCTRL
+        generic
+        (
+            INIT_OUT : integer := 0;
+            PRESELECT_I0 : boolean := false;
+            PRESELECT_I1 : boolean := false
+        );
+        port
+        (
+            CE0 : in std_logic;
+            CE1 : in std_logic;
+            I0 : in std_logic;
+            I1 : in std_logic;
+            IGNORE0 : in std_logic;
+            IGNORE1 : in std_logic;
+            S0 : in std_logic;
+            S1 : in std_logic;
+            O : out std_logic
+        );
+    end component;
     component BUFHCE
         generic
         (
@@ -365,6 +385,51 @@ begin
         end if;
     end process;
     O <= I and ce_latch;
+end architecture sim;
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity BUFGCTRL is
+    generic
+    (
+        INIT_OUT : integer := 0;
+        PRESELECT_I0 : boolean := false;
+        PRESELECT_I1 : boolean := false
+    );
+    port
+    (
+        CE0 : in std_logic;
+        CE1 : in std_logic;
+        I0 : in std_logic;
+        I1 : in std_logic;
+        IGNORE0 : in std_logic;
+        IGNORE1 : in std_logic;
+        S0 : in std_logic;
+        S1 : in std_logic;
+        O : out std_logic
+    );
+end entity BUFGCTRL;
+
+architecture sim of BUFGCTRL is
+begin
+    -- behavioural model (the IGNOREx inputs and the CEx latches are not modelled : the 63F09 sources tie them to '1' and
+    -- drive S0 / S1 from a register that only changes while the clocks are idle) : S1 selects I1, else S0 selects I0, else the
+    -- previous selection is kept (PRESELECT_I1 / PRESELECT_I0 / INIT_OUT give the initial one)
+    process(I0, I1, S0, S1, CE0, CE1)
+        variable sel1 : boolean := PRESELECT_I1;
+    begin
+        if S1 = '1' and CE1 = '1' then
+            sel1 := true;
+        elsif S0 = '1' and CE0 = '1' then
+            sel1 := false;
+        end if;
+        if sel1 then
+            O <= I1;
+        else
+            O <= I0;
+        end if;
+    end process;
 end architecture sim;
 
 library ieee;

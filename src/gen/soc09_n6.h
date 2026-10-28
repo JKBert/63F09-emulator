@@ -78,6 +78,7 @@ typedef struct soc09_n6
     vs_sig s_cs;
     vs_sig s_mmu_cs;
     vs_sig s_mmu_mrdy;
+    vs_sig s_mmu_d_out;
     vs_sig s_mrdy_mux;
     vs_sig s_ext_ctrl;
     vs_sig s_eirq_n;

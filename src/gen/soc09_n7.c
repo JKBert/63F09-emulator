@@ -240,7 +240,7 @@ static void soc09_n7_p19(void *inst)
 static void soc09_n7_p20(void *inst)
 {
     soc09_n7 *self = inst;
-    vs_drive(&self->s_d_mux_in.a[14], UINT64_C(0xFF));
+    vs_drive(&self->s_d_mux_in.a[14], self->s_mmu_d_out.cur);
 }
 
 static void soc09_n7_p21(void *inst)
@@ -637,6 +637,8 @@ void soc09_n7_create(vs_kernel *k, soc09_n7 *self, const char *path, int64_t g_n
     vs_name(k, &self->s_mmu_cs, path, "mmu_cs", 8);
     vs_register_signal(k, &self->s_mmu_mrdy, (uint64_t) (0));
     vs_name(k, &self->s_mmu_mrdy, path, "mmu_mrdy", 1);
+    vs_register_signal(k, &self->s_mmu_d_out, (uint64_t) (0));
+    vs_name(k, &self->s_mmu_d_out, path, "mmu_d_out", 8);
     vs_register_signal(k, &self->s_mrdy_mux, (uint64_t) (0));
     vs_name(k, &self->s_mrdy_mux, path, "mrdy_mux", 17);
     vs_register_signal(k, &self->s_ext_ctrl, (uint64_t) (0));
@@ -743,7 +745,7 @@ void soc09_n7_create(vs_kernel *k, soc09_n7 *self, const char *path, int64_t g_n
     vs_register_signal(k, &self->x11_tie_mux_mrdy, (uint64_t) (0));
     vs_name(k, &self->x11_tie_mux_mrdy, path, "tie_mux_mrdy", 1);
     vs_tie_fields(&self->x11_tie_mux_mrdy, 0, &self->s_mrdy_mux, 4, 1);
-    bac_63f81_n7_create(k, &self->c_bac0_5, vs_join(k, path, "bac0"), self->g_ncpus, self->g_fpu_by_core, self->p_extal, &self->x6_imp_reset_n, self->p_nmi_n, self->p_firq_n, self->p_irq_n, &self->s_d_mrdy, self->p_dma_breq_n, self->p_halt_n, self->p_e, &self->x7_open_e_n, self->p_q, self->p_ba, self->p_bs, self->p_rw_n, self->p_vma, &self->s_a, &self->s_d_out, &self->s_d_in, &self->s_eirq_n, self->p_fic, &self->s_cacheable, &self->s_cacheable_amc, &self->x8_tie_mrdy_eprom, self->p_mrdy, self->p_sysclk, self->p_cpuclk, self->p_memclk, &self->x9_tie_cs, &self->x10_tie_mmu_cs, &self->s_mmu_mrdy, &self->s_d_mux_out.a[12], &self->s_d_mux_in.a[12], &self->x11_tie_mux_mrdy, &self->s_bus_master);
+    bac_63f81_n7_create(k, &self->c_bac0_5, vs_join(k, path, "bac0"), self->g_ncpus, self->g_fpu_by_core, self->p_extal, &self->x6_imp_reset_n, self->p_nmi_n, self->p_firq_n, self->p_irq_n, &self->s_d_mrdy, self->p_dma_breq_n, self->p_halt_n, self->p_e, &self->x7_open_e_n, self->p_q, self->p_ba, self->p_bs, self->p_rw_n, self->p_vma, &self->s_a, &self->s_d_out, &self->s_d_in, &self->s_eirq_n, self->p_fic, &self->s_cacheable, &self->s_cacheable_amc, &self->x8_tie_mrdy_eprom, self->p_mrdy, self->p_sysclk, self->p_cpuclk, self->p_memclk, &self->x9_tie_cs, &self->x10_tie_mmu_cs, &self->s_mmu_mrdy, &self->s_d_mux_out.a[12], &self->s_d_mux_in.a[12], &self->x11_tie_mux_mrdy, &self->s_bus_master, &self->s_mmu_d_out);
     vs_register_signal(k, &self->x13_tie_rom_enable, (uint64_t) (0));
     vs_name(k, &self->x13_tie_rom_enable, path, "tie_rom_enable", 1);
     vs_tie_fields(&self->s_cs, 16, &self->x13_tie_rom_enable, 0, 1);
@@ -1176,7 +1178,13 @@ void soc09_n7_create(vs_kernel *k, soc09_n7 *self, const char *path, int64_t g_n
         vs_register_process(k, soc09_n7_p18, self, sens, n);
     }
     vs_register_process(k, soc09_n7_p19, self, NULL, 0);
-    vs_register_process(k, soc09_n7_p20, self, NULL, 0);
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_mmu_d_out;
+        vs_register_process(k, soc09_n7_p20, self, sens, n);
+    }
 
     {
         vs_sig *sens[1];

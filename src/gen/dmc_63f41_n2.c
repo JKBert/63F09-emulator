@@ -358,6 +358,7 @@ struct dmc_63f41_n2_g0
     vs_sig s_buffered_a;
     vs_sig s_cacheable_l;
     vs_sig s_mrdy_l;
+    vs_sig s_mrdy_mmu_l;
     vs_sig s_buffered_rw_n;
     vs_sig s_buffered_vma;
     vs_sig s_buffered_d;
@@ -3352,11 +3353,15 @@ static void dmc_63f41_n2_g7_create(vs_kernel *k, dmc_63f41_n2_g7 *self, const ch
 
 static int64_t f_mrdy_source_1(dmc_63f41_n2_g0 *self, uint64_t a_ad)
 {
-    uint64_t v_low_59792 = 0;
-    v_low_59792 = (a_ad & UINT64_C(0xFFF));
+    uint64_t v_low_76400 = 0;
+    v_low_76400 = (a_ad & UINT64_C(0xFFF));
     if ((((a_ad >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFF)))
     {
         return INT64_C(1);
+    }
+    else if ((((a_ad >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFD)))
+    {
+        return INT64_C(3);
     }
     else if ((((a_ad >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFE)))
     {
@@ -3364,7 +3369,7 @@ static int64_t f_mrdy_source_1(dmc_63f41_n2_g0 *self, uint64_t a_ad)
         {
             case UINT64_C(0xF):
             {
-                if ((v_low_59792 <= (uint64_t)(INT64_C(9))))
+                if ((v_low_76400 <= (uint64_t)(INT64_C(9))))
                 {
                     return INT64_C(0);
                 }
@@ -3376,7 +3381,7 @@ static int64_t f_mrdy_source_1(dmc_63f41_n2_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xE):
             {
-                if ((v_low_59792 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_76400 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -3388,7 +3393,7 @@ static int64_t f_mrdy_source_1(dmc_63f41_n2_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xD):
             {
-                if ((v_low_59792 <= (uint64_t)(INT64_C(15))))
+                if ((v_low_76400 <= (uint64_t)(INT64_C(15))))
                 {
                     return INT64_C(0);
                 }
@@ -3400,7 +3405,7 @@ static int64_t f_mrdy_source_1(dmc_63f41_n2_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xC):
             {
-                if ((v_low_59792 <= (uint64_t)(INT64_C(3))))
+                if ((v_low_76400 <= (uint64_t)(INT64_C(3))))
                 {
                     return INT64_C(0);
                 }
@@ -3412,7 +3417,7 @@ static int64_t f_mrdy_source_1(dmc_63f41_n2_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xB):
             {
-                if ((v_low_59792 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_76400 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -3424,7 +3429,7 @@ static int64_t f_mrdy_source_1(dmc_63f41_n2_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xA):
             {
-                if ((v_low_59792 <= (uint64_t)(INT64_C(1))))
+                if ((v_low_76400 <= (uint64_t)(INT64_C(1))))
                 {
                     return INT64_C(0);
                 }
@@ -3436,7 +3441,7 @@ static int64_t f_mrdy_source_1(dmc_63f41_n2_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0x9):
             {
-                if ((v_low_59792 <= (uint64_t)(INT64_C(4))))
+                if ((v_low_76400 <= (uint64_t)(INT64_C(4))))
                 {
                     return INT64_C(0);
                 }
@@ -4587,6 +4592,19 @@ static void dmc_63f41_n2_g0_p33(void *inst)
 static void dmc_63f41_n2_g0_p34(void *inst)
 {
     dmc_63f41_n2_g0 *self = inst;
+    if (((((self->s_buffered_rw_n.cur == 1) & ((int64_t)(((self->s_buffered_a.cur >> (12)) & UINT64_C(0xF))) < self->up->g_ncpus)) & ((int64_t)(((self->s_buffered_a.cur >> (12)) & UINT64_C(0xF))) != self->up->g_cpu_number)) & ((((*self->up->p_rem_rdy_in).cur >> (((int64_t)(((self->s_buffered_a.cur >> (12)) & UINT64_C(0x7)))) - 0)) & 1) == 0)))
+    {
+        vs_drive(&self->s_mrdy_mmu_l, 0);
+    }
+    else
+    {
+        vs_drive(&self->s_mrdy_mmu_l, 1);
+    }
+}
+
+static void dmc_63f41_n2_g0_p35(void *inst)
+{
+    dmc_63f41_n2_g0 *self = inst;
     if (((*self->up->p_bus_granted).cur == 0))
     {
         vs_drive(&self->s_mrdy_l, 1);
@@ -4599,13 +4617,17 @@ static void dmc_63f41_n2_g0_p34(void *inst)
     {
         vs_drive(&self->s_mrdy_l, (*self->up->p_mrdy_ext).cur);
     }
+    else if ((f_mrdy_source_1(self, self->s_buffered_a.cur) == INT64_C(3)))
+    {
+        vs_drive(&self->s_mrdy_l, self->s_mrdy_mmu_l.cur);
+    }
     else
     {
         vs_drive(&self->s_mrdy_l, 1);
     }
 }
 
-static void dmc_63f41_n2_g0_p35(void *inst)
+static void dmc_63f41_n2_g0_p36(void *inst)
 {
     dmc_63f41_n2_g0 *self = inst;
     if ((vs_falling(&(*self->up->p_extal)) & ((*self->up->p_reset_n).cur == 1)))
@@ -4618,7 +4640,7 @@ static void dmc_63f41_n2_g0_p35(void *inst)
     }
 }
 
-static void dmc_63f41_n2_g0_p36(void *inst)
+static void dmc_63f41_n2_g0_p37(void *inst)
 {
     dmc_63f41_n2_g0 *self = inst;
     if (((self->s_local_cache_mrdy.cur == 1) | ((self->s_cache_mrdy.cur == 1) & (((uint32_t) self->s_state.cur == 4) | ((uint32_t) self->s_state.cur == 6)))))
@@ -4631,7 +4653,7 @@ static void dmc_63f41_n2_g0_p36(void *inst)
     }
 }
 
-static void dmc_63f41_n2_g0_p37(void *inst)
+static void dmc_63f41_n2_g0_p38(void *inst)
 {
     dmc_63f41_n2_g0 *self = inst;
     vs_drive(&self->s_next_alloc_data, self->s_alloc_data.cur);
@@ -4657,7 +4679,7 @@ static void dmc_63f41_n2_g0_p37(void *inst)
     }
 }
 
-static void dmc_63f41_n2_g0_p38(void *inst)
+static void dmc_63f41_n2_g0_p39(void *inst)
 {
     dmc_63f41_n2_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -4684,7 +4706,7 @@ static void dmc_63f41_n2_g0_p38(void *inst)
     }
 }
 
-static void dmc_63f41_n2_g0_p39(void *inst)
+static void dmc_63f41_n2_g0_p40(void *inst)
 {
     dmc_63f41_n2_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -4701,7 +4723,7 @@ static void dmc_63f41_n2_g0_p39(void *inst)
     }
 }
 
-static void dmc_63f41_n2_g0_p40(void *inst)
+static void dmc_63f41_n2_g0_p41(void *inst)
 {
     dmc_63f41_n2_g0 *self = inst;
     if (((self->s_vma_state.cur == 1) | (((*self->up->p_bus_granted).cur == 1) & ((*self->up->p_a).cur != UINT64_C(0xFFFFFFFFF)))))
@@ -4842,6 +4864,8 @@ static void dmc_63f41_n2_g0_create(vs_kernel *k, dmc_63f41_n2_g0 *self, const ch
     vs_name(k, &self->s_cacheable_l, path, "cacheable_l", 1);
     vs_register_signal(k, &self->s_mrdy_l, (uint64_t) (0));
     vs_name(k, &self->s_mrdy_l, path, "mrdy_l", 1);
+    vs_register_signal(k, &self->s_mrdy_mmu_l, (uint64_t) (0));
+    vs_name(k, &self->s_mrdy_mmu_l, path, "mrdy_mmu_l", 1);
     vs_register_signal(k, &self->s_buffered_rw_n, (uint64_t) (0));
     vs_name(k, &self->s_buffered_rw_n, path, "buffered_rw_n", 1);
     vs_register_signal(k, &self->s_buffered_vma, (uint64_t) (0));
@@ -4995,7 +5019,7 @@ static void dmc_63f41_n2_g0_create(vs_kernel *k, dmc_63f41_n2_g0 *self, const ch
     vs_name(k, &self->s_next_fill_ack_count, path, "next_fill_ack_count", 64);
     vs_register_signal(k, &self->s_tag_rw, (uint64_t) (0));
     vs_name(k, &self->s_tag_rw, path, "tag_rw", 1);
-    mmu_63f29_create(k, &self->c_mmu_with_cache_l1_0, vs_join(k, path, "mmu_with_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, &self->s_cpu_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, &self->s_cpu_rw_n, &self->s_cpu_vma, &self->s_cpu_e_l, &self->s_cpu_q_l, &self->s_cpu_vma_raw, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out, self->up->p_eirq_n, self->up->p_fic, &self->s_cpu_waiting, &self->s_tfm_mode_i, &self->s_tfm_count_i, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, &self->s_mmu_tr_wait, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n);
+    mmu_63f29_create(k, &self->c_mmu_with_cache_l1_0, vs_join(k, path, "mmu_with_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, &self->s_cpu_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, &self->s_cpu_rw_n, &self->s_cpu_vma, &self->s_cpu_e_l, &self->s_cpu_q_l, &self->s_cpu_vma_raw, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out, self->up->p_eirq_n, self->up->p_fic, &self->s_cpu_waiting, &self->s_tfm_mode_i, &self->s_tfm_count_i, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, &self->s_mmu_tr_wait, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n, self->up->p_run_req, self->up->p_e_v, self->up->p_rem_cs, self->up->p_rem_rw_n, self->up->p_rem_a, self->up->p_rem_d, self->up->p_rem_e, self->up->p_vclk_on, self->up->p_rem_d_out, self->up->p_rem_rdy);
     vs_register_signal(k, &self->x2_imp_rw, (uint64_t) (0));
     vs_name(k, &self->x2_imp_rw, path, "imp_rw", 1);
     vs_register_signal(k, &self->x3_open_data_out2, (uint64_t) (0));
@@ -5393,19 +5417,34 @@ static void dmc_63f41_n2_g0_create(vs_kernel *k, dmc_63f41_n2_g0 *self, const ch
 
     {
         vs_sig *sens[4];
+        uint64_t masks[4];
+        { size_t j; for (j = 0; j < 4; j++) { masks[j] = UINT64_MAX; } }
+        size_t n = 0;
+        sens[n++] = &self->s_buffered_rw_n;
+        masks[n] = UINT64_C(0xF000);
+        sens[n++] = &self->s_buffered_a;
+        sens[n++] = &(*self->up->p_rem_rdy_in);
+        masks[n] = UINT64_C(0x7000);
+        sens[n++] = &self->s_buffered_a;
+        vs_register_process_masked(k, dmc_63f41_n2_g0_p34, self, sens, masks, n);
+    }
+
+    {
+        vs_sig *sens[5];
         size_t n = 0;
         sens[n++] = &(*self->up->p_bus_granted);
         sens[n++] = &(*self->up->p_mrdy_eprom);
         sens[n++] = &self->s_buffered_a;
         sens[n++] = &(*self->up->p_mrdy_ext);
-        vs_register_process(k, dmc_63f41_n2_g0_p34, self, sens, n);
+        sens[n++] = &self->s_mrdy_mmu_l;
+        vs_register_process(k, dmc_63f41_n2_g0_p35, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process(k, dmc_63f41_n2_g0_p35, self, sens, n);
+        vs_register_process(k, dmc_63f41_n2_g0_p36, self, sens, n);
     }
 
     {
@@ -5414,7 +5453,7 @@ static void dmc_63f41_n2_g0_create(vs_kernel *k, dmc_63f41_n2_g0 *self, const ch
         sens[n++] = &self->s_local_cache_mrdy;
         sens[n++] = &self->s_cache_mrdy;
         sens[n++] = &self->s_state;
-        vs_register_process(k, dmc_63f41_n2_g0_p36, self, sens, n);
+        vs_register_process(k, dmc_63f41_n2_g0_p37, self, sens, n);
     }
 
     {
@@ -5424,18 +5463,7 @@ static void dmc_63f41_n2_g0_create(vs_kernel *k, dmc_63f41_n2_g0 *self, const ch
         sens[n++] = &self->s_alloc_held;
         sens[n++] = &self->s_alloc_data;
         sens[n++] = &(*self->up->p_d_in);
-        vs_register_process(k, dmc_63f41_n2_g0_p37, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        uint8_t edges[2];
-        memset(edges, 0, sizeof(edges));
-        size_t n = 0;
-        sens[n++] = &(*self->up->p_reset_n);
-        edges[n] = 1;
-        sens[n++] = &(*self->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n2_g0_p38, self, sens, NULL, edges, n);
+        vs_register_process(k, dmc_63f41_n2_g0_p38, self, sens, n);
     }
 
     {
@@ -5450,12 +5478,23 @@ static void dmc_63f41_n2_g0_create(vs_kernel *k, dmc_63f41_n2_g0 *self, const ch
     }
 
     {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n2_g0_p40, self, sens, NULL, edges, n);
+    }
+
+    {
         vs_sig *sens[3];
         size_t n = 0;
         sens[n++] = &self->s_vma_state;
         sens[n++] = &(*self->up->p_bus_granted);
         sens[n++] = &(*self->up->p_a);
-        vs_register_process(k, dmc_63f41_n2_g0_p40, self, sens, n);
+        vs_register_process(k, dmc_63f41_n2_g0_p41, self, sens, n);
     }
 }
 
@@ -5495,7 +5534,7 @@ static void dmc_63f41_n2_g13_create(vs_kernel *k, dmc_63f41_n2_g13 *self, const 
     vs_name(k, &self->x7_open_mmu_mrdy, path, "open_mmu_mrdy", 1);
     vs_register_signal(k, &self->x8_open_tr_wait, (uint64_t) (0));
     vs_name(k, &self->x8_open_tr_wait, path, "open_tr_wait", 1);
-    mmu_63f29_create(k, &self->c_mmu_without_cache_l1_0, vs_join(k, path, "mmu_without_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, self->up->p_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, self->up->p_rw_n, self->up->p_vma, &self->x1_open_e_l, &self->x2_open_q_l, &self->x3_open_vma_raw, self->up->p_a, self->up->p_d_in, self->up->p_d_out, self->up->p_eirq_n, self->up->p_fic, &self->x4_open_waiting, &self->x5_open_tfm_mode, &self->x6_open_tfm_count, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, &self->x7_open_mmu_mrdy, &self->x8_open_tr_wait, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n);
+    mmu_63f29_create(k, &self->c_mmu_without_cache_l1_0, vs_join(k, path, "mmu_without_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, self->up->p_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, self->up->p_rw_n, self->up->p_vma, &self->x1_open_e_l, &self->x2_open_q_l, &self->x3_open_vma_raw, self->up->p_a, self->up->p_d_in, self->up->p_d_out, self->up->p_eirq_n, self->up->p_fic, &self->x4_open_waiting, &self->x5_open_tfm_mode, &self->x6_open_tfm_count, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, &self->x7_open_mmu_mrdy, &self->x8_open_tr_wait, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n, self->up->p_run_req, self->up->p_e_v, self->up->p_rem_cs, self->up->p_rem_rw_n, self->up->p_rem_a, self->up->p_rem_d, self->up->p_rem_e, self->up->p_vclk_on, self->up->p_rem_d_out, self->up->p_rem_rdy);
 
     {
         vs_sig *sens[1];
@@ -5512,7 +5551,7 @@ static void dmc_63f41_n2_g13_create(vs_kernel *k, dmc_63f41_n2_g13 *self, const 
     }
 }
 
-void dmc_63f41_n2_create(vs_kernel *k, dmc_63f41_n2 *self, const char *path, uint64_t g_cached_memory, int64_t g_cpu_number, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *cacheable_ext, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *e, vs_sig *q, vs_sig *bus_request, vs_sig *bus_granted, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, std_logic_matrix_6_s *ccs_address_in, vs_sig *ccs_address_rw_n_in, vs_sig *ccs_bus_granted_in, std_logic_matrix_7_s *ccs_invalidation_pending_in, vs_sig *ccs_fic_in, vs_sig *ccs_write_gen_in, std_logic_matrix_7_s *ccs_prev_pending_in, std_logic_matrix_7_s *ccs_parked_stalled_in, vs_sig *ccs_address_out, vs_sig *ccs_address_rw_n_out, vs_sig *ccs_bus_granted_out, vs_sig *ccs_invalidation_pending_out, vs_sig *ccs_fic_out, vs_sig *ccs_write_gen_out, vs_sig *ccs_prev_pending_out, vs_sig *ccs_parked_stalled_out, std_logic_matrix_8_s *ccs_tfm_in, vs_sig *ccs_tfm_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n)
+void dmc_63f41_n2_create(vs_kernel *k, dmc_63f41_n2 *self, const char *path, uint64_t g_cached_memory, int64_t g_cpu_number, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *cacheable_ext, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *rem_rdy_in, vs_sig *e, vs_sig *q, vs_sig *bus_request, vs_sig *bus_granted, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, std_logic_matrix_6_s *ccs_address_in, vs_sig *ccs_address_rw_n_in, vs_sig *ccs_bus_granted_in, std_logic_matrix_7_s *ccs_invalidation_pending_in, vs_sig *ccs_fic_in, vs_sig *ccs_write_gen_in, std_logic_matrix_7_s *ccs_prev_pending_in, std_logic_matrix_7_s *ccs_parked_stalled_in, vs_sig *ccs_address_out, vs_sig *ccs_address_rw_n_out, vs_sig *ccs_bus_granted_out, vs_sig *ccs_invalidation_pending_out, vs_sig *ccs_fic_out, vs_sig *ccs_write_gen_out, vs_sig *ccs_prev_pending_out, vs_sig *ccs_parked_stalled_out, std_logic_matrix_8_s *ccs_tfm_in, vs_sig *ccs_tfm_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *run_req, vs_sig *e_v, vs_sig *rem_cs, vs_sig *rem_rw_n, vs_sig *rem_a, vs_sig *rem_d, vs_sig *rem_e, vs_sig *vclk_on, vs_sig *rem_d_out, vs_sig *rem_rdy, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n)
 {
     (void) path;
     self->g_cached_memory = g_cached_memory;
@@ -5540,6 +5579,7 @@ void dmc_63f41_n2_create(vs_kernel *k, dmc_63f41_n2 *self, const char *path, uin
     self->p_cacheable_ext = cacheable_ext;
     self->p_mrdy_eprom = mrdy_eprom;
     self->p_mrdy_ext = mrdy_ext;
+    self->p_rem_rdy_in = rem_rdy_in;
     self->p_e = e;
     self->p_q = q;
     self->p_bus_request = bus_request;
@@ -5566,6 +5606,16 @@ void dmc_63f41_n2_create(vs_kernel *k, dmc_63f41_n2 *self, const char *path, uin
     self->p_ccs_tfm_out = ccs_tfm_out;
     self->p_mmu_cs = mmu_cs;
     self->p_mmu_mrdy = mmu_mrdy;
+    self->p_run_req = run_req;
+    self->p_e_v = e_v;
+    self->p_rem_cs = rem_cs;
+    self->p_rem_rw_n = rem_rw_n;
+    self->p_rem_a = rem_a;
+    self->p_rem_d = rem_d;
+    self->p_rem_e = rem_e;
+    self->p_vclk_on = vclk_on;
+    self->p_rem_d_out = rem_d_out;
+    self->p_rem_rdy = rem_rdy;
     self->p_lock_request = lock_request;
     self->p_lock_granted = lock_granted;
     self->p_reset_request_n = reset_request_n;
