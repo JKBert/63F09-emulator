@@ -11,11 +11,15 @@
 #include "cpu_63f09.h"
 
 struct mmu_63f29_g0;
-struct mmu_63f29_g31;
+struct mmu_63f29_g1;
+struct mmu_63f29_g2;
+struct mmu_63f29_g33;
 typedef struct mmu_63f29
 {
     uint64_t g_mmu;
     uint64_t g_fpu_by_core;
+    uint64_t g_own_mrdy;
+    int64_t g_addr_ticks;
     vs_sig *p_extal;
     vs_sig *p_reset_n;
     vs_sig *p_nmi_n;
@@ -33,20 +37,20 @@ typedef struct mmu_63f29
     vs_sig *p_vma;
     vs_sig *p_e_l;
     vs_sig *p_q_l;
-    vs_sig *p_vma_raw;
     vs_sig *p_a;
     vs_sig *p_d_in;
     vs_sig *p_d_out;
     vs_sig *p_eirq_n;
     vs_sig *p_fic;
     vs_sig *p_waiting;
-    vs_sig *p_tfm_mode;
-    vs_sig *p_tfm_count;
     fp_unit_in_type_s *p_fpu_63f39_in;
     fp_unit_out_type_s *p_fpu_63f39_out;
     vs_sig *p_mmu_cs;
     vs_sig *p_mmu_mrdy;
-    vs_sig *p_tr_wait;
+    vs_sig *p_mmu_vma;
+    vs_sig *p_vma_raw;
+    vs_sig *p_mrdy_live;
+    vs_sig *p_cpu_mrdy_out;
     vs_sig *p_lock_request;
     vs_sig *p_lock_granted;
     vs_sig *p_reset_request_n;
@@ -59,6 +63,32 @@ typedef struct mmu_63f29
     vs_sig *p_rem_e;
     vs_sig *p_vclk_on;
     vs_sig *p_rem_d_out;
+    vs_sig s_cpu_mrdy;
+    vs_sig s_tr_wait;
+    vs_sig s_tr_wait_r;
+    vs_sig s_old_strobe;
+    vs_sig s_n_stale;
+    vs_sig s_n_late;
+    vs_sig s_n_str;
+    vs_sig s_ticks_since_e;
+    vs_sig s_captured;
+    vs_sig s_capture_strobe;
+    vs_sig s_early_stall;
+    vs_sig s_mrdy_r;
+    vs_sig s_dma_r;
+    vs_sig s_dma_stop;
+    vs_sig s_dma_held;
+    vs_sig s_e_rising;
+    vs_sig s_cpu_rw_n;
+    vs_sig s_cpu_e;
+    vs_sig s_cpu_e_n;
+    vs_sig s_cpu_q;
+    vs_sig s_cpu_e_l;
+    vs_sig s_cpu_q_l;
+    vs_sig s_cpu_ba;
+    vs_sig s_cpu_bs;
+    vs_sig s_cpu_fic;
+    vs_sig s_cpu_waiting;
     vs_sig s_cpu_a;
     vs_sig s_pagefault_n;
     vs_sig s_cpu_d_in;
@@ -71,10 +101,13 @@ typedef struct mmu_63f29
     vs_sig s_cpu_eirq_n;
     vs_sig s_halted;
     cpu_63f09 c_cpu_0;
-    struct mmu_63f29_g0 *g_mmu_controller_1;
-    struct mmu_63f29_g31 *g_mmu_controller_2;
+    vs_sig x1_imp_dma_breq_n;
+    struct mmu_63f29_g0 *g_own_2;
+    struct mmu_63f29_g1 *g_own_3;
+    struct mmu_63f29_g2 *g_mmu_controller_4;
+    struct mmu_63f29_g33 *g_mmu_controller_5;
 } mmu_63f29;
 
-void mmu_63f29_create(vs_kernel *k, mmu_63f29 *self, const char *path, uint64_t g_mmu, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *e_l, vs_sig *q_l, vs_sig *vma_raw, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, vs_sig *tfm_mode, vs_sig *tfm_count, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *tr_wait, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n, vs_sig *run_req, vs_sig *e_v, vs_sig *rem_cs, vs_sig *rem_rw_n, vs_sig *rem_a, vs_sig *rem_d, vs_sig *rem_e, vs_sig *vclk_on, vs_sig *rem_d_out);
+void mmu_63f29_create(vs_kernel *k, mmu_63f29 *self, const char *path, uint64_t g_mmu, uint64_t g_fpu_by_core, uint64_t g_own_mrdy, int64_t g_addr_ticks, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *e, vs_sig *e_n, vs_sig *q, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *e_l, vs_sig *q_l, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *mmu_vma, vs_sig *vma_raw, vs_sig *mrdy_live, vs_sig *cpu_mrdy_out, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n, vs_sig *run_req, vs_sig *e_v, vs_sig *rem_cs, vs_sig *rem_rw_n, vs_sig *rem_a, vs_sig *rem_d, vs_sig *rem_e, vs_sig *vclk_on, vs_sig *rem_d_out);
 
 #endif

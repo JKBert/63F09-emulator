@@ -228,7 +228,9 @@ class EntityGen(Translator):
             elif k == K.Constant_Declaration:
                 ct = type_of(nodes.Get_Type(d))
                 e = self.expr(nodes.Get_Default_Value(d))
-                self.bindings[d] = Binding("const", "(" + e.code + ")", ct, None)
+                # The value may name a generic or a signal of this scope ("self->g_x") : keep it relative to the scope that
+                # declares the constant, so that a generate body or a block that uses the constant reaches it through "->up".
+                self.bindings[d] = Binding("const", "(" + e.code.replace("self->", "{S}->") + ")", ct, s)
             elif k in (K.Type_Declaration, K.Subtype_Declaration, K.Anonymous_Type_Declaration,
                        K.Attribute_Declaration, K.Attribute_Specification, K.Use_Clause, K.Component_Declaration):
                 pass

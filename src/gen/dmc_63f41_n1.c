@@ -54,16 +54,9 @@ struct dmc_63f41_n1_g0
     vs_sig s_current_tag;
     vs_sig s_current_block;
     vs_sig s_cache_rw;
-    vs_sig s_cache_mrdy;
     vs_sig s_local_cache_mrdy;
-    vs_sig s_fic_freeze;
-    vs_sig s_tfm_mode_i;
-    vs_sig s_tfm_count_i;
-    vs_sig s_win_rd_hold;
-    vs_sig s_win_wr_hold;
-    vs_sig s_rd_bypass;
-    vs_sig s_rd_force_miss;
     vs_sig s_peer_write_same;
+    vs_sig s_pws_r;
     vs_sig s_state_run;
     vs_sig s_alloc_data;
     vs_sig s_alloc_held;
@@ -74,13 +67,6 @@ struct dmc_63f41_n1_g0
     vs_sig s_next_alloc_data;
     vs_sig s_next_alloc_held;
     vs_sig s_next_wt2_1;
-    vs_sig s_my_invalidation_still_pending;
-    vs_sig s_my_invalidation_strict_wait;
-    vs_sig s_my_invalidation_still_pending_prev;
-    vs_sig s_my_invalidation_strict_wait_prev;
-    vs_sig s_my_parked_stalled_block;
-    vs_sig s_source_safe;
-    vs_sig s_all_sources_safe;
     vs_sig s_cache_d_in;
     vs_sig s_cache_d_out;
     vs_sig s_tag_in;
@@ -91,38 +77,40 @@ struct dmc_63f41_n1_g0
     vs_sig s_dirty_out;
     vs_sig s_state;
     vs_sig s_next_state;
+    vs_sig s_pns;
     vs_sig s_next_edge;
-    vs_sig s_last_a;
-    vs_sig s_last_rw_n;
-    vs_sig s_last_a_valid;
-    vs_sig s_next_last_a;
-    vs_sig s_next_last_rw_n;
-    vs_sig s_next_last_a_valid;
+    vs_sig s_new_acc;
+    vs_sig s_next_new_acc;
     vs_sig s_cpu_mrdy;
     vs_sig s_cpu_rw_n;
     vs_sig s_cpu_a;
     vs_sig s_cpu_d_in;
     vs_sig s_cpu_d_out;
     vs_sig s_cpu_vma;
+    vs_sig s_quiet_i;
+    vs_sig s_quiet_r;
+    vs_sig s_lock_granted_s;
+    vs_sig s_e_rising_d;
     vs_sig s_cpu_vma_raw;
+    vs_sig s_cpu_mrdy_d_old;
     vs_sig s_cpu_waiting;
     vs_sig s_buffered_a;
     vs_sig s_cacheable_l;
+    vs_sig s_ba_rgn_c;
+    vs_sig s_ba_rgn_n;
+    vs_sig s_mrdy_src_r;
+    vs_sig s_ba_fresh;
     vs_sig s_mrdy_l;
     vs_sig s_buffered_rw_n;
     vs_sig s_buffered_vma;
     vs_sig s_buffered_d;
     vs_sig s_moved_on;
-    vs_sig s_ticks_since_e;
-    vs_sig s_captured;
+    vs_sig s_mmu_vma;
     vs_sig s_capture_strobe;
-    vs_sig s_early_stall;
     vs_sig s_cpu_mrdy_fsm;
-    vs_sig s_cpu_mrdy_fsm_r;
-    vs_sig s_mmu_tr_wait;
     vs_sig s_vma_state;
     vs_sig s_dirty_rw;
-    std_logic_matrix_5_s s_dirty_block;
+    std_logic_matrix_3_s s_dirty_block;
     vs_sig s_x_dirty_block;
     vs_sig s_tag_dirty_out;
     vs_sig s_ccs_dirty;
@@ -135,20 +123,23 @@ struct dmc_63f41_n1_g0
     vs_sig s_local_fill_granted;
     vs_sig s_valid_64k_write_clk;
     vs_sig s_valid_64k_write_enable;
-    vs_sig s_fl_we;
     vs_sig s_valid_64k_address2;
     vs_sig s_valid_64k_valid_addr;
     vs_sig s_valid_64k_valid_addr2;
     vs_sig s_start_read;
     vs_sig s_wr_force_r;
     vs_sig s_pre_read;
-    vs_sig s_pre_a;
     vs_sig s_pre_ok;
     vs_sig s_pulse_now;
+    vs_sig s_early_r;
+    vs_sig s_early_used;
+    vs_sig s_next_early_used;
     vs_sig s_portb_hazard;
+    vs_sig s_xd_same_hist;
+    vs_sig s_xd_clash_next;
+    vs_sig s_xd_prev1;
+    vs_sig s_xd_prev2;
     vs_sig s_xd_same_block;
-    vs_sig s_portb_pulse;
-    vs_sig s_xd_same_block_prev;
     vs_sig s_tick_phase;
     vs_sig s_sample_strobe;
     vs_sig s_e_rising;
@@ -156,6 +147,7 @@ struct dmc_63f41_n1_g0
     vs_sig s_q_falling;
     vs_sig s_bram_wait_states;
     vs_sig s_next_bram_wait_states;
+    vs_sig s_pnb;
     vs_sig s_cache_write_clk;
     vs_sig s_cache_write_busy;
     vs_sig s_next_cache_write_clk;
@@ -186,6 +178,20 @@ struct dmc_63f41_n1_g0
     vs_sig s_next_fill_req_prev;
     vs_sig s_next_fill_ack_count;
     vs_sig s_tag_rw;
+    vs_sig s_mr_bw0;
+    vs_sig s_mr_hit;
+    vs_sig s_mr_ufast;
+    vs_sig s_mr_dirty_any;
+    vs_sig s_lcm_r;
+    vs_sig s_fh_r;
+    vs_sig s_mrl_r;
+    vs_sig s_cpu_mrdy_fsm_r;
+    vs_sig s_cpu_mrdy_d;
+    vs_sig s_commit_s;
+    vs_sig s_bw_pred;
+    vs_sig s_sens_pred;
+    vs_sig s_bw_pred_old;
+    vs_sig s_sens_pred_old;
     mmu_63f29 c_mmu_with_cache_l1_0;
     ram_61f512_t c_cache_64k_1;
     vs_sig x2_imp_rw;
@@ -193,11 +199,11 @@ struct dmc_63f41_n1_g0
     vs_sig x4_imp_valid_addr;
     struct dmc_63f41_n1_g1 *g_tag_block_5;
     ram_61f64x1_t c_valid_64k_6;
-    uint64_t v15_v;
     struct dmc_63f41_n1_g3 *g_fill_snapshot_7;
     struct dmc_63f41_n1_g4 *g_fsm_dirty_supervision_8;
-    uint64_t v26_commit;
-    uint64_t v32_dirty_flag;
+    uint64_t v30_commit;
+    uint64_t v37_dirty_flag;
+    uint64_t v42_d;
 };
 typedef struct dmc_63f41_n1_g0 dmc_63f41_n1_g0;
 
@@ -210,16 +216,16 @@ struct dmc_63f41_n1_g5
     mmu_63f29 c_mmu_without_cache_l1_0;
     vs_sig x1_open_e_l;
     vs_sig x2_open_q_l;
-    vs_sig x3_open_vma_raw;
-    vs_sig x4_open_waiting;
-    vs_sig x5_open_tfm_mode;
-    vs_sig x6_open_tfm_count;
-    vs_sig x7_open_mmu_mrdy;
-    vs_sig x8_open_tr_wait;
+    vs_sig x3_open_mmu_mrdy;
+    vs_sig x4_open_mmu_vma;
+    vs_sig x5_open_vma_raw;
+    vs_sig x6_open_mrdy_live;
+    vs_sig x7_open_cpu_mrdy_out;
 };
 typedef struct dmc_63f41_n1_g5 dmc_63f41_n1_g5;
 
 static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad);
+static uint64_t f_moore_0(dmc_63f41_n1_g0 *self, uint32_t a_s, uint64_t a_bw0, uint64_t a_vma, uint64_t a_newa, uint64_t a_fh, uint64_t a_ufast, uint64_t a_rwn, uint64_t a_mrl, uint64_t a_lcm, uint64_t a_hit, uint64_t a_moved, uint64_t a_cwb);
 
 static void dmc_63f41_n1_g2_i0(void *inst)
 {
@@ -363,127 +369,25 @@ static void dmc_63f41_n1_g3_create(vs_kernel *k, dmc_63f41_n1_g3 *self, const ch
 static void dmc_63f41_n1_g4_p0(void *inst)
 {
     dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_cache_mrdy, 1);
+    vs_drive(&self->up->s_local_cache_mrdy, 1);
 }
 
 static void dmc_63f41_n1_g4_p1(void *inst)
 {
     dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_local_cache_mrdy, 1);
+    vs_drive(&self->up->s_peer_write_same, 0);
 }
 
 static void dmc_63f41_n1_g4_p2(void *inst)
 {
     dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_fic_freeze, 0);
+    vs_drive(&(*self->up->up->p_inv_busy), 0);
 }
 
 static void dmc_63f41_n1_g4_p3(void *inst)
 {
     dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_peer_write_same, 0);
-}
-
-static void dmc_63f41_n1_g4_p4(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&(*self->up->up->p_ccs_invalidation_pending_out), UINT64_C(0x0));
-}
-
-static void dmc_63f41_n1_g4_p5(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&(*self->up->up->p_ccs_fic_out), (*self->up->up->p_fic).cur);
-}
-
-static void dmc_63f41_n1_g4_p6(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_my_invalidation_still_pending, 0);
-}
-
-static void dmc_63f41_n1_g4_p7(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_my_invalidation_strict_wait, 0);
-}
-
-static void dmc_63f41_n1_g4_p8(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_my_invalidation_still_pending_prev, 0);
-}
-
-static void dmc_63f41_n1_g4_p9(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_my_invalidation_strict_wait_prev, 0);
-}
-
-static void dmc_63f41_n1_g4_p10(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_my_parked_stalled_block, 0);
-}
-
-static void dmc_63f41_n1_g4_p11(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&(*self->up->up->p_ccs_prev_pending_out), UINT64_C(0x0));
-}
-
-static void dmc_63f41_n1_g4_p12(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&(*self->up->up->p_ccs_parked_stalled_out), UINT64_C(0x0));
-}
-
-static void dmc_63f41_n1_g4_p13(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&(*self->up->up->p_ccs_tfm_out), UINT64_C(0x0));
-}
-
-static void dmc_63f41_n1_g4_p14(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_win_rd_hold, 0);
-}
-
-static void dmc_63f41_n1_g4_p15(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_win_wr_hold, 0);
-}
-
-static void dmc_63f41_n1_g4_p16(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_rd_bypass, 0);
-}
-
-static void dmc_63f41_n1_g4_p17(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_rd_force_miss, 0);
-}
-
-static void dmc_63f41_n1_g4_p18(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&(*self->up->up->p_ccs_write_gen_out), 0);
-}
-
-static void dmc_63f41_n1_g4_p19(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_source_safe, UINT64_C(0x1));
-}
-
-static void dmc_63f41_n1_g4_p20(void *inst)
-{
-    dmc_63f41_n1_g4 *self = inst;
-    vs_drive(&self->up->s_all_sources_safe, 1);
+    vs_drive(&(*self->up->up->p_waiting), self->up->s_cpu_waiting.cur);
 }
 
 static void dmc_63f41_n1_g4_create(vs_kernel *k, dmc_63f41_n1_g4 *self, const char *path)
@@ -491,36 +395,19 @@ static void dmc_63f41_n1_g4_create(vs_kernel *k, dmc_63f41_n1_g4 *self, const ch
     vs_register_process(k, dmc_63f41_n1_g4_p0, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n1_g4_p1, self, NULL, 0);
     vs_register_process(k, dmc_63f41_n1_g4_p2, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p3, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p4, self, NULL, 0);
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &(*self->up->up->p_fic);
-        vs_register_process(k, dmc_63f41_n1_g4_p5, self, sens, n);
+        sens[n++] = &self->up->s_cpu_waiting;
+        vs_register_process(k, dmc_63f41_n1_g4_p3, self, sens, n);
     }
-    vs_register_process(k, dmc_63f41_n1_g4_p6, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p7, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p8, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p9, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p10, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p11, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p12, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p13, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p14, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p15, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p16, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p17, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p18, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p19, self, NULL, 0);
-    vs_register_process(k, dmc_63f41_n1_g4_p20, self, NULL, 0);
 }
 
 static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
 {
-    uint64_t v_low_84272 = 0;
-    v_low_84272 = (a_ad & UINT64_C(0xFFF));
+    uint64_t v_low_51792 = 0;
+    v_low_51792 = (a_ad & UINT64_C(0xFFF));
     if ((((a_ad >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFF)))
     {
         return INT64_C(1);
@@ -531,7 +418,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
         {
             case UINT64_C(0xF):
             {
-                if ((v_low_84272 <= (uint64_t)(INT64_C(9))))
+                if ((v_low_51792 <= (uint64_t)(INT64_C(9))))
                 {
                     return INT64_C(0);
                 }
@@ -543,7 +430,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xE):
             {
-                if ((v_low_84272 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_51792 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -555,7 +442,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xD):
             {
-                if ((v_low_84272 <= (uint64_t)(INT64_C(15))))
+                if ((v_low_51792 <= (uint64_t)(INT64_C(15))))
                 {
                     return INT64_C(0);
                 }
@@ -567,7 +454,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xC):
             {
-                if ((v_low_84272 <= (uint64_t)(INT64_C(3))))
+                if ((v_low_51792 <= (uint64_t)(INT64_C(3))))
                 {
                     return INT64_C(0);
                 }
@@ -579,7 +466,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xB):
             {
-                if ((v_low_84272 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_51792 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -591,7 +478,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xA):
             {
-                if ((v_low_84272 <= (uint64_t)(INT64_C(1))))
+                if ((v_low_51792 <= (uint64_t)(INT64_C(1))))
                 {
                     return INT64_C(0);
                 }
@@ -603,7 +490,7 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0x9):
             {
-                if ((v_low_84272 <= (uint64_t)(INT64_C(4))))
+                if ((v_low_51792 <= (uint64_t)(INT64_C(4))))
                 {
                     return INT64_C(0);
                 }
@@ -630,6 +517,77 @@ static int64_t f_mrdy_source_0(dmc_63f41_n1_g0 *self, uint64_t a_ad)
     }
 }
 
+static uint64_t f_moore_0(dmc_63f41_n1_g0 *self, uint32_t a_s, uint64_t a_bw0, uint64_t a_vma, uint64_t a_newa, uint64_t a_fh, uint64_t a_ufast, uint64_t a_rwn, uint64_t a_mrl, uint64_t a_lcm, uint64_t a_hit, uint64_t a_moved, uint64_t a_cwb)
+{
+    switch (a_s)
+    {
+        case 0:
+        {
+            if ((((a_vma == 1) & (a_fh == 0)) & (a_newa == 1)))
+            {
+                if ((a_ufast == 1))
+                {
+                    if ((a_rwn == 1))
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return (a_mrl & a_lcm);
+                    }
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            else
+            {
+                return ((a_bw0 & a_lcm) & ((a_fh ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+            }
+            break;
+        }
+        case 1:
+        {
+            if (((((a_rwn == 1) & (a_hit == 1)) & (a_bw0 == 1)) & (a_cwb == 0)))
+            {
+                return a_lcm;
+            }
+            else
+            {
+                return 0;
+            }
+            break;
+        }
+        case 2:
+        case 3:
+        case 5:
+        {
+            if (((a_s == 5) & (a_bw0 == 0)))
+            {
+                return 0;
+            }
+            else
+            {
+                return (a_lcm & ((a_moved ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+            }
+            break;
+        }
+        case 8:
+        case 9:
+        case 7:
+        {
+            return (a_mrl & a_lcm);
+            break;
+        }
+        default:
+        {
+            return 0;
+            break;
+        }
+    }
+}
+
 static void dmc_63f41_n1_g0_p0(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
@@ -652,7 +610,7 @@ static void dmc_63f41_n1_g0_p1(void *inst)
 static void dmc_63f41_n1_g0_p2(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    vs_drive(&self->s_e_rising, ((self->s_cpu_mrdy_fsm.cur & ((self->s_cpu_e_l.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & self->s_cpu_q_l.cur));
+    vs_drive(&self->s_e_rising, (((self->s_cpu_mrdy_fsm_r.cur & self->s_local_cache_mrdy.cur) & ((self->s_cpu_e_l.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & self->s_cpu_q_l.cur));
 }
 
 static void dmc_63f41_n1_g0_p3(void *inst)
@@ -664,48 +622,49 @@ static void dmc_63f41_n1_g0_p3(void *inst)
 static void dmc_63f41_n1_g0_p4(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    vs_drive(&self->s_q_falling, ((self->s_cpu_mrdy_fsm.cur & self->s_cpu_e_l.cur) & self->s_cpu_q_l.cur));
+    vs_drive(&self->s_q_falling, (((self->s_cpu_mrdy_fsm_r.cur & self->s_local_cache_mrdy.cur) & self->s_cpu_e_l.cur) & self->s_cpu_q_l.cur));
 }
 
 static void dmc_63f41_n1_g0_p5(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if (vs_rising(&(*self->up->p_extal)))
-    {
-        /* assert */
-    }
+    vs_drive(&self->s_capture_strobe, self->s_mmu_vma.cur);
 }
 
 static void dmc_63f41_n1_g0_p6(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if ((((((int64_t) self->s_ticks_since_e.cur >= ((INT64_C(3)) - INT64_C(1))) & (self->s_captured.cur == 0)) & (self->s_cpu_mrdy_fsm_r.cur == 1)) & (self->s_mmu_tr_wait.cur == 0)))
+    if (((*self->up->p_reset_n).cur == 0))
     {
-        vs_drive(&self->s_capture_strobe, 1);
+        vs_drive(&self->s_lock_granted_s, 0);
     }
-    else
+    else if (vs_rising(&(*self->up->p_extal)))
     {
-        vs_drive(&self->s_capture_strobe, 0);
+        vs_drive(&self->s_e_rising_d, self->s_e_rising.cur);
+        if ((self->s_e_rising_d.cur == 1))
+        {
+            vs_drive(&self->s_lock_granted_s, (*self->up->p_lock_granted).cur);
+        }
     }
 }
 
 static void dmc_63f41_n1_g0_p7(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if ((((self->s_cpu_vma_raw.cur == 1) & (self->s_captured.cur == 0)) & ((((int64_t) self->s_ticks_since_e.cur >= (INT64_C(1))) & ((int64_t) self->s_ticks_since_e.cur < (INT64_C(3)))) | ((self->s_cpu_e_l.cur == 1) & (self->s_cpu_q_l.cur == 0)))))
+    if (((((((*self->up->p_quiesce).cur == 1) & ((*self->up->p_fic).cur == 1)) & ((uint32_t) self->s_state.cur == 0)) & (self->s_new_acc.cur == 1)) & (self->s_buffered_vma.cur == 1)))
     {
-        vs_drive(&self->s_early_stall, 1);
+        vs_drive(&self->s_quiet_i, 1);
     }
     else
     {
-        vs_drive(&self->s_early_stall, 0);
+        vs_drive(&self->s_quiet_i, 0);
     }
 }
 
 static void dmc_63f41_n1_g0_p8(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    vs_drive(&self->s_cpu_mrdy, (self->s_cpu_mrdy_fsm.cur & ((self->s_early_stall.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+    vs_drive(&(*self->up->p_quiet), self->s_quiet_i.cur);
 }
 
 static void dmc_63f41_n1_g0_p9(void *inst)
@@ -713,62 +672,78 @@ static void dmc_63f41_n1_g0_p9(void *inst)
     dmc_63f41_n1_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
     {
-        vs_drive(&self->s_cpu_mrdy_fsm_r, 1);
+        vs_drive(&self->s_quiet_r, 0);
     }
     else if (vs_rising(&(*self->up->p_extal)))
     {
-        vs_drive(&self->s_cpu_mrdy_fsm_r, self->s_cpu_mrdy_fsm.cur);
+        vs_drive(&self->s_quiet_r, self->s_quiet_i.cur);
     }
 }
 
 static void dmc_63f41_n1_g0_p10(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if (((*self->up->p_reset_n).cur == 0))
-    {
-        vs_drive(&self->s_ticks_since_e, (uint64_t)(INT64_C(7)));
-        vs_drive(&self->s_captured, 1);
-    }
-    else if (vs_rising(&(*self->up->p_extal)))
-    {
-        if ((self->s_e_rising.cur == 1))
-        {
-            vs_drive(&self->s_ticks_since_e, (uint64_t)(INT64_C(0)));
-            vs_drive(&self->s_captured, 0);
-        }
-        else
-        {
-            if (((int64_t) self->s_ticks_since_e.cur < INT64_C(7)))
-            {
-                vs_drive(&self->s_ticks_since_e, (uint64_t)(((int64_t) self->s_ticks_since_e.cur + INT64_C(1))));
-            }
-            if ((self->s_capture_strobe.cur == 1))
-            {
-                vs_drive(&self->s_captured, 1);
-            }
-        }
-    }
+    vs_drive(&self->s_cpu_mrdy_d, ((self->s_cpu_mrdy_fsm.cur & (((self->s_mmu_vma.cur & self->s_cpu_vma_raw.cur) ^ UINT64_C(0x1)) & UINT64_C(0x1))) & (self->s_bw_pred.cur | ((self->s_sens_pred.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)))));
 }
 
-static void dmc_63f41_n1_g0_i11(void *inst)
+static void dmc_63f41_n1_g0_p11(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    vs_drive(&self->x4_imp_valid_addr, (uint64_t)(((self->s_effective_cache_busy.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+    if ((((self->s_state_run.cur == 1) & ((((((uint32_t) self->s_next_edge.cur == 0) & (self->s_e_rising.cur == 1)) | (((uint32_t) self->s_next_edge.cur == 1) & (self->s_e_falling.cur == 1))) | ((uint32_t) self->s_next_edge.cur == 2)) | ((uint32_t) self->s_next_edge.cur == 3))) | ((self->s_state_run.cur == 0) & ((uint32_t) self->s_next_edge.cur == 3))))
+    {
+        vs_drive(&self->s_commit_s, 1);
+    }
+    else
+    {
+        vs_drive(&self->s_commit_s, 0);
+    }
 }
 
 static void dmc_63f41_n1_g0_p12(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    vs_drive(&self->s_current_tag, ((self->s_buffered_a.cur >> (16)) & UINT64_C(0xFFFFF)));
+    if ((((self->s_commit_s.cur == 1) & ((int64_t) self->s_pnb.cur == INT64_C(0))) | ((self->s_commit_s.cur == 0) & ((int64_t) self->s_bram_wait_states.cur == INT64_C(0)))))
+    {
+        vs_drive(&self->s_bw_pred, 1);
+    }
+    else
+    {
+        vs_drive(&self->s_bw_pred, 0);
+    }
 }
 
 static void dmc_63f41_n1_g0_p13(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
+    if ((((self->s_commit_s.cur == 1) & ((((uint32_t) self->s_pns.cur == 0) | ((uint32_t) self->s_pns.cur == 1)) | ((uint32_t) self->s_pns.cur == 5))) | ((self->s_commit_s.cur == 0) & ((((uint32_t) self->s_state.cur == 0) | ((uint32_t) self->s_state.cur == 1)) | ((uint32_t) self->s_state.cur == 5)))))
+    {
+        vs_drive(&self->s_sens_pred, 1);
+    }
+    else
+    {
+        vs_drive(&self->s_sens_pred, 0);
+    }
+}
+
+static void dmc_63f41_n1_g0_i14(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    vs_drive(&self->x4_imp_valid_addr, (uint64_t)(((self->s_effective_cache_busy.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+}
+
+static void dmc_63f41_n1_g0_p15(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    vs_drive(&self->s_current_tag, ((self->s_buffered_a.cur >> (16)) & UINT64_C(0xFFFFF)));
+}
+
+static void dmc_63f41_n1_g0_p16(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
     vs_drive(&self->s_current_block, (self->s_buffered_a.cur & UINT64_C(0xFFFF)));
 }
 
-static void dmc_63f41_n1_g0_p14(void *inst)
+static void dmc_63f41_n1_g0_p17(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if ((((self->up->g_ncpus > INT64_C(1)) & (self->s_x_dirty_block.cur == self->s_current_block.cur)) & (self->s_x_dirty_block.cur != UINT64_C(0xFFFF))))
@@ -781,24 +756,51 @@ static void dmc_63f41_n1_g0_p14(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p15(void *inst)
+static void dmc_63f41_n1_g0_p18(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    self->v15_v = 0;
-    for (int64_t i_1 = INT64_C(0); i_1 <= (self->up->g_ncpus - INT64_C(1)); i_1++)
+    if (((self->up->g_ncpus > INT64_C(1)) & ((self->s_x_dirty_block.cur != UINT64_C(0xFFFF)) | (self->s_xd_prev1.cur != UINT64_C(0xFFFF)))))
     {
-        if (((i_1 != self->up->g_cpu_number) & (((self->s_memclk_internal_2.cur >> (0 - (i_1))) & 1) == 1)))
-        {
-            self->v15_v = 1;
-        }
+        vs_drive(&self->s_xd_clash_next, 1);
     }
-    vs_drive(&self->s_portb_pulse, self->v15_v);
+    else
+    {
+        vs_drive(&self->s_xd_clash_next, 0);
+    }
 }
 
-static void dmc_63f41_n1_g0_p16(void *inst)
+static void dmc_63f41_n1_g0_p19(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if (((self->s_xd_same_block.cur == 1) & ((self->s_xd_same_block_prev.cur == 0) | (self->s_portb_pulse.cur == 1))))
+    if (((self->up->g_ncpus > INT64_C(1)) & (((self->s_xd_prev1.cur == self->s_current_block.cur) & (self->s_xd_prev1.cur != UINT64_C(0xFFFF))) | ((self->s_xd_prev2.cur == self->s_current_block.cur) & (self->s_xd_prev2.cur != UINT64_C(0xFFFF))))))
+    {
+        vs_drive(&self->s_xd_same_hist, 1);
+    }
+    else
+    {
+        vs_drive(&self->s_xd_same_hist, 0);
+    }
+}
+
+static void dmc_63f41_n1_g0_p20(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    if (((*self->up->p_reset_n).cur == 0))
+    {
+        vs_drive(&self->s_xd_prev1, UINT64_C(0xFFFF));
+        vs_drive(&self->s_xd_prev2, UINT64_C(0xFFFF));
+    }
+    else if (vs_rising(&(*self->up->p_extal)))
+    {
+        vs_drive(&self->s_xd_prev1, self->s_x_dirty_block.cur);
+        vs_drive(&self->s_xd_prev2, self->s_xd_prev1.cur);
+    }
+}
+
+static void dmc_63f41_n1_g0_p21(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    if (((self->s_xd_same_block.cur == 1) | (self->s_xd_same_hist.cur == 1)))
     {
         vs_drive(&self->s_portb_hazard, 1);
     }
@@ -808,29 +810,16 @@ static void dmc_63f41_n1_g0_p16(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p17(void *inst)
-{
-    dmc_63f41_n1_g0 *self = inst;
-    if (((*self->up->p_reset_n).cur == 0))
-    {
-        vs_drive(&self->s_xd_same_block_prev, 0);
-    }
-    else if (vs_rising(&(*self->up->p_extal)))
-    {
-        vs_drive(&self->s_xd_same_block_prev, self->s_xd_same_block.cur);
-    }
-}
-
-static void dmc_63f41_n1_g0_p18(void *inst)
+static void dmc_63f41_n1_g0_p22(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     vs_drive(&self->s_effective_cache_busy, (self->s_cache_rw.cur | self->s_cache_write_busy.cur));
 }
 
-static void dmc_63f41_n1_g0_p19(void *inst)
+static void dmc_63f41_n1_g0_p23(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if ((((uint32_t) self->s_state.cur == 4) | (((uint32_t) self->s_state.cur == 5) & ((((self->s_fic_freeze.cur == 1) & (self->s_alloc_held.cur == 1)) ^ UINT64_C(0x1)) & UINT64_C(0x1)))))
+    if ((((uint32_t) self->s_state.cur == 4) | ((uint32_t) self->s_state.cur == 5)))
     {
         vs_drive(&self->s_tag_local_fill_busy, 1);
     }
@@ -840,13 +829,13 @@ static void dmc_63f41_n1_g0_p19(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p20(void *inst)
+static void dmc_63f41_n1_g0_p24(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     vs_drive(&self->s_local_fill_ack, (self->s_local_fill_granted.cur & self->s_memclk_ext_logic.cur));
 }
 
-static void dmc_63f41_n1_g0_p21(void *inst)
+static void dmc_63f41_n1_g0_p25(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if ((self->up->g_ncpus == INT64_C(1)))
@@ -859,7 +848,7 @@ static void dmc_63f41_n1_g0_p21(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p22(void *inst)
+static void dmc_63f41_n1_g0_p26(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if ((self->up->g_ncpus == INT64_C(1)))
@@ -868,11 +857,11 @@ static void dmc_63f41_n1_g0_p22(void *inst)
     }
     else
     {
-        vs_drive(&self->s_valid_64k_write_enable, (self->s_local_fill_granted.cur | self->s_fl_we.cur));
+        vs_drive(&self->s_valid_64k_write_enable, self->s_local_fill_granted.cur);
     }
 }
 
-static void dmc_63f41_n1_g0_p23(void *inst)
+static void dmc_63f41_n1_g0_p27(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if ((self->up->g_ncpus == INT64_C(1)))
@@ -885,7 +874,7 @@ static void dmc_63f41_n1_g0_p23(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p24(void *inst)
+static void dmc_63f41_n1_g0_p28(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if ((self->up->g_ncpus > INT64_C(1)))
@@ -898,7 +887,7 @@ static void dmc_63f41_n1_g0_p24(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p25(void *inst)
+static void dmc_63f41_n1_g0_p29(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if ((self->up->g_ncpus == INT64_C(1)))
@@ -911,16 +900,15 @@ static void dmc_63f41_n1_g0_p25(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p26(void *inst)
+static void dmc_63f41_n1_g0_p30(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
     {
         vs_drive(&self->s_state, 0);
-        vs_drive(&self->s_last_a, UINT64_C(0xFFFFFFFFF));
-        vs_drive(&self->s_last_rw_n, 1);
-        vs_drive(&self->s_last_a_valid, 0);
+        vs_drive(&self->s_new_acc, 1);
         vs_drive(&self->s_bram_wait_states, (uint64_t)(INT64_C(0)));
+        vs_drive(&self->s_early_used, 0);
         vs_drive(&self->s_cache_write_clk, 0);
         vs_drive(&self->s_cache_write_busy, 0);
         vs_drive(&self->s_cache_write_clk_count, (uint64_t)(INT64_C(0)));
@@ -930,39 +918,45 @@ static void dmc_63f41_n1_g0_p26(void *inst)
     }
     else if (vs_rising(&(*self->up->p_extal)))
     {
-        self->v26_commit = 0;
+        if ((self->s_capture_strobe.cur == 1))
+        {
+            vs_drive(&self->s_new_acc, 1);
+        }
+        self->v30_commit = 0;
         if ((self->s_state_run.cur == 1))
         {
             switch ((uint32_t) self->s_next_edge.cur)
             {
                 case 0:
                 {
-                    self->v26_commit = (self->s_e_rising.cur == 1);
+                    self->v30_commit = (self->s_e_rising.cur == 1);
                     break;
                 }
                 case 1:
                 {
-                    self->v26_commit = (self->s_e_falling.cur == 1);
+                    self->v30_commit = (self->s_e_falling.cur == 1);
                     break;
                 }
                 default:
                 {
-                    self->v26_commit = 1;
+                    self->v30_commit = 1;
                     break;
                 }
             }
         }
         else if (((uint32_t) self->s_next_edge.cur == 3))
         {
-            self->v26_commit = 1;
+            self->v30_commit = 1;
         }
-        if (self->v26_commit)
+        if (self->v30_commit)
         {
             vs_drive(&self->s_state, (uint32_t) self->s_next_state.cur);
-            vs_drive(&self->s_last_a, self->s_next_last_a.cur);
-            vs_drive(&self->s_last_rw_n, self->s_next_last_rw_n.cur);
-            vs_drive(&self->s_last_a_valid, self->s_next_last_a_valid.cur);
+            if ((self->s_capture_strobe.cur == 0))
+            {
+                vs_drive(&self->s_new_acc, self->s_next_new_acc.cur);
+            }
             vs_drive(&self->s_bram_wait_states, (uint64_t)((int64_t) self->s_next_bram_wait_states.cur));
+            vs_drive(&self->s_early_used, self->s_next_early_used.cur);
             vs_drive(&self->s_cache_write_clk, self->s_next_cache_write_clk.cur);
             vs_drive(&self->s_cache_write_busy, self->s_next_cache_write_clk.cur);
             vs_drive(&self->s_cache_write_clk_count, (uint64_t)((int64_t) self->s_next_cache_write_clk_count.cur));
@@ -973,22 +967,29 @@ static void dmc_63f41_n1_g0_p26(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p27(void *inst)
+static void dmc_63f41_n1_g0_p31(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
     {
         vs_drive(&self->s_buffered_a, UINT64_C(0xFFFFFFFFF));
+        vs_drive(&self->s_ba_rgn_c, 1);
+        vs_drive(&self->s_ba_rgn_n, 0);
+        vs_drive(&self->s_mrdy_src_r, (uint64_t)(f_mrdy_source_0(self, UINT64_C(0xFFFFFFFFF))));
         vs_drive(&self->s_buffered_rw_n, 1);
         vs_drive(&self->s_buffered_vma, 0);
         vs_drive(&self->s_buffered_d, UINT64_C(0xFF));
         vs_drive(&self->s_moved_on, 0);
+        vs_drive(&self->s_ba_fresh, 0);
     }
     else if (vs_rising(&(*self->up->p_extal)))
     {
         if ((self->s_capture_strobe.cur == 1))
         {
             vs_drive(&self->s_buffered_a, self->s_cpu_a.cur);
+            vs_drive(&self->s_ba_rgn_c, 1);
+            vs_drive(&self->s_ba_rgn_n, 0);
+            vs_drive(&self->s_mrdy_src_r, (uint64_t)(INT64_C(0)));
             vs_drive(&self->s_buffered_rw_n, self->s_cpu_rw_n.cur);
             vs_drive(&self->s_buffered_vma, self->s_cpu_vma.cur);
             vs_drive(&self->s_buffered_d, self->s_cpu_d_out.cur);
@@ -998,10 +999,31 @@ static void dmc_63f41_n1_g0_p27(void *inst)
         {
             vs_drive(&self->s_moved_on, 1);
         }
+        vs_drive(&self->s_ba_fresh, self->s_capture_strobe.cur);
+        if ((self->s_capture_strobe.cur == 0))
+        {
+            if (((((self->s_buffered_a.cur >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFF)) | (((self->s_buffered_a.cur >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFC))))
+            {
+                vs_drive(&self->s_ba_rgn_c, 1);
+            }
+            else
+            {
+                vs_drive(&self->s_ba_rgn_c, 0);
+            }
+            if (((((self->s_buffered_a.cur >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFE)) | (((self->s_buffered_a.cur >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFD))))
+            {
+                vs_drive(&self->s_ba_rgn_n, 1);
+            }
+            else
+            {
+                vs_drive(&self->s_ba_rgn_n, 0);
+            }
+            vs_drive(&self->s_mrdy_src_r, (uint64_t)(f_mrdy_source_0(self, self->s_buffered_a.cur)));
+        }
     }
 }
 
-static void dmc_63f41_n1_g0_p28(void *inst)
+static void dmc_63f41_n1_g0_p32(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1010,7 +1032,7 @@ static void dmc_63f41_n1_g0_p28(void *inst)
     }
     else if (vs_rising(&(*self->up->p_extal)))
     {
-        if (((((uint32_t) self->s_state.cur == 0) & (self->s_buffered_vma.cur == 1)) & (((self->s_last_a_valid.cur == 0) | (self->s_buffered_a.cur != self->s_last_a.cur)) | (self->s_buffered_rw_n.cur != self->s_last_rw_n.cur))))
+        if (((((uint32_t) self->s_state.cur == 0) & (self->s_buffered_vma.cur == 1)) & (self->s_new_acc.cur == 1)))
         {
             vs_drive(&self->s_start_read, 1);
         }
@@ -1021,26 +1043,39 @@ static void dmc_63f41_n1_g0_p28(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p29(void *inst)
+static void dmc_63f41_n1_g0_p33(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if (((self->s_pre_read.cur == 1) & (self->s_pre_a.cur == self->s_buffered_a.cur)))
+    if (((*self->up->p_reset_n).cur == 0))
     {
-        vs_drive(&self->s_pre_ok, 1);
+        vs_drive(&self->s_early_r, 0);
     }
-    else
+    else if (vs_rising(&(*self->up->p_extal)))
     {
-        vs_drive(&self->s_pre_ok, 0);
+        if (((((((((((((self->s_capture_strobe.cur == 1) & (self->s_cpu_vma.cur == 1)) & (self->s_cpu_rw_n.cur == 1)) & ((uint32_t) self->s_state.cur == 0)) & ((int64_t) self->s_bram_wait_states.cur == INT64_C(0))) & (self->s_cache_write_busy.cur == 0)) & (self->s_cache_rw.cur == 0)) & (self->s_tag_rw.cur == 0)) & (self->s_fill_req.cur == 0)) & (self->s_tag_local_fill_busy.cur == 0)) & (self->s_local_cache_mrdy.cur == 1)) & (self->s_xd_clash_next.cur == 0)))
+        {
+            vs_drive(&self->s_early_r, 1);
+        }
+        else
+        {
+            vs_drive(&self->s_early_r, 0);
+        }
     }
 }
 
-static void dmc_63f41_n1_g0_p30(void *inst)
+static void dmc_63f41_n1_g0_p34(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    vs_drive(&self->s_pulse_now, (((((self->s_start_read.cur | self->s_wr_force_r.cur) & self->s_local_cache_mrdy.cur) & ((self->s_fill_hazard.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & ((self->s_effective_cache_busy.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & ((self->s_portb_hazard.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+    vs_drive(&self->s_pre_ok, self->s_pre_read.cur);
 }
 
-static void dmc_63f41_n1_g0_p31(void *inst)
+static void dmc_63f41_n1_g0_p35(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    vs_drive(&self->s_pulse_now, (((((((self->s_start_read.cur | self->s_wr_force_r.cur) | self->s_early_r.cur) & self->s_local_cache_mrdy.cur) & ((self->s_quiet_r.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & ((self->s_fill_hazard.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & ((self->s_effective_cache_busy.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))) & ((self->s_portb_hazard.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+}
+
+static void dmc_63f41_n1_g0_p36(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1050,7 +1085,7 @@ static void dmc_63f41_n1_g0_p31(void *inst)
     }
     else if (vs_rising(&(*self->up->p_extal)))
     {
-        if (((((((uint32_t) self->s_state.cur == 0) & (self->s_buffered_vma.cur == 1)) & (self->s_buffered_rw_n.cur == 0)) & (self->s_pre_ok.cur == 0)) & (((self->s_last_a_valid.cur == 0) | (self->s_buffered_a.cur != self->s_last_a.cur)) | (self->s_buffered_rw_n.cur != self->s_last_rw_n.cur))))
+        if (((((((uint32_t) self->s_state.cur == 0) & (self->s_buffered_vma.cur == 1)) & (self->s_buffered_rw_n.cur == 0)) & (self->s_pre_ok.cur == 0)) & (self->s_new_acc.cur == 1)))
         {
             vs_drive(&self->s_wr_force_r, 1);
         }
@@ -1058,19 +1093,18 @@ static void dmc_63f41_n1_g0_p31(void *inst)
         {
             vs_drive(&self->s_wr_force_r, 0);
         }
-        if (((uint32_t) self->s_state.cur != 0))
+        if ((((uint32_t) self->s_state.cur != 0) | (self->s_capture_strobe.cur == 1)))
         {
             vs_drive(&self->s_pre_read, 0);
         }
         else if ((self->s_memclk_int_logic.cur == 1))
         {
             vs_drive(&self->s_pre_read, 1);
-            vs_drive(&self->s_pre_a, self->s_buffered_a.cur);
         }
     }
 }
 
-static void dmc_63f41_n1_g0_p32(void *inst)
+static void dmc_63f41_n1_g0_p37(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1084,16 +1118,16 @@ static void dmc_63f41_n1_g0_p32(void *inst)
         vs_drive(&(*self->up->p_d_out), UINT64_C(0xFF));
         vs_drive(&self->s_cpu_d_in, UINT64_C(0xFF));
         vs_drive(&(*self->up->p_a), UINT64_C(0xFFFFFFFFF));
-        vs_drive(&self->s_next_last_a, UINT64_C(0xFFFFFFFFF));
-        vs_drive(&self->s_next_last_rw_n, 1);
-        vs_drive(&self->s_next_last_a_valid, 0);
+        vs_drive(&self->s_next_new_acc, 1);
         vs_drive(&self->s_next_bram_wait_states, (uint64_t)(INT64_C(0)));
+        vs_drive(&self->s_pnb, (uint64_t)(INT64_C(0)));
+        vs_drive(&self->s_next_early_used, 0);
         vs_drive(&self->s_next_cache_write_clk, 0);
         vs_drive(&self->s_next_cache_write_clk_count, (uint64_t)(INT64_C(0)));
         vs_drive(&self->s_next_tag_write_clk, 0);
         vs_drive(&self->s_next_tag_write_clk_count, (uint64_t)(INT64_C(0)));
-        vs_drive(&self->s_cpu_mrdy_fsm, 1);
         vs_drive(&self->s_next_state, 0);
+        vs_drive(&self->s_pns, 0);
         vs_drive(&self->s_next_edge, 1);
         vs_drive(&self->s_memclk_internal, 0);
         vs_drive(&self->s_memclk_int_logic, 0);
@@ -1105,10 +1139,10 @@ static void dmc_63f41_n1_g0_p32(void *inst)
     }
     else
     {
-        vs_drive(&self->s_next_last_a, self->s_last_a.cur);
-        vs_drive(&self->s_next_last_rw_n, self->s_last_rw_n.cur);
-        vs_drive(&self->s_next_last_a_valid, self->s_last_a_valid.cur);
+        vs_drive(&self->s_next_new_acc, self->s_new_acc.cur);
         vs_drive(&self->s_next_bram_wait_states, (uint64_t)(INT64_C(0)));
+        vs_drive(&self->s_pnb, (uint64_t)(INT64_C(0)));
+        vs_drive(&self->s_next_early_used, 0);
         if (((int64_t) self->s_cache_write_clk_count.cur != INT64_C(0)))
         {
             vs_drive(&self->s_next_cache_write_clk, 1);
@@ -1149,6 +1183,7 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                 if (((int64_t) self->s_bram_wait_states.cur != INT64_C(0)))
                 {
                     vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
+                    vs_drive(&self->s_pnb, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
                     vs_drive(&self->s_memclk_internal, 0);
                     vs_drive(&self->s_memclk_int_logic, 0);
                 }
@@ -1157,42 +1192,45 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                     vs_drive(&self->s_memclk_internal, self->s_pulse_now.cur);
                     vs_drive(&self->s_memclk_int_logic, self->s_pulse_now.cur);
                 }
-                if ((((self->s_buffered_vma.cur == 1) & (self->s_fill_hazard.cur == 0)) & (((self->s_last_a_valid.cur == 0) | (self->s_buffered_a.cur != self->s_last_a.cur)) | (self->s_buffered_rw_n.cur != self->s_last_rw_n.cur))))
+                if ((((self->s_buffered_vma.cur == 1) & (self->s_fill_hazard.cur == 0)) & (self->s_new_acc.cur == 1)))
                 {
                     vs_drive(&self->s_next_edge, 2);
-                    if (((((((self->s_cacheable_l.cur == 0) & ((*self->up->p_bus_granted).cur == 1)) & ((int64_t) self->s_bram_wait_states.cur == INT64_C(0))) & (self->s_portb_hazard.cur == 0)) & (self->s_win_rd_hold.cur == 0)) & (((self->s_buffered_rw_n.cur == 1) | (self->s_pre_ok.cur == 1)) | (self->s_pulse_now.cur == 1))))
+                    if ((((((self->s_cacheable_l.cur == 0) & ((*self->up->p_bus_granted).cur == 1)) & ((int64_t) self->s_bram_wait_states.cur == INT64_C(0))) & (self->s_portb_hazard.cur == 0)) & (((self->s_buffered_rw_n.cur == 1) | (self->s_pre_ok.cur == 1)) | (self->s_pulse_now.cur == 1))))
                     {
                         if ((self->s_buffered_rw_n.cur == 1))
                         {
-                            vs_drive(&self->s_cpu_mrdy_fsm, 0);
                         }
                         else
                         {
-                            vs_drive(&self->s_cpu_mrdy_fsm, (self->s_mrdy_l.cur & self->s_local_cache_mrdy.cur));
                         }
                         vs_drive(&(*self->up->p_bus_request), 1);
                         vs_drive(&(*self->up->p_a), self->s_buffered_a.cur);
-                        vs_drive(&self->s_next_last_a, self->s_buffered_a.cur);
-                        vs_drive(&self->s_next_last_rw_n, self->s_buffered_rw_n.cur);
-                        vs_drive(&self->s_next_last_a_valid, 1);
+                        vs_drive(&self->s_next_new_acc, 0);
                         vs_drive(&self->s_next_state, 8);
+                        vs_drive(&self->s_pns, 8);
                     }
                     else
                     {
-                        vs_drive(&self->s_cpu_mrdy_fsm, 0);
-                        if ((((((int64_t) self->s_bram_wait_states.cur == INT64_C(0)) & (self->s_portb_hazard.cur == 0)) & (self->s_win_rd_hold.cur == 0)) & (((self->s_buffered_rw_n.cur == 1) | (self->s_pre_ok.cur == 1)) | (self->s_pulse_now.cur == 1))))
+                        if (((((int64_t) self->s_bram_wait_states.cur == INT64_C(0)) & (self->s_portb_hazard.cur == 0)) & (((self->s_buffered_rw_n.cur == 1) | (self->s_pre_ok.cur == 1)) | (self->s_pulse_now.cur == 1))))
                         {
                             vs_drive(&(*self->up->p_a), self->s_buffered_a.cur);
-                            vs_drive(&self->s_next_last_a, self->s_buffered_a.cur);
-                            vs_drive(&self->s_next_last_rw_n, self->s_buffered_rw_n.cur);
-                            vs_drive(&self->s_next_last_a_valid, 1);
+                            vs_drive(&self->s_next_new_acc, 0);
                             vs_drive(&self->s_next_state, 1);
+                            vs_drive(&self->s_pns, 1);
                             vs_drive(&self->s_next_bram_wait_states, (uint64_t)((INT64_C(1))));
+                            vs_drive(&self->s_pnb, (uint64_t)((INT64_C(1))));
+                            if ((((self->s_early_r.cur == 1) & (self->s_pulse_now.cur == 1)) & (self->s_buffered_rw_n.cur == 1)))
+                            {
+                                vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((INT64_C(1)) - INT64_C(1))));
+                                vs_drive(&self->s_pnb, (uint64_t)(((INT64_C(1)) - INT64_C(1))));
+                                vs_drive(&self->s_next_early_used, 1);
+                            }
                         }
                         else
                         {
                             vs_drive(&(*self->up->p_a), UINT64_C(0xFFFFFFFFF));
                             vs_drive(&self->s_next_state, 0);
+                            vs_drive(&self->s_pns, 0);
                         }
                     }
                 }
@@ -1201,146 +1239,159 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                     vs_drive(&(*self->up->p_a), UINT64_C(0xFFFFFFFFF));
                     vs_drive(&self->s_next_edge, 2);
                     vs_drive(&self->s_next_state, 0);
-                    if ((self->s_buffered_vma.cur == 0))
-                    {
-                        vs_drive(&self->s_next_last_a_valid, 0);
-                    }
+                    vs_drive(&self->s_pns, 0);
                     if (((int64_t) self->s_bram_wait_states.cur == INT64_C(0)))
                     {
-                        vs_drive(&self->s_cpu_mrdy_fsm, (self->s_local_cache_mrdy.cur & ((self->s_fill_hazard.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
                     }
                     else
                     {
-                        vs_drive(&self->s_cpu_mrdy_fsm, 0);
                     }
                 }
                 break;
             }
             case 1:
             {
-                vs_drive(&self->s_memclk_internal, (((self->s_cache_write_busy.cur & self->s_buffered_rw_n.cur) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-                vs_drive(&self->s_memclk_int_logic, (((self->s_cache_write_busy.cur & self->s_buffered_rw_n.cur) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                vs_drive(&self->s_memclk_internal, ((((self->s_cache_write_busy.cur & self->s_buffered_rw_n.cur) ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_early_used.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
+                vs_drive(&self->s_memclk_int_logic, ((((self->s_cache_write_busy.cur & self->s_buffered_rw_n.cur) ^ UINT64_C(0x1)) & UINT64_C(0x1)) & ((self->s_early_used.cur ^ UINT64_C(0x1)) & UINT64_C(0x1))));
                 vs_drive(&(*self->up->p_e), 1);
-                if ((self->s_buffered_rw_n.cur == 1))
+                vs_drive(&self->s_pns, 2);
+                if (((self->s_cacheable_l.cur == 0) & ((*self->up->p_bus_granted).cur == 1)))
                 {
+                    vs_drive(&self->s_cache_d_in, UINT64_C(0xFF));
+                    vs_drive(&self->s_cache_rw, 0);
+                    vs_drive(&self->s_tag_rw, 0);
+                    vs_drive(&self->s_cpu_d_in, UINT64_C(0xFF));
+                    vs_drive(&self->s_valid_in, 0);
+                    vs_drive(&self->s_dirty_in, UINT64_C(0x0));
+                    vs_drive(&self->s_tag_in, self->s_current_tag.cur);
                     vs_drive(&(*self->up->p_d_out), UINT64_C(0xFF));
-                    vs_drive(&self->s_tag_in, UINT64_C(0xFFFFF));
-                    self->v32_dirty_flag = 0;
-                    if ((self->up->g_ncpus > INT64_C(1)))
+                    vs_drive(&(*self->up->p_rw_n), 1);
+                    vs_drive(&self->s_vma_state, 0);
+                    vs_drive(&(*self->up->p_q), 1);
+                    vs_drive(&self->s_memclk_internal, 0);
+                    vs_drive(&self->s_memclk_int_logic, 0);
+                    vs_drive(&(*self->up->p_bus_request), 1);
+                    vs_drive(&(*self->up->p_a), self->s_buffered_a.cur);
+                    vs_drive(&self->s_next_new_acc, 0);
+                    vs_drive(&self->s_next_edge, 2);
+                    vs_drive(&self->s_next_state, 8);
+                }
+                else
+                {
+                    if ((self->s_buffered_rw_n.cur == 1))
                     {
-                        for (int64_t i_3 = INT64_C(0); i_3 <= (self->up->g_ncpus - INT64_C(1)); i_3++)
+                        vs_drive(&(*self->up->p_d_out), UINT64_C(0xFF));
+                        vs_drive(&self->s_tag_in, UINT64_C(0xFFFFF));
+                        self->v37_dirty_flag = 0;
+                        if ((self->up->g_ncpus > INT64_C(1)))
                         {
-                            if ((i_3 != self->up->g_cpu_number))
+                            for (int64_t i_1 = INT64_C(0); i_1 <= (self->up->g_ncpus - INT64_C(1)); i_1++)
                             {
-                                if ((((self->s_dirty_out.cur >> (0 - (i_3))) & 1) == 1))
+                                if ((i_1 != self->up->g_cpu_number))
                                 {
-                                    self->v32_dirty_flag = 1;
+                                    if ((((self->s_dirty_out.cur >> (0 - (i_1))) & 1) == 1))
+                                    {
+                                        self->v37_dirty_flag = 1;
+                                    }
                                 }
                             }
                         }
-                    }
-                    if ((((((self->s_current_tag.cur == self->s_tag_out.cur) & (self->s_valid_out.cur == 1)) & (self->v32_dirty_flag == 0)) & (self->s_rd_bypass.cur == 0)) & (self->s_rd_force_miss.cur == 0)))
-                    {
-                        vs_drive(&(*self->up->p_a), UINT64_C(0xFFFFFFFFF));
-                        vs_drive(&(*self->up->p_rw_n), 1);
-                        vs_drive(&self->s_cache_rw, 0);
-                        vs_drive(&self->s_tag_rw, 0);
-                        vs_drive(&self->s_cache_d_in, UINT64_C(0xFF));
-                        vs_drive(&self->s_cpu_d_in, self->s_cache_d_out.cur);
-                        vs_drive(&self->s_valid_in, self->s_valid_out.cur);
-                        vs_drive(&self->s_dirty_in, UINT64_C(0x0));
-                        vs_drive(&(*self->up->p_bus_request), 0);
-                        vs_drive(&self->s_vma_state, 0);
-                        vs_drive(&(*self->up->p_q), 1);
-                        vs_drive(&self->s_next_edge, 2);
-                        if (((int64_t) self->s_bram_wait_states.cur == INT64_C(0)))
+                        if ((((self->s_current_tag.cur == self->s_tag_out.cur) & (self->s_valid_out.cur == 1)) & (self->v37_dirty_flag == 0)))
                         {
-                            vs_drive(&self->s_cpu_mrdy_fsm, self->s_local_cache_mrdy.cur);
-                            vs_drive(&self->s_next_state, 2);
-                            vs_drive(&self->s_memclk_internal, 0);
-                            vs_drive(&self->s_memclk_int_logic, 0);
+                            vs_drive(&(*self->up->p_a), UINT64_C(0xFFFFFFFFF));
+                            vs_drive(&(*self->up->p_rw_n), 1);
+                            vs_drive(&self->s_cache_rw, 0);
+                            vs_drive(&self->s_tag_rw, 0);
+                            vs_drive(&self->s_cache_d_in, UINT64_C(0xFF));
+                            vs_drive(&self->s_cpu_d_in, self->s_cache_d_out.cur);
+                            vs_drive(&self->s_valid_in, self->s_valid_out.cur);
+                            vs_drive(&self->s_dirty_in, UINT64_C(0x0));
+                            vs_drive(&(*self->up->p_bus_request), 0);
+                            vs_drive(&self->s_vma_state, 0);
+                            vs_drive(&(*self->up->p_q), 1);
+                            vs_drive(&self->s_next_edge, 2);
+                            if (((int64_t) self->s_bram_wait_states.cur == INT64_C(0)))
+                            {
+                                vs_drive(&self->s_next_state, 2);
+                                vs_drive(&self->s_memclk_internal, 0);
+                                vs_drive(&self->s_memclk_int_logic, 0);
+                            }
+                            else
+                            {
+                                vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
+                                vs_drive(&self->s_next_state, 1);
+                            }
                         }
                         else
                         {
-                            vs_drive(&self->s_cpu_mrdy_fsm, 0);
-                            vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
-                            vs_drive(&self->s_next_state, 1);
-                        }
-                    }
-                    else
-                    {
-                        vs_drive(&(*self->up->p_a), self->s_buffered_a.cur);
-                        vs_drive(&(*self->up->p_rw_n), 1);
-                        vs_drive(&self->s_cache_rw, 0);
-                        vs_drive(&self->s_tag_rw, 0);
-                        vs_drive(&self->s_cache_d_in, UINT64_C(0xFF));
-                        vs_drive(&self->s_cpu_d_in, UINT64_C(0xFF));
-                        vs_drive(&self->s_cpu_mrdy_fsm, 0);
-                        vs_drive(&self->s_valid_in, 0);
-                        vs_drive(&self->s_dirty_in, UINT64_C(0x0));
-                        vs_drive(&(*self->up->p_bus_request), ((self->s_fic_freeze.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-                        vs_drive(&self->s_next_edge, 2);
-                        if (((int64_t) self->s_bram_wait_states.cur == INT64_C(0)))
-                        {
-                            if (((*self->up->p_bus_granted).cur == 1))
+                            vs_drive(&(*self->up->p_a), self->s_buffered_a.cur);
+                            vs_drive(&(*self->up->p_rw_n), 1);
+                            vs_drive(&self->s_cache_rw, 0);
+                            vs_drive(&self->s_tag_rw, 0);
+                            vs_drive(&self->s_cache_d_in, UINT64_C(0xFF));
+                            vs_drive(&self->s_cpu_d_in, UINT64_C(0xFF));
+                            vs_drive(&self->s_valid_in, 0);
+                            vs_drive(&self->s_dirty_in, UINT64_C(0x0));
+                            vs_drive(&(*self->up->p_bus_request), 1);
+                            vs_drive(&self->s_next_edge, 2);
+                            if (((int64_t) self->s_bram_wait_states.cur == INT64_C(0)))
                             {
-                                if ((self->s_cacheable_l.cur == 1))
+                                if (((*self->up->p_bus_granted).cur == 1))
                                 {
-                                    vs_drive(&self->s_vma_state, 1);
-                                    vs_drive(&(*self->up->p_q), 0);
-                                    vs_drive(&self->s_next_state, 4);
-                                    vs_drive(&self->s_next_bram_wait_states, (uint64_t)(INT64_C(0)));
+                                    if ((self->s_cacheable_l.cur == 1))
+                                    {
+                                        vs_drive(&self->s_vma_state, 1);
+                                        vs_drive(&(*self->up->p_q), 0);
+                                        vs_drive(&self->s_next_state, 4);
+                                        vs_drive(&self->s_next_bram_wait_states, (uint64_t)(INT64_C(0)));
+                                    }
+                                    else
+                                    {
+                                        vs_drive(&self->s_vma_state, 1);
+                                        vs_drive(&(*self->up->p_q), 0);
+                                        vs_drive(&self->s_next_state, 8);
+                                    }
                                 }
                                 else
                                 {
-                                    vs_drive(&self->s_vma_state, 1);
-                                    vs_drive(&(*self->up->p_q), 0);
-                                    vs_drive(&self->s_next_state, 8);
+                                    vs_drive(&self->s_vma_state, 0);
+                                    vs_drive(&(*self->up->p_q), 1);
+                                    vs_drive(&self->s_next_state, 1);
                                 }
                             }
                             else
                             {
                                 vs_drive(&self->s_vma_state, 0);
                                 vs_drive(&(*self->up->p_q), 1);
+                                vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
                                 vs_drive(&self->s_next_state, 1);
                             }
                         }
-                        else
-                        {
-                            vs_drive(&self->s_vma_state, 0);
-                            vs_drive(&(*self->up->p_q), 1);
-                            vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
-                            vs_drive(&self->s_next_state, 1);
-                        }
-                    }
-                }
-                else
-                {
-                    vs_drive(&(*self->up->p_a), self->s_buffered_a.cur);
-                    vs_drive(&(*self->up->p_rw_n), 0);
-                    vs_drive(&(*self->up->p_d_out), self->s_buffered_d.cur);
-                    vs_drive(&self->s_cpu_d_in, UINT64_C(0xFF));
-                    vs_drive(&self->s_cache_d_in, self->s_buffered_d.cur);
-                    vs_drive(&self->s_cache_rw, 1);
-                    vs_drive(&self->s_valid_in, self->s_cacheable_l.cur);
-                    vs_drive(&self->s_dirty_in, UINT64_C(0x0));
-                    vs_drive(&self->s_tag_in, self->s_current_tag.cur);
-                    vs_drive(&self->s_cpu_mrdy_fsm, 0);
-                    vs_drive(&self->s_memclk_internal, 0);
-                    vs_drive(&self->s_memclk_int_logic, 0);
-                    if (((self->s_current_tag.cur == self->s_tag_out.cur) & (self->s_valid_out.cur == 1)))
-                    {
-                        vs_drive(&self->s_tag_rw, 0);
                     }
                     else
                     {
-                        vs_drive(&self->s_tag_rw, 1);
-                    }
-                    if (((int64_t) self->s_bram_wait_states.cur == INT64_C(0)))
-                    {
-                        if (((((self->s_my_invalidation_still_pending.cur == 0) | ((*self->up->p_fic).cur == 0)) & (self->s_my_invalidation_strict_wait.cur == 0)) & (self->s_win_wr_hold.cur == 0)))
+                        vs_drive(&(*self->up->p_a), self->s_buffered_a.cur);
+                        vs_drive(&(*self->up->p_rw_n), 0);
+                        vs_drive(&(*self->up->p_d_out), self->s_buffered_d.cur);
+                        vs_drive(&self->s_cpu_d_in, UINT64_C(0xFF));
+                        vs_drive(&self->s_cache_d_in, self->s_buffered_d.cur);
+                        vs_drive(&self->s_cache_rw, 1);
+                        vs_drive(&self->s_valid_in, self->s_cacheable_l.cur);
+                        vs_drive(&self->s_dirty_in, UINT64_C(0x0));
+                        vs_drive(&self->s_tag_in, self->s_current_tag.cur);
+                        vs_drive(&self->s_memclk_internal, 0);
+                        vs_drive(&self->s_memclk_int_logic, 0);
+                        if (((self->s_current_tag.cur == self->s_tag_out.cur) & (self->s_valid_out.cur == 1)))
                         {
-                            vs_drive(&(*self->up->p_bus_request), ((self->s_fic_freeze.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                            vs_drive(&self->s_tag_rw, 0);
+                        }
+                        else
+                        {
+                            vs_drive(&self->s_tag_rw, 1);
+                        }
+                        if (((int64_t) self->s_bram_wait_states.cur == INT64_C(0)))
+                        {
+                            vs_drive(&(*self->up->p_bus_request), 1);
                             if (((*self->up->p_bus_granted).cur == 1))
                             {
                                 if ((self->s_cacheable_l.cur == 1))
@@ -1373,44 +1424,27 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                         }
                         else
                         {
-                            if ((((((self->s_my_invalidation_still_pending_prev.cur == 0) | ((*self->up->p_fic).cur == 0)) & (self->s_my_invalidation_strict_wait_prev.cur == 0)) & (self->s_my_parked_stalled_block.cur == 0)) & (self->s_win_wr_hold.cur == 0)))
-                            {
-                                vs_drive(&(*self->up->p_bus_request), 1);
-                            }
-                            else
-                            {
-                                vs_drive(&(*self->up->p_bus_request), 0);
-                            }
+                            vs_drive(&(*self->up->p_bus_request), 1);
+                            vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
                             vs_drive(&self->s_vma_state, 0);
                             vs_drive(&(*self->up->p_q), 1);
                             vs_drive(&self->s_next_edge, 2);
                             vs_drive(&self->s_next_state, 1);
                         }
                     }
-                    else
+                    if (((self->s_cache_write_busy.cur == 1) & (self->s_buffered_rw_n.cur == 1)))
                     {
-                        vs_drive(&(*self->up->p_bus_request), ((self->s_fic_freeze.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
-                        vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
-                        vs_drive(&self->s_vma_state, 0);
-                        vs_drive(&(*self->up->p_q), 1);
-                        vs_drive(&self->s_next_edge, 2);
                         vs_drive(&self->s_next_state, 1);
+                        vs_drive(&self->s_next_bram_wait_states, (uint64_t)((int64_t) self->s_bram_wait_states.cur));
+                        vs_drive(&self->s_memclk_internal, 0);
+                        vs_drive(&self->s_memclk_int_logic, 0);
+                        vs_drive(&self->s_next_edge, 2);
                     }
-                }
-                if (((self->s_cache_write_busy.cur == 1) & (self->s_buffered_rw_n.cur == 1)))
-                {
-                    vs_drive(&self->s_next_state, 1);
-                    vs_drive(&self->s_next_bram_wait_states, (uint64_t)((int64_t) self->s_bram_wait_states.cur));
-                    vs_drive(&self->s_cpu_mrdy_fsm, 0);
-                    vs_drive(&self->s_memclk_internal, 0);
-                    vs_drive(&self->s_memclk_int_logic, 0);
-                    vs_drive(&self->s_next_edge, 2);
                 }
                 break;
             }
             case 8:
             {
-                vs_drive(&self->s_cpu_mrdy_fsm, (self->s_mrdy_l.cur & self->s_local_cache_mrdy.cur));
                 vs_drive(&(*self->up->p_rw_n), self->s_buffered_rw_n.cur);
                 vs_drive(&(*self->up->p_a), self->s_buffered_a.cur);
                 vs_drive(&(*self->up->p_q), 0);
@@ -1440,11 +1474,13 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                     if ((self->s_mrdy_l.cur == 1))
                     {
                         vs_drive(&self->s_next_state, 9);
+                        vs_drive(&self->s_pns, 9);
                         vs_drive(&(*self->up->p_e), 1);
                     }
                     else
                     {
                         vs_drive(&self->s_next_state, 8);
+                        vs_drive(&self->s_pns, 8);
                         vs_drive(&(*self->up->p_e), 0);
                     }
                 }
@@ -1452,12 +1488,12 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                 {
                     vs_drive(&(*self->up->p_e), 1);
                     vs_drive(&self->s_next_state, 8);
+                    vs_drive(&self->s_pns, 8);
                 }
                 break;
             }
             case 9:
             {
-                vs_drive(&self->s_cpu_mrdy_fsm, (self->s_mrdy_l.cur & self->s_local_cache_mrdy.cur));
                 vs_drive(&(*self->up->p_rw_n), self->s_buffered_rw_n.cur);
                 vs_drive(&(*self->up->p_a), self->s_buffered_a.cur);
                 vs_drive(&(*self->up->p_q), 1);
@@ -1485,6 +1521,7 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                 vs_drive(&(*self->up->p_bus_request), 0);
                 vs_drive(&self->s_next_edge, 0);
                 vs_drive(&self->s_next_state, 0);
+                vs_drive(&self->s_pns, 0);
                 break;
             }
             case 2:
@@ -1502,18 +1539,11 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                 vs_drive(&(*self->up->p_e), 1);
                 vs_drive(&self->s_memclk_internal, 0);
                 vs_drive(&self->s_memclk_int_logic, 0);
-                if ((self->s_moved_on.cur == 0))
-                {
-                    vs_drive(&self->s_cpu_mrdy_fsm, self->s_local_cache_mrdy.cur);
-                }
-                else
-                {
-                    vs_drive(&self->s_cpu_mrdy_fsm, 0);
-                }
                 vs_drive(&(*self->up->p_bus_request), 0);
                 vs_drive(&self->s_vma_state, 0);
                 vs_drive(&(*self->up->p_q), 1);
                 vs_drive(&self->s_next_state, 3);
+                vs_drive(&self->s_pns, 3);
                 vs_drive(&self->s_next_edge, 2);
                 break;
             }
@@ -1532,18 +1562,11 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                 vs_drive(&(*self->up->p_e), 1);
                 vs_drive(&self->s_memclk_internal, 0);
                 vs_drive(&self->s_memclk_int_logic, 0);
-                if ((self->s_moved_on.cur == 0))
-                {
-                    vs_drive(&self->s_cpu_mrdy_fsm, self->s_local_cache_mrdy.cur);
-                }
-                else
-                {
-                    vs_drive(&self->s_cpu_mrdy_fsm, 0);
-                }
                 vs_drive(&(*self->up->p_bus_request), 0);
                 vs_drive(&self->s_vma_state, 0);
                 vs_drive(&(*self->up->p_q), 1);
                 vs_drive(&self->s_next_state, 0);
+                vs_drive(&self->s_pns, 0);
                 if ((self->s_cpu_e_l.cur == 1))
                 {
                     vs_drive(&self->s_next_edge, 3);
@@ -1568,7 +1591,6 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                 vs_drive(&self->s_tag_in, self->s_current_tag.cur);
                 vs_drive(&self->s_valid_in, self->s_cacheable_l.cur);
                 vs_drive(&self->s_dirty_in, UINT64_C(0x0));
-                vs_drive(&self->s_cpu_mrdy_fsm, 0);
                 vs_drive(&(*self->up->p_e), 0);
                 vs_drive(&self->s_cache_rw, 1);
                 vs_drive(&self->s_tag_rw, 0);
@@ -1583,7 +1605,9 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                     {
                         vs_drive(&self->s_next_edge, 2);
                         vs_drive(&self->s_next_bram_wait_states, (uint64_t)(INT64_C(0)));
+                        vs_drive(&self->s_pnb, (uint64_t)(INT64_C(0)));
                         vs_drive(&self->s_next_state, 5);
+                        vs_drive(&self->s_pns, 5);
                         vs_drive(&self->s_next_cache_write_clk, 1);
                         vs_drive(&self->s_next_cache_write_clk_count, (uint64_t)((INT64_C(1))));
                         vs_drive(&self->s_next_tag_write_clk, 1);
@@ -1593,13 +1617,16 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                     {
                         vs_drive(&self->s_next_edge, 2);
                         vs_drive(&self->s_next_state, 4);
+                        vs_drive(&self->s_pns, 4);
                     }
                 }
                 else
                 {
                     vs_drive(&self->s_next_edge, 2);
                     vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
+                    vs_drive(&self->s_pnb, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
                     vs_drive(&self->s_next_state, 4);
+                    vs_drive(&self->s_pns, 4);
                 }
                 break;
             }
@@ -1634,26 +1661,21 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                 vs_drive(&(*self->up->p_e), 0);
                 vs_drive(&self->s_memclk_internal, 0);
                 vs_drive(&self->s_memclk_int_logic, 0);
-                vs_drive(&(*self->up->p_bus_request), (((self->s_fic_freeze.cur & self->s_alloc_held.cur) ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                vs_drive(&(*self->up->p_bus_request), 1);
                 if (((int64_t) self->s_bram_wait_states.cur != INT64_C(0)))
                 {
-                    vs_drive(&self->s_cpu_mrdy_fsm, 0);
                     vs_drive(&self->s_next_state, 5);
+                    vs_drive(&self->s_pns, 5);
                     vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
+                    vs_drive(&self->s_pnb, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
                     vs_drive(&self->s_next_edge, 2);
                 }
                 else
                 {
                     vs_drive(&self->s_next_state, 0);
+                    vs_drive(&self->s_pns, 0);
                     vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((INT64_C(2)) + INT64_C(1))));
-                    if ((self->s_moved_on.cur == 0))
-                    {
-                        vs_drive(&self->s_cpu_mrdy_fsm, self->s_local_cache_mrdy.cur);
-                    }
-                    else
-                    {
-                        vs_drive(&self->s_cpu_mrdy_fsm, 0);
-                    }
+                    vs_drive(&self->s_pnb, (uint64_t)(((INT64_C(2)) + INT64_C(1))));
                     if ((self->s_moved_on.cur == 0))
                     {
                         vs_drive(&self->s_next_edge, 0);
@@ -1676,7 +1698,6 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                 vs_drive(&(*self->up->p_a), self->s_buffered_a.cur);
                 vs_drive(&self->s_vma_state, 1);
                 vs_drive(&(*self->up->p_q), 0);
-                vs_drive(&self->s_cpu_mrdy_fsm, 0);
                 vs_drive(&self->s_cache_rw, 1);
                 vs_drive(&self->s_tag_rw, 0);
                 vs_drive(&(*self->up->p_e), 1);
@@ -1688,11 +1709,14 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                 if (((int64_t) self->s_bram_wait_states.cur == INT64_C(0)))
                 {
                     vs_drive(&self->s_next_state, 7);
+                    vs_drive(&self->s_pns, 7);
                 }
                 else
                 {
                     vs_drive(&self->s_next_state, 6);
+                    vs_drive(&self->s_pns, 6);
                     vs_drive(&self->s_next_bram_wait_states, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
+                    vs_drive(&self->s_pnb, (uint64_t)(((int64_t) self->s_bram_wait_states.cur - INT64_C(1))));
                 }
                 break;
             }
@@ -1708,7 +1732,6 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                 vs_drive(&self->s_dirty_in, UINT64_C(0x0));
                 vs_drive(&self->s_cache_rw, 1);
                 vs_drive(&self->s_tag_rw, 0);
-                vs_drive(&self->s_cpu_mrdy_fsm, (self->s_mrdy_l.cur & self->s_local_cache_mrdy.cur));
                 vs_drive(&(*self->up->p_e), 0);
                 vs_drive(&self->s_memclk_internal, 0);
                 vs_drive(&self->s_memclk_int_logic, 0);
@@ -1718,6 +1741,7 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                     vs_drive(&self->s_vma_state, 0);
                     vs_drive(&(*self->up->p_q), 1);
                     vs_drive(&self->s_next_state, 0);
+                    vs_drive(&self->s_pns, 0);
                     vs_drive(&self->s_next_edge, 0);
                 }
                 else
@@ -1726,6 +1750,7 @@ static void dmc_63f41_n1_g0_p32(void *inst)
                     vs_drive(&self->s_vma_state, 1);
                     vs_drive(&(*self->up->p_q), 0);
                     vs_drive(&self->s_next_state, 7);
+                    vs_drive(&self->s_pns, 7);
                     vs_drive(&self->s_next_edge, 2);
                 }
                 break;
@@ -1734,14 +1759,14 @@ static void dmc_63f41_n1_g0_p32(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p33(void *inst)
+static void dmc_63f41_n1_g0_p38(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if (((((self->s_buffered_a.cur >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFF)) | (((self->s_buffered_a.cur >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFC))))
+    if ((self->s_ba_rgn_c.cur == 1))
     {
         vs_drive(&self->s_cacheable_l, 1);
     }
-    else if (((((self->s_buffered_a.cur >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFE)) | (((self->s_buffered_a.cur >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFD))))
+    else if ((self->s_ba_rgn_n.cur == 1))
     {
         vs_drive(&self->s_cacheable_l, 0);
     }
@@ -1751,18 +1776,18 @@ static void dmc_63f41_n1_g0_p33(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p34(void *inst)
+static void dmc_63f41_n1_g0_p39(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if (((*self->up->p_bus_granted).cur == 0))
     {
         vs_drive(&self->s_mrdy_l, 1);
     }
-    else if ((f_mrdy_source_0(self, self->s_buffered_a.cur) == INT64_C(1)))
+    else if (((int64_t) self->s_mrdy_src_r.cur == INT64_C(1)))
     {
         vs_drive(&self->s_mrdy_l, (*self->up->p_mrdy_eprom).cur);
     }
-    else if ((f_mrdy_source_0(self, self->s_buffered_a.cur) == INT64_C(2)))
+    else if (((int64_t) self->s_mrdy_src_r.cur == INT64_C(2)))
     {
         vs_drive(&self->s_mrdy_l, (*self->up->p_mrdy_ext).cur);
     }
@@ -1772,23 +1797,10 @@ static void dmc_63f41_n1_g0_p34(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p35(void *inst)
+static void dmc_63f41_n1_g0_p40(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
-    if ((vs_falling(&(*self->up->p_extal)) & ((*self->up->p_reset_n).cur == 1)))
-    {
-        if (((((*self->up->p_bus_granted).cur == 1) & ((*self->up->p_a).cur == self->s_buffered_a.cur)) & (self->s_buffered_vma.cur == 1)))
-        {
-            /* assert */
-            /* assert */
-        }
-    }
-}
-
-static void dmc_63f41_n1_g0_p36(void *inst)
-{
-    dmc_63f41_n1_g0 *self = inst;
-    if (((self->s_local_cache_mrdy.cur == 1) | ((self->s_cache_mrdy.cur == 1) & (((uint32_t) self->s_state.cur == 4) | ((uint32_t) self->s_state.cur == 6)))))
+    if ((((self->s_local_cache_mrdy.cur == 1) | ((uint32_t) self->s_state.cur == 4)) | ((uint32_t) self->s_state.cur == 6)))
     {
         vs_drive(&self->s_state_run, 1);
     }
@@ -1798,7 +1810,95 @@ static void dmc_63f41_n1_g0_p36(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p37(void *inst)
+static void dmc_63f41_n1_g0_p41(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    if (((int64_t) self->s_bram_wait_states.cur == INT64_C(0)))
+    {
+        vs_drive(&self->s_mr_bw0, 1);
+    }
+    else
+    {
+        vs_drive(&self->s_mr_bw0, 0);
+    }
+}
+
+static void dmc_63f41_n1_g0_p42(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    self->v42_d = 0;
+    if ((self->up->g_ncpus > INT64_C(1)))
+    {
+        for (int64_t i_3 = INT64_C(0); i_3 <= (self->up->g_ncpus - INT64_C(1)); i_3++)
+        {
+            if (((i_3 != self->up->g_cpu_number) & (((self->s_dirty_out.cur >> (0 - (i_3))) & 1) == 1)))
+            {
+                self->v42_d = 1;
+            }
+        }
+    }
+    vs_drive(&self->s_mr_dirty_any, self->v42_d);
+}
+
+static void dmc_63f41_n1_g0_p43(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    if ((((self->s_current_tag.cur == self->s_tag_out.cur) & (self->s_valid_out.cur == 1)) & (self->s_mr_dirty_any.cur == 0)))
+    {
+        vs_drive(&self->s_mr_hit, 1);
+    }
+    else
+    {
+        vs_drive(&self->s_mr_hit, 0);
+    }
+}
+
+static void dmc_63f41_n1_g0_p44(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    if ((((((self->s_cacheable_l.cur == 0) & ((*self->up->p_bus_granted).cur == 1)) & ((int64_t) self->s_bram_wait_states.cur == INT64_C(0))) & (self->s_portb_hazard.cur == 0)) & (((self->s_buffered_rw_n.cur == 1) | (self->s_pre_ok.cur == 1)) | (self->s_pulse_now.cur == 1))))
+    {
+        vs_drive(&self->s_mr_ufast, 1);
+    }
+    else
+    {
+        vs_drive(&self->s_mr_ufast, 0);
+    }
+}
+
+static void dmc_63f41_n1_g0_p45(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    if (((*self->up->p_reset_n).cur == 0))
+    {
+        vs_drive(&self->s_lcm_r, 1);
+        vs_drive(&self->s_fh_r, 0);
+        vs_drive(&self->s_mrl_r, 1);
+        vs_drive(&self->s_cpu_mrdy_fsm_r, 1);
+    }
+    else if (vs_rising(&(*self->up->p_extal)))
+    {
+        vs_drive(&self->s_lcm_r, self->s_local_cache_mrdy.cur);
+        vs_drive(&self->s_fh_r, self->s_fill_hazard.cur);
+        vs_drive(&self->s_mrl_r, self->s_mrdy_l.cur);
+        vs_drive(&self->s_cpu_mrdy_fsm_r, self->s_cpu_mrdy_d.cur);
+    }
+}
+
+static void dmc_63f41_n1_g0_p46(void *inst)
+{
+    dmc_63f41_n1_g0 *self = inst;
+    if (((*self->up->p_reset_n).cur == 0))
+    {
+        vs_drive(&self->s_cpu_mrdy_fsm, 1);
+    }
+    else
+    {
+        vs_drive(&self->s_cpu_mrdy_fsm, f_moore_0(self, (uint32_t) self->s_state.cur, self->s_mr_bw0.cur, self->s_buffered_vma.cur, self->s_new_acc.cur, self->s_fh_r.cur, self->s_mr_ufast.cur, self->s_buffered_rw_n.cur, self->s_mrl_r.cur, (self->s_lcm_r.cur | self->s_local_cache_mrdy.cur), self->s_mr_hit.cur, self->s_moved_on.cur, self->s_cache_write_busy.cur));
+    }
+}
+
+static void dmc_63f41_n1_g0_p47(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     vs_drive(&self->s_next_alloc_data, self->s_alloc_data.cur);
@@ -1824,7 +1924,7 @@ static void dmc_63f41_n1_g0_p37(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p38(void *inst)
+static void dmc_63f41_n1_g0_p48(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1851,7 +1951,7 @@ static void dmc_63f41_n1_g0_p38(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p39(void *inst)
+static void dmc_63f41_n1_g0_p49(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if (((*self->up->p_reset_n).cur == 0))
@@ -1868,7 +1968,7 @@ static void dmc_63f41_n1_g0_p39(void *inst)
     }
 }
 
-static void dmc_63f41_n1_g0_p40(void *inst)
+static void dmc_63f41_n1_g0_p50(void *inst)
 {
     dmc_63f41_n1_g0 *self = inst;
     if (((self->s_vma_state.cur == 1) | (((*self->up->p_bus_granted).cur == 1) & ((*self->up->p_a).cur != UINT64_C(0xFFFFFFFFF)))))
@@ -1899,26 +1999,12 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_current_block, path, "current_block", 16);
     vs_register_signal(k, &self->s_cache_rw, (uint64_t) (0));
     vs_name(k, &self->s_cache_rw, path, "cache_rw", 1);
-    vs_register_signal(k, &self->s_cache_mrdy, (uint64_t) (0));
-    vs_name(k, &self->s_cache_mrdy, path, "cache_mrdy", 1);
     vs_register_signal(k, &self->s_local_cache_mrdy, (uint64_t) (0));
     vs_name(k, &self->s_local_cache_mrdy, path, "local_cache_mrdy", 1);
-    vs_register_signal(k, &self->s_fic_freeze, (uint64_t) (0));
-    vs_name(k, &self->s_fic_freeze, path, "fic_freeze", 1);
-    vs_register_signal(k, &self->s_tfm_mode_i, (uint64_t) (0));
-    vs_name(k, &self->s_tfm_mode_i, path, "tfm_mode_i", 2);
-    vs_register_signal(k, &self->s_tfm_count_i, (uint64_t) (0));
-    vs_name(k, &self->s_tfm_count_i, path, "tfm_count_i", 16);
-    vs_register_signal(k, &self->s_win_rd_hold, (uint64_t) (0));
-    vs_name(k, &self->s_win_rd_hold, path, "win_rd_hold", 1);
-    vs_register_signal(k, &self->s_win_wr_hold, (uint64_t) (0));
-    vs_name(k, &self->s_win_wr_hold, path, "win_wr_hold", 1);
-    vs_register_signal(k, &self->s_rd_bypass, (uint64_t) (0));
-    vs_name(k, &self->s_rd_bypass, path, "rd_bypass", 1);
-    vs_register_signal(k, &self->s_rd_force_miss, (uint64_t) (0));
-    vs_name(k, &self->s_rd_force_miss, path, "rd_force_miss", 1);
     vs_register_signal(k, &self->s_peer_write_same, (uint64_t) (0));
     vs_name(k, &self->s_peer_write_same, path, "peer_write_same", 1);
+    vs_register_signal(k, &self->s_pws_r, (uint64_t) (0));
+    vs_name(k, &self->s_pws_r, path, "pws_r", 1);
     vs_register_signal(k, &self->s_state_run, (uint64_t) (0));
     vs_name(k, &self->s_state_run, path, "state_run", 1);
     vs_register_signal(k, &self->s_alloc_data, (uint64_t) (0));
@@ -1939,20 +2025,6 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_next_alloc_held, path, "next_alloc_held", 1);
     vs_register_signal(k, &self->s_next_wt2_1, (uint64_t) (0));
     vs_name(k, &self->s_next_wt2_1, path, "next_wt2_1", 1);
-    vs_register_signal(k, &self->s_my_invalidation_still_pending, (uint64_t) (0));
-    vs_name(k, &self->s_my_invalidation_still_pending, path, "my_invalidation_still_pending", 1);
-    vs_register_signal(k, &self->s_my_invalidation_strict_wait, (uint64_t) (0));
-    vs_name(k, &self->s_my_invalidation_strict_wait, path, "my_invalidation_strict_wait", 1);
-    vs_register_signal(k, &self->s_my_invalidation_still_pending_prev, (uint64_t) (0));
-    vs_name(k, &self->s_my_invalidation_still_pending_prev, path, "my_invalidation_still_pending_prev", 1);
-    vs_register_signal(k, &self->s_my_invalidation_strict_wait_prev, (uint64_t) (0));
-    vs_name(k, &self->s_my_invalidation_strict_wait_prev, path, "my_invalidation_strict_wait_prev", 1);
-    vs_register_signal(k, &self->s_my_parked_stalled_block, (uint64_t) (0));
-    vs_name(k, &self->s_my_parked_stalled_block, path, "my_parked_stalled_block", 1);
-    vs_register_signal(k, &self->s_source_safe, (uint64_t) (0));
-    vs_name(k, &self->s_source_safe, path, "source_safe", 1);
-    vs_register_signal(k, &self->s_all_sources_safe, (uint64_t) (0));
-    vs_name(k, &self->s_all_sources_safe, path, "all_sources_safe", 1);
     vs_register_signal(k, &self->s_cache_d_in, (uint64_t) (0));
     vs_name(k, &self->s_cache_d_in, path, "cache_d_in", 8);
     vs_register_signal(k, &self->s_cache_d_out, (uint64_t) (0));
@@ -1973,20 +2045,14 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_state, path, "state", 32);
     vs_register_signal(k, &self->s_next_state, (uint64_t) (0));
     vs_name(k, &self->s_next_state, path, "next_state", 32);
+    vs_register_signal(k, &self->s_pns, (uint64_t) (0));
+    vs_name(k, &self->s_pns, path, "pns", 32);
     vs_register_signal(k, &self->s_next_edge, (uint64_t) (1));
     vs_name(k, &self->s_next_edge, path, "next_edge", 32);
-    vs_register_signal(k, &self->s_last_a, (uint64_t) (0));
-    vs_name(k, &self->s_last_a, path, "last_a", 36);
-    vs_register_signal(k, &self->s_last_rw_n, (uint64_t) (0));
-    vs_name(k, &self->s_last_rw_n, path, "last_rw_n", 1);
-    vs_register_signal(k, &self->s_last_a_valid, (uint64_t) (0));
-    vs_name(k, &self->s_last_a_valid, path, "last_a_valid", 1);
-    vs_register_signal(k, &self->s_next_last_a, (uint64_t) (0));
-    vs_name(k, &self->s_next_last_a, path, "next_last_a", 36);
-    vs_register_signal(k, &self->s_next_last_rw_n, (uint64_t) (0));
-    vs_name(k, &self->s_next_last_rw_n, path, "next_last_rw_n", 1);
-    vs_register_signal(k, &self->s_next_last_a_valid, (uint64_t) (0));
-    vs_name(k, &self->s_next_last_a_valid, path, "next_last_a_valid", 1);
+    vs_register_signal(k, &self->s_new_acc, (uint64_t) (1));
+    vs_name(k, &self->s_new_acc, path, "new_acc", 1);
+    vs_register_signal(k, &self->s_next_new_acc, (uint64_t) (0));
+    vs_name(k, &self->s_next_new_acc, path, "next_new_acc", 1);
     vs_register_signal(k, &self->s_cpu_mrdy, (uint64_t) (0));
     vs_name(k, &self->s_cpu_mrdy, path, "cpu_mrdy", 1);
     vs_register_signal(k, &self->s_cpu_rw_n, (uint64_t) (0));
@@ -1999,14 +2065,32 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_cpu_d_out, path, "cpu_d_out", 8);
     vs_register_signal(k, &self->s_cpu_vma, (uint64_t) (0));
     vs_name(k, &self->s_cpu_vma, path, "cpu_vma", 1);
+    vs_register_signal(k, &self->s_quiet_i, (uint64_t) (0));
+    vs_name(k, &self->s_quiet_i, path, "quiet_i", 1);
+    vs_register_signal(k, &self->s_quiet_r, (uint64_t) (0));
+    vs_name(k, &self->s_quiet_r, path, "quiet_r", 1);
+    vs_register_signal(k, &self->s_lock_granted_s, (uint64_t) (0));
+    vs_name(k, &self->s_lock_granted_s, path, "lock_granted_s", 1);
+    vs_register_signal(k, &self->s_e_rising_d, (uint64_t) (0));
+    vs_name(k, &self->s_e_rising_d, path, "e_rising_d", 1);
     vs_register_signal(k, &self->s_cpu_vma_raw, (uint64_t) (0));
     vs_name(k, &self->s_cpu_vma_raw, path, "cpu_vma_raw", 1);
+    vs_register_signal(k, &self->s_cpu_mrdy_d_old, (uint64_t) (0));
+    vs_name(k, &self->s_cpu_mrdy_d_old, path, "cpu_mrdy_d_old", 1);
     vs_register_signal(k, &self->s_cpu_waiting, (uint64_t) (0));
     vs_name(k, &self->s_cpu_waiting, path, "cpu_waiting", 1);
     vs_register_signal(k, &self->s_buffered_a, (uint64_t) (0));
     vs_name(k, &self->s_buffered_a, path, "buffered_a", 36);
     vs_register_signal(k, &self->s_cacheable_l, (uint64_t) (0));
     vs_name(k, &self->s_cacheable_l, path, "cacheable_l", 1);
+    vs_register_signal(k, &self->s_ba_rgn_c, (uint64_t) (0));
+    vs_name(k, &self->s_ba_rgn_c, path, "ba_rgn_c", 1);
+    vs_register_signal(k, &self->s_ba_rgn_n, (uint64_t) (0));
+    vs_name(k, &self->s_ba_rgn_n, path, "ba_rgn_n", 1);
+    vs_register_signal(k, &self->s_mrdy_src_r, (uint64_t) (INT64_C(1)));
+    vs_name(k, &self->s_mrdy_src_r, path, "mrdy_src_r", 64);
+    vs_register_signal(k, &self->s_ba_fresh, (uint64_t) (0));
+    vs_name(k, &self->s_ba_fresh, path, "ba_fresh", 1);
     vs_register_signal(k, &self->s_mrdy_l, (uint64_t) (0));
     vs_name(k, &self->s_mrdy_l, path, "mrdy_l", 1);
     vs_register_signal(k, &self->s_buffered_rw_n, (uint64_t) (0));
@@ -2017,25 +2101,17 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_buffered_d, path, "buffered_d", 8);
     vs_register_signal(k, &self->s_moved_on, (uint64_t) (0));
     vs_name(k, &self->s_moved_on, path, "moved_on", 1);
-    vs_register_signal(k, &self->s_ticks_since_e, (uint64_t) (INT64_C(0)));
-    vs_name(k, &self->s_ticks_since_e, path, "ticks_since_e", 64);
-    vs_register_signal(k, &self->s_captured, (uint64_t) (0));
-    vs_name(k, &self->s_captured, path, "captured", 1);
+    vs_register_signal(k, &self->s_mmu_vma, (uint64_t) (0));
+    vs_name(k, &self->s_mmu_vma, path, "mmu_vma", 1);
     vs_register_signal(k, &self->s_capture_strobe, (uint64_t) (0));
     vs_name(k, &self->s_capture_strobe, path, "capture_strobe", 1);
-    vs_register_signal(k, &self->s_early_stall, (uint64_t) (0));
-    vs_name(k, &self->s_early_stall, path, "early_stall", 1);
     vs_register_signal(k, &self->s_cpu_mrdy_fsm, (uint64_t) (0));
     vs_name(k, &self->s_cpu_mrdy_fsm, path, "cpu_mrdy_fsm", 1);
-    vs_register_signal(k, &self->s_cpu_mrdy_fsm_r, (uint64_t) (1));
-    vs_name(k, &self->s_cpu_mrdy_fsm_r, path, "cpu_mrdy_fsm_r", 1);
-    vs_register_signal(k, &self->s_mmu_tr_wait, (uint64_t) (0));
-    vs_name(k, &self->s_mmu_tr_wait, path, "mmu_tr_wait", 1);
     vs_register_signal(k, &self->s_vma_state, (uint64_t) (0));
     vs_name(k, &self->s_vma_state, path, "vma_state", 1);
     vs_register_signal(k, &self->s_dirty_rw, (uint64_t) (0));
     vs_name(k, &self->s_dirty_rw, path, "dirty_rw", 1);
-    std_logic_matrix_5_register(k, &self->s_dirty_block, std_logic_matrix_5_zero());
+    std_logic_matrix_3_register(k, &self->s_dirty_block, std_logic_matrix_3_zero());
     vs_register_signal(k, &self->s_x_dirty_block, (uint64_t) (0));
     vs_name(k, &self->s_x_dirty_block, path, "x_dirty_block", 16);
     vs_register_signal(k, &self->s_tag_dirty_out, (uint64_t) (0));
@@ -2060,8 +2136,6 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_valid_64k_write_clk, path, "valid_64k_write_clk", 1);
     vs_register_signal(k, &self->s_valid_64k_write_enable, (uint64_t) (0));
     vs_name(k, &self->s_valid_64k_write_enable, path, "valid_64k_write_enable", 1);
-    vs_register_signal(k, &self->s_fl_we, (uint64_t) (0));
-    vs_name(k, &self->s_fl_we, path, "fl_we", 1);
     vs_register_signal(k, &self->s_valid_64k_address2, (uint64_t) (0));
     vs_name(k, &self->s_valid_64k_address2, path, "valid_64k_address2", 16);
     vs_register_signal(k, &self->s_valid_64k_valid_addr, (uint64_t) (0));
@@ -2074,20 +2148,28 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_wr_force_r, path, "wr_force_r", 1);
     vs_register_signal(k, &self->s_pre_read, (uint64_t) (0));
     vs_name(k, &self->s_pre_read, path, "pre_read", 1);
-    vs_register_signal(k, &self->s_pre_a, (uint64_t) (UINT64_C(0xFFFFFFFFF)));
-    vs_name(k, &self->s_pre_a, path, "pre_a", 36);
     vs_register_signal(k, &self->s_pre_ok, (uint64_t) (0));
     vs_name(k, &self->s_pre_ok, path, "pre_ok", 1);
     vs_register_signal(k, &self->s_pulse_now, (uint64_t) (0));
     vs_name(k, &self->s_pulse_now, path, "pulse_now", 1);
+    vs_register_signal(k, &self->s_early_r, (uint64_t) (0));
+    vs_name(k, &self->s_early_r, path, "early_r", 1);
+    vs_register_signal(k, &self->s_early_used, (uint64_t) (0));
+    vs_name(k, &self->s_early_used, path, "early_used", 1);
+    vs_register_signal(k, &self->s_next_early_used, (uint64_t) (0));
+    vs_name(k, &self->s_next_early_used, path, "next_early_used", 1);
     vs_register_signal(k, &self->s_portb_hazard, (uint64_t) (0));
     vs_name(k, &self->s_portb_hazard, path, "portb_hazard", 1);
+    vs_register_signal(k, &self->s_xd_same_hist, (uint64_t) (0));
+    vs_name(k, &self->s_xd_same_hist, path, "xd_same_hist", 1);
+    vs_register_signal(k, &self->s_xd_clash_next, (uint64_t) (0));
+    vs_name(k, &self->s_xd_clash_next, path, "xd_clash_next", 1);
+    vs_register_signal(k, &self->s_xd_prev1, (uint64_t) (0));
+    vs_name(k, &self->s_xd_prev1, path, "xd_prev1", 16);
+    vs_register_signal(k, &self->s_xd_prev2, (uint64_t) (0));
+    vs_name(k, &self->s_xd_prev2, path, "xd_prev2", 16);
     vs_register_signal(k, &self->s_xd_same_block, (uint64_t) (0));
     vs_name(k, &self->s_xd_same_block, path, "xd_same_block", 1);
-    vs_register_signal(k, &self->s_portb_pulse, (uint64_t) (0));
-    vs_name(k, &self->s_portb_pulse, path, "portb_pulse", 1);
-    vs_register_signal(k, &self->s_xd_same_block_prev, (uint64_t) (0));
-    vs_name(k, &self->s_xd_same_block_prev, path, "xd_same_block_prev", 1);
     vs_register_signal(k, &self->s_tick_phase, (uint64_t) (UINT64_C(0x1)));
     vs_name(k, &self->s_tick_phase, path, "tick_phase", 4);
     vs_register_signal(k, &self->s_sample_strobe, (uint64_t) (0));
@@ -2102,6 +2184,8 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_bram_wait_states, path, "bram_wait_states", 64);
     vs_register_signal(k, &self->s_next_bram_wait_states, (uint64_t) (INT64_C(0)));
     vs_name(k, &self->s_next_bram_wait_states, path, "next_bram_wait_states", 64);
+    vs_register_signal(k, &self->s_pnb, (uint64_t) (INT64_C(0)));
+    vs_name(k, &self->s_pnb, path, "pnb", 64);
     vs_register_signal(k, &self->s_cache_write_clk, (uint64_t) (0));
     vs_name(k, &self->s_cache_write_clk, path, "cache_write_clk", 1);
     vs_register_signal(k, &self->s_cache_write_busy, (uint64_t) (0));
@@ -2162,7 +2246,35 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     vs_name(k, &self->s_next_fill_ack_count, path, "next_fill_ack_count", 64);
     vs_register_signal(k, &self->s_tag_rw, (uint64_t) (0));
     vs_name(k, &self->s_tag_rw, path, "tag_rw", 1);
-    mmu_63f29_create(k, &self->c_mmu_with_cache_l1_0, vs_join(k, path, "mmu_with_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, &self->s_cpu_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, &self->s_cpu_rw_n, &self->s_cpu_vma, &self->s_cpu_e_l, &self->s_cpu_q_l, &self->s_cpu_vma_raw, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out, self->up->p_eirq_n, self->up->p_fic, &self->s_cpu_waiting, &self->s_tfm_mode_i, &self->s_tfm_count_i, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, &self->s_mmu_tr_wait, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n, self->up->p_run_req, self->up->p_e_v, self->up->p_rem_cs, self->up->p_rem_rw_n, self->up->p_rem_a, self->up->p_rem_d, self->up->p_rem_e, self->up->p_vclk_on, self->up->p_rem_d_out);
+    vs_register_signal(k, &self->s_mr_bw0, (uint64_t) (0));
+    vs_name(k, &self->s_mr_bw0, path, "mr_bw0", 1);
+    vs_register_signal(k, &self->s_mr_hit, (uint64_t) (0));
+    vs_name(k, &self->s_mr_hit, path, "mr_hit", 1);
+    vs_register_signal(k, &self->s_mr_ufast, (uint64_t) (0));
+    vs_name(k, &self->s_mr_ufast, path, "mr_ufast", 1);
+    vs_register_signal(k, &self->s_mr_dirty_any, (uint64_t) (0));
+    vs_name(k, &self->s_mr_dirty_any, path, "mr_dirty_any", 1);
+    vs_register_signal(k, &self->s_lcm_r, (uint64_t) (1));
+    vs_name(k, &self->s_lcm_r, path, "lcm_r", 1);
+    vs_register_signal(k, &self->s_fh_r, (uint64_t) (1));
+    vs_name(k, &self->s_fh_r, path, "fh_r", 1);
+    vs_register_signal(k, &self->s_mrl_r, (uint64_t) (1));
+    vs_name(k, &self->s_mrl_r, path, "mrl_r", 1);
+    vs_register_signal(k, &self->s_cpu_mrdy_fsm_r, (uint64_t) (1));
+    vs_name(k, &self->s_cpu_mrdy_fsm_r, path, "cpu_mrdy_fsm_r", 1);
+    vs_register_signal(k, &self->s_cpu_mrdy_d, (uint64_t) (0));
+    vs_name(k, &self->s_cpu_mrdy_d, path, "cpu_mrdy_d", 1);
+    vs_register_signal(k, &self->s_commit_s, (uint64_t) (0));
+    vs_name(k, &self->s_commit_s, path, "commit_s", 1);
+    vs_register_signal(k, &self->s_bw_pred, (uint64_t) (0));
+    vs_name(k, &self->s_bw_pred, path, "bw_pred", 1);
+    vs_register_signal(k, &self->s_sens_pred, (uint64_t) (0));
+    vs_name(k, &self->s_sens_pred, path, "sens_pred", 1);
+    vs_register_signal(k, &self->s_bw_pred_old, (uint64_t) (0));
+    vs_name(k, &self->s_bw_pred_old, path, "bw_pred_old", 1);
+    vs_register_signal(k, &self->s_sens_pred_old, (uint64_t) (0));
+    vs_name(k, &self->s_sens_pred_old, path, "sens_pred_old", 1);
+    mmu_63f29_create(k, &self->c_mmu_with_cache_l1_0, vs_join(k, path, "mmu_with_cache_l1"), 1, self->up->g_fpu_by_core, 1, INT64_C(3), self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, &self->s_cpu_mrdy_d, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, &self->s_cpu_rw_n, &self->s_cpu_vma, &self->s_cpu_e_l, &self->s_cpu_q_l, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out, self->up->p_eirq_n, self->up->p_fic, &self->s_cpu_waiting, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, &self->s_mmu_vma, &self->s_cpu_vma_raw, &self->s_local_cache_mrdy, &self->s_cpu_mrdy, self->up->p_lock_request, &self->s_lock_granted_s, self->up->p_reset_request_n, self->up->p_run_req, self->up->p_e_v, self->up->p_rem_cs, self->up->p_rem_rw_n, self->up->p_rem_a, self->up->p_rem_d, self->up->p_rem_e, self->up->p_vclk_on, self->up->p_rem_d_out);
     vs_register_signal(k, &self->x2_imp_rw, (uint64_t) (0));
     vs_name(k, &self->x2_imp_rw, path, "imp_rw", 1);
     vs_register_signal(k, &self->x3_open_data_out2, (uint64_t) (0));
@@ -2177,7 +2289,6 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         dmc_63f41_n1_g1_create(k, self->g_tag_block_5, vs_join(k, path, "tag_block"));
     }
     ram_61f64x1_create(k, &self->c_valid_64k_6, vs_join(k, path, "valid_64k"), &self->s_memclk_internal, &self->s_valid_64k_write_clk, &self->s_tag_rw, &self->s_valid_64k_write_enable, &self->s_current_block, &self->s_valid_64k_address2, &self->s_valid_64k_valid_addr, &self->s_valid_64k_valid_addr2, &self->s_valid_in, &self->s_valid_out, &self->s_valid_in2, &self->s_ccs_valid);
-    self->v15_v = 0;
 
     {
         self->g_fill_snapshot_7 = vs_alloc(k, sizeof(*self->g_fill_snapshot_7));
@@ -2190,8 +2301,9 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         self->g_fsm_dirty_supervision_8->up = self;
         dmc_63f41_n1_g4_create(k, self->g_fsm_dirty_supervision_8, vs_join(k, path, "fsm_dirty_supervision"));
     }
-    self->v26_commit = 0;
-    self->v32_dirty_flag = 0;
+    self->v30_commit = 0;
+    self->v37_dirty_flag = 0;
+    self->v42_d = 0;
 
     {
         vs_sig *sens[2];
@@ -2212,9 +2324,10 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     }
 
     {
-        vs_sig *sens[3];
+        vs_sig *sens[4];
         size_t n = 0;
-        sens[n++] = &self->s_cpu_mrdy_fsm;
+        sens[n++] = &self->s_cpu_mrdy_fsm_r;
+        sens[n++] = &self->s_local_cache_mrdy;
         sens[n++] = &self->s_cpu_e_l;
         sens[n++] = &self->s_cpu_q_l;
         vs_register_process(k, dmc_63f41_n1_g0_p2, self, sens, n);
@@ -2230,9 +2343,10 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     }
 
     {
-        vs_sig *sens[3];
+        vs_sig *sens[4];
         size_t n = 0;
-        sens[n++] = &self->s_cpu_mrdy_fsm;
+        sens[n++] = &self->s_cpu_mrdy_fsm_r;
+        sens[n++] = &self->s_local_cache_mrdy;
         sens[n++] = &self->s_cpu_e_l;
         sens[n++] = &self->s_cpu_q_l;
         vs_register_process(k, dmc_63f41_n1_g0_p4, self, sens, n);
@@ -2240,40 +2354,37 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
 
     {
         vs_sig *sens[1];
-        uint8_t edges[1];
-        memset(edges, 0, sizeof(edges));
         size_t n = 0;
-        edges[n] = 1;
-        sens[n++] = &(*self->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n1_g0_p5, self, sens, NULL, edges, n);
+        sens[n++] = &self->s_mmu_vma;
+        vs_register_process(k, dmc_63f41_n1_g0_p5, self, sens, n);
     }
 
     {
-        vs_sig *sens[4];
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
-        sens[n++] = &self->s_ticks_since_e;
-        sens[n++] = &self->s_captured;
-        sens[n++] = &self->s_cpu_mrdy_fsm_r;
-        sens[n++] = &self->s_mmu_tr_wait;
-        vs_register_process(k, dmc_63f41_n1_g0_p6, self, sens, n);
+        sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n1_g0_p6, self, sens, NULL, edges, n);
     }
 
     {
         vs_sig *sens[5];
         size_t n = 0;
-        sens[n++] = &self->s_cpu_vma_raw;
-        sens[n++] = &self->s_captured;
-        sens[n++] = &self->s_ticks_since_e;
-        sens[n++] = &self->s_cpu_e_l;
-        sens[n++] = &self->s_cpu_q_l;
+        sens[n++] = &(*self->up->p_quiesce);
+        sens[n++] = &(*self->up->p_fic);
+        sens[n++] = &self->s_state;
+        sens[n++] = &self->s_new_acc;
+        sens[n++] = &self->s_buffered_vma;
         vs_register_process(k, dmc_63f41_n1_g0_p7, self, sens, n);
     }
 
     {
-        vs_sig *sens[2];
+        vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &self->s_cpu_mrdy_fsm;
-        sens[n++] = &self->s_early_stall;
+        sens[n++] = &self->s_quiet_i;
         vs_register_process(k, dmc_63f41_n1_g0_p8, self, sens, n);
     }
 
@@ -2289,21 +2400,49 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     }
 
     {
-        vs_sig *sens[2];
-        uint8_t edges[2];
-        memset(edges, 0, sizeof(edges));
+        vs_sig *sens[5];
         size_t n = 0;
-        sens[n++] = &(*self->up->p_reset_n);
-        edges[n] = 1;
-        sens[n++] = &(*self->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n1_g0_p10, self, sens, NULL, edges, n);
+        sens[n++] = &self->s_cpu_mrdy_fsm;
+        sens[n++] = &self->s_mmu_vma;
+        sens[n++] = &self->s_cpu_vma_raw;
+        sens[n++] = &self->s_bw_pred;
+        sens[n++] = &self->s_sens_pred;
+        vs_register_process(k, dmc_63f41_n1_g0_p10, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[4];
+        size_t n = 0;
+        sens[n++] = &self->s_state_run;
+        sens[n++] = &self->s_next_edge;
+        sens[n++] = &self->s_e_rising;
+        sens[n++] = &self->s_e_falling;
+        vs_register_process(k, dmc_63f41_n1_g0_p11, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[3];
+        size_t n = 0;
+        sens[n++] = &self->s_commit_s;
+        sens[n++] = &self->s_pnb;
+        sens[n++] = &self->s_bram_wait_states;
+        vs_register_process(k, dmc_63f41_n1_g0_p12, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[3];
+        size_t n = 0;
+        sens[n++] = &self->s_commit_s;
+        sens[n++] = &self->s_pns;
+        sens[n++] = &self->s_state;
+        vs_register_process(k, dmc_63f41_n1_g0_p13, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &self->s_effective_cache_busy;
-        vs_register_process(k, dmc_63f41_n1_g0_i11, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_i14, self, sens, n);
     }
 
     {
@@ -2313,7 +2452,7 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         size_t n = 0;
         masks[n] = UINT64_C(0xFFFFF0000);
         sens[n++] = &self->s_buffered_a;
-        vs_register_process_masked(k, dmc_63f41_n1_g0_p12, self, sens, masks, n);
+        vs_register_process_masked(k, dmc_63f41_n1_g0_p15, self, sens, masks, n);
     }
 
     {
@@ -2323,7 +2462,7 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         size_t n = 0;
         masks[n] = UINT64_C(0xFFFF);
         sens[n++] = &self->s_buffered_a;
-        vs_register_process_masked(k, dmc_63f41_n1_g0_p13, self, sens, masks, n);
+        vs_register_process_masked(k, dmc_63f41_n1_g0_p16, self, sens, masks, n);
     }
 
     {
@@ -2331,23 +2470,24 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_x_dirty_block;
         sens[n++] = &self->s_current_block;
-        vs_register_process(k, dmc_63f41_n1_g0_p14, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p17, self, sens, n);
     }
 
     {
-        vs_sig *sens[1];
+        vs_sig *sens[2];
         size_t n = 0;
-        sens[n++] = &self->s_memclk_internal_2;
-        vs_register_process(k, dmc_63f41_n1_g0_p15, self, sens, n);
+        sens[n++] = &self->s_x_dirty_block;
+        sens[n++] = &self->s_xd_prev1;
+        vs_register_process(k, dmc_63f41_n1_g0_p18, self, sens, n);
     }
 
     {
         vs_sig *sens[3];
         size_t n = 0;
-        sens[n++] = &self->s_xd_same_block;
-        sens[n++] = &self->s_xd_same_block_prev;
-        sens[n++] = &self->s_portb_pulse;
-        vs_register_process(k, dmc_63f41_n1_g0_p16, self, sens, n);
+        sens[n++] = &self->s_xd_prev1;
+        sens[n++] = &self->s_current_block;
+        sens[n++] = &self->s_xd_prev2;
+        vs_register_process(k, dmc_63f41_n1_g0_p19, self, sens, n);
     }
 
     {
@@ -2358,7 +2498,15 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         sens[n++] = &(*self->up->p_reset_n);
         edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n1_g0_p17, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, dmc_63f41_n1_g0_p20, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &self->s_xd_same_block;
+        sens[n++] = &self->s_xd_same_hist;
+        vs_register_process(k, dmc_63f41_n1_g0_p21, self, sens, n);
     }
 
     {
@@ -2366,17 +2514,15 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_cache_rw;
         sens[n++] = &self->s_cache_write_busy;
-        vs_register_process(k, dmc_63f41_n1_g0_p18, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p22, self, sens, n);
     }
 
     {
-        vs_sig *sens[4];
+        vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &self->s_state;
-        sens[n++] = &self->s_fic_freeze;
-        sens[n++] = &self->s_alloc_held;
         sens[n++] = &self->s_fill_clk;
-        vs_register_process(k, dmc_63f41_n1_g0_p19, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p23, self, sens, n);
     }
 
     {
@@ -2384,7 +2530,7 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_local_fill_granted;
         sens[n++] = &self->s_memclk_ext_logic;
-        vs_register_process(k, dmc_63f41_n1_g0_p20, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p24, self, sens, n);
     }
 
     {
@@ -2392,16 +2538,15 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_tag_write_clk;
         sens[n++] = &self->s_memclk_external;
-        vs_register_process(k, dmc_63f41_n1_g0_p21, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p25, self, sens, n);
     }
 
     {
-        vs_sig *sens[3];
+        vs_sig *sens[2];
         size_t n = 0;
         sens[n++] = &self->s_tag_local_fill_busy;
         sens[n++] = &self->s_local_fill_granted;
-        sens[n++] = &self->s_fl_we;
-        vs_register_process(k, dmc_63f41_n1_g0_p22, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p26, self, sens, n);
     }
 
     {
@@ -2409,75 +2554,32 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         size_t n = 0;
         sens[n++] = &self->s_current_block;
         sens[n++] = &self->s_x_dirty_block;
-        vs_register_process(k, dmc_63f41_n1_g0_p23, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p27, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &self->s_tag_local_fill_busy;
-        vs_register_process(k, dmc_63f41_n1_g0_p24, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p28, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
         sens[n++] = &self->s_tag_local_fill_busy;
-        vs_register_process(k, dmc_63f41_n1_g0_p25, self, sens, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        uint8_t edges[2];
-        memset(edges, 0, sizeof(edges));
-        size_t n = 0;
-        sens[n++] = &(*self->up->p_reset_n);
-        edges[n] = 1;
-        sens[n++] = &(*self->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n1_g0_p26, self, sens, NULL, edges, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        uint8_t edges[2];
-        memset(edges, 0, sizeof(edges));
-        size_t n = 0;
-        sens[n++] = &(*self->up->p_reset_n);
-        edges[n] = 1;
-        sens[n++] = &(*self->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n1_g0_p27, self, sens, NULL, edges, n);
-    }
-
-    {
-        vs_sig *sens[2];
-        uint8_t edges[2];
-        memset(edges, 0, sizeof(edges));
-        size_t n = 0;
-        sens[n++] = &(*self->up->p_reset_n);
-        edges[n] = 1;
-        sens[n++] = &(*self->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n1_g0_p28, self, sens, NULL, edges, n);
-    }
-
-    {
-        vs_sig *sens[3];
-        size_t n = 0;
-        sens[n++] = &self->s_pre_read;
-        sens[n++] = &self->s_pre_a;
-        sens[n++] = &self->s_buffered_a;
         vs_register_process(k, dmc_63f41_n1_g0_p29, self, sens, n);
     }
 
     {
-        vs_sig *sens[6];
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
         size_t n = 0;
-        sens[n++] = &self->s_start_read;
-        sens[n++] = &self->s_wr_force_r;
-        sens[n++] = &self->s_local_cache_mrdy;
-        sens[n++] = &self->s_fill_hazard;
-        sens[n++] = &self->s_effective_cache_busy;
-        sens[n++] = &self->s_portb_hazard;
-        vs_register_process(k, dmc_63f41_n1_g0_p30, self, sens, n);
+        sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n1_g0_p30, self, sens, NULL, edges, n);
     }
 
     {
@@ -2492,30 +2594,79 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
     }
 
     {
-        vs_sig *sens[50];
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n1_g0_p32, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n1_g0_p33, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->s_pre_read;
+        vs_register_process(k, dmc_63f41_n1_g0_p34, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[8];
+        size_t n = 0;
+        sens[n++] = &self->s_start_read;
+        sens[n++] = &self->s_wr_force_r;
+        sens[n++] = &self->s_early_r;
+        sens[n++] = &self->s_local_cache_mrdy;
+        sens[n++] = &self->s_quiet_r;
+        sens[n++] = &self->s_fill_hazard;
+        sens[n++] = &self->s_effective_cache_busy;
+        sens[n++] = &self->s_portb_hazard;
+        vs_register_process(k, dmc_63f41_n1_g0_p35, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n1_g0_p36, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[39];
         size_t n = 0;
         sens[n++] = &(*self->up->p_reset_n);
         sens[n++] = &self->s_state;
         sens[n++] = &self->s_start_read;
         sens[n++] = &self->s_pulse_now;
         sens[n++] = &self->s_pre_ok;
+        sens[n++] = &self->s_early_r;
+        sens[n++] = &self->s_early_used;
         sens[n++] = &self->s_buffered_d;
         sens[n++] = &self->s_moved_on;
         sens[n++] = &self->s_buffered_a;
         sens[n++] = &self->s_buffered_rw_n;
         sens[n++] = &self->s_buffered_vma;
-        sens[n++] = &self->s_last_a;
-        sens[n++] = &self->s_last_rw_n;
-        sens[n++] = &self->s_last_a_valid;
+        sens[n++] = &self->s_new_acc;
         sens[n++] = &self->s_mrdy_l;
         sens[n++] = &self->s_current_tag;
         sens[n++] = &self->s_current_block;
         sens[n++] = &(*self->up->p_bus_granted);
-        sens[n++] = &self->s_my_invalidation_still_pending;
-        sens[n++] = &self->s_my_invalidation_still_pending_prev;
-        sens[n++] = &self->s_my_invalidation_strict_wait_prev;
-        sens[n++] = &self->s_my_parked_stalled_block;
-        sens[n++] = &self->s_my_invalidation_strict_wait;
         sens[n++] = &(*self->up->p_fic);
         sens[n++] = &(*self->up->p_d_in);
         sens[n++] = &self->s_cache_d_out;
@@ -2526,12 +2677,6 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         sens[n++] = &self->s_bram_wait_states;
         sens[n++] = &self->s_cacheable_l;
         sens[n++] = &self->s_fill_ready;
-        sens[n++] = &self->s_all_sources_safe;
-        sens[n++] = &self->s_fic_freeze;
-        sens[n++] = &self->s_win_rd_hold;
-        sens[n++] = &self->s_win_wr_hold;
-        sens[n++] = &self->s_rd_bypass;
-        sens[n++] = &self->s_rd_force_miss;
         sens[n++] = &self->s_peer_write_same;
         sens[n++] = &self->s_alloc_data;
         sens[n++] = &self->s_alloc_held;
@@ -2544,18 +2689,16 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         sens[n++] = &self->s_cache_write_clk_count;
         sens[n++] = &self->s_effective_cache_busy;
         sens[n++] = &self->s_portb_hazard;
-        vs_register_process(k, dmc_63f41_n1_g0_p32, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p37, self, sens, n);
     }
 
     {
-        vs_sig *sens[2];
-        uint64_t masks[2];
-        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
+        vs_sig *sens[3];
         size_t n = 0;
-        masks[n] = UINT64_C(0xFFFFF0000);
-        sens[n++] = &self->s_buffered_a;
+        sens[n++] = &self->s_ba_rgn_c;
+        sens[n++] = &self->s_ba_rgn_n;
         sens[n++] = &(*self->up->p_cacheable_ext);
-        vs_register_process_masked(k, dmc_63f41_n1_g0_p33, self, sens, masks, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p38, self, sens, n);
     }
 
     {
@@ -2563,25 +2706,85 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         size_t n = 0;
         sens[n++] = &(*self->up->p_bus_granted);
         sens[n++] = &(*self->up->p_mrdy_eprom);
-        sens[n++] = &self->s_buffered_a;
+        sens[n++] = &self->s_mrdy_src_r;
         sens[n++] = &(*self->up->p_mrdy_ext);
-        vs_register_process(k, dmc_63f41_n1_g0_p34, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p39, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        size_t n = 0;
+        sens[n++] = &self->s_local_cache_mrdy;
+        sens[n++] = &self->s_state;
+        vs_register_process(k, dmc_63f41_n1_g0_p40, self, sens, n);
     }
 
     {
         vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &(*self->up->p_extal);
-        vs_register_process(k, dmc_63f41_n1_g0_p35, self, sens, n);
+        sens[n++] = &self->s_bram_wait_states;
+        vs_register_process(k, dmc_63f41_n1_g0_p41, self, sens, n);
     }
 
     {
-        vs_sig *sens[3];
+        vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &self->s_local_cache_mrdy;
-        sens[n++] = &self->s_cache_mrdy;
+        sens[n++] = &self->s_dirty_out;
+        vs_register_process(k, dmc_63f41_n1_g0_p42, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[4];
+        size_t n = 0;
+        sens[n++] = &self->s_current_tag;
+        sens[n++] = &self->s_tag_out;
+        sens[n++] = &self->s_valid_out;
+        sens[n++] = &self->s_mr_dirty_any;
+        vs_register_process(k, dmc_63f41_n1_g0_p43, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[7];
+        size_t n = 0;
+        sens[n++] = &self->s_cacheable_l;
+        sens[n++] = &(*self->up->p_bus_granted);
+        sens[n++] = &self->s_bram_wait_states;
+        sens[n++] = &self->s_portb_hazard;
+        sens[n++] = &self->s_buffered_rw_n;
+        sens[n++] = &self->s_pre_ok;
+        sens[n++] = &self->s_pulse_now;
+        vs_register_process(k, dmc_63f41_n1_g0_p44, self, sens, n);
+    }
+
+    {
+        vs_sig *sens[2];
+        uint8_t edges[2];
+        memset(edges, 0, sizeof(edges));
+        size_t n = 0;
+        sens[n++] = &(*self->up->p_reset_n);
+        edges[n] = 1;
+        sens[n++] = &(*self->up->p_extal);
+        vs_register_process_edges(k, dmc_63f41_n1_g0_p45, self, sens, NULL, edges, n);
+    }
+
+    {
+        vs_sig *sens[14];
+        size_t n = 0;
+        sens[n++] = &(*self->up->p_reset_n);
         sens[n++] = &self->s_state;
-        vs_register_process(k, dmc_63f41_n1_g0_p36, self, sens, n);
+        sens[n++] = &self->s_mr_bw0;
+        sens[n++] = &self->s_buffered_vma;
+        sens[n++] = &self->s_new_acc;
+        sens[n++] = &self->s_fh_r;
+        sens[n++] = &self->s_mr_ufast;
+        sens[n++] = &self->s_buffered_rw_n;
+        sens[n++] = &self->s_mrl_r;
+        sens[n++] = &self->s_lcm_r;
+        sens[n++] = &self->s_local_cache_mrdy;
+        sens[n++] = &self->s_mr_hit;
+        sens[n++] = &self->s_moved_on;
+        sens[n++] = &self->s_cache_write_busy;
+        vs_register_process(k, dmc_63f41_n1_g0_p46, self, sens, n);
     }
 
     {
@@ -2591,7 +2794,7 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         sens[n++] = &self->s_alloc_held;
         sens[n++] = &self->s_alloc_data;
         sens[n++] = &(*self->up->p_d_in);
-        vs_register_process(k, dmc_63f41_n1_g0_p37, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p47, self, sens, n);
     }
 
     {
@@ -2602,7 +2805,7 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         sens[n++] = &(*self->up->p_reset_n);
         edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n1_g0_p38, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, dmc_63f41_n1_g0_p48, self, sens, NULL, edges, n);
     }
 
     {
@@ -2613,7 +2816,7 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         sens[n++] = &(*self->up->p_reset_n);
         edges[n] = 1;
         sens[n++] = &(*self->up->p_extal);
-        vs_register_process_edges(k, dmc_63f41_n1_g0_p39, self, sens, NULL, edges, n);
+        vs_register_process_edges(k, dmc_63f41_n1_g0_p49, self, sens, NULL, edges, n);
     }
 
     {
@@ -2622,7 +2825,7 @@ static void dmc_63f41_n1_g0_create(vs_kernel *k, dmc_63f41_n1_g0 *self, const ch
         sens[n++] = &self->s_vma_state;
         sens[n++] = &(*self->up->p_bus_granted);
         sens[n++] = &(*self->up->p_a);
-        vs_register_process(k, dmc_63f41_n1_g0_p40, self, sens, n);
+        vs_register_process(k, dmc_63f41_n1_g0_p50, self, sens, n);
     }
 }
 
@@ -2638,6 +2841,12 @@ static void dmc_63f41_n1_g5_p1(void *inst)
     vs_drive(&(*self->up->p_q), self->s_cpu_q.cur);
 }
 
+static void dmc_63f41_n1_g5_p2(void *inst)
+{
+    dmc_63f41_n1_g5 *self = inst;
+    vs_drive(&(*self->up->p_inv_busy), 0);
+}
+
 static void dmc_63f41_n1_g5_create(vs_kernel *k, dmc_63f41_n1_g5 *self, const char *path)
 {
     vs_register_signal(k, &self->s_cpu_e, (uint64_t) (0));
@@ -2650,19 +2859,17 @@ static void dmc_63f41_n1_g5_create(vs_kernel *k, dmc_63f41_n1_g5 *self, const ch
     vs_name(k, &self->x1_open_e_l, path, "open_e_l", 1);
     vs_register_signal(k, &self->x2_open_q_l, (uint64_t) (0));
     vs_name(k, &self->x2_open_q_l, path, "open_q_l", 1);
-    vs_register_signal(k, &self->x3_open_vma_raw, (uint64_t) (0));
-    vs_name(k, &self->x3_open_vma_raw, path, "open_vma_raw", 1);
-    vs_register_signal(k, &self->x4_open_waiting, (uint64_t) (0));
-    vs_name(k, &self->x4_open_waiting, path, "open_waiting", 1);
-    vs_register_signal(k, &self->x5_open_tfm_mode, (uint64_t) (0));
-    vs_name(k, &self->x5_open_tfm_mode, path, "open_tfm_mode", 2);
-    vs_register_signal(k, &self->x6_open_tfm_count, (uint64_t) (0));
-    vs_name(k, &self->x6_open_tfm_count, path, "open_tfm_count", 16);
-    vs_register_signal(k, &self->x7_open_mmu_mrdy, (uint64_t) (0));
-    vs_name(k, &self->x7_open_mmu_mrdy, path, "open_mmu_mrdy", 1);
-    vs_register_signal(k, &self->x8_open_tr_wait, (uint64_t) (0));
-    vs_name(k, &self->x8_open_tr_wait, path, "open_tr_wait", 1);
-    mmu_63f29_create(k, &self->c_mmu_without_cache_l1_0, vs_join(k, path, "mmu_without_cache_l1"), 1, self->up->g_fpu_by_core, self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, self->up->p_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, self->up->p_rw_n, self->up->p_vma, &self->x1_open_e_l, &self->x2_open_q_l, &self->x3_open_vma_raw, self->up->p_a, self->up->p_d_in, self->up->p_d_out, self->up->p_eirq_n, self->up->p_fic, &self->x4_open_waiting, &self->x5_open_tfm_mode, &self->x6_open_tfm_count, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, &self->x7_open_mmu_mrdy, &self->x8_open_tr_wait, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n, self->up->p_run_req, self->up->p_e_v, self->up->p_rem_cs, self->up->p_rem_rw_n, self->up->p_rem_a, self->up->p_rem_d, self->up->p_rem_e, self->up->p_vclk_on, self->up->p_rem_d_out);
+    vs_register_signal(k, &self->x3_open_mmu_mrdy, (uint64_t) (0));
+    vs_name(k, &self->x3_open_mmu_mrdy, path, "open_mmu_mrdy", 1);
+    vs_register_signal(k, &self->x4_open_mmu_vma, (uint64_t) (0));
+    vs_name(k, &self->x4_open_mmu_vma, path, "open_mmu_vma", 1);
+    vs_register_signal(k, &self->x5_open_vma_raw, (uint64_t) (0));
+    vs_name(k, &self->x5_open_vma_raw, path, "open_vma_raw", 1);
+    vs_register_signal(k, &self->x6_open_mrdy_live, (uint64_t) (0));
+    vs_name(k, &self->x6_open_mrdy_live, path, "open_mrdy_live", 1);
+    vs_register_signal(k, &self->x7_open_cpu_mrdy_out, (uint64_t) (0));
+    vs_name(k, &self->x7_open_cpu_mrdy_out, path, "open_cpu_mrdy_out", 1);
+    mmu_63f29_create(k, &self->c_mmu_without_cache_l1_0, vs_join(k, path, "mmu_without_cache_l1"), 1, self->up->g_fpu_by_core, 0, INT64_C(3), self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, self->up->p_mrdy, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, self->up->p_rw_n, self->up->p_vma, &self->x1_open_e_l, &self->x2_open_q_l, self->up->p_a, self->up->p_d_in, self->up->p_d_out, self->up->p_eirq_n, self->up->p_fic, self->up->p_waiting, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, &self->x3_open_mmu_mrdy, &self->x4_open_mmu_vma, &self->x5_open_vma_raw, &self->x6_open_mrdy_live, &self->x7_open_cpu_mrdy_out, self->up->p_lock_request, self->up->p_lock_granted, self->up->p_reset_request_n, self->up->p_run_req, self->up->p_e_v, self->up->p_rem_cs, self->up->p_rem_rw_n, self->up->p_rem_a, self->up->p_rem_d, self->up->p_rem_e, self->up->p_vclk_on, self->up->p_rem_d_out);
 
     {
         vs_sig *sens[1];
@@ -2677,9 +2884,10 @@ static void dmc_63f41_n1_g5_create(vs_kernel *k, dmc_63f41_n1_g5 *self, const ch
         sens[n++] = &self->s_cpu_q;
         vs_register_process(k, dmc_63f41_n1_g5_p1, self, sens, n);
     }
+    vs_register_process(k, dmc_63f41_n1_g5_p2, self, NULL, 0);
 }
 
-void dmc_63f41_n1_create(vs_kernel *k, dmc_63f41_n1 *self, const char *path, uint64_t g_cached_memory, int64_t g_cpu_number, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *cacheable, vs_sig *cacheable_ext, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *e, vs_sig *q, vs_sig *bus_request, vs_sig *bus_granted, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, std_logic_matrix_2_s *ccs_address_in, vs_sig *ccs_address_rw_n_in, vs_sig *ccs_bus_granted_in, std_logic_matrix_3_s *ccs_invalidation_pending_in, vs_sig *ccs_fic_in, vs_sig *ccs_write_gen_in, std_logic_matrix_3_s *ccs_prev_pending_in, std_logic_matrix_3_s *ccs_parked_stalled_in, vs_sig *ccs_address_out, vs_sig *ccs_address_rw_n_out, vs_sig *ccs_bus_granted_out, vs_sig *ccs_invalidation_pending_out, vs_sig *ccs_fic_out, vs_sig *ccs_write_gen_out, vs_sig *ccs_prev_pending_out, vs_sig *ccs_parked_stalled_out, std_logic_matrix_4_s *ccs_tfm_in, vs_sig *ccs_tfm_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *run_req, vs_sig *e_v, vs_sig *rem_cs, vs_sig *rem_rw_n, vs_sig *rem_a, vs_sig *rem_d, vs_sig *rem_e, vs_sig *vclk_on, vs_sig *rem_d_out, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *reset_request_n)
+void dmc_63f41_n1_create(vs_kernel *k, dmc_63f41_n1 *self, const char *path, uint64_t g_cached_memory, int64_t g_cpu_number, int64_t g_ncpus, uint64_t g_fpu_by_core, vs_sig *extal, vs_sig *reset_n, vs_sig *nmi_n, vs_sig *firq_n, vs_sig *irq_n, vs_sig *mrdy, vs_sig *dma_breq_n, vs_sig *halt_n, vs_sig *ba, vs_sig *bs, vs_sig *rw_n, vs_sig *vma, vs_sig *a, vs_sig *d_in, vs_sig *d_out, vs_sig *eirq_n, vs_sig *fic, vs_sig *waiting, vs_sig *inv_busy, vs_sig *cacheable, vs_sig *cacheable_ext, vs_sig *mrdy_eprom, vs_sig *mrdy_ext, vs_sig *e, vs_sig *q, vs_sig *bus_request, vs_sig *bus_granted, fp_unit_in_type_s *fpu_63f39_in, fp_unit_out_type_s *fpu_63f39_out, std_logic_matrix_2_s *ccs_address_in, vs_sig *ccs_address_rw_n_in, vs_sig *ccs_bus_granted_in, vs_sig *ccs_address_out, vs_sig *ccs_address_rw_n_out, vs_sig *ccs_bus_granted_out, vs_sig *mmu_cs, vs_sig *mmu_mrdy, vs_sig *run_req, vs_sig *e_v, vs_sig *rem_cs, vs_sig *rem_rw_n, vs_sig *rem_a, vs_sig *rem_d, vs_sig *rem_e, vs_sig *vclk_on, vs_sig *rem_d_out, vs_sig *lock_request, vs_sig *lock_granted, vs_sig *quiesce, vs_sig *quiet, vs_sig *reset_request_n)
 {
     (void) path;
     self->g_cached_memory = g_cached_memory;
@@ -2703,6 +2911,8 @@ void dmc_63f41_n1_create(vs_kernel *k, dmc_63f41_n1 *self, const char *path, uin
     self->p_d_out = d_out;
     self->p_eirq_n = eirq_n;
     self->p_fic = fic;
+    self->p_waiting = waiting;
+    self->p_inv_busy = inv_busy;
     self->p_cacheable = cacheable;
     self->p_cacheable_ext = cacheable_ext;
     self->p_mrdy_eprom = mrdy_eprom;
@@ -2716,21 +2926,9 @@ void dmc_63f41_n1_create(vs_kernel *k, dmc_63f41_n1 *self, const char *path, uin
     self->p_ccs_address_in = ccs_address_in;
     self->p_ccs_address_rw_n_in = ccs_address_rw_n_in;
     self->p_ccs_bus_granted_in = ccs_bus_granted_in;
-    self->p_ccs_invalidation_pending_in = ccs_invalidation_pending_in;
-    self->p_ccs_fic_in = ccs_fic_in;
-    self->p_ccs_write_gen_in = ccs_write_gen_in;
-    self->p_ccs_prev_pending_in = ccs_prev_pending_in;
-    self->p_ccs_parked_stalled_in = ccs_parked_stalled_in;
     self->p_ccs_address_out = ccs_address_out;
     self->p_ccs_address_rw_n_out = ccs_address_rw_n_out;
     self->p_ccs_bus_granted_out = ccs_bus_granted_out;
-    self->p_ccs_invalidation_pending_out = ccs_invalidation_pending_out;
-    self->p_ccs_fic_out = ccs_fic_out;
-    self->p_ccs_write_gen_out = ccs_write_gen_out;
-    self->p_ccs_prev_pending_out = ccs_prev_pending_out;
-    self->p_ccs_parked_stalled_out = ccs_parked_stalled_out;
-    self->p_ccs_tfm_in = ccs_tfm_in;
-    self->p_ccs_tfm_out = ccs_tfm_out;
     self->p_mmu_cs = mmu_cs;
     self->p_mmu_mrdy = mmu_mrdy;
     self->p_run_req = run_req;
@@ -2744,6 +2942,8 @@ void dmc_63f41_n1_create(vs_kernel *k, dmc_63f41_n1 *self, const char *path, uin
     self->p_rem_d_out = rem_d_out;
     self->p_lock_request = lock_request;
     self->p_lock_granted = lock_granted;
+    self->p_quiesce = quiesce;
+    self->p_quiet = quiet;
     self->p_reset_request_n = reset_request_n;
     if ((self->g_cached_memory == 1))
     {
