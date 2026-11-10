@@ -777,13 +777,13 @@ static void fp_fdiv_g1_p4(void *inst)
             if ((self->v4_v.f_op == 1))
             {
                 self->v4_v.f_m = (((uint64_t)((((uint64_t)(0) << 55) | self->v4_v.f_q)) << 1) | 0);
-                self->v4_v.f_m = (self->v4_v.f_m & ~((UINT64_C(1)) << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0))) | ((1 << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0)) & ((UINT64_C(1)) << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0)));
+                self->v4_v.f_m = (self->v4_v.f_m & ~((UINT64_C(1)) << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0))) | (((uint64_t)(1) << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0)) & ((UINT64_C(1)) << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0)));
             }
             self->v4_v.f_r = (((uint64_t)((self->v4_v.f_r & UINT64_C(0xFFFFFFFFFFFFFF))) << 1) | 0);
             self->v4_v.f_e = ((uint64_t)(vs_sext(self->v4_v.f_r, 57) - vs_sext(self->v4_v.f_m, 57)) & UINT64_C(0x1FFFFFFFFFFFFFF));
             if ((((self->v4_v.f_e >> 56) & 1) == 0))
             {
-                self->v4_v.f_q = (self->v4_v.f_q & ~((UINT64_C(1)) << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0))) | ((1 << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0)) & ((UINT64_C(1)) << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0)));
+                self->v4_v.f_q = (self->v4_v.f_q & ~((UINT64_C(1)) << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0))) | (((uint64_t)(1) << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0)) & ((UINT64_C(1)) << (((int64_t) self->up->s_r_fix.f_istate.cur) - 0)));
                 self->v4_v.f_r = self->v4_v.f_e;
             }
             break;

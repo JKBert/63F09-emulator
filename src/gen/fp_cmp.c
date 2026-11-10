@@ -29,44 +29,44 @@ static void fp_cmp_p0(void *inst)
     {
         if (((((self->v0_class1 >> 8) & 1) | ((self->v0_class2 >> 8) & 1)) == 1))
         {
-            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | ((1 << 4) & (UINT64_C(0x1) << 4));
+            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(1) << 4) & (UINT64_C(0x1) << 4));
         }
         else if (((((self->v0_class1 >> 9) & 1) | ((self->v0_class2 >> 9) & 1)) == 1))
         {
-            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | ((0 << 4) & (UINT64_C(0x1) << 4));
+            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(0) << 4) & (UINT64_C(0x1) << 4));
         }
         else if ((((((self->v0_class1 >> 3) & 1) | ((self->v0_class1 >> 4) & 1)) & (((self->v0_class2 >> 3) & 1) | ((self->v0_class2 >> 4) & 1))) == 1))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((1 << 0) & (UINT64_C(0x1) << 0));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(1) << 0) & (UINT64_C(0x1) << 0));
         }
         else if (vs_w_eq(self->v0_data1, self->v0_data2))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((1 << 0) & (UINT64_C(0x1) << 0));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(1) << 0) & (UINT64_C(0x1) << 0));
         }
     }
     else if ((self->v0_rm == UINT64_C(0x1)))
     {
         if (((((((self->v0_class1 >> 8) & 1) | ((self->v0_class2 >> 8) & 1)) | ((self->v0_class1 >> 9) & 1)) | ((self->v0_class2 >> 9) & 1)) == 1))
         {
-            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | ((1 << 4) & (UINT64_C(0x1) << 4));
+            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(1) << 4) & (UINT64_C(0x1) << 4));
         }
         else if ((((((self->v0_class1 >> 3) & 1) | ((self->v0_class1 >> 4) & 1)) & (((self->v0_class2 >> 3) & 1) | ((self->v0_class2 >> 4) & 1))) == 1))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((0 << 0) & (UINT64_C(0x1) << 0));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(0) << 0) & (UINT64_C(0x1) << 0));
         }
         else if (((vs_w_bit(self->v0_data1, 64) ^ vs_w_bit(self->v0_data2, 64)) == 1))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((vs_w_bit(self->v0_data1, 64) << 0) & (UINT64_C(0x1) << 0));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(vs_w_bit(self->v0_data1, 64)) << 0) & (UINT64_C(0x1) << 0));
         }
         else
         {
             if ((vs_w_bit(self->v0_data1, 64) == 1))
             {
-                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((((self->v0_cmp_le ^ UINT64_C(0x1)) & UINT64_C(0x1)) << 0) & (UINT64_C(0x1) << 0));
+                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(((self->v0_cmp_le ^ UINT64_C(0x1)) & UINT64_C(0x1))) << 0) & (UINT64_C(0x1) << 0));
             }
             else
             {
-                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((self->v0_cmp_lt << 0) & (UINT64_C(0x1) << 0));
+                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(self->v0_cmp_lt) << 0) & (UINT64_C(0x1) << 0));
             }
         }
     }
@@ -74,25 +74,25 @@ static void fp_cmp_p0(void *inst)
     {
         if (((((((self->v0_class1 >> 8) & 1) | ((self->v0_class2 >> 8) & 1)) | ((self->v0_class1 >> 9) & 1)) | ((self->v0_class2 >> 9) & 1)) == 1))
         {
-            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | ((1 << 4) & (UINT64_C(0x1) << 4));
+            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(1) << 4) & (UINT64_C(0x1) << 4));
         }
         else if ((((((self->v0_class1 >> 3) & 1) | ((self->v0_class1 >> 4) & 1)) & (((self->v0_class2 >> 3) & 1) | ((self->v0_class2 >> 4) & 1))) == 1))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((1 << 0) & (UINT64_C(0x1) << 0));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(1) << 0) & (UINT64_C(0x1) << 0));
         }
         else if (((vs_w_bit(self->v0_data1, 64) ^ vs_w_bit(self->v0_data2, 64)) == 1))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((vs_w_bit(self->v0_data1, 64) << 0) & (UINT64_C(0x1) << 0));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(vs_w_bit(self->v0_data1, 64)) << 0) & (UINT64_C(0x1) << 0));
         }
         else
         {
             if ((vs_w_bit(self->v0_data1, 64) == 1))
             {
-                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((((self->v0_cmp_lt ^ UINT64_C(0x1)) & UINT64_C(0x1)) << 0) & (UINT64_C(0x1) << 0));
+                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(((self->v0_cmp_lt ^ UINT64_C(0x1)) & UINT64_C(0x1))) << 0) & (UINT64_C(0x1) << 0));
             }
             else
             {
-                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | ((self->v0_cmp_le << 0) & (UINT64_C(0x1) << 0));
+                self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(self->v0_cmp_le) << 0) & (UINT64_C(0x1) << 0));
             }
         }
     }

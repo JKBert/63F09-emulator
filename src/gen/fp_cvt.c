@@ -110,7 +110,7 @@ static void fp_cvt_p1(void *inst)
     self->v1_mantissa_uint = vs_w_slice(self->v1_mantissa_cvt, 55, 65);
     self->v1_grs = (((uint64_t)(vs_w_u64(vs_w_slice(self->v1_mantissa_cvt, 53, 2))) << 1) | f_or_reduce_6(vs_w_u64(vs_w_slice(self->v1_mantissa_cvt, 0, 53))));
     self->v1_odd = (vs_w_bit(self->v1_mantissa_uint, 0) | f_or_reduce_4((self->v1_grs & UINT64_C(0x3))));
-    self->v1_flags = (self->v1_flags & ~(UINT64_C(0x1) << 0)) | ((f_or_reduce_5(self->v1_grs) << 0) & (UINT64_C(0x1) << 0));
+    self->v1_flags = (self->v1_flags & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(f_or_reduce_5(self->v1_grs)) << 0) & (UINT64_C(0x1) << 0));
     self->v1_rnded = INT64_C(0);
     switch (self->v1_rm)
     {
@@ -180,7 +180,7 @@ static void fp_cvt_p2(void *inst)
     self->v2_mantissa_uint = vs_w_get(self->s_f2i_r.f_mantissa_uint.w, 2);
     self->v2_rnded = (int64_t) self->s_f2i_r.f_rnded.cur;
     self->v2_flags = UINT64_C(0x0);
-    self->v2_flags = (self->v2_flags & ~(UINT64_C(0x1) << 0)) | ((self->s_f2i_r.f_fl0.cur << 0) & (UINT64_C(0x1) << 0));
+    self->v2_flags = (self->v2_flags & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(self->s_f2i_r.f_fl0.cur) << 0) & (UINT64_C(0x1) << 0));
     self->v2_result = UINT64_C(0x0);
     self->v2_zero = 0;
     self->v2_mantissa_uint = vs_w_add(self->v2_mantissa_uint, vs_w_from((uint64_t)(self->v2_rnded)), 65);

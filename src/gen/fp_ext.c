@@ -81,31 +81,31 @@ static void fp_ext_p0(void *inst)
         {
             if ((self->v0_mantissa_zero == 1))
             {
-                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 0)) | ((1 << 0) & (UINT64_C(0x1) << 0));
+                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 0)) | (((uint64_t)(1) << 0) & (UINT64_C(0x1) << 0));
             }
             else if ((vs_w_bit(self->v0_result, 51) == 0))
             {
-                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 8)) | ((1 << 8) & (UINT64_C(0x1) << 8));
+                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 8)) | (((uint64_t)(1) << 8) & (UINT64_C(0x1) << 8));
             }
             else
             {
-                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 9)) | ((1 << 9) & (UINT64_C(0x1) << 9));
+                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 9)) | (((uint64_t)(1) << 9) & (UINT64_C(0x1) << 9));
             }
         }
         else if ((self->v0_exponent_zero == 1))
         {
             if ((self->v0_mantissa_zero == 1))
             {
-                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 3)) | ((1 << 3) & (UINT64_C(0x1) << 3));
+                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 3)) | (((uint64_t)(1) << 3) & (UINT64_C(0x1) << 3));
             }
             else
             {
-                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 2)) | ((1 << 2) & (UINT64_C(0x1) << 2));
+                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 2)) | (((uint64_t)(1) << 2) & (UINT64_C(0x1) << 2));
             }
         }
         else
         {
-            self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 1)) | ((1 << 1) & (UINT64_C(0x1) << 1));
+            self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 1)) | (((uint64_t)(1) << 1) & (UINT64_C(0x1) << 1));
         }
     }
     else
@@ -114,31 +114,31 @@ static void fp_ext_p0(void *inst)
         {
             if ((self->v0_mantissa_zero == 1))
             {
-                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 7)) | ((1 << 7) & (UINT64_C(0x1) << 7));
+                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 7)) | (((uint64_t)(1) << 7) & (UINT64_C(0x1) << 7));
             }
             else if ((vs_w_bit(self->v0_result, 51) == 0))
             {
-                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 8)) | ((1 << 8) & (UINT64_C(0x1) << 8));
+                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 8)) | (((uint64_t)(1) << 8) & (UINT64_C(0x1) << 8));
             }
             else
             {
-                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 9)) | ((1 << 9) & (UINT64_C(0x1) << 9));
+                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 9)) | (((uint64_t)(1) << 9) & (UINT64_C(0x1) << 9));
             }
         }
         else if ((self->v0_exponent_zero == 1))
         {
             if ((self->v0_mantissa_zero == 1))
             {
-                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 4)) | ((1 << 4) & (UINT64_C(0x1) << 4));
+                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(1) << 4) & (UINT64_C(0x1) << 4));
             }
             else
             {
-                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 5)) | ((1 << 5) & (UINT64_C(0x1) << 5));
+                self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 5)) | (((uint64_t)(1) << 5) & (UINT64_C(0x1) << 5));
             }
         }
         else
         {
-            self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 6)) | ((1 << 6) & (UINT64_C(0x1) << 6));
+            self->v0_class = (self->v0_class & ~(UINT64_C(0x1) << 6)) | (((uint64_t)(1) << 6) & (UINT64_C(0x1) << 6));
         }
     }
     vs_w_drive((*self->p_fp_ext_o).f_result.w, 2, self->v0_result);

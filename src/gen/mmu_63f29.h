@@ -66,10 +66,6 @@ typedef struct mmu_63f29
     vs_sig s_cpu_mrdy;
     vs_sig s_tr_wait;
     vs_sig s_tr_wait_r;
-    vs_sig s_old_strobe;
-    vs_sig s_n_stale;
-    vs_sig s_n_late;
-    vs_sig s_n_str;
     vs_sig s_ticks_since_e;
     vs_sig s_captured;
     vs_sig s_capture_strobe;

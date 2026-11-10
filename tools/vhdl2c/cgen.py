@@ -427,7 +427,8 @@ class Translator(Subprograms, Ops):
             if whole:
                 o.line("%s = %s;" % (base, v))
             else:
-                o.line("%s = (%s & ~(%s << %s)) | ((%s << %s) & (%s << %s));" % (base, base, m, shift, v, shift, m, shift))
+                # the value is converted to 64 bits : a literal such as 1 is an int, and 1 << 40 is not a 64 bit shift
+                o.line("%s = (%s & ~(%s << %s)) | (((uint64_t)(%s) << %s) & (%s << %s));" % (base, base, m, shift, v, shift, m, shift))
 
     def object_width(self, target):
         """Width of the whole object a target denotes (-1 when the target is a part of a vector)."""

@@ -27,7 +27,7 @@ static void fp_rnd_p0(void *inst)
     self->v0_result = UINT64_C(0x0);
     self->v0_flags = UINT64_C(0x0);
     self->v0_odd = ((((self->v0_mant >> 0) & 1) | f_or_reduce_4((self->v0_grs & UINT64_C(0x3)))) | f_to_std_logic_0((self->v0_rema == UINT64_C(0x1))));
-    self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 0)) | (((f_to_std_logic_0((self->v0_rema != UINT64_C(0x0))) | f_or_reduce_5(self->v0_grs)) << 0) & (UINT64_C(0x1) << 0));
+    self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 0)) | (((uint64_t)((f_to_std_logic_0((self->v0_rema != UINT64_C(0x0))) | f_or_reduce_5(self->v0_grs))) << 0) & (UINT64_C(0x1) << 0));
     self->v0_rndup = INT64_C(0);
     self->v0_rnddn = INT64_C(0);
     switch (self->v0_rm)
@@ -151,7 +151,7 @@ static void fp_rnd_p0(void *inst)
     self->v0_mant = vs_shr(self->v0_mant, self->v0_shift);
     if ((self->v0_expo == INT64_C(0)))
     {
-        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | ((((self->v0_flags >> 0) & 1) << 1) & (UINT64_C(0x1) << 1));
+        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | (((uint64_t)(((self->v0_flags >> 0) & 1)) << 1) & (UINT64_C(0x1) << 1));
     }
     if ((self->v0_rndup == INT64_C(1)))
     {
@@ -163,22 +163,22 @@ static void fp_rnd_p0(void *inst)
                 {
                     if (((((self->v0_grs == UINT64_C(0x1)) | (self->v0_grs == UINT64_C(0x2))) | (self->v0_grs == UINT64_C(0x3))) | (self->v0_grs == UINT64_C(0x4))))
                     {
-                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | ((1 << 1) & (UINT64_C(0x1) << 1));
+                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | (((uint64_t)(1) << 1) & (UINT64_C(0x1) << 1));
                     }
                     else
                     {
-                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | ((0 << 1) & (UINT64_C(0x1) << 1));
+                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | (((uint64_t)(0) << 1) & (UINT64_C(0x1) << 1));
                     }
                 }
                 else
                 {
                     if (((self->v0_grs == UINT64_C(0x4)) | (self->v0_grs == UINT64_C(0x5))))
                     {
-                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | ((1 << 1) & (UINT64_C(0x1) << 1));
+                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | (((uint64_t)(1) << 1) & (UINT64_C(0x1) << 1));
                     }
                     else
                     {
-                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | ((0 << 1) & (UINT64_C(0x1) << 1));
+                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | (((uint64_t)(0) << 1) & (UINT64_C(0x1) << 1));
                     }
                 }
             }
@@ -188,22 +188,22 @@ static void fp_rnd_p0(void *inst)
                 {
                     if (((((self->v0_grs == UINT64_C(0x1)) | (self->v0_grs == UINT64_C(0x2))) | (self->v0_grs == UINT64_C(0x3))) | (self->v0_grs == UINT64_C(0x4))))
                     {
-                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | ((1 << 1) & (UINT64_C(0x1) << 1));
+                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | (((uint64_t)(1) << 1) & (UINT64_C(0x1) << 1));
                     }
                     else
                     {
-                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | ((0 << 1) & (UINT64_C(0x1) << 1));
+                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | (((uint64_t)(0) << 1) & (UINT64_C(0x1) << 1));
                     }
                 }
                 else
                 {
                     if (((self->v0_grs == UINT64_C(0x4)) | (self->v0_grs == UINT64_C(0x5))))
                     {
-                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | ((1 << 1) & (UINT64_C(0x1) << 1));
+                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | (((uint64_t)(1) << 1) & (UINT64_C(0x1) << 1));
                     }
                     else
                     {
-                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | ((0 << 1) & (UINT64_C(0x1) << 1));
+                        self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 1)) | (((uint64_t)(0) << 1) & (UINT64_C(0x1) << 1));
                     }
                 }
             }

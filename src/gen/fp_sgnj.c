@@ -18,34 +18,34 @@ static void fp_sgnj_p0(void *inst)
     self->v0_result = UINT64_C(0x0);
     if ((self->v0_fmt == UINT64_C(0x0)))
     {
-        self->v0_result = (self->v0_result & ~(UINT64_C(0x7FFFFFFF) << 0)) | (((self->v0_data1 & UINT64_C(0x7FFFFFFF)) << 0) & (UINT64_C(0x7FFFFFFF) << 0));
+        self->v0_result = (self->v0_result & ~(UINT64_C(0x7FFFFFFF) << 0)) | (((uint64_t)((self->v0_data1 & UINT64_C(0x7FFFFFFF))) << 0) & (UINT64_C(0x7FFFFFFF) << 0));
         if ((self->v0_rm == UINT64_C(0x0)))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 31)) | ((((self->v0_data2 >> 31) & 1) << 31) & (UINT64_C(0x1) << 31));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 31)) | (((uint64_t)(((self->v0_data2 >> 31) & 1)) << 31) & (UINT64_C(0x1) << 31));
         }
         else if ((self->v0_rm == UINT64_C(0x1)))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 31)) | ((((((self->v0_data2 >> 31) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)) << 31) & (UINT64_C(0x1) << 31));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 31)) | (((uint64_t)(((((self->v0_data2 >> 31) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1))) << 31) & (UINT64_C(0x1) << 31));
         }
         else if ((self->v0_rm == UINT64_C(0x2)))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 31)) | (((((self->v0_data1 >> 31) & 1) ^ ((self->v0_data2 >> 31) & 1)) << 31) & (UINT64_C(0x1) << 31));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 31)) | (((uint64_t)((((self->v0_data1 >> 31) & 1) ^ ((self->v0_data2 >> 31) & 1))) << 31) & (UINT64_C(0x1) << 31));
         }
     }
     else if ((self->v0_fmt == UINT64_C(0x1)))
     {
-        self->v0_result = (self->v0_result & ~(UINT64_C(0x7FFFFFFFFFFFFFFF) << 0)) | (((self->v0_data1 & UINT64_C(0x7FFFFFFFFFFFFFFF)) << 0) & (UINT64_C(0x7FFFFFFFFFFFFFFF) << 0));
+        self->v0_result = (self->v0_result & ~(UINT64_C(0x7FFFFFFFFFFFFFFF) << 0)) | (((uint64_t)((self->v0_data1 & UINT64_C(0x7FFFFFFFFFFFFFFF))) << 0) & (UINT64_C(0x7FFFFFFFFFFFFFFF) << 0));
         if ((self->v0_rm == UINT64_C(0x0)))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 63)) | ((((self->v0_data2 >> 63) & 1) << 63) & (UINT64_C(0x1) << 63));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 63)) | (((uint64_t)(((self->v0_data2 >> 63) & 1)) << 63) & (UINT64_C(0x1) << 63));
         }
         else if ((self->v0_rm == UINT64_C(0x1)))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 63)) | ((((((self->v0_data2 >> 63) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1)) << 63) & (UINT64_C(0x1) << 63));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 63)) | (((uint64_t)(((((self->v0_data2 >> 63) & 1) ^ UINT64_C(0x1)) & UINT64_C(0x1))) << 63) & (UINT64_C(0x1) << 63));
         }
         else if ((self->v0_rm == UINT64_C(0x2)))
         {
-            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 63)) | (((((self->v0_data1 >> 63) & 1) ^ ((self->v0_data2 >> 63) & 1)) << 63) & (UINT64_C(0x1) << 63));
+            self->v0_result = (self->v0_result & ~(UINT64_C(0x1) << 63)) | (((uint64_t)((((self->v0_data1 >> 63) & 1) ^ ((self->v0_data2 >> 63) & 1))) << 63) & (UINT64_C(0x1) << 63));
         }
     }
     vs_drive(&(*self->p_fp_sgnj_o).f_result, self->v0_result);

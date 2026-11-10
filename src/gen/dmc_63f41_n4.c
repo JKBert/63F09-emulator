@@ -234,7 +234,6 @@ struct dmc_63f41_n4_g0
     vs_sig s_lock_granted_s;
     vs_sig s_e_rising_d;
     vs_sig s_cpu_vma_raw;
-    vs_sig s_cpu_mrdy_d_old;
     vs_sig s_cpu_waiting;
     vs_sig s_buffered_a;
     vs_sig s_cacheable_l;
@@ -332,8 +331,6 @@ struct dmc_63f41_n4_g0
     vs_sig s_commit_s;
     vs_sig s_bw_pred;
     vs_sig s_sens_pred;
-    vs_sig s_bw_pred_old;
-    vs_sig s_sens_pred_old;
     mmu_63f29 c_mmu_with_cache_l1_0;
     ram_61f512_t c_cache_64k_1;
     vs_sig x2_imp_rw;
@@ -1799,8 +1796,8 @@ static void dmc_63f41_n4_g7_create(vs_kernel *k, dmc_63f41_n4_g7 *self, const ch
 
 static int64_t f_mrdy_source_3(dmc_63f41_n4_g0 *self, uint64_t a_ad)
 {
-    uint64_t v_low_45776 = 0;
-    v_low_45776 = (a_ad & UINT64_C(0xFFF));
+    uint64_t v_low_62736 = 0;
+    v_low_62736 = (a_ad & UINT64_C(0xFFF));
     if ((((a_ad >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFF)))
     {
         return INT64_C(1);
@@ -1811,7 +1808,7 @@ static int64_t f_mrdy_source_3(dmc_63f41_n4_g0 *self, uint64_t a_ad)
         {
             case UINT64_C(0xF):
             {
-                if ((v_low_45776 <= (uint64_t)(INT64_C(9))))
+                if ((v_low_62736 <= (uint64_t)(INT64_C(9))))
                 {
                     return INT64_C(0);
                 }
@@ -1823,7 +1820,7 @@ static int64_t f_mrdy_source_3(dmc_63f41_n4_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xE):
             {
-                if ((v_low_45776 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_62736 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -1835,7 +1832,7 @@ static int64_t f_mrdy_source_3(dmc_63f41_n4_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xD):
             {
-                if ((v_low_45776 <= (uint64_t)(INT64_C(15))))
+                if ((v_low_62736 <= (uint64_t)(INT64_C(15))))
                 {
                     return INT64_C(0);
                 }
@@ -1847,7 +1844,7 @@ static int64_t f_mrdy_source_3(dmc_63f41_n4_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xC):
             {
-                if ((v_low_45776 <= (uint64_t)(INT64_C(3))))
+                if ((v_low_62736 <= (uint64_t)(INT64_C(3))))
                 {
                     return INT64_C(0);
                 }
@@ -1859,7 +1856,7 @@ static int64_t f_mrdy_source_3(dmc_63f41_n4_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xB):
             {
-                if ((v_low_45776 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_62736 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -1871,7 +1868,7 @@ static int64_t f_mrdy_source_3(dmc_63f41_n4_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xA):
             {
-                if ((v_low_45776 <= (uint64_t)(INT64_C(1))))
+                if ((v_low_62736 <= (uint64_t)(INT64_C(1))))
                 {
                     return INT64_C(0);
                 }
@@ -1883,7 +1880,7 @@ static int64_t f_mrdy_source_3(dmc_63f41_n4_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0x9):
             {
-                if ((v_low_45776 <= (uint64_t)(INT64_C(4))))
+                if ((v_low_62736 <= (uint64_t)(INT64_C(4))))
                 {
                     return INT64_C(0);
                 }
@@ -3468,8 +3465,6 @@ static void dmc_63f41_n4_g0_create(vs_kernel *k, dmc_63f41_n4_g0 *self, const ch
     vs_name(k, &self->s_e_rising_d, path, "e_rising_d", 1);
     vs_register_signal(k, &self->s_cpu_vma_raw, (uint64_t) (0));
     vs_name(k, &self->s_cpu_vma_raw, path, "cpu_vma_raw", 1);
-    vs_register_signal(k, &self->s_cpu_mrdy_d_old, (uint64_t) (0));
-    vs_name(k, &self->s_cpu_mrdy_d_old, path, "cpu_mrdy_d_old", 1);
     vs_register_signal(k, &self->s_cpu_waiting, (uint64_t) (0));
     vs_name(k, &self->s_cpu_waiting, path, "cpu_waiting", 1);
     vs_register_signal(k, &self->s_buffered_a, (uint64_t) (0));
@@ -3663,10 +3658,6 @@ static void dmc_63f41_n4_g0_create(vs_kernel *k, dmc_63f41_n4_g0 *self, const ch
     vs_name(k, &self->s_bw_pred, path, "bw_pred", 1);
     vs_register_signal(k, &self->s_sens_pred, (uint64_t) (0));
     vs_name(k, &self->s_sens_pred, path, "sens_pred", 1);
-    vs_register_signal(k, &self->s_bw_pred_old, (uint64_t) (0));
-    vs_name(k, &self->s_bw_pred_old, path, "bw_pred_old", 1);
-    vs_register_signal(k, &self->s_sens_pred_old, (uint64_t) (0));
-    vs_name(k, &self->s_sens_pred_old, path, "sens_pred_old", 1);
     mmu_63f29_create(k, &self->c_mmu_with_cache_l1_0, vs_join(k, path, "mmu_with_cache_l1"), 1, self->up->g_fpu_by_core, 1, INT64_C(3), self->up->p_extal, self->up->p_reset_n, self->up->p_nmi_n, self->up->p_firq_n, self->up->p_irq_n, &self->s_cpu_mrdy_d, self->up->p_dma_breq_n, self->up->p_halt_n, &self->s_cpu_e, &self->s_cpu_e_n, &self->s_cpu_q, self->up->p_ba, self->up->p_bs, &self->s_cpu_rw_n, &self->s_cpu_vma, &self->s_cpu_e_l, &self->s_cpu_q_l, &self->s_cpu_a, &self->s_cpu_d_in, &self->s_cpu_d_out, self->up->p_eirq_n, self->up->p_fic, &self->s_cpu_waiting, self->up->p_fpu_63f39_in, self->up->p_fpu_63f39_out, self->up->p_mmu_cs, self->up->p_mmu_mrdy, &self->s_mmu_vma, &self->s_cpu_vma_raw, &self->s_local_cache_mrdy, &self->s_cpu_mrdy, self->up->p_lock_request, &self->s_lock_granted_s, self->up->p_reset_request_n, self->up->p_run_req, self->up->p_e_v, self->up->p_rem_cs, self->up->p_rem_rw_n, self->up->p_rem_a, self->up->p_rem_d, self->up->p_rem_e, self->up->p_vclk_on, self->up->p_rem_d_out);
     vs_register_signal(k, &self->x2_imp_rw, (uint64_t) (0));
     vs_name(k, &self->x2_imp_rw, path, "imp_rw", 1);

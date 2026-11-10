@@ -1706,14 +1706,14 @@ static void mmu_63f29_g31_create(vs_kernel *k, mmu_63f29_g31 *self, const char *
 
 static int64_t f_log2i_0(mmu_63f29_g2 *self, int64_t a_n)
 {
-    int64_t v_r_40368 = INT64_C(0);
-    int64_t v_v_40304 = INT64_C(1);
-    while ((v_v_40304 < a_n))
+    int64_t v_r_71248 = INT64_C(0);
+    int64_t v_v_71184 = INT64_C(1);
+    while ((v_v_71184 < a_n))
     {
-        v_v_40304 = (v_v_40304 * INT64_C(2));
-        v_r_40368 = (v_r_40368 + INT64_C(1));
+        v_v_71184 = (v_v_71184 * INT64_C(2));
+        v_r_71248 = (v_r_71248 + INT64_C(1));
     }
-    return v_r_40368;
+    return v_r_71248;
 }
 
 static void mmu_63f29_g2_p0(void *inst)
@@ -4546,14 +4546,6 @@ void mmu_63f29_create(vs_kernel *k, mmu_63f29 *self, const char *path, uint64_t 
     vs_name(k, &self->s_tr_wait, path, "tr_wait", 1);
     vs_register_signal(k, &self->s_tr_wait_r, (uint64_t) (0));
     vs_name(k, &self->s_tr_wait_r, path, "tr_wait_r", 1);
-    vs_register_signal(k, &self->s_old_strobe, (uint64_t) (0));
-    vs_name(k, &self->s_old_strobe, path, "old_strobe", 1);
-    vs_register_signal(k, &self->s_n_stale, (uint64_t) (INT64_C(0)));
-    vs_name(k, &self->s_n_stale, path, "n_stale", 64);
-    vs_register_signal(k, &self->s_n_late, (uint64_t) (INT64_C(0)));
-    vs_name(k, &self->s_n_late, path, "n_late", 64);
-    vs_register_signal(k, &self->s_n_str, (uint64_t) (INT64_C(0)));
-    vs_name(k, &self->s_n_str, path, "n_str", 64);
     vs_register_signal(k, &self->s_ticks_since_e, (uint64_t) (INT64_C(0)));
     vs_name(k, &self->s_ticks_since_e, path, "ticks_since_e", 64);
     vs_register_signal(k, &self->s_captured, (uint64_t) (0));

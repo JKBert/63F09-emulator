@@ -449,7 +449,7 @@ static void twi_63f54_p11(void *inst)
                 }
                 case 5:
                 {
-                    self->v11_rxb = (self->v11_rxb & ~((UINT64_C(1)) << ((self->v11_bitcnt) - 0))) | ((self->s_sda_s2.cur << ((self->v11_bitcnt) - 0)) & ((UINT64_C(1)) << ((self->v11_bitcnt) - 0)));
+                    self->v11_rxb = (self->v11_rxb & ~((UINT64_C(1)) << ((self->v11_bitcnt) - 0))) | (((uint64_t)(self->s_sda_s2.cur) << ((self->v11_bitcnt) - 0)) & ((UINT64_C(1)) << ((self->v11_bitcnt) - 0)));
                     break;
                 }
                 case 2:

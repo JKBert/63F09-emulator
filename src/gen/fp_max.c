@@ -36,17 +36,17 @@ static void fp_max_p0(void *inst)
         if (((((self->v0_class1 >> 8) & 1) & ((self->v0_class2 >> 8) & 1)) == 1))
         {
             self->v0_result = self->v0_nan;
-            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | ((1 << 4) & (UINT64_C(0x1) << 4));
+            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(1) << 4) & (UINT64_C(0x1) << 4));
         }
         else if ((((self->v0_class1 >> 8) & 1) == 1))
         {
             self->v0_result = self->v0_data2;
-            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | ((1 << 4) & (UINT64_C(0x1) << 4));
+            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(1) << 4) & (UINT64_C(0x1) << 4));
         }
         else if ((((self->v0_class2 >> 8) & 1) == 1))
         {
             self->v0_result = self->v0_data1;
-            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | ((1 << 4) & (UINT64_C(0x1) << 4));
+            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(1) << 4) & (UINT64_C(0x1) << 4));
         }
         else if (((((self->v0_class1 >> 9) & 1) & ((self->v0_class2 >> 9) & 1)) == 1))
         {
@@ -102,17 +102,17 @@ static void fp_max_p0(void *inst)
         if (((((self->v0_class1 >> 8) & 1) & ((self->v0_class2 >> 8) & 1)) == 1))
         {
             self->v0_result = self->v0_nan;
-            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | ((1 << 4) & (UINT64_C(0x1) << 4));
+            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(1) << 4) & (UINT64_C(0x1) << 4));
         }
         else if ((((self->v0_class1 >> 8) & 1) == 1))
         {
             self->v0_result = self->v0_data2;
-            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | ((1 << 4) & (UINT64_C(0x1) << 4));
+            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(1) << 4) & (UINT64_C(0x1) << 4));
         }
         else if ((((self->v0_class2 >> 8) & 1) == 1))
         {
             self->v0_result = self->v0_data1;
-            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | ((1 << 4) & (UINT64_C(0x1) << 4));
+            self->v0_flags = (self->v0_flags & ~(UINT64_C(0x1) << 4)) | (((uint64_t)(1) << 4) & (UINT64_C(0x1) << 4));
         }
         else if (((((self->v0_class1 >> 9) & 1) & ((self->v0_class2 >> 9) & 1)) == 1))
         {
