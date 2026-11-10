@@ -152,42 +152,42 @@ static int64_t f_pf_level_0(cpu_63f09 *self, uint64_t a_c)
 
 static shn_type f_shn_decode_0(cpu_63f09 *self, uint64_t a_opc, uint64_t a_b)
 {
-    shn_type v_r_40432 = shn_type_zero();
-    v_r_40432.f_valid = 0;
-    v_r_40432.f_iso = 0;
-    v_r_40432.f_mask = UINT64_C(0x0);
-    v_r_40432.f_width = (UINT64_C(0x0));
-    v_r_40432.f_count = UINT64_C(0x0);
-    v_r_40432.f_op = (UINT64_C(0x0));
+    shn_type v_r_7824 = shn_type_zero();
+    v_r_7824.f_valid = 0;
+    v_r_7824.f_iso = 0;
+    v_r_7824.f_mask = UINT64_C(0x0);
+    v_r_7824.f_width = (UINT64_C(0x0));
+    v_r_7824.f_count = UINT64_C(0x0);
+    v_r_7824.f_op = (UINT64_C(0x0));
     switch (a_opc)
     {
         case UINT64_C(0x42):
         case UINT64_C(0x52):
         {
-            v_r_40432.f_op = (UINT64_C(0x0));
+            v_r_7824.f_op = (UINT64_C(0x0));
             break;
         }
         case UINT64_C(0x45):
         case UINT64_C(0x55):
         {
-            v_r_40432.f_op = (UINT64_C(0x1));
+            v_r_7824.f_op = (UINT64_C(0x1));
             break;
         }
         case UINT64_C(0x4B):
         case UINT64_C(0x5B):
         {
-            v_r_40432.f_op = (UINT64_C(0x2));
+            v_r_7824.f_op = (UINT64_C(0x2));
             break;
         }
         case UINT64_C(0x5E):
         case UINT64_C(0x87):
         {
-            v_r_40432.f_op = (UINT64_C(0x3));
+            v_r_7824.f_op = (UINT64_C(0x3));
             break;
         }
         default:
         {
-            v_r_40432.f_op = (UINT64_C(0x4));
+            v_r_7824.f_op = (UINT64_C(0x4));
             break;
         }
     }
@@ -195,256 +195,256 @@ static shn_type f_shn_decode_0(cpu_63f09 *self, uint64_t a_opc, uint64_t a_b)
     {
         if ((((a_b >> (6)) & UINT64_C(0x3)) == UINT64_C(0x2)))
         {
-            v_r_40432.f_valid = 1;
-            v_r_40432.f_iso = 1;
-            v_r_40432.f_width = (UINT64_C(0x3));
-            v_r_40432.f_count = (a_b & UINT64_C(0x3F));
+            v_r_7824.f_valid = 1;
+            v_r_7824.f_iso = 1;
+            v_r_7824.f_width = (UINT64_C(0x3));
+            v_r_7824.f_count = (a_b & UINT64_C(0x3F));
         }
         else if ((((a_b >> (5)) & UINT64_C(0x7)) == UINT64_C(0x0)))
         {
-            v_r_40432.f_valid = 1;
-            v_r_40432.f_width = (UINT64_C(0x0));
-            v_r_40432.f_count = (((uint64_t)(UINT64_C(0x0)) << 3) | (a_b & UINT64_C(0x7)));
+            v_r_7824.f_valid = 1;
+            v_r_7824.f_width = (UINT64_C(0x0));
+            v_r_7824.f_count = (((uint64_t)(UINT64_C(0x0)) << 3) | (a_b & UINT64_C(0x7)));
             switch (((a_b >> (3)) & UINT64_C(0x3)))
             {
                 case UINT64_C(0x0):
                 {
-                    v_r_40432.f_mask = UINT64_C(0x8);
+                    v_r_7824.f_mask = UINT64_C(0x8);
                     break;
                 }
                 case UINT64_C(0x1):
                 {
-                    v_r_40432.f_mask = UINT64_C(0x9);
+                    v_r_7824.f_mask = UINT64_C(0x9);
                     break;
                 }
                 case UINT64_C(0x2):
                 {
-                    v_r_40432.f_mask = UINT64_C(0xE);
+                    v_r_7824.f_mask = UINT64_C(0xE);
                     break;
                 }
                 default:
                 {
-                    v_r_40432.f_mask = UINT64_C(0xF);
+                    v_r_7824.f_mask = UINT64_C(0xF);
                     break;
                 }
             }
         }
         else if ((((a_b >> (5)) & UINT64_C(0x7)) == UINT64_C(0x2)))
         {
-            v_r_40432.f_valid = 1;
-            v_r_40432.f_width = (UINT64_C(0x1));
-            v_r_40432.f_count = (((uint64_t)(UINT64_C(0x0)) << 4) | (a_b & UINT64_C(0xF)));
+            v_r_7824.f_valid = 1;
+            v_r_7824.f_width = (UINT64_C(0x1));
+            v_r_7824.f_count = (((uint64_t)(UINT64_C(0x0)) << 4) | (a_b & UINT64_C(0xF)));
             if ((((a_b >> 4) & 1) == 0))
             {
-                v_r_40432.f_mask = UINT64_C(0x0);
+                v_r_7824.f_mask = UINT64_C(0x0);
             }
             else
             {
-                v_r_40432.f_mask = UINT64_C(0x6);
+                v_r_7824.f_mask = UINT64_C(0x6);
             }
         }
     }
     else
     {
-        v_r_40432.f_width = (UINT64_C(0x2));
-        v_r_40432.f_count = (((uint64_t)(0) << 5) | (a_b & UINT64_C(0x1F)));
+        v_r_7824.f_width = (UINT64_C(0x2));
+        v_r_7824.f_count = (((uint64_t)(0) << 5) | (a_b & UINT64_C(0x1F)));
         switch (((a_b >> (5)) & UINT64_C(0x7)))
         {
             case UINT64_C(0x0):
             {
-                v_r_40432.f_valid = 1;
-                v_r_40432.f_mask = UINT64_C(0x1);
+                v_r_7824.f_valid = 1;
+                v_r_7824.f_mask = UINT64_C(0x1);
                 break;
             }
             case UINT64_C(0x1):
             {
-                v_r_40432.f_valid = 1;
-                v_r_40432.f_mask = UINT64_C(0x2);
+                v_r_7824.f_valid = 1;
+                v_r_7824.f_mask = UINT64_C(0x2);
                 break;
             }
             case UINT64_C(0x2):
             {
-                v_r_40432.f_valid = 1;
-                v_r_40432.f_mask = UINT64_C(0x3);
+                v_r_7824.f_valid = 1;
+                v_r_7824.f_mask = UINT64_C(0x3);
                 break;
             }
             case UINT64_C(0x3):
             {
-                v_r_40432.f_valid = 1;
-                v_r_40432.f_mask = UINT64_C(0x4);
+                v_r_7824.f_valid = 1;
+                v_r_7824.f_mask = UINT64_C(0x4);
                 break;
             }
             case UINT64_C(0x4):
             {
-                v_r_40432.f_valid = 1;
-                v_r_40432.f_mask = UINT64_C(0x7);
+                v_r_7824.f_valid = 1;
+                v_r_7824.f_mask = UINT64_C(0x7);
                 break;
             }
             case UINT64_C(0x5):
             {
-                v_r_40432.f_valid = 1;
-                v_r_40432.f_mask = UINT64_C(0xC);
+                v_r_7824.f_valid = 1;
+                v_r_7824.f_mask = UINT64_C(0xC);
                 break;
             }
             default:
             {
-                v_r_40432.f_valid = 0;
+                v_r_7824.f_valid = 0;
                 break;
             }
         }
     }
-    return v_r_40432;
+    return v_r_7824;
 }
 
 static shn_type f_shn_decode_mem_0(cpu_63f09 *self, uint64_t a_opc, uint64_t a_b)
 {
-    shn_type v_r_42032 = shn_type_zero();
-    v_r_42032.f_valid = 0;
-    v_r_42032.f_iso = 0;
-    v_r_42032.f_mask = UINT64_C(0x0);
-    v_r_42032.f_width = (UINT64_C(0x0));
-    v_r_42032.f_count = (((uint64_t)(UINT64_C(0x0)) << 3) | (a_b & UINT64_C(0x7)));
-    v_r_42032.f_op = (UINT64_C(0x0));
+    shn_type v_r_38864 = shn_type_zero();
+    v_r_38864.f_valid = 0;
+    v_r_38864.f_iso = 0;
+    v_r_38864.f_mask = UINT64_C(0x0);
+    v_r_38864.f_width = (UINT64_C(0x0));
+    v_r_38864.f_count = (((uint64_t)(UINT64_C(0x0)) << 3) | (a_b & UINT64_C(0x7)));
+    v_r_38864.f_op = (UINT64_C(0x0));
     if ((((a_b >> (3)) & UINT64_C(0x1F)) == UINT64_C(0x0)))
     {
-        v_r_42032.f_valid = 1;
+        v_r_38864.f_valid = 1;
     }
     switch ((a_opc & UINT64_C(0xF)))
     {
         case UINT64_C(0x4):
         {
-            v_r_42032.f_op = (UINT64_C(0x0));
+            v_r_38864.f_op = (UINT64_C(0x0));
             break;
         }
         case UINT64_C(0x5):
         {
-            v_r_42032.f_op = (UINT64_C(0x1));
+            v_r_38864.f_op = (UINT64_C(0x1));
             break;
         }
         case UINT64_C(0x6):
         {
-            v_r_42032.f_op = (UINT64_C(0x2));
+            v_r_38864.f_op = (UINT64_C(0x2));
             break;
         }
         case UINT64_C(0xA):
         {
-            v_r_42032.f_op = (UINT64_C(0x3));
+            v_r_38864.f_op = (UINT64_C(0x3));
             break;
         }
         case UINT64_C(0xB):
         {
-            v_r_42032.f_op = (UINT64_C(0x4));
+            v_r_38864.f_op = (UINT64_C(0x4));
             break;
         }
         default:
         {
-            v_r_42032.f_valid = 0;
+            v_r_38864.f_valid = 0;
             break;
         }
     }
-    return v_r_42032;
+    return v_r_38864;
 }
 
 static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w, uint64_t a_cnt, uint64_t a_op, uint64_t a_oldc, uint64_t a_oldv)
 {
-    shn_res_type v_r_42896 = shn_res_type_zero();
-    uint64_t v_msk_42928 = 0;
-    uint64_t v_xrep_42960 = 0;
-    uint64_t v_rot_43152 = 0;
-    uint64_t v_lown_43184 = 0;
-    uint64_t v_lowne_43376 = 0;
-    uint64_t v_topn_43408 = 0;
-    uint64_t v_topn1_43312 = 0;
-    uint64_t v_keep_43440 = 0;
-    uint64_t v_fill_43504 = 0;
-    uint64_t v_d_43536 = 0;
-    uint64_t v_rc_43568 = 0;
-    uint64_t v_neg_43600 = 0;
-    uint64_t v_left_43472 = 0;
-    uint64_t v_rotate_43632 = 0;
-    uint64_t v_arith_42992 = 0;
-    uint64_t v_s_43664 = 0;
-    int64_t v_cni_43696 = INT64_C(0);
+    shn_res_type v_r_39728 = shn_res_type_zero();
+    uint64_t v_msk_39760 = 0;
+    uint64_t v_xrep_39792 = 0;
+    uint64_t v_rot_39984 = 0;
+    uint64_t v_lown_40016 = 0;
+    uint64_t v_lowne_40208 = 0;
+    uint64_t v_topn_40240 = 0;
+    uint64_t v_topn1_40144 = 0;
+    uint64_t v_keep_40272 = 0;
+    uint64_t v_fill_40336 = 0;
+    uint64_t v_d_40368 = 0;
+    uint64_t v_rc_40400 = 0;
+    uint64_t v_neg_40432 = 0;
+    uint64_t v_left_40304 = 0;
+    uint64_t v_rotate_40464 = 0;
+    uint64_t v_arith_39824 = 0;
+    uint64_t v_s_40496 = 0;
+    int64_t v_cni_40528 = INT64_C(0);
     if (((a_op == (UINT64_C(0x2))) | (a_op == (UINT64_C(0x4)))))
     {
-        v_left_43472 = 1;
+        v_left_40304 = 1;
     }
     else
     {
-        v_left_43472 = 0;
+        v_left_40304 = 0;
     }
     if (((a_op == (UINT64_C(0x3))) | (a_op == (UINT64_C(0x4)))))
     {
-        v_rotate_43632 = 1;
+        v_rotate_40464 = 1;
     }
     else
     {
-        v_rotate_43632 = 0;
+        v_rotate_40464 = 0;
     }
     if ((a_op == (UINT64_C(0x1))))
     {
-        v_arith_42992 = 1;
+        v_arith_39824 = 1;
     }
     else
     {
-        v_arith_42992 = 0;
+        v_arith_39824 = 0;
     }
-    v_cni_43696 = (int64_t)(a_cnt);
+    v_cni_40528 = (int64_t)(a_cnt);
     switch (a_w)
     {
         case UINT64_C(0x0):
         {
-            v_msk_42928 = UINT64_C(0xFF);
-            v_s_43664 = ((a_x >> 7) & 1);
-            v_xrep_42960 = (((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((a_x & UINT64_C(0xFF))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)));
+            v_msk_39760 = UINT64_C(0xFF);
+            v_s_40496 = ((a_x >> 7) & 1);
+            v_xrep_39792 = (((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((a_x & UINT64_C(0xFF))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)));
             break;
         }
         case UINT64_C(0x1):
         {
-            v_msk_42928 = UINT64_C(0xFFFF);
-            v_s_43664 = ((a_x >> 15) & 1);
-            v_xrep_42960 = (((uint64_t)((((uint64_t)((((uint64_t)((a_x & UINT64_C(0xFFFF))) << 16) | (a_x & UINT64_C(0xFFFF)))) << 16) | (a_x & UINT64_C(0xFFFF)))) << 16) | (a_x & UINT64_C(0xFFFF)));
+            v_msk_39760 = UINT64_C(0xFFFF);
+            v_s_40496 = ((a_x >> 15) & 1);
+            v_xrep_39792 = (((uint64_t)((((uint64_t)((((uint64_t)((a_x & UINT64_C(0xFFFF))) << 16) | (a_x & UINT64_C(0xFFFF)))) << 16) | (a_x & UINT64_C(0xFFFF)))) << 16) | (a_x & UINT64_C(0xFFFF)));
             break;
         }
         case UINT64_C(0x2):
         {
-            v_msk_42928 = UINT64_C(0xFFFFFFFF);
-            v_s_43664 = ((a_x >> 31) & 1);
-            v_xrep_42960 = (((uint64_t)((a_x & UINT64_C(0xFFFFFFFF))) << 32) | (a_x & UINT64_C(0xFFFFFFFF)));
+            v_msk_39760 = UINT64_C(0xFFFFFFFF);
+            v_s_40496 = ((a_x >> 31) & 1);
+            v_xrep_39792 = (((uint64_t)((a_x & UINT64_C(0xFFFFFFFF))) << 32) | (a_x & UINT64_C(0xFFFFFFFF)));
             break;
         }
         default:
         {
-            v_msk_42928 = UINT64_C(0xFFFFFFFFFFFFFFFF);
-            v_s_43664 = ((a_x >> 63) & 1);
-            v_xrep_42960 = a_x;
+            v_msk_39760 = UINT64_C(0xFFFFFFFFFFFFFFFF);
+            v_s_40496 = ((a_x >> 63) & 1);
+            v_xrep_39792 = a_x;
             break;
         }
     }
-    v_neg_43600 = ((((a_cnt ^ UINT64_C(0x3F)) & UINT64_C(0x3F)) + (uint64_t)(INT64_C(1))) & UINT64_C(0x3F));
-    if ((v_left_43472 == 1))
+    v_neg_40432 = ((((a_cnt ^ UINT64_C(0x3F)) & UINT64_C(0x3F)) + (uint64_t)(INT64_C(1))) & UINT64_C(0x3F));
+    if ((v_left_40304 == 1))
     {
-        v_rc_43568 = v_neg_43600;
+        v_rc_40400 = v_neg_40432;
     }
     else
     {
-        v_rc_43568 = a_cnt;
+        v_rc_40400 = a_cnt;
     }
     switch (a_w)
     {
         case UINT64_C(0x0):
         {
-            v_rc_43568 = (v_rc_43568 & ~(UINT64_C(0x7) << 3)) | ((UINT64_C(0x0) << 3) & (UINT64_C(0x7) << 3));
+            v_rc_40400 = (v_rc_40400 & ~(UINT64_C(0x7) << 3)) | ((UINT64_C(0x0) << 3) & (UINT64_C(0x7) << 3));
             break;
         }
         case UINT64_C(0x1):
         {
-            v_rc_43568 = (v_rc_43568 & ~(UINT64_C(0x3) << 4)) | ((UINT64_C(0x0) << 4) & (UINT64_C(0x3) << 4));
+            v_rc_40400 = (v_rc_40400 & ~(UINT64_C(0x3) << 4)) | ((UINT64_C(0x0) << 4) & (UINT64_C(0x3) << 4));
             break;
         }
         case UINT64_C(0x2):
         {
-            v_rc_43568 = (v_rc_43568 & ~(UINT64_C(0x1) << 5)) | ((0 << 5) & (UINT64_C(0x1) << 5));
+            v_rc_40400 = (v_rc_40400 & ~(UINT64_C(0x1) << 5)) | ((0 << 5) & (UINT64_C(0x1) << 5));
             break;
         }
         default:
@@ -453,60 +453,60 @@ static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w,
             break;
         }
     }
-    v_rot_43152 = v_xrep_42960;
-    if ((((v_rc_43568 >> 5) & 1) == 1))
+    v_rot_39984 = v_xrep_39792;
+    if ((((v_rc_40400 >> 5) & 1) == 1))
     {
-        v_rot_43152 = (((uint64_t)((v_rot_43152 & UINT64_C(0xFFFFFFFF))) << 32) | ((v_rot_43152 >> (32)) & UINT64_C(0xFFFFFFFF)));
+        v_rot_39984 = (((uint64_t)((v_rot_39984 & UINT64_C(0xFFFFFFFF))) << 32) | ((v_rot_39984 >> (32)) & UINT64_C(0xFFFFFFFF)));
     }
-    if ((((v_rc_43568 >> 4) & 1) == 1))
+    if ((((v_rc_40400 >> 4) & 1) == 1))
     {
-        v_rot_43152 = (((uint64_t)((v_rot_43152 & UINT64_C(0xFFFF))) << 48) | ((v_rot_43152 >> (16)) & UINT64_C(0xFFFFFFFFFFFF)));
+        v_rot_39984 = (((uint64_t)((v_rot_39984 & UINT64_C(0xFFFF))) << 48) | ((v_rot_39984 >> (16)) & UINT64_C(0xFFFFFFFFFFFF)));
     }
-    if ((((v_rc_43568 >> 3) & 1) == 1))
+    if ((((v_rc_40400 >> 3) & 1) == 1))
     {
-        v_rot_43152 = (((uint64_t)((v_rot_43152 & UINT64_C(0xFF))) << 56) | ((v_rot_43152 >> (8)) & UINT64_C(0xFFFFFFFFFFFFFF)));
+        v_rot_39984 = (((uint64_t)((v_rot_39984 & UINT64_C(0xFF))) << 56) | ((v_rot_39984 >> (8)) & UINT64_C(0xFFFFFFFFFFFFFF)));
     }
-    if ((((v_rc_43568 >> 2) & 1) == 1))
+    if ((((v_rc_40400 >> 2) & 1) == 1))
     {
-        v_rot_43152 = (((uint64_t)((v_rot_43152 & UINT64_C(0xF))) << 60) | ((v_rot_43152 >> (4)) & UINT64_C(0xFFFFFFFFFFFFFFF)));
+        v_rot_39984 = (((uint64_t)((v_rot_39984 & UINT64_C(0xF))) << 60) | ((v_rot_39984 >> (4)) & UINT64_C(0xFFFFFFFFFFFFFFF)));
     }
-    if ((((v_rc_43568 >> 1) & 1) == 1))
+    if ((((v_rc_40400 >> 1) & 1) == 1))
     {
-        v_rot_43152 = (((uint64_t)((v_rot_43152 & UINT64_C(0x3))) << 62) | ((v_rot_43152 >> (2)) & UINT64_C(0x3FFFFFFFFFFFFFFF)));
+        v_rot_39984 = (((uint64_t)((v_rot_39984 & UINT64_C(0x3))) << 62) | ((v_rot_39984 >> (2)) & UINT64_C(0x3FFFFFFFFFFFFFFF)));
     }
-    if ((((v_rc_43568 >> 0) & 1) == 1))
+    if ((((v_rc_40400 >> 0) & 1) == 1))
     {
-        v_rot_43152 = (((uint64_t)(((v_rot_43152 >> 0) & 1)) << 63) | ((v_rot_43152 >> (1)) & UINT64_C(0x7FFFFFFFFFFFFFFF)));
+        v_rot_39984 = (((uint64_t)(((v_rot_39984 >> 0) & 1)) << 63) | ((v_rot_39984 >> (1)) & UINT64_C(0x7FFFFFFFFFFFFFFF)));
     }
     for (int64_t i_9 = INT64_C(0); i_9 <= INT64_C(63); i_9++)
     {
-        if ((v_cni_43696 > i_9))
+        if ((v_cni_40528 > i_9))
         {
-            v_lown_43184 = (v_lown_43184 & ~((UINT64_C(1)) << ((i_9) - 0))) | ((1 << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
+            v_lown_40016 = (v_lown_40016 & ~((UINT64_C(1)) << ((i_9) - 0))) | ((1 << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
         }
         else
         {
-            v_lown_43184 = (v_lown_43184 & ~((UINT64_C(1)) << ((i_9) - 0))) | ((0 << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
+            v_lown_40016 = (v_lown_40016 & ~((UINT64_C(1)) << ((i_9) - 0))) | ((0 << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
         }
-        if ((v_cni_43696 >= i_9))
+        if ((v_cni_40528 >= i_9))
         {
-            v_lowne_43376 = (v_lowne_43376 & ~((UINT64_C(1)) << ((i_9) - 0))) | ((1 << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
+            v_lowne_40208 = (v_lowne_40208 & ~((UINT64_C(1)) << ((i_9) - 0))) | ((1 << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
         }
         else
         {
-            v_lowne_43376 = (v_lowne_43376 & ~((UINT64_C(1)) << ((i_9) - 0))) | ((0 << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
+            v_lowne_40208 = (v_lowne_40208 & ~((UINT64_C(1)) << ((i_9) - 0))) | ((0 << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
         }
     }
-    v_topn_43408 = UINT64_C(0x0);
-    v_topn1_43312 = UINT64_C(0x0);
+    v_topn_40240 = UINT64_C(0x0);
+    v_topn1_40144 = UINT64_C(0x0);
     switch (a_w)
     {
         case UINT64_C(0x0):
         {
             for (int64_t i_11 = INT64_C(0); i_11 <= INT64_C(7); i_11++)
             {
-                v_topn_43408 = (v_topn_43408 & ~((UINT64_C(1)) << ((i_11) - 0))) | ((((v_lown_43184 >> (((INT64_C(7) - i_11)) - 0)) & 1) << ((i_11) - 0)) & ((UINT64_C(1)) << ((i_11) - 0)));
-                v_topn1_43312 = (v_topn1_43312 & ~((UINT64_C(1)) << ((i_11) - 0))) | ((((v_lowne_43376 >> (((INT64_C(7) - i_11)) - 0)) & 1) << ((i_11) - 0)) & ((UINT64_C(1)) << ((i_11) - 0)));
+                v_topn_40240 = (v_topn_40240 & ~((UINT64_C(1)) << ((i_11) - 0))) | ((((v_lown_40016 >> (((INT64_C(7) - i_11)) - 0)) & 1) << ((i_11) - 0)) & ((UINT64_C(1)) << ((i_11) - 0)));
+                v_topn1_40144 = (v_topn1_40144 & ~((UINT64_C(1)) << ((i_11) - 0))) | ((((v_lowne_40208 >> (((INT64_C(7) - i_11)) - 0)) & 1) << ((i_11) - 0)) & ((UINT64_C(1)) << ((i_11) - 0)));
             }
             break;
         }
@@ -514,8 +514,8 @@ static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w,
         {
             for (int64_t i_13 = INT64_C(0); i_13 <= INT64_C(15); i_13++)
             {
-                v_topn_43408 = (v_topn_43408 & ~((UINT64_C(1)) << ((i_13) - 0))) | ((((v_lown_43184 >> (((INT64_C(15) - i_13)) - 0)) & 1) << ((i_13) - 0)) & ((UINT64_C(1)) << ((i_13) - 0)));
-                v_topn1_43312 = (v_topn1_43312 & ~((UINT64_C(1)) << ((i_13) - 0))) | ((((v_lowne_43376 >> (((INT64_C(15) - i_13)) - 0)) & 1) << ((i_13) - 0)) & ((UINT64_C(1)) << ((i_13) - 0)));
+                v_topn_40240 = (v_topn_40240 & ~((UINT64_C(1)) << ((i_13) - 0))) | ((((v_lown_40016 >> (((INT64_C(15) - i_13)) - 0)) & 1) << ((i_13) - 0)) & ((UINT64_C(1)) << ((i_13) - 0)));
+                v_topn1_40144 = (v_topn1_40144 & ~((UINT64_C(1)) << ((i_13) - 0))) | ((((v_lowne_40208 >> (((INT64_C(15) - i_13)) - 0)) & 1) << ((i_13) - 0)) & ((UINT64_C(1)) << ((i_13) - 0)));
             }
             break;
         }
@@ -523,8 +523,8 @@ static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w,
         {
             for (int64_t i_15 = INT64_C(0); i_15 <= INT64_C(31); i_15++)
             {
-                v_topn_43408 = (v_topn_43408 & ~((UINT64_C(1)) << ((i_15) - 0))) | ((((v_lown_43184 >> (((INT64_C(31) - i_15)) - 0)) & 1) << ((i_15) - 0)) & ((UINT64_C(1)) << ((i_15) - 0)));
-                v_topn1_43312 = (v_topn1_43312 & ~((UINT64_C(1)) << ((i_15) - 0))) | ((((v_lowne_43376 >> (((INT64_C(31) - i_15)) - 0)) & 1) << ((i_15) - 0)) & ((UINT64_C(1)) << ((i_15) - 0)));
+                v_topn_40240 = (v_topn_40240 & ~((UINT64_C(1)) << ((i_15) - 0))) | ((((v_lown_40016 >> (((INT64_C(31) - i_15)) - 0)) & 1) << ((i_15) - 0)) & ((UINT64_C(1)) << ((i_15) - 0)));
+                v_topn1_40144 = (v_topn1_40144 & ~((UINT64_C(1)) << ((i_15) - 0))) | ((((v_lowne_40208 >> (((INT64_C(31) - i_15)) - 0)) & 1) << ((i_15) - 0)) & ((UINT64_C(1)) << ((i_15) - 0)));
             }
             break;
         }
@@ -532,44 +532,44 @@ static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w,
         {
             for (int64_t i_17 = INT64_C(0); i_17 <= INT64_C(63); i_17++)
             {
-                v_topn_43408 = (v_topn_43408 & ~((UINT64_C(1)) << ((i_17) - 0))) | ((((v_lown_43184 >> (((INT64_C(63) - i_17)) - 0)) & 1) << ((i_17) - 0)) & ((UINT64_C(1)) << ((i_17) - 0)));
-                v_topn1_43312 = (v_topn1_43312 & ~((UINT64_C(1)) << ((i_17) - 0))) | ((((v_lowne_43376 >> (((INT64_C(63) - i_17)) - 0)) & 1) << ((i_17) - 0)) & ((UINT64_C(1)) << ((i_17) - 0)));
+                v_topn_40240 = (v_topn_40240 & ~((UINT64_C(1)) << ((i_17) - 0))) | ((((v_lown_40016 >> (((INT64_C(63) - i_17)) - 0)) & 1) << ((i_17) - 0)) & ((UINT64_C(1)) << ((i_17) - 0)));
+                v_topn1_40144 = (v_topn1_40144 & ~((UINT64_C(1)) << ((i_17) - 0))) | ((((v_lowne_40208 >> (((INT64_C(63) - i_17)) - 0)) & 1) << ((i_17) - 0)) & ((UINT64_C(1)) << ((i_17) - 0)));
             }
             break;
         }
     }
-    if ((v_rotate_43632 == 1))
+    if ((v_rotate_40464 == 1))
     {
-        v_keep_43440 = v_msk_42928;
+        v_keep_40272 = v_msk_39760;
     }
-    else if ((v_left_43472 == 1))
+    else if ((v_left_40304 == 1))
     {
-        v_keep_43440 = (v_msk_42928 & ((v_lown_43184 ^ UINT64_MAX) & UINT64_MAX));
-    }
-    else
-    {
-        v_keep_43440 = (v_msk_42928 & ((v_topn_43408 ^ UINT64_MAX) & UINT64_MAX));
-    }
-    if (((v_arith_42992 == 1) & (v_s_43664 == 1)))
-    {
-        v_fill_43504 = (v_msk_42928 & v_topn_43408);
+        v_keep_40272 = (v_msk_39760 & ((v_lown_40016 ^ UINT64_MAX) & UINT64_MAX));
     }
     else
     {
-        v_fill_43504 = UINT64_C(0x0);
+        v_keep_40272 = (v_msk_39760 & ((v_topn_40240 ^ UINT64_MAX) & UINT64_MAX));
     }
-    v_r_42896.f_res = ((v_rot_43152 & v_keep_43440) | v_fill_43504);
+    if (((v_arith_39824 == 1) & (v_s_40496 == 1)))
+    {
+        v_fill_40336 = (v_msk_39760 & v_topn_40240);
+    }
+    else
+    {
+        v_fill_40336 = UINT64_C(0x0);
+    }
+    v_r_39728.f_res = ((v_rot_39984 & v_keep_40272) | v_fill_40336);
     if ((a_cnt == UINT64_C(0x0)))
     {
-        v_r_42896.f_res = (v_xrep_42960 & v_msk_42928);
-        v_r_42896.f_c = a_oldc;
-        v_r_42896.f_v = a_oldv;
+        v_r_39728.f_res = (v_xrep_39792 & v_msk_39760);
+        v_r_39728.f_c = a_oldc;
+        v_r_39728.f_v = a_oldv;
     }
     else
     {
-        if ((v_left_43472 == 1))
+        if ((v_left_40304 == 1))
         {
-            v_r_42896.f_c = ((v_rot_43152 >> 0) & 1);
+            v_r_39728.f_c = ((v_rot_39984 >> 0) & 1);
         }
         else
         {
@@ -577,48 +577,48 @@ static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w,
             {
                 case UINT64_C(0x0):
                 {
-                    v_r_42896.f_c = ((v_rot_43152 >> 7) & 1);
+                    v_r_39728.f_c = ((v_rot_39984 >> 7) & 1);
                     break;
                 }
                 case UINT64_C(0x1):
                 {
-                    v_r_42896.f_c = ((v_rot_43152 >> 15) & 1);
+                    v_r_39728.f_c = ((v_rot_39984 >> 15) & 1);
                     break;
                 }
                 case UINT64_C(0x2):
                 {
-                    v_r_42896.f_c = ((v_rot_43152 >> 31) & 1);
+                    v_r_39728.f_c = ((v_rot_39984 >> 31) & 1);
                     break;
                 }
                 default:
                 {
-                    v_r_42896.f_c = ((v_rot_43152 >> 63) & 1);
+                    v_r_39728.f_c = ((v_rot_39984 >> 63) & 1);
                     break;
                 }
             }
         }
-        v_r_42896.f_v = a_oldv;
+        v_r_39728.f_v = a_oldv;
         if ((a_op == (UINT64_C(0x2))))
         {
-            if ((v_s_43664 == 1))
+            if ((v_s_40496 == 1))
             {
-                v_d_43536 = (v_msk_42928 & ((v_xrep_42960 ^ UINT64_MAX) & UINT64_MAX));
+                v_d_40368 = (v_msk_39760 & ((v_xrep_39792 ^ UINT64_MAX) & UINT64_MAX));
             }
             else
             {
-                v_d_43536 = (v_msk_42928 & v_xrep_42960);
+                v_d_40368 = (v_msk_39760 & v_xrep_39792);
             }
-            if (((v_d_43536 & v_topn1_43312) != UINT64_C(0x0)))
+            if (((v_d_40368 & v_topn1_40144) != UINT64_C(0x0)))
             {
-                v_r_42896.f_v = 1;
+                v_r_39728.f_v = 1;
             }
             else
             {
-                v_r_42896.f_v = 0;
+                v_r_39728.f_v = 0;
             }
         }
     }
-    return v_r_42896;
+    return v_r_39728;
 }
 
 static void p_fetch_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl, vs_sig *a_op_ctrl, vs_sig *a_pre_ctrl, vs_sig *a_ea_ctrl)
@@ -1155,13 +1155,13 @@ static uint64_t f_index_register_0(cpu_63f09 *self, vs_ref a_rr)
 
 static void p_execute_mem_op_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md, uint64_t a_alu_op, uint64_t a_write_result, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_cc_ctrl, vs_sig *a_a_ctrl, vs_sig *a_b_ctrl, vs_sig *a_e_ctrl, vs_sig *a_f_ctrl, vs_sig *a_v_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl, vs_sig *a_pc_ctrl, vs_sig *a_dp_ctrl, vs_sig *a_ds_ctrl)
 {
-    int64_t v_width_47344 = INT64_C(-2147483648);
+    int64_t v_width_48400 = INT64_C(-2147483648);
     vs_drive(&(*a_left_ctrl), f_register_left_0(self, &(*a_mask), &(*a_reg_md)));
     vs_drive(&(*a_right_ctrl), (UINT64_C(0x200000)));
     vs_drive(&(*a_cc_ctrl), (UINT64_C(0x2)));
-    v_width_47344 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
+    v_width_48400 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
     vs_drive(&(*a_alu_ctrl), a_alu_op);
-    switch (v_width_47344)
+    switch (v_width_48400)
     {
         case INT64_C(8):
         {
