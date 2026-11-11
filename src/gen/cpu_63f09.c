@@ -152,42 +152,42 @@ static int64_t f_pf_level_0(cpu_63f09 *self, uint64_t a_c)
 
 static shn_type f_shn_decode_0(cpu_63f09 *self, uint64_t a_opc, uint64_t a_b)
 {
-    shn_type v_r_54128 = shn_type_zero();
-    v_r_54128.f_valid = 0;
-    v_r_54128.f_iso = 0;
-    v_r_54128.f_mask = UINT64_C(0x0);
-    v_r_54128.f_width = (UINT64_C(0x0));
-    v_r_54128.f_count = UINT64_C(0x0);
-    v_r_54128.f_op = (UINT64_C(0x0));
+    shn_type v_r_31632 = shn_type_zero();
+    v_r_31632.f_valid = 0;
+    v_r_31632.f_iso = 0;
+    v_r_31632.f_mask = UINT64_C(0x0);
+    v_r_31632.f_width = (UINT64_C(0x0));
+    v_r_31632.f_count = UINT64_C(0x0);
+    v_r_31632.f_op = (UINT64_C(0x0));
     switch (a_opc)
     {
         case UINT64_C(0x42):
         case UINT64_C(0x52):
         {
-            v_r_54128.f_op = (UINT64_C(0x0));
+            v_r_31632.f_op = (UINT64_C(0x0));
             break;
         }
         case UINT64_C(0x45):
         case UINT64_C(0x55):
         {
-            v_r_54128.f_op = (UINT64_C(0x1));
+            v_r_31632.f_op = (UINT64_C(0x1));
             break;
         }
         case UINT64_C(0x4B):
         case UINT64_C(0x5B):
         {
-            v_r_54128.f_op = (UINT64_C(0x2));
+            v_r_31632.f_op = (UINT64_C(0x2));
             break;
         }
         case UINT64_C(0x5E):
         case UINT64_C(0x87):
         {
-            v_r_54128.f_op = (UINT64_C(0x3));
+            v_r_31632.f_op = (UINT64_C(0x3));
             break;
         }
         default:
         {
-            v_r_54128.f_op = (UINT64_C(0x4));
+            v_r_31632.f_op = (UINT64_C(0x4));
             break;
         }
     }
@@ -195,256 +195,256 @@ static shn_type f_shn_decode_0(cpu_63f09 *self, uint64_t a_opc, uint64_t a_b)
     {
         if ((((a_b >> (6)) & UINT64_C(0x3)) == UINT64_C(0x2)))
         {
-            v_r_54128.f_valid = 1;
-            v_r_54128.f_iso = 1;
-            v_r_54128.f_width = (UINT64_C(0x3));
-            v_r_54128.f_count = (a_b & UINT64_C(0x3F));
+            v_r_31632.f_valid = 1;
+            v_r_31632.f_iso = 1;
+            v_r_31632.f_width = (UINT64_C(0x3));
+            v_r_31632.f_count = (a_b & UINT64_C(0x3F));
         }
         else if ((((a_b >> (5)) & UINT64_C(0x7)) == UINT64_C(0x0)))
         {
-            v_r_54128.f_valid = 1;
-            v_r_54128.f_width = (UINT64_C(0x0));
-            v_r_54128.f_count = (((uint64_t)(UINT64_C(0x0)) << 3) | (a_b & UINT64_C(0x7)));
+            v_r_31632.f_valid = 1;
+            v_r_31632.f_width = (UINT64_C(0x0));
+            v_r_31632.f_count = (((uint64_t)(UINT64_C(0x0)) << 3) | (a_b & UINT64_C(0x7)));
             switch (((a_b >> (3)) & UINT64_C(0x3)))
             {
                 case UINT64_C(0x0):
                 {
-                    v_r_54128.f_mask = UINT64_C(0x8);
+                    v_r_31632.f_mask = UINT64_C(0x8);
                     break;
                 }
                 case UINT64_C(0x1):
                 {
-                    v_r_54128.f_mask = UINT64_C(0x9);
+                    v_r_31632.f_mask = UINT64_C(0x9);
                     break;
                 }
                 case UINT64_C(0x2):
                 {
-                    v_r_54128.f_mask = UINT64_C(0xE);
+                    v_r_31632.f_mask = UINT64_C(0xE);
                     break;
                 }
                 default:
                 {
-                    v_r_54128.f_mask = UINT64_C(0xF);
+                    v_r_31632.f_mask = UINT64_C(0xF);
                     break;
                 }
             }
         }
         else if ((((a_b >> (5)) & UINT64_C(0x7)) == UINT64_C(0x2)))
         {
-            v_r_54128.f_valid = 1;
-            v_r_54128.f_width = (UINT64_C(0x1));
-            v_r_54128.f_count = (((uint64_t)(UINT64_C(0x0)) << 4) | (a_b & UINT64_C(0xF)));
+            v_r_31632.f_valid = 1;
+            v_r_31632.f_width = (UINT64_C(0x1));
+            v_r_31632.f_count = (((uint64_t)(UINT64_C(0x0)) << 4) | (a_b & UINT64_C(0xF)));
             if ((((a_b >> 4) & 1) == 0))
             {
-                v_r_54128.f_mask = UINT64_C(0x0);
+                v_r_31632.f_mask = UINT64_C(0x0);
             }
             else
             {
-                v_r_54128.f_mask = UINT64_C(0x6);
+                v_r_31632.f_mask = UINT64_C(0x6);
             }
         }
     }
     else
     {
-        v_r_54128.f_width = (UINT64_C(0x2));
-        v_r_54128.f_count = (((uint64_t)(0) << 5) | (a_b & UINT64_C(0x1F)));
+        v_r_31632.f_width = (UINT64_C(0x2));
+        v_r_31632.f_count = (((uint64_t)(0) << 5) | (a_b & UINT64_C(0x1F)));
         switch (((a_b >> (5)) & UINT64_C(0x7)))
         {
             case UINT64_C(0x0):
             {
-                v_r_54128.f_valid = 1;
-                v_r_54128.f_mask = UINT64_C(0x1);
+                v_r_31632.f_valid = 1;
+                v_r_31632.f_mask = UINT64_C(0x1);
                 break;
             }
             case UINT64_C(0x1):
             {
-                v_r_54128.f_valid = 1;
-                v_r_54128.f_mask = UINT64_C(0x2);
+                v_r_31632.f_valid = 1;
+                v_r_31632.f_mask = UINT64_C(0x2);
                 break;
             }
             case UINT64_C(0x2):
             {
-                v_r_54128.f_valid = 1;
-                v_r_54128.f_mask = UINT64_C(0x3);
+                v_r_31632.f_valid = 1;
+                v_r_31632.f_mask = UINT64_C(0x3);
                 break;
             }
             case UINT64_C(0x3):
             {
-                v_r_54128.f_valid = 1;
-                v_r_54128.f_mask = UINT64_C(0x4);
+                v_r_31632.f_valid = 1;
+                v_r_31632.f_mask = UINT64_C(0x4);
                 break;
             }
             case UINT64_C(0x4):
             {
-                v_r_54128.f_valid = 1;
-                v_r_54128.f_mask = UINT64_C(0x7);
+                v_r_31632.f_valid = 1;
+                v_r_31632.f_mask = UINT64_C(0x7);
                 break;
             }
             case UINT64_C(0x5):
             {
-                v_r_54128.f_valid = 1;
-                v_r_54128.f_mask = UINT64_C(0xC);
+                v_r_31632.f_valid = 1;
+                v_r_31632.f_mask = UINT64_C(0xC);
                 break;
             }
             default:
             {
-                v_r_54128.f_valid = 0;
+                v_r_31632.f_valid = 0;
                 break;
             }
         }
     }
-    return v_r_54128;
+    return v_r_31632;
 }
 
 static shn_type f_shn_decode_mem_0(cpu_63f09 *self, uint64_t a_opc, uint64_t a_b)
 {
-    shn_type v_r_55728 = shn_type_zero();
-    v_r_55728.f_valid = 0;
-    v_r_55728.f_iso = 0;
-    v_r_55728.f_mask = UINT64_C(0x0);
-    v_r_55728.f_width = (UINT64_C(0x0));
-    v_r_55728.f_count = (((uint64_t)(UINT64_C(0x0)) << 3) | (a_b & UINT64_C(0x7)));
-    v_r_55728.f_op = (UINT64_C(0x0));
+    shn_type v_r_62672 = shn_type_zero();
+    v_r_62672.f_valid = 0;
+    v_r_62672.f_iso = 0;
+    v_r_62672.f_mask = UINT64_C(0x0);
+    v_r_62672.f_width = (UINT64_C(0x0));
+    v_r_62672.f_count = (((uint64_t)(UINT64_C(0x0)) << 3) | (a_b & UINT64_C(0x7)));
+    v_r_62672.f_op = (UINT64_C(0x0));
     if ((((a_b >> (3)) & UINT64_C(0x1F)) == UINT64_C(0x0)))
     {
-        v_r_55728.f_valid = 1;
+        v_r_62672.f_valid = 1;
     }
     switch ((a_opc & UINT64_C(0xF)))
     {
         case UINT64_C(0x4):
         {
-            v_r_55728.f_op = (UINT64_C(0x0));
+            v_r_62672.f_op = (UINT64_C(0x0));
             break;
         }
         case UINT64_C(0x5):
         {
-            v_r_55728.f_op = (UINT64_C(0x1));
+            v_r_62672.f_op = (UINT64_C(0x1));
             break;
         }
         case UINT64_C(0x6):
         {
-            v_r_55728.f_op = (UINT64_C(0x2));
+            v_r_62672.f_op = (UINT64_C(0x2));
             break;
         }
         case UINT64_C(0xA):
         {
-            v_r_55728.f_op = (UINT64_C(0x3));
+            v_r_62672.f_op = (UINT64_C(0x3));
             break;
         }
         case UINT64_C(0xB):
         {
-            v_r_55728.f_op = (UINT64_C(0x4));
+            v_r_62672.f_op = (UINT64_C(0x4));
             break;
         }
         default:
         {
-            v_r_55728.f_valid = 0;
+            v_r_62672.f_valid = 0;
             break;
         }
     }
-    return v_r_55728;
+    return v_r_62672;
 }
 
 static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w, uint64_t a_cnt, uint64_t a_op, uint64_t a_oldc, uint64_t a_oldv)
 {
-    shn_res_type v_r_56592 = shn_res_type_zero();
-    uint64_t v_msk_56624 = 0;
-    uint64_t v_xrep_56656 = 0;
-    uint64_t v_rot_56848 = 0;
-    uint64_t v_lown_56880 = 0;
-    uint64_t v_lowne_57072 = 0;
-    uint64_t v_topn_57104 = 0;
-    uint64_t v_topn1_57008 = 0;
-    uint64_t v_keep_57136 = 0;
-    uint64_t v_fill_57200 = 0;
-    uint64_t v_d_57232 = 0;
-    uint64_t v_rc_57264 = 0;
-    uint64_t v_neg_57296 = 0;
-    uint64_t v_left_57168 = 0;
-    uint64_t v_rotate_57328 = 0;
-    uint64_t v_arith_56688 = 0;
-    uint64_t v_s_57360 = 0;
-    int64_t v_cni_57392 = INT64_C(0);
+    shn_res_type v_r_63536 = shn_res_type_zero();
+    uint64_t v_msk_63568 = 0;
+    uint64_t v_xrep_63600 = 0;
+    uint64_t v_rot_63792 = 0;
+    uint64_t v_lown_63824 = 0;
+    uint64_t v_lowne_64016 = 0;
+    uint64_t v_topn_64048 = 0;
+    uint64_t v_topn1_63952 = 0;
+    uint64_t v_keep_64080 = 0;
+    uint64_t v_fill_64144 = 0;
+    uint64_t v_d_64176 = 0;
+    uint64_t v_rc_64208 = 0;
+    uint64_t v_neg_64240 = 0;
+    uint64_t v_left_64112 = 0;
+    uint64_t v_rotate_64272 = 0;
+    uint64_t v_arith_63632 = 0;
+    uint64_t v_s_64304 = 0;
+    int64_t v_cni_64336 = INT64_C(0);
     if (((a_op == (UINT64_C(0x2))) | (a_op == (UINT64_C(0x4)))))
     {
-        v_left_57168 = 1;
+        v_left_64112 = 1;
     }
     else
     {
-        v_left_57168 = 0;
+        v_left_64112 = 0;
     }
     if (((a_op == (UINT64_C(0x3))) | (a_op == (UINT64_C(0x4)))))
     {
-        v_rotate_57328 = 1;
+        v_rotate_64272 = 1;
     }
     else
     {
-        v_rotate_57328 = 0;
+        v_rotate_64272 = 0;
     }
     if ((a_op == (UINT64_C(0x1))))
     {
-        v_arith_56688 = 1;
+        v_arith_63632 = 1;
     }
     else
     {
-        v_arith_56688 = 0;
+        v_arith_63632 = 0;
     }
-    v_cni_57392 = (int64_t)(a_cnt);
+    v_cni_64336 = (int64_t)(a_cnt);
     switch (a_w)
     {
         case UINT64_C(0x0):
         {
-            v_msk_56624 = UINT64_C(0xFF);
-            v_s_57360 = ((a_x >> 7) & 1);
-            v_xrep_56656 = (((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((a_x & UINT64_C(0xFF))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)));
+            v_msk_63568 = UINT64_C(0xFF);
+            v_s_64304 = ((a_x >> 7) & 1);
+            v_xrep_63600 = (((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((((uint64_t)((a_x & UINT64_C(0xFF))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)))) << 8) | (a_x & UINT64_C(0xFF)));
             break;
         }
         case UINT64_C(0x1):
         {
-            v_msk_56624 = UINT64_C(0xFFFF);
-            v_s_57360 = ((a_x >> 15) & 1);
-            v_xrep_56656 = (((uint64_t)((((uint64_t)((((uint64_t)((a_x & UINT64_C(0xFFFF))) << 16) | (a_x & UINT64_C(0xFFFF)))) << 16) | (a_x & UINT64_C(0xFFFF)))) << 16) | (a_x & UINT64_C(0xFFFF)));
+            v_msk_63568 = UINT64_C(0xFFFF);
+            v_s_64304 = ((a_x >> 15) & 1);
+            v_xrep_63600 = (((uint64_t)((((uint64_t)((((uint64_t)((a_x & UINT64_C(0xFFFF))) << 16) | (a_x & UINT64_C(0xFFFF)))) << 16) | (a_x & UINT64_C(0xFFFF)))) << 16) | (a_x & UINT64_C(0xFFFF)));
             break;
         }
         case UINT64_C(0x2):
         {
-            v_msk_56624 = UINT64_C(0xFFFFFFFF);
-            v_s_57360 = ((a_x >> 31) & 1);
-            v_xrep_56656 = (((uint64_t)((a_x & UINT64_C(0xFFFFFFFF))) << 32) | (a_x & UINT64_C(0xFFFFFFFF)));
+            v_msk_63568 = UINT64_C(0xFFFFFFFF);
+            v_s_64304 = ((a_x >> 31) & 1);
+            v_xrep_63600 = (((uint64_t)((a_x & UINT64_C(0xFFFFFFFF))) << 32) | (a_x & UINT64_C(0xFFFFFFFF)));
             break;
         }
         default:
         {
-            v_msk_56624 = UINT64_C(0xFFFFFFFFFFFFFFFF);
-            v_s_57360 = ((a_x >> 63) & 1);
-            v_xrep_56656 = a_x;
+            v_msk_63568 = UINT64_C(0xFFFFFFFFFFFFFFFF);
+            v_s_64304 = ((a_x >> 63) & 1);
+            v_xrep_63600 = a_x;
             break;
         }
     }
-    v_neg_57296 = ((((a_cnt ^ UINT64_C(0x3F)) & UINT64_C(0x3F)) + (uint64_t)(INT64_C(1))) & UINT64_C(0x3F));
-    if ((v_left_57168 == 1))
+    v_neg_64240 = ((((a_cnt ^ UINT64_C(0x3F)) & UINT64_C(0x3F)) + (uint64_t)(INT64_C(1))) & UINT64_C(0x3F));
+    if ((v_left_64112 == 1))
     {
-        v_rc_57264 = v_neg_57296;
+        v_rc_64208 = v_neg_64240;
     }
     else
     {
-        v_rc_57264 = a_cnt;
+        v_rc_64208 = a_cnt;
     }
     switch (a_w)
     {
         case UINT64_C(0x0):
         {
-            v_rc_57264 = (v_rc_57264 & ~(UINT64_C(0x7) << 3)) | (((uint64_t)(UINT64_C(0x0)) << 3) & (UINT64_C(0x7) << 3));
+            v_rc_64208 = (v_rc_64208 & ~(UINT64_C(0x7) << 3)) | (((uint64_t)(UINT64_C(0x0)) << 3) & (UINT64_C(0x7) << 3));
             break;
         }
         case UINT64_C(0x1):
         {
-            v_rc_57264 = (v_rc_57264 & ~(UINT64_C(0x3) << 4)) | (((uint64_t)(UINT64_C(0x0)) << 4) & (UINT64_C(0x3) << 4));
+            v_rc_64208 = (v_rc_64208 & ~(UINT64_C(0x3) << 4)) | (((uint64_t)(UINT64_C(0x0)) << 4) & (UINT64_C(0x3) << 4));
             break;
         }
         case UINT64_C(0x2):
         {
-            v_rc_57264 = (v_rc_57264 & ~(UINT64_C(0x1) << 5)) | (((uint64_t)(0) << 5) & (UINT64_C(0x1) << 5));
+            v_rc_64208 = (v_rc_64208 & ~(UINT64_C(0x1) << 5)) | (((uint64_t)(0) << 5) & (UINT64_C(0x1) << 5));
             break;
         }
         default:
@@ -453,60 +453,60 @@ static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w,
             break;
         }
     }
-    v_rot_56848 = v_xrep_56656;
-    if ((((v_rc_57264 >> 5) & 1) == 1))
+    v_rot_63792 = v_xrep_63600;
+    if ((((v_rc_64208 >> 5) & 1) == 1))
     {
-        v_rot_56848 = (((uint64_t)((v_rot_56848 & UINT64_C(0xFFFFFFFF))) << 32) | ((v_rot_56848 >> (32)) & UINT64_C(0xFFFFFFFF)));
+        v_rot_63792 = (((uint64_t)((v_rot_63792 & UINT64_C(0xFFFFFFFF))) << 32) | ((v_rot_63792 >> (32)) & UINT64_C(0xFFFFFFFF)));
     }
-    if ((((v_rc_57264 >> 4) & 1) == 1))
+    if ((((v_rc_64208 >> 4) & 1) == 1))
     {
-        v_rot_56848 = (((uint64_t)((v_rot_56848 & UINT64_C(0xFFFF))) << 48) | ((v_rot_56848 >> (16)) & UINT64_C(0xFFFFFFFFFFFF)));
+        v_rot_63792 = (((uint64_t)((v_rot_63792 & UINT64_C(0xFFFF))) << 48) | ((v_rot_63792 >> (16)) & UINT64_C(0xFFFFFFFFFFFF)));
     }
-    if ((((v_rc_57264 >> 3) & 1) == 1))
+    if ((((v_rc_64208 >> 3) & 1) == 1))
     {
-        v_rot_56848 = (((uint64_t)((v_rot_56848 & UINT64_C(0xFF))) << 56) | ((v_rot_56848 >> (8)) & UINT64_C(0xFFFFFFFFFFFFFF)));
+        v_rot_63792 = (((uint64_t)((v_rot_63792 & UINT64_C(0xFF))) << 56) | ((v_rot_63792 >> (8)) & UINT64_C(0xFFFFFFFFFFFFFF)));
     }
-    if ((((v_rc_57264 >> 2) & 1) == 1))
+    if ((((v_rc_64208 >> 2) & 1) == 1))
     {
-        v_rot_56848 = (((uint64_t)((v_rot_56848 & UINT64_C(0xF))) << 60) | ((v_rot_56848 >> (4)) & UINT64_C(0xFFFFFFFFFFFFFFF)));
+        v_rot_63792 = (((uint64_t)((v_rot_63792 & UINT64_C(0xF))) << 60) | ((v_rot_63792 >> (4)) & UINT64_C(0xFFFFFFFFFFFFFFF)));
     }
-    if ((((v_rc_57264 >> 1) & 1) == 1))
+    if ((((v_rc_64208 >> 1) & 1) == 1))
     {
-        v_rot_56848 = (((uint64_t)((v_rot_56848 & UINT64_C(0x3))) << 62) | ((v_rot_56848 >> (2)) & UINT64_C(0x3FFFFFFFFFFFFFFF)));
+        v_rot_63792 = (((uint64_t)((v_rot_63792 & UINT64_C(0x3))) << 62) | ((v_rot_63792 >> (2)) & UINT64_C(0x3FFFFFFFFFFFFFFF)));
     }
-    if ((((v_rc_57264 >> 0) & 1) == 1))
+    if ((((v_rc_64208 >> 0) & 1) == 1))
     {
-        v_rot_56848 = (((uint64_t)(((v_rot_56848 >> 0) & 1)) << 63) | ((v_rot_56848 >> (1)) & UINT64_C(0x7FFFFFFFFFFFFFFF)));
+        v_rot_63792 = (((uint64_t)(((v_rot_63792 >> 0) & 1)) << 63) | ((v_rot_63792 >> (1)) & UINT64_C(0x7FFFFFFFFFFFFFFF)));
     }
     for (int64_t i_9 = INT64_C(0); i_9 <= INT64_C(63); i_9++)
     {
-        if ((v_cni_57392 > i_9))
+        if ((v_cni_64336 > i_9))
         {
-            v_lown_56880 = (v_lown_56880 & ~((UINT64_C(1)) << ((i_9) - 0))) | (((uint64_t)(1) << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
+            v_lown_63824 = (v_lown_63824 & ~((UINT64_C(1)) << ((i_9) - 0))) | (((uint64_t)(1) << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
         }
         else
         {
-            v_lown_56880 = (v_lown_56880 & ~((UINT64_C(1)) << ((i_9) - 0))) | (((uint64_t)(0) << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
+            v_lown_63824 = (v_lown_63824 & ~((UINT64_C(1)) << ((i_9) - 0))) | (((uint64_t)(0) << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
         }
-        if ((v_cni_57392 >= i_9))
+        if ((v_cni_64336 >= i_9))
         {
-            v_lowne_57072 = (v_lowne_57072 & ~((UINT64_C(1)) << ((i_9) - 0))) | (((uint64_t)(1) << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
+            v_lowne_64016 = (v_lowne_64016 & ~((UINT64_C(1)) << ((i_9) - 0))) | (((uint64_t)(1) << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
         }
         else
         {
-            v_lowne_57072 = (v_lowne_57072 & ~((UINT64_C(1)) << ((i_9) - 0))) | (((uint64_t)(0) << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
+            v_lowne_64016 = (v_lowne_64016 & ~((UINT64_C(1)) << ((i_9) - 0))) | (((uint64_t)(0) << ((i_9) - 0)) & ((UINT64_C(1)) << ((i_9) - 0)));
         }
     }
-    v_topn_57104 = UINT64_C(0x0);
-    v_topn1_57008 = UINT64_C(0x0);
+    v_topn_64048 = UINT64_C(0x0);
+    v_topn1_63952 = UINT64_C(0x0);
     switch (a_w)
     {
         case UINT64_C(0x0):
         {
             for (int64_t i_11 = INT64_C(0); i_11 <= INT64_C(7); i_11++)
             {
-                v_topn_57104 = (v_topn_57104 & ~((UINT64_C(1)) << ((i_11) - 0))) | (((uint64_t)(((v_lown_56880 >> (((INT64_C(7) - i_11)) - 0)) & 1)) << ((i_11) - 0)) & ((UINT64_C(1)) << ((i_11) - 0)));
-                v_topn1_57008 = (v_topn1_57008 & ~((UINT64_C(1)) << ((i_11) - 0))) | (((uint64_t)(((v_lowne_57072 >> (((INT64_C(7) - i_11)) - 0)) & 1)) << ((i_11) - 0)) & ((UINT64_C(1)) << ((i_11) - 0)));
+                v_topn_64048 = (v_topn_64048 & ~((UINT64_C(1)) << ((i_11) - 0))) | (((uint64_t)(((v_lown_63824 >> (((INT64_C(7) - i_11)) - 0)) & 1)) << ((i_11) - 0)) & ((UINT64_C(1)) << ((i_11) - 0)));
+                v_topn1_63952 = (v_topn1_63952 & ~((UINT64_C(1)) << ((i_11) - 0))) | (((uint64_t)(((v_lowne_64016 >> (((INT64_C(7) - i_11)) - 0)) & 1)) << ((i_11) - 0)) & ((UINT64_C(1)) << ((i_11) - 0)));
             }
             break;
         }
@@ -514,8 +514,8 @@ static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w,
         {
             for (int64_t i_13 = INT64_C(0); i_13 <= INT64_C(15); i_13++)
             {
-                v_topn_57104 = (v_topn_57104 & ~((UINT64_C(1)) << ((i_13) - 0))) | (((uint64_t)(((v_lown_56880 >> (((INT64_C(15) - i_13)) - 0)) & 1)) << ((i_13) - 0)) & ((UINT64_C(1)) << ((i_13) - 0)));
-                v_topn1_57008 = (v_topn1_57008 & ~((UINT64_C(1)) << ((i_13) - 0))) | (((uint64_t)(((v_lowne_57072 >> (((INT64_C(15) - i_13)) - 0)) & 1)) << ((i_13) - 0)) & ((UINT64_C(1)) << ((i_13) - 0)));
+                v_topn_64048 = (v_topn_64048 & ~((UINT64_C(1)) << ((i_13) - 0))) | (((uint64_t)(((v_lown_63824 >> (((INT64_C(15) - i_13)) - 0)) & 1)) << ((i_13) - 0)) & ((UINT64_C(1)) << ((i_13) - 0)));
+                v_topn1_63952 = (v_topn1_63952 & ~((UINT64_C(1)) << ((i_13) - 0))) | (((uint64_t)(((v_lowne_64016 >> (((INT64_C(15) - i_13)) - 0)) & 1)) << ((i_13) - 0)) & ((UINT64_C(1)) << ((i_13) - 0)));
             }
             break;
         }
@@ -523,8 +523,8 @@ static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w,
         {
             for (int64_t i_15 = INT64_C(0); i_15 <= INT64_C(31); i_15++)
             {
-                v_topn_57104 = (v_topn_57104 & ~((UINT64_C(1)) << ((i_15) - 0))) | (((uint64_t)(((v_lown_56880 >> (((INT64_C(31) - i_15)) - 0)) & 1)) << ((i_15) - 0)) & ((UINT64_C(1)) << ((i_15) - 0)));
-                v_topn1_57008 = (v_topn1_57008 & ~((UINT64_C(1)) << ((i_15) - 0))) | (((uint64_t)(((v_lowne_57072 >> (((INT64_C(31) - i_15)) - 0)) & 1)) << ((i_15) - 0)) & ((UINT64_C(1)) << ((i_15) - 0)));
+                v_topn_64048 = (v_topn_64048 & ~((UINT64_C(1)) << ((i_15) - 0))) | (((uint64_t)(((v_lown_63824 >> (((INT64_C(31) - i_15)) - 0)) & 1)) << ((i_15) - 0)) & ((UINT64_C(1)) << ((i_15) - 0)));
+                v_topn1_63952 = (v_topn1_63952 & ~((UINT64_C(1)) << ((i_15) - 0))) | (((uint64_t)(((v_lowne_64016 >> (((INT64_C(31) - i_15)) - 0)) & 1)) << ((i_15) - 0)) & ((UINT64_C(1)) << ((i_15) - 0)));
             }
             break;
         }
@@ -532,44 +532,44 @@ static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w,
         {
             for (int64_t i_17 = INT64_C(0); i_17 <= INT64_C(63); i_17++)
             {
-                v_topn_57104 = (v_topn_57104 & ~((UINT64_C(1)) << ((i_17) - 0))) | (((uint64_t)(((v_lown_56880 >> (((INT64_C(63) - i_17)) - 0)) & 1)) << ((i_17) - 0)) & ((UINT64_C(1)) << ((i_17) - 0)));
-                v_topn1_57008 = (v_topn1_57008 & ~((UINT64_C(1)) << ((i_17) - 0))) | (((uint64_t)(((v_lowne_57072 >> (((INT64_C(63) - i_17)) - 0)) & 1)) << ((i_17) - 0)) & ((UINT64_C(1)) << ((i_17) - 0)));
+                v_topn_64048 = (v_topn_64048 & ~((UINT64_C(1)) << ((i_17) - 0))) | (((uint64_t)(((v_lown_63824 >> (((INT64_C(63) - i_17)) - 0)) & 1)) << ((i_17) - 0)) & ((UINT64_C(1)) << ((i_17) - 0)));
+                v_topn1_63952 = (v_topn1_63952 & ~((UINT64_C(1)) << ((i_17) - 0))) | (((uint64_t)(((v_lowne_64016 >> (((INT64_C(63) - i_17)) - 0)) & 1)) << ((i_17) - 0)) & ((UINT64_C(1)) << ((i_17) - 0)));
             }
             break;
         }
     }
-    if ((v_rotate_57328 == 1))
+    if ((v_rotate_64272 == 1))
     {
-        v_keep_57136 = v_msk_56624;
+        v_keep_64080 = v_msk_63568;
     }
-    else if ((v_left_57168 == 1))
+    else if ((v_left_64112 == 1))
     {
-        v_keep_57136 = (v_msk_56624 & ((v_lown_56880 ^ UINT64_MAX) & UINT64_MAX));
-    }
-    else
-    {
-        v_keep_57136 = (v_msk_56624 & ((v_topn_57104 ^ UINT64_MAX) & UINT64_MAX));
-    }
-    if (((v_arith_56688 == 1) & (v_s_57360 == 1)))
-    {
-        v_fill_57200 = (v_msk_56624 & v_topn_57104);
+        v_keep_64080 = (v_msk_63568 & ((v_lown_63824 ^ UINT64_MAX) & UINT64_MAX));
     }
     else
     {
-        v_fill_57200 = UINT64_C(0x0);
+        v_keep_64080 = (v_msk_63568 & ((v_topn_64048 ^ UINT64_MAX) & UINT64_MAX));
     }
-    v_r_56592.f_res = ((v_rot_56848 & v_keep_57136) | v_fill_57200);
+    if (((v_arith_63632 == 1) & (v_s_64304 == 1)))
+    {
+        v_fill_64144 = (v_msk_63568 & v_topn_64048);
+    }
+    else
+    {
+        v_fill_64144 = UINT64_C(0x0);
+    }
+    v_r_63536.f_res = ((v_rot_63792 & v_keep_64080) | v_fill_64144);
     if ((a_cnt == UINT64_C(0x0)))
     {
-        v_r_56592.f_res = (v_xrep_56656 & v_msk_56624);
-        v_r_56592.f_c = a_oldc;
-        v_r_56592.f_v = a_oldv;
+        v_r_63536.f_res = (v_xrep_63600 & v_msk_63568);
+        v_r_63536.f_c = a_oldc;
+        v_r_63536.f_v = a_oldv;
     }
     else
     {
-        if ((v_left_57168 == 1))
+        if ((v_left_64112 == 1))
         {
-            v_r_56592.f_c = ((v_rot_56848 >> 0) & 1);
+            v_r_63536.f_c = ((v_rot_63792 >> 0) & 1);
         }
         else
         {
@@ -577,48 +577,48 @@ static shn_res_type f_shn_compute_0(cpu_63f09 *self, uint64_t a_x, uint64_t a_w,
             {
                 case UINT64_C(0x0):
                 {
-                    v_r_56592.f_c = ((v_rot_56848 >> 7) & 1);
+                    v_r_63536.f_c = ((v_rot_63792 >> 7) & 1);
                     break;
                 }
                 case UINT64_C(0x1):
                 {
-                    v_r_56592.f_c = ((v_rot_56848 >> 15) & 1);
+                    v_r_63536.f_c = ((v_rot_63792 >> 15) & 1);
                     break;
                 }
                 case UINT64_C(0x2):
                 {
-                    v_r_56592.f_c = ((v_rot_56848 >> 31) & 1);
+                    v_r_63536.f_c = ((v_rot_63792 >> 31) & 1);
                     break;
                 }
                 default:
                 {
-                    v_r_56592.f_c = ((v_rot_56848 >> 63) & 1);
+                    v_r_63536.f_c = ((v_rot_63792 >> 63) & 1);
                     break;
                 }
             }
         }
-        v_r_56592.f_v = a_oldv;
+        v_r_63536.f_v = a_oldv;
         if ((a_op == (UINT64_C(0x2))))
         {
-            if ((v_s_57360 == 1))
+            if ((v_s_64304 == 1))
             {
-                v_d_57232 = (v_msk_56624 & ((v_xrep_56656 ^ UINT64_MAX) & UINT64_MAX));
+                v_d_64176 = (v_msk_63568 & ((v_xrep_63600 ^ UINT64_MAX) & UINT64_MAX));
             }
             else
             {
-                v_d_57232 = (v_msk_56624 & v_xrep_56656);
+                v_d_64176 = (v_msk_63568 & v_xrep_63600);
             }
-            if (((v_d_57232 & v_topn1_57008) != UINT64_C(0x0)))
+            if (((v_d_64176 & v_topn1_63952) != UINT64_C(0x0)))
             {
-                v_r_56592.f_v = 1;
+                v_r_63536.f_v = 1;
             }
             else
             {
-                v_r_56592.f_v = 0;
+                v_r_63536.f_v = 0;
             }
         }
     }
-    return v_r_56592;
+    return v_r_63536;
 }
 
 static void p_fetch_0(cpu_63f09 *self, vs_sig *a_pc_ctrl, vs_sig *a_addr_ctrl, vs_sig *a_op_ctrl, vs_sig *a_pre_ctrl, vs_sig *a_ea_ctrl)
@@ -1155,13 +1155,13 @@ static uint64_t f_index_register_0(cpu_63f09 *self, vs_ref a_rr)
 
 static void p_execute_mem_op_0(cpu_63f09 *self, vs_sig *a_mask, vs_sig *a_reg_md, uint64_t a_alu_op, uint64_t a_write_result, vs_sig *a_left_ctrl, vs_sig *a_right_ctrl, vs_sig *a_alu_ctrl, vs_sig *a_alu_width, vs_sig *a_cc_ctrl, vs_sig *a_a_ctrl, vs_sig *a_b_ctrl, vs_sig *a_e_ctrl, vs_sig *a_f_ctrl, vs_sig *a_v_ctrl, vs_sig *a_x_ctrl, vs_sig *a_y_ctrl, vs_sig *a_u_ctrl, vs_sig *a_s_ctrl, vs_sig *a_pc_ctrl, vs_sig *a_dp_ctrl, vs_sig *a_ds_ctrl)
 {
-    int64_t v_width_65264 = INT64_C(-2147483648);
+    int64_t v_width_72208 = INT64_C(-2147483648);
     vs_drive(&(*a_left_ctrl), f_register_left_0(self, &(*a_mask), &(*a_reg_md)));
     vs_drive(&(*a_right_ctrl), (UINT64_C(0x200000)));
     vs_drive(&(*a_cc_ctrl), (UINT64_C(0x2)));
-    v_width_65264 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
+    v_width_72208 = f_register_width_0(self, &(*a_mask), &(*a_reg_md));
     vs_drive(&(*a_alu_ctrl), a_alu_op);
-    switch (v_width_65264)
+    switch (v_width_72208)
     {
         case INT64_C(8):
         {
@@ -5306,7 +5306,7 @@ static void cpu_63f09_p48(void *inst)
 static void cpu_63f09_p49(void *inst)
 {
     cpu_63f09 *self = inst;
-    if (((((self->s_alu_ctrl.cur == (UINT64_C(0x201))) | (self->s_alu_ctrl.cur == (UINT64_C(0xC02)))) | (self->s_alu_ctrl.cur == (UINT64_C(0xB04)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x601)))))
+    if ((((((self->s_alu_ctrl.cur == (UINT64_C(0x201))) | (self->s_alu_ctrl.cur == (UINT64_C(0x202)))) | (self->s_alu_ctrl.cur == (UINT64_C(0xC02)))) | (self->s_alu_ctrl.cur == (UINT64_C(0xB04)))) | (self->s_alu_ctrl.cur == (UINT64_C(0x601)))))
     {
         self->v49_carry_in = ((self->s_reg_cc.cur >> 0) & 1);
     }
@@ -6371,12 +6371,12 @@ static void cpu_63f09_p61(void *inst)
                 vs_drive_bits(&self->s_reg_fp.a[0], 0, UINT64_C(0xFFFFFFFF), self->s_reg_v.cur);
                 break;
             }
-            case 30:
+            case 29:
             {
                 vs_drive(&self->s_reg_ccfpu, (*self->p_d_in).cur);
                 break;
             }
-            case 31:
+            case 30:
             {
                 switch (self->s_reg_fp_byte.cur)
                 {
@@ -6423,7 +6423,7 @@ static void cpu_63f09_p61(void *inst)
                 }
                 break;
             }
-            case 32:
+            case 31:
             {
                 for (int64_t i_35 = (INT64_C(16) - INT64_C(2)); i_35 >= INT64_C(0); i_35--)
                 {
@@ -6455,11 +6455,6 @@ static void cpu_63f09_p61(void *inst)
             case 28:
             {
                 vs_drive_bits(&self->s_reg_ccfpu, 5, UINT64_C(0x7), UINT64_C(0x4));
-                break;
-            }
-            case 29:
-            {
-                vs_drive_bits(&self->s_reg_ccfpu, 5, UINT64_C(0x7), UINT64_C(0x7));
                 break;
             }
             case 3:
@@ -13549,13 +13544,6 @@ static void cpu_63f09_p64(void *inst)
                                     vs_drive(&self->s_next_state, (UINT64_C(0x201)));
                                     break;
                                 }
-                                case UINT64_C(0x5):
-                                {
-                                    vs_drive(&self->s_fp_stack_ctrl, 29);
-                                    p_fetch_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_op_ctrl, &self->s_pre_ctrl, &self->s_ea_ctrl);
-                                    vs_drive(&self->s_next_state, (UINT64_C(0x201)));
-                                    break;
-                                }
                                 default:
                                 {
                                     vs_drive(&self->s_next_state, (UINT64_C(0xFFFFFF)));
@@ -13595,7 +13583,7 @@ static void cpu_63f09_p64(void *inst)
                                 case UINT64_C(0x2):
                                 {
                                     vs_drive(&self->s_addr_ctrl, (UINT64_C(0x80)));
-                                    vs_drive(&self->s_fp_stack_ctrl, 30);
+                                    vs_drive(&self->s_fp_stack_ctrl, 29);
                                     vs_drive(&self->s_left_ctrl, (UINT64_C(0x800)));
                                     vs_drive(&self->s_right_ctrl, (UINT64_C(0x2)));
                                     vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
@@ -13609,7 +13597,7 @@ static void cpu_63f09_p64(void *inst)
                                 case UINT64_C(0x3):
                                 {
                                     vs_drive(&self->s_addr_ctrl, (UINT64_C(0x20)));
-                                    vs_drive(&self->s_fp_stack_ctrl, 30);
+                                    vs_drive(&self->s_fp_stack_ctrl, 29);
                                     vs_drive(&self->s_left_ctrl, (UINT64_C(0x400)));
                                     vs_drive(&self->s_right_ctrl, (UINT64_C(0x2)));
                                     vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
@@ -13849,7 +13837,7 @@ static void cpu_63f09_p64(void *inst)
                             {
                                 case UINT64_C(0x0):
                                 {
-                                    p_immediate8_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_mem_data_ctrl);
+                                    p_immediate8_unsigned_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_mem_data_ctrl);
                                     vs_drive(&self->s_return_state, (UINT64_C(0x204)));
                                     vs_drive(&self->s_stack_ctrl, 1);
                                     vs_drive(&self->s_next_state, (UINT64_C(0x2002)));
@@ -13880,7 +13868,7 @@ static void cpu_63f09_p64(void *inst)
                                     p_direct8_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_ea_ctrl);
                                     vs_drive(&self->s_return_state, (UINT64_C(0x204)));
                                     vs_drive(&self->s_stack_ctrl, 1);
-                                    vs_drive(&self->s_next_state, (UINT64_C(0x410)));
+                                    vs_drive(&self->s_next_state, (UINT64_C(0x510)));
                                     break;
                                 }
                                 case UINT64_C(0x1):
@@ -13913,7 +13901,7 @@ static void cpu_63f09_p64(void *inst)
                                 case UINT64_C(0x0):
                                 {
                                     vs_drive(&self->s_data_width_ctrl, 4);
-                                    vs_drive(&self->s_return_state, (UINT64_C(0x1090)));
+                                    vs_drive(&self->s_return_state, (UINT64_C(0x1190)));
                                     vs_drive(&self->s_stack_ctrl, 1);
                                     p_immediate8_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_mem_data_ctrl);
                                     vs_drive(&self->s_next_state, (UINT64_C(0x1001)));
@@ -13961,7 +13949,7 @@ static void cpu_63f09_p64(void *inst)
                                 case UINT64_C(0x0):
                                 {
                                     p_direct8_0(self, &self->s_pc_ctrl, &self->s_addr_ctrl, &self->s_ea_ctrl);
-                                    vs_drive(&self->s_return_state, (UINT64_C(0x920)));
+                                    vs_drive(&self->s_return_state, (UINT64_C(0x820)));
                                     vs_drive(&self->s_stack_ctrl, 1);
                                     vs_drive(&self->s_next_state, (UINT64_C(0x801)));
                                     break;
@@ -16255,7 +16243,7 @@ static void cpu_63f09_p64(void *inst)
                                 case UINT64_C(0x8):
                                 {
                                     vs_drive(&self->s_addr_ctrl, (UINT64_C(0x80)));
-                                    vs_drive(&self->s_fp_stack_ctrl, 30);
+                                    vs_drive(&self->s_fp_stack_ctrl, 29);
                                     vs_drive(&self->s_left_ctrl, (UINT64_C(0x800)));
                                     vs_drive(&self->s_right_ctrl, (UINT64_C(0x2)));
                                     vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
@@ -16269,7 +16257,7 @@ static void cpu_63f09_p64(void *inst)
                                 case UINT64_C(0x9):
                                 {
                                     vs_drive(&self->s_addr_ctrl, (UINT64_C(0x20)));
-                                    vs_drive(&self->s_fp_stack_ctrl, 30);
+                                    vs_drive(&self->s_fp_stack_ctrl, 29);
                                     vs_drive(&self->s_left_ctrl, (UINT64_C(0x400)));
                                     vs_drive(&self->s_right_ctrl, (UINT64_C(0x2)));
                                     vs_drive(&self->s_alu_ctrl, (UINT64_C(0x101)));
@@ -26014,18 +26002,18 @@ static void cpu_63f09_p64(void *inst)
                 if ((((self->s_reg_fp_byte.cur >> 7) & 1) == 1))
                 {
                     vs_drive(&self->s_reg_fp_byte_ctrl, 0);
-                    vs_drive(&self->s_fp_stack_ctrl, 31);
+                    vs_drive(&self->s_fp_stack_ctrl, 30);
                     vs_drive(&self->s_counter_ctrl, 2);
                 }
                 else
                 {
                     if ((((self->s_reg_fp_byte.cur >> 0) & 1) == 1))
                     {
-                        vs_drive(&self->s_fp_stack_ctrl, 32);
+                        vs_drive(&self->s_fp_stack_ctrl, 31);
                     }
                     else
                     {
-                        vs_drive(&self->s_fp_stack_ctrl, 31);
+                        vs_drive(&self->s_fp_stack_ctrl, 30);
                     }
                     vs_drive(&self->s_reg_fp_byte_ctrl, 1);
                 }
@@ -26082,18 +26070,18 @@ static void cpu_63f09_p64(void *inst)
                 if ((((self->s_reg_fp_byte.cur >> 7) & 1) == 1))
                 {
                     vs_drive(&self->s_reg_fp_byte_ctrl, 0);
-                    vs_drive(&self->s_fp_stack_ctrl, 31);
+                    vs_drive(&self->s_fp_stack_ctrl, 30);
                     vs_drive(&self->s_counter_ctrl, 2);
                 }
                 else
                 {
                     if ((((self->s_reg_fp_byte.cur >> 0) & 1) == 1))
                     {
-                        vs_drive(&self->s_fp_stack_ctrl, 32);
+                        vs_drive(&self->s_fp_stack_ctrl, 31);
                     }
                     else
                     {
-                        vs_drive(&self->s_fp_stack_ctrl, 31);
+                        vs_drive(&self->s_fp_stack_ctrl, 30);
                     }
                     vs_drive(&self->s_reg_fp_byte_ctrl, 1);
                 }

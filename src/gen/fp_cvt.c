@@ -231,7 +231,14 @@ static void fp_cvt_p2(void *inst)
         self->v2_result = (((uint64_t)(UINT64_C(0x0)) << 32) | vs_w_u64(vs_w_slice(self->v2_mantissa_uint, 0, 32)));
         if ((self->v2_oor_32s == 1))
         {
-            self->v2_result = UINT64_C(0x80000000);
+            if ((((self->v2_sign_cvt == 1) & (self->v2_snan == 0)) & (self->v2_qnan == 0)))
+            {
+                self->v2_result = UINT64_C(0x80000000);
+            }
+            else
+            {
+                self->v2_result = UINT64_C(0x7FFFFFFF);
+            }
             self->v2_flags = UINT64_C(0x10);
         }
     }
@@ -240,7 +247,14 @@ static void fp_cvt_p2(void *inst)
         self->v2_result = (((uint64_t)(UINT64_C(0x0)) << 32) | vs_w_u64(vs_w_slice(self->v2_mantissa_uint, 0, 32)));
         if ((self->v2_oor_32u == 1))
         {
-            self->v2_result = UINT64_C(0xFFFFFFFF);
+            if ((((self->v2_sign_cvt == 1) & (self->v2_snan == 0)) & (self->v2_qnan == 0)))
+            {
+                self->v2_result = UINT64_C(0x0);
+            }
+            else
+            {
+                self->v2_result = UINT64_C(0xFFFFFFFF);
+            }
             self->v2_flags = UINT64_C(0x10);
         }
     }
@@ -249,7 +263,14 @@ static void fp_cvt_p2(void *inst)
         self->v2_result = vs_w_u64(vs_w_slice(self->v2_mantissa_uint, 0, 64));
         if ((self->v2_oor_64s == 1))
         {
-            self->v2_result = UINT64_C(0x8000000000000000);
+            if ((((self->v2_sign_cvt == 1) & (self->v2_snan == 0)) & (self->v2_qnan == 0)))
+            {
+                self->v2_result = UINT64_C(0x8000000000000000);
+            }
+            else
+            {
+                self->v2_result = UINT64_C(0x7FFFFFFFFFFFFFFF);
+            }
             self->v2_flags = UINT64_C(0x10);
         }
     }
@@ -258,7 +279,14 @@ static void fp_cvt_p2(void *inst)
         self->v2_result = vs_w_u64(vs_w_slice(self->v2_mantissa_uint, 0, 64));
         if ((self->v2_oor_64u == 1))
         {
-            self->v2_result = UINT64_C(0xFFFFFFFFFFFFFFFF);
+            if ((((self->v2_sign_cvt == 1) & (self->v2_snan == 0)) & (self->v2_qnan == 0)))
+            {
+                self->v2_result = UINT64_C(0x0);
+            }
+            else
+            {
+                self->v2_result = UINT64_C(0xFFFFFFFFFFFFFFFF);
+            }
             self->v2_flags = UINT64_C(0x10);
         }
     }
