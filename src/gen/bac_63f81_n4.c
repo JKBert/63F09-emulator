@@ -151,6 +151,13 @@ struct bac_63f81_n4_g6
 };
 typedef struct bac_63f81_n4_g6 bac_63f81_n4_g6;
 
+struct bac_63f81_n4_g7
+{
+    struct bac_63f81_n4_g1 *up;
+    int64_t gp_k;
+};
+typedef struct bac_63f81_n4_g7 bac_63f81_n4_g7;
+
 struct bac_63f81_n4_g1
 {
     struct bac_63f81_n4 *up;
@@ -200,6 +207,7 @@ struct bac_63f81_n4_g1
     vs_sig s_reg_configuration;
     vs_sig s_reg_current_cpu;
     vs_sig s_signal_last_active_cpu;
+    vs_sig s_bus_master_is;
     interrupted_cpu_type_s s_signal_last_interrupted_cpu;
     commutation_matrix_3_s s_ccs_a;
     std_logic_matrix_25_s s_ccs_rw_n;
@@ -209,8 +217,10 @@ struct bac_63f81_n4_g1
     int64_t n_g_core_0;
     struct bac_63f81_n4_g5 *g_eirq_switch_matrix_1;
     int64_t n_g_eirq_switch_matrix_1;
-    struct bac_63f81_n4_g6 *g_remote_cs_2;
-    int64_t n_g_remote_cs_2;
+    struct bac_63f81_n4_g6 *g_bus_master_bits_2;
+    int64_t n_g_bus_master_bits_2;
+    struct bac_63f81_n4_g7 *g_remote_cs_3;
+    int64_t n_g_remote_cs_3;
     int64_t v33_current_cpu;
     uint64_t v34_ok;
     uint64_t v36_h;
@@ -551,7 +561,7 @@ static void bac_63f81_n4_g2_create(vs_kernel *k, bac_63f81_n4_g2 *self, const ch
     vs_tie_fields(&self->x21_tie_ccs_bus_granted_out, 0, &self->up->s_ccs_bus_granted.a[(self->gp_i) - 0], ((0) + ((3 - (self->gp_i)))) % 64, 1);
     vs_register_signal(k, &self->x22_tie_mmu_cs, (uint64_t) (0));
     vs_name(k, &self->x22_tie_mmu_cs, path, "tie_mmu_cs", 1);
-    vs_tie_fields(&(*self->up->up->p_mmu_cs), ((0) + (((self->gp_i) - 0))) % 64, &self->x22_tie_mmu_cs, 0, 1);
+    vs_tie_fields(&self->up->s_bus_master_is, ((0) + ((3 - (self->gp_i)))) % 64, &self->x22_tie_mmu_cs, 0, 1);
     vs_register_signal(k, &self->x23_tie_mmu_mrdy, (uint64_t) (0));
     vs_name(k, &self->x23_tie_mmu_mrdy, path, "tie_mmu_mrdy", 1);
     vs_tie_fields(&self->x23_tie_mmu_mrdy, 0, &self->up->s_core_mmu_mrdy, ((0) + ((3 - (self->gp_i)))) % 64, 1);
@@ -1166,6 +1176,30 @@ static void bac_63f81_n4_g5_create(vs_kernel *k, bac_63f81_n4_g5 *self, const ch
 static void bac_63f81_n4_g6_p0(void *inst)
 {
     bac_63f81_n4_g6 *self = inst;
+    if (((int64_t) self->up->s_signal_last_active_cpu.cur == self->gp_k))
+    {
+        vs_drive_bits(&self->up->s_bus_master_is, (3 - (self->gp_k)), (UINT64_C(1)), 1);
+    }
+    else
+    {
+        vs_drive_bits(&self->up->s_bus_master_is, (3 - (self->gp_k)), (UINT64_C(1)), 0);
+    }
+}
+
+static void bac_63f81_n4_g6_create(vs_kernel *k, bac_63f81_n4_g6 *self, const char *path)
+{
+
+    {
+        vs_sig *sens[1];
+        size_t n = 0;
+        sens[n++] = &self->up->s_signal_last_active_cpu;
+        vs_register_process(k, bac_63f81_n4_g6_p0, self, sens, n);
+    }
+}
+
+static void bac_63f81_n4_g7_p0(void *inst)
+{
+    bac_63f81_n4_g7 *self = inst;
     if ((((((self->up->s_a_bus.cur >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFD)) & (((self->up->s_a_bus.cur >> (12)) & UINT64_C(0xF)) == ((uint64_t)self->gp_k & UINT64_C(0xF)))) & ((int64_t) self->up->s_signal_last_active_cpu.cur != self->gp_k)))
     {
         vs_drive_bits(&self->up->s_core_rem_cs, (3 - (self->gp_k)), (UINT64_C(1)), 1);
@@ -1176,7 +1210,7 @@ static void bac_63f81_n4_g6_p0(void *inst)
     }
 }
 
-static void bac_63f81_n4_g6_create(vs_kernel *k, bac_63f81_n4_g6 *self, const char *path)
+static void bac_63f81_n4_g7_create(vs_kernel *k, bac_63f81_n4_g7 *self, const char *path)
 {
 
     {
@@ -1189,23 +1223,23 @@ static void bac_63f81_n4_g6_create(vs_kernel *k, bac_63f81_n4_g6 *self, const ch
         masks[n] = UINT64_C(0xF000);
         sens[n++] = &self->up->s_a_bus;
         sens[n++] = &self->up->s_signal_last_active_cpu;
-        vs_register_process_masked(k, bac_63f81_n4_g6_p0, self, sens, masks, n);
+        vs_register_process_masked(k, bac_63f81_n4_g7_p0, self, sens, masks, n);
     }
 }
 
 static int64_t f_interrupted_cpu_2(bac_63f81_n4_g1 *self, uint64_t a_reg_configuration, int64_t a_signal_last_interrupted_cpu)
 {
-    int64_t v_cpu_id_70288 = INT64_C(0);
+    int64_t v_cpu_id_34928 = INT64_C(0);
     for (int64_t i_3 = INT64_C(1); i_3 <= self->up->g_ncpus; i_3++)
     {
-        v_cpu_id_70288 = vs_mod((a_signal_last_interrupted_cpu + i_3), self->up->g_ncpus);
-        if ((((a_reg_configuration >> ((v_cpu_id_70288) - 0)) & 1) == 1))
+        v_cpu_id_34928 = vs_mod((a_signal_last_interrupted_cpu + i_3), self->up->g_ncpus);
+        if ((((a_reg_configuration >> ((v_cpu_id_34928) - 0)) & 1) == 1))
         {
             goto loop_exit_4;
         }
     }
     loop_exit_4:;
-    return v_cpu_id_70288;
+    return v_cpu_id_34928;
 }
 
 static void bac_63f81_n4_g1_p0(void *inst)
@@ -2061,6 +2095,8 @@ static void bac_63f81_n4_g1_create(vs_kernel *k, bac_63f81_n4_g1 *self, const ch
     vs_name(k, &self->s_reg_current_cpu, path, "reg_current_cpu", 8);
     vs_register_signal(k, &self->s_signal_last_active_cpu, (uint64_t) (INT64_C(0)));
     vs_name(k, &self->s_signal_last_active_cpu, path, "signal_last_active_cpu", 64);
+    vs_register_signal(k, &self->s_bus_master_is, (uint64_t) (0));
+    vs_name(k, &self->s_bus_master_is, path, "bus_master_is", 4);
     interrupted_cpu_type_register(k, &self->s_signal_last_interrupted_cpu, interrupted_cpu_type_zero());
     commutation_matrix_3_register(k, &self->s_ccs_a, commutation_matrix_3_zero());
     std_logic_matrix_25_register(k, &self->s_ccs_rw_n, std_logic_matrix_25_zero());
@@ -2104,17 +2140,34 @@ static void bac_63f81_n4_g1_create(vs_kernel *k, bac_63f81_n4_g1 *self, const ch
     {
         int64_t l = INT64_C(0), r = (self->up->g_ncpus - INT64_C(1)), i, n;
         n = r >= l ? r - l + 1 : 0;
-        self->n_g_remote_cs_2 = n;
-        self->g_remote_cs_2 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_remote_cs_2));
+        self->n_g_bus_master_bits_2 = n;
+        self->g_bus_master_bits_2 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_bus_master_bits_2));
         for (i = 0; i < n; i++)
         {
             char name[64];
-            struct bac_63f81_n4_g6 *b = &self->g_remote_cs_2[i];
+            struct bac_63f81_n4_g6 *b = &self->g_bus_master_bits_2[i];
+            int64_t v = l + i;
+            snprintf(name, sizeof(name), "bus_master_bits(%lld)", (long long) v);
+            b->up = self;
+            b->gp_k = v;
+            bac_63f81_n4_g6_create(k, b, vs_join(k, path, name));
+        }
+    }
+
+    {
+        int64_t l = INT64_C(0), r = (self->up->g_ncpus - INT64_C(1)), i, n;
+        n = r >= l ? r - l + 1 : 0;
+        self->n_g_remote_cs_3 = n;
+        self->g_remote_cs_3 = vs_alloc(k, (size_t) (n > 0 ? n : 1) * sizeof(*self->g_remote_cs_3));
+        for (i = 0; i < n; i++)
+        {
+            char name[64];
+            struct bac_63f81_n4_g7 *b = &self->g_remote_cs_3[i];
             int64_t v = l + i;
             snprintf(name, sizeof(name), "remote_cs(%lld)", (long long) v);
             b->up = self;
             b->gp_k = v;
-            bac_63f81_n4_g6_create(k, b, vs_join(k, path, name));
+            bac_63f81_n4_g7_create(k, b, vs_join(k, path, name));
         }
     }
     self->v33_current_cpu = INT64_C(0);

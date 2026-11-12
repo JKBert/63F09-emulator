@@ -44,7 +44,7 @@ struct bac_63f81_n1_g1
     vs_sig x9_open_ccs_address_out;
     vs_sig x10_open_ccs_address_rw_n_out;
     vs_sig x11_open_ccs_bus_granted_out;
-    vs_sig x12_tie_mmu_cs;
+    vs_sig x12_imp_mmu_cs;
     vs_sig x13_open_run_req;
     vs_sig x14_open_e_v;
     vs_sig x15_open_rem_cs;
@@ -349,9 +349,8 @@ static void bac_63f81_n1_g1_create(vs_kernel *k, bac_63f81_n1_g1 *self, const ch
     vs_name(k, &self->x10_open_ccs_address_rw_n_out, path, "open_ccs_address_rw_n_out", 1);
     vs_register_signal(k, &self->x11_open_ccs_bus_granted_out, (uint64_t) (0));
     vs_name(k, &self->x11_open_ccs_bus_granted_out, path, "open_ccs_bus_granted_out", 1);
-    vs_register_signal(k, &self->x12_tie_mmu_cs, (uint64_t) (0));
-    vs_name(k, &self->x12_tie_mmu_cs, path, "tie_mmu_cs", 1);
-    vs_tie_fields(&(*self->up->p_mmu_cs), 0, &self->x12_tie_mmu_cs, 0, 1);
+    vs_register_signal(k, &self->x12_imp_mmu_cs, (uint64_t) (1));
+    vs_name(k, &self->x12_imp_mmu_cs, path, "imp_mmu_cs", 1);
     vs_register_signal(k, &self->x13_open_run_req, (uint64_t) (0));
     vs_name(k, &self->x13_open_run_req, path, "open_run_req", 1);
     vs_register_signal(k, &self->x14_open_e_v, (uint64_t) (0));
@@ -417,7 +416,7 @@ static void bac_63f81_n1_g1_create(vs_kernel *k, bac_63f81_n1_g1 *self, const ch
     vs_sig *p32 = &self->x9_open_ccs_address_out;
     vs_sig *p33 = &self->x10_open_ccs_address_rw_n_out;
     vs_sig *p34 = &self->x11_open_ccs_bus_granted_out;
-    vs_sig *p35 = &self->x12_tie_mmu_cs;
+    vs_sig *p35 = &self->x12_imp_mmu_cs;
     vs_sig *p36 = self->up->p_mmu_mrdy;
     vs_sig *p37 = &self->x13_open_run_req;
     vs_sig *p38 = &self->x14_open_e_v;
