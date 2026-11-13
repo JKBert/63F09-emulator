@@ -604,7 +604,7 @@ static void acia_63f50_p32(void *inst)
             {
                 vs_drive(&self->s_rx_shift_ctrl, 2);
             }
-            if ((self->s_rx_parity.cur == (self->s_rxdat.cur ^ ((self->s_cr_s.cur >> 2) & 1))))
+            if ((((self->s_rx_parity.cur ^ (((self->s_cr_s.cur >> 4) & 1) & self->s_rxdat.cur)) ^ ((self->s_cr_s.cur >> 2) & 1)) == 1))
             {
                 vs_drive(&self->s_status_per_set, 1);
             }
@@ -923,11 +923,11 @@ static void acia_63f50_p41(void *inst)
         {
             if ((((self->s_cr_s.cur >> 2) & 1) == 0))
             {
-                vs_drive(&self->s_txout, ((self->s_tx_parity.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                vs_drive(&self->s_txout, self->s_tx_parity.cur);
             }
             else
             {
-                vs_drive(&self->s_txout, self->s_tx_parity.cur);
+                vs_drive(&self->s_txout, ((self->s_tx_parity.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
             }
             vs_drive(&self->s_tx_shift_ctrl, 3);
             if ((((self->s_cr_s.cur >> 3) & 1) == 0))
