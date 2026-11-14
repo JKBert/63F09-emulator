@@ -11,7 +11,13 @@
 static void wdg_63f46_p0(void *inst)
 {
     wdg_63f46 *self = inst;
-    if (((self->s_counter.cur == UINT64_C(0x0)) & (((self->s_status_register.cur >> 0) & 1) == 1)))
+    vs_drive(&(*self->p_mrdy), 1);
+}
+
+static void wdg_63f46_p1(void *inst)
+{
+    wdg_63f46 *self = inst;
+    if (((int64_t) self->s_pulse.cur != INT64_C(0)))
     {
         vs_drive(&(*self->p_wdg_reset_n), 0);
     }
@@ -21,28 +27,38 @@ static void wdg_63f46_p0(void *inst)
     }
 }
 
-static void wdg_63f46_p1(void *inst)
-{
-    wdg_63f46 *self = inst;
-    vs_drive(&(*self->p_mrdy), 1);
-}
-
 static void wdg_63f46_p2(void *inst)
 {
     wdg_63f46 *self = inst;
     if (((*self->p_rst_n).cur == 0))
     {
         vs_drive(&self->s_subcounter, (uint64_t)(INT64_C(0)));
+        vs_drive(&self->s_counter, UINT64_C(0x0));
+        vs_drive(&self->s_pulse, (uint64_t)(INT64_C(0)));
+        vs_drive(&self->s_reload_s1, 0);
+        vs_drive(&self->s_reload_s2, 0);
+        vs_drive(&self->s_reload_old, 0);
+        vs_drive(&self->s_active_s1, 0);
+        vs_drive(&self->s_active_f, 0);
+        vs_drive(&self->s_div_s1, UINT64_C(0x0));
+        vs_drive(&self->s_div_f, UINT64_C(0x0));
     }
     else if (vs_falling(&(*self->p_sysclk)))
     {
+        vs_drive(&self->s_reload_s1, self->s_reload_tog.cur);
+        vs_drive(&self->s_reload_s2, self->s_reload_s1.cur);
+        vs_drive(&self->s_reload_old, self->s_reload_s2.cur);
+        vs_drive(&self->s_active_s1, ((self->s_status_register.cur >> 0) & 1));
+        vs_drive(&self->s_active_f, self->s_active_s1.cur);
+        vs_drive(&self->s_div_s1, ((self->s_status_register.cur >> (6)) & UINT64_C(0x3)));
+        vs_drive(&self->s_div_f, self->s_div_s1.cur);
         if (((int64_t) self->s_subcounter.cur != INT64_C(0)))
         {
             vs_drive(&self->s_subcounter, (uint64_t)(((int64_t) self->s_subcounter.cur - INT64_C(1))));
         }
         else
         {
-            switch (((self->s_status_register.cur >> (6)) & UINT64_C(0x3)))
+            switch (self->s_div_f.cur)
             {
                 case UINT64_C(0x0):
                 {
@@ -66,6 +82,33 @@ static void wdg_63f46_p2(void *inst)
                 }
             }
         }
+        if ((self->s_active_f.cur == 0))
+        {
+            vs_drive(&self->s_counter, self->s_default_value.cur);
+        }
+        else if ((self->s_reload_s2.cur != self->s_reload_old.cur))
+        {
+            vs_drive(&self->s_counter, self->s_default_value.cur);
+        }
+        else if (((int64_t) self->s_pulse.cur != INT64_C(0)))
+        {
+            vs_drive(&self->s_counter, self->s_default_value.cur);
+        }
+        else if ((self->s_counter.cur != UINT64_C(0x0)))
+        {
+            if (((int64_t) self->s_subcounter.cur == INT64_C(0)))
+            {
+                vs_drive(&self->s_counter, ((self->s_counter.cur - UINT64_C(0x1)) & UINT64_C(0xFFFFFFFF)));
+            }
+        }
+        if (((int64_t) self->s_pulse.cur != INT64_C(0)))
+        {
+            vs_drive(&self->s_pulse, (uint64_t)(((int64_t) self->s_pulse.cur - INT64_C(1))));
+        }
+        else if ((((self->s_active_f.cur == 1) & (self->s_counter.cur == UINT64_C(0x0))) & (self->s_reload_s2.cur == self->s_reload_old.cur)))
+        {
+            vs_drive(&self->s_pulse, (uint64_t)((INT64_C(1023))));
+        }
     }
 }
 
@@ -74,24 +117,9 @@ static void wdg_63f46_p3(void *inst)
     wdg_63f46 *self = inst;
     if (((*self->p_rst_n).cur == 0))
     {
-        vs_drive(&self->s_counter, UINT64_C(0x0));
-    }
-    else if (vs_falling(&(*self->p_sysclk)))
-    {
-        if ((self->s_counter.cur != UINT64_C(0x0)))
-        {
-            vs_drive(&self->s_counter, ((self->s_counter.cur - UINT64_C(0x1)) & UINT64_C(0xFFFFFFFF)));
-        }
-    }
-}
-
-static void wdg_63f46_p4(void *inst)
-{
-    wdg_63f46 *self = inst;
-    if (((*self->p_rst_n).cur == 0))
-    {
         vs_drive(&self->s_default_value, UINT64_C(0x0));
         vs_drive(&self->s_status_register, UINT64_C(0x0));
+        vs_drive(&self->s_reload_tog, 0);
         vs_drive(&(*self->p_d_out), UINT64_C(0x0));
     }
     else
@@ -123,11 +151,16 @@ static void wdg_63f46_p4(void *inst)
                         case UINT64_C(0x3):
                         {
                             vs_drive_bits(&self->s_default_value, 0, UINT64_C(0xFF), (*self->p_d_in).cur);
+                            vs_drive(&self->s_reload_tog, ((self->s_reload_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
                             break;
                         }
                         case UINT64_C(0x4):
                         {
                             vs_drive(&self->s_status_register, (*self->p_d_in).cur);
+                            if (((((*self->p_d_in).cur >> 0) & 1) == 1))
+                            {
+                                vs_drive(&self->s_reload_tog, ((self->s_reload_tog.cur ^ UINT64_C(0x1)) & UINT64_C(0x1)));
+                            }
                             break;
                         }
                         default:
@@ -201,20 +234,34 @@ void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e
     vs_name(k, &self->s_counter, path, "counter", 32);
     vs_register_signal(k, &self->s_subcounter, (uint64_t) (INT64_C(0)));
     vs_name(k, &self->s_subcounter, path, "subcounter", 64);
+    vs_register_signal(k, &self->s_pulse, (uint64_t) (INT64_C(0)));
+    vs_name(k, &self->s_pulse, path, "pulse", 64);
     vs_register_signal(k, &self->s_status_register, (uint64_t) (0));
     vs_name(k, &self->s_status_register, path, "status_register", 8);
+    vs_register_signal(k, &self->s_reload_tog, (uint64_t) (0));
+    vs_name(k, &self->s_reload_tog, path, "reload_tog", 1);
+    vs_register_signal(k, &self->s_reload_s1, (uint64_t) (0));
+    vs_name(k, &self->s_reload_s1, path, "reload_s1", 1);
+    vs_register_signal(k, &self->s_reload_s2, (uint64_t) (0));
+    vs_name(k, &self->s_reload_s2, path, "reload_s2", 1);
+    vs_register_signal(k, &self->s_reload_old, (uint64_t) (0));
+    vs_name(k, &self->s_reload_old, path, "reload_old", 1);
+    vs_register_signal(k, &self->s_active_s1, (uint64_t) (0));
+    vs_name(k, &self->s_active_s1, path, "active_s1", 1);
+    vs_register_signal(k, &self->s_active_f, (uint64_t) (0));
+    vs_name(k, &self->s_active_f, path, "active_f", 1);
+    vs_register_signal(k, &self->s_div_s1, (uint64_t) (0));
+    vs_name(k, &self->s_div_s1, path, "div_s1", 2);
+    vs_register_signal(k, &self->s_div_f, (uint64_t) (0));
+    vs_name(k, &self->s_div_f, path, "div_f", 2);
+    vs_register_process(k, wdg_63f46_p0, self, NULL, 0);
 
     {
-        vs_sig *sens[2];
-        uint64_t masks[2];
-        { size_t j; for (j = 0; j < 2; j++) { masks[j] = UINT64_MAX; } }
+        vs_sig *sens[1];
         size_t n = 0;
-        sens[n++] = &self->s_counter;
-        masks[n] = UINT64_C(0x1);
-        sens[n++] = &self->s_status_register;
-        vs_register_process_masked(k, wdg_63f46_p0, self, sens, masks, n);
+        sens[n++] = &self->s_pulse;
+        vs_register_process(k, wdg_63f46_p1, self, sens, n);
     }
-    vs_register_process(k, wdg_63f46_p1, self, NULL, 0);
 
     {
         vs_sig *sens[2];
@@ -228,17 +275,6 @@ void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e
     }
 
     {
-        vs_sig *sens[2];
-        uint8_t edges[2];
-        memset(edges, 0, sizeof(edges));
-        size_t n = 0;
-        sens[n++] = &(*self->p_rst_n);
-        edges[n] = 2;
-        sens[n++] = &(*self->p_sysclk);
-        vs_register_process_edges(k, wdg_63f46_p3, self, sens, NULL, edges, n);
-    }
-
-    {
         vs_sig *sens[7];
         size_t n = 0;
         sens[n++] = &(*self->p_e);
@@ -248,7 +284,7 @@ void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e
         sens[n++] = &(*self->p_rw_n);
         sens[n++] = &self->s_counter;
         sens[n++] = &self->s_status_register;
-        vs_register_process(k, wdg_63f46_p4, self, sens, n);
+        vs_register_process(k, wdg_63f46_p3, self, sens, n);
     }
 }
 

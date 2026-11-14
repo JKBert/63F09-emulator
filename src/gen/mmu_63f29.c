@@ -1841,14 +1841,14 @@ static void mmu_63f29_g33_create(vs_kernel *k, mmu_63f29_g33 *self, const char *
 
 static int64_t f_log2i_0(mmu_63f29_g2 *self, int64_t a_n)
 {
-    int64_t v_r_37392 = INT64_C(0);
-    int64_t v_v_37456 = INT64_C(1);
-    while ((v_v_37456 < a_n))
+    int64_t v_r_27120 = INT64_C(0);
+    int64_t v_v_27184 = INT64_C(1);
+    while ((v_v_27184 < a_n))
     {
-        v_v_37456 = (v_v_37456 * INT64_C(2));
-        v_r_37392 = (v_r_37392 + INT64_C(1));
+        v_v_27184 = (v_v_27184 * INT64_C(2));
+        v_r_27120 = (v_r_27120 + INT64_C(1));
     }
-    return v_r_37392;
+    return v_r_27120;
 }
 
 static void mmu_63f29_g2_p0(void *inst)

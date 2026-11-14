@@ -1800,8 +1800,8 @@ static void dmc_63f41_n6_g7_create(vs_kernel *k, dmc_63f41_n6_g7 *self, const ch
 
 static int64_t f_mrdy_source_5(dmc_63f41_n6_g0 *self, uint64_t a_ad)
 {
-    uint64_t v_low_11536 = 0;
-    v_low_11536 = (a_ad & UINT64_C(0xFFF));
+    uint64_t v_low_4656 = 0;
+    v_low_4656 = (a_ad & UINT64_C(0xFFF));
     if ((((a_ad >> (16)) & UINT64_C(0xFFFFF)) == UINT64_C(0xFFFFF)))
     {
         return INT64_C(1);
@@ -1812,7 +1812,7 @@ static int64_t f_mrdy_source_5(dmc_63f41_n6_g0 *self, uint64_t a_ad)
         {
             case UINT64_C(0xF):
             {
-                if ((v_low_11536 <= (uint64_t)(INT64_C(9))))
+                if ((v_low_4656 <= (uint64_t)(INT64_C(9))))
                 {
                     return INT64_C(0);
                 }
@@ -1824,7 +1824,7 @@ static int64_t f_mrdy_source_5(dmc_63f41_n6_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xE):
             {
-                if ((v_low_11536 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_4656 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -1836,7 +1836,7 @@ static int64_t f_mrdy_source_5(dmc_63f41_n6_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xD):
             {
-                if ((v_low_11536 <= (uint64_t)(INT64_C(15))))
+                if ((v_low_4656 <= (uint64_t)(INT64_C(15))))
                 {
                     return INT64_C(0);
                 }
@@ -1848,7 +1848,7 @@ static int64_t f_mrdy_source_5(dmc_63f41_n6_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xC):
             {
-                if ((v_low_11536 <= (uint64_t)(INT64_C(3))))
+                if ((v_low_4656 <= (uint64_t)(INT64_C(3))))
                 {
                     return INT64_C(0);
                 }
@@ -1860,7 +1860,7 @@ static int64_t f_mrdy_source_5(dmc_63f41_n6_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xB):
             {
-                if ((v_low_11536 <= (uint64_t)(INT64_C(7))))
+                if ((v_low_4656 <= (uint64_t)(INT64_C(7))))
                 {
                     return INT64_C(0);
                 }
@@ -1872,7 +1872,7 @@ static int64_t f_mrdy_source_5(dmc_63f41_n6_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0xA):
             {
-                if ((v_low_11536 <= (uint64_t)(INT64_C(1))))
+                if ((v_low_4656 <= (uint64_t)(INT64_C(1))))
                 {
                     return INT64_C(0);
                 }
@@ -1884,7 +1884,7 @@ static int64_t f_mrdy_source_5(dmc_63f41_n6_g0 *self, uint64_t a_ad)
             }
             case UINT64_C(0x9):
             {
-                if ((v_low_11536 <= (uint64_t)(INT64_C(4))))
+                if ((v_low_4656 <= (uint64_t)(INT64_C(4))))
                 {
                     return INT64_C(0);
                 }

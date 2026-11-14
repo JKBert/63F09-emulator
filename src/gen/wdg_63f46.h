@@ -24,7 +24,16 @@ typedef struct wdg_63f46
     vs_sig s_default_value;
     vs_sig s_counter;
     vs_sig s_subcounter;
+    vs_sig s_pulse;
     vs_sig s_status_register;
+    vs_sig s_reload_tog;
+    vs_sig s_reload_s1;
+    vs_sig s_reload_s2;
+    vs_sig s_reload_old;
+    vs_sig s_active_s1;
+    vs_sig s_active_f;
+    vs_sig s_div_s1;
+    vs_sig s_div_f;
 } wdg_63f46;
 
 void wdg_63f46_create(vs_kernel *k, wdg_63f46 *self, const char *path, vs_sig *e, vs_sig *sysclk, vs_sig *rst_n, vs_sig *cs, vs_sig *mrdy, vs_sig *addr, vs_sig *d_in, vs_sig *d_out, vs_sig *rw_n, vs_sig *wdg_reset_n);
